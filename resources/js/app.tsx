@@ -1,6 +1,6 @@
 import '../css/app.css';
 
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, type PageProps } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
@@ -11,12 +11,12 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) =>
-        resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')).then((module: any) => {
-            const Page = module.default;
-            const Wrapped = (pageProps: any) => (
+        resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')).then((module: unknown) => {
+            const Page = (module as { default: React.ComponentType<PageProps> }).default;
+            const Wrapped = (pageProps: PageProps) => (
                 <AnimatePresence mode="wait">
                     <motion.div
-                        key={(pageProps as any).ziggy?.location || location.pathname}
+                        key={(pageProps as Record<string, unknown>).ziggy?.location || location.pathname}
                         initial={{ opacity: 0, y: 4, scale: 0.995, filter: 'blur(8px)' }}
                         animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
                         exit={{ opacity: 0, y: -4, scale: 0.995, filter: 'blur(8px)' }}

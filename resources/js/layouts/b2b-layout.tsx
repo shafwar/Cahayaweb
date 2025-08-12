@@ -53,7 +53,17 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
     );
 }
 
-function B2BLink({ href, children, icon: Icon, target }: { href: string; children: ReactNode; icon?: any; target?: string }) {
+function B2BLink({
+    href,
+    children,
+    icon: Icon,
+    target,
+}: {
+    href: string;
+    children: ReactNode;
+    icon?: React.ComponentType<{ className?: string }>;
+    target?: string;
+}) {
     return (
         <motion.a href={href} target={target} className="relative font-medium tracking-wide transition-colors hover:text-accent">
             <span className="inline-flex items-center gap-1.5">
@@ -66,7 +76,7 @@ function B2BLink({ href, children, icon: Icon, target }: { href: string; childre
 
 function B2BBreadcrumbBar() {
     const page = usePage();
-    const location = (page.props as any).ziggy?.location || (typeof window !== 'undefined' ? window.location.href : '');
+    const location = (page.props as Record<string, unknown>).ziggy?.location || (typeof window !== 'undefined' ? window.location.href : '');
     const path = useMemo(() => {
         try {
             const url = new URL(location);

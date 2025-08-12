@@ -1,8 +1,7 @@
 import PublicLayout from '@/layouts/public-layout';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
 export default function PackageShow({ slug }: { slug: string }) {
-    const { url } = usePage();
     return (
         <PublicLayout>
             <Head title="Package Detail" />

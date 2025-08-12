@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export function RippleButton({ className, children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
