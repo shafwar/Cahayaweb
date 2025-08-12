@@ -1,0 +1,179 @@
+@import 'tailwindcss';
+
+@plugin 'tailwindcss-animate';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+    --font-sans:
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+    /* Cahaya Anbiya mood board mapping */
+    /* Purples */
+    /* #2B002D, #30082C, #581A51, #821A65 */
+    /* Gold */
+    /* #BC8E2E */
+    /* Grays */
+    /* #808080, #B1B0AE */
+
+    --background: #ffffff;
+    --foreground: #1b1b18;
+    --card: #ffffff;
+    --card-foreground: #1b1b18;
+    --popover: #ffffff;
+    --popover-foreground: #1b1b18;
+
+    --primary: #2b002d; /* brand primary purple */
+    --primary-foreground: #ffffff;
+
+    --secondary: #581a51; /* complementary purple */
+    --secondary-foreground: #ffffff;
+
+    --muted: #f6f5f7; /* soft surface using light gray */
+    --muted-foreground: #2b002d;
+
+    --accent: #bc8e2e; /* brand gold */
+    --accent-foreground: #2b002d;
+
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+
+    --border: #b1b0ae;
+    --input: #b1b0ae;
+    --ring: #821a65;
+
+    /* Charts can keep defaults near brand palette */
+    --chart-1: #821a65;
+    --chart-2: #bc8e2e;
+    --chart-3: #30082c;
+    --chart-4: #581a51;
+    --chart-5: #808080;
+
+    --radius: 0.625rem;
+
+    --sidebar: #ffffff;
+    --sidebar-foreground: #2b002d;
+    --sidebar-primary: #2b002d;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #f6f5f7;
+    --sidebar-accent-foreground: #2b002d;
+    --sidebar-border: #e6e5ea;
+    --sidebar-ring: #821a65;
+}
+
+.dark {
+    --background: #0e0012; /* deep purple-black */
+    --foreground: #ededec;
+    --card: #0e0012;
+    --card-foreground: #ededec;
+    --popover: #0e0012;
+    --popover-foreground: #ededec;
+    --primary: #bc8e2e; /* make CTAs pop in dark */
+    --primary-foreground: #2b002d;
+    --secondary: #30082c;
+    --secondary-foreground: #ededec;
+    --muted: #1a0b1d;
+    --muted-foreground: #b1b0ae;
+    --accent: #bc8e2e;
+    --accent-foreground: #2b002d;
+    --destructive: #ef4444;
+    --destructive-foreground: #1b1b18;
+    --border: #2a1a2e;
+    --input: #2a1a2e;
+    --ring: #bc8e2e;
+    --chart-1: #bc8e2e;
+    --chart-2: #821a65;
+    --chart-3: #581a51;
+    --chart-4: #f0d28c;
+    --chart-5: #808080;
+    --sidebar: #140019;
+    --sidebar-foreground: #ededec;
+    --sidebar-primary: #bc8e2e;
+    --sidebar-primary-foreground: #2b002d;
+    --sidebar-accent: #1a0b1d;
+    --sidebar-accent-foreground: #ededec;
+    --sidebar-border: #2a1a2e;
+    --sidebar-ring: #bc8e2e;
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer utilities {
+    @keyframes ripple {
+        0% {
+            width: 0;
+            height: 0;
+            opacity: 0.6;
+            transform: translate(-50%, -50%);
+        }
+        100% {
+            width: 400px;
+            height: 400px;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+        }
+    }
+    .animate-ripple {
+        animation: ripple 700ms ease-out forwards;
+    }
+}
