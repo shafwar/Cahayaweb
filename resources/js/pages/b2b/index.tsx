@@ -124,32 +124,35 @@ export default function CahayaAnbiyaHero() {
             title: 'Free Consultation - Get Started',
             content: (
                 <div className="space-y-6">
-                    <div className="rounded-lg border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6">
-                        <h3 className="mb-3 font-semibold text-amber-800">🌟 What You'll Get:</h3>
-                        <ul className="space-y-2 text-sm text-amber-700">
-                            <li className="flex items-center gap-2">
-                                <div className="h-2 w-2 rounded-full bg-amber-500"></div>
-                                Personalized pilgrimage planning
-                            </li>
-                            <li className="flex items-center gap-2">
-                                <div className="h-2 w-2 rounded-full bg-amber-500"></div>
-                                Budget optimization guidance
-                            </li>
-                            <li className="flex items-center gap-2">
-                                <div className="h-2 w-2 rounded-full bg-amber-500"></div>
-                                Travel document assistance
-                            </li>
-                            <li className="flex items-center gap-2">
-                                <div className="h-2 w-2 rounded-full bg-amber-500"></div>
-                                Spiritual preparation resources
-                            </li>
-                        </ul>
+                    <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-900/20 to-orange-900/20 p-6">
+                        <div className="mb-4 flex items-center gap-3">
+                            <div className="text-2xl">🌟</div>
+                            <h3 className="text-xl font-bold text-white">What You'll Get:</h3>
+                        </div>
+                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                            <div className="flex items-start gap-3 rounded border border-amber-500/30 bg-amber-500/10 p-3">
+                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400"></div>
+                                <span className="text-sm text-amber-200">Personalized pilgrimage planning</span>
+                            </div>
+                            <div className="flex items-start gap-3 rounded border border-amber-500/30 bg-amber-500/10 p-3">
+                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400"></div>
+                                <span className="text-sm text-amber-200">Budget optimization guidance</span>
+                            </div>
+                            <div className="flex items-start gap-3 rounded border border-amber-500/30 bg-amber-500/10 p-3">
+                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400"></div>
+                                <span className="text-sm text-amber-200">Travel document assistance</span>
+                            </div>
+                            <div className="flex items-start gap-3 rounded border border-amber-500/30 bg-amber-500/10 p-3">
+                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400"></div>
+                                <span className="text-sm text-amber-200">Spiritual preparation resources</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <RippleButton
                             onClick={() => setConsultationStep('whatsapp')}
-                            className="flex items-center gap-3 rounded-lg bg-green-500 p-4 text-white hover:bg-green-600"
+                            className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-green-500 to-green-600 p-4 text-white transition-all duration-300 hover:from-green-600 hover:to-green-700"
                         >
                             <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.487" />
@@ -159,7 +162,7 @@ export default function CahayaAnbiyaHero() {
 
                         <RippleButton
                             onClick={() => setConsultationStep('phone')}
-                            className="flex items-center gap-3 rounded-lg bg-blue-500 p-4 text-white hover:bg-blue-600"
+                            className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white transition-all duration-300 hover:from-blue-600 hover:to-blue-700"
                         >
                             <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
@@ -170,7 +173,7 @@ export default function CahayaAnbiyaHero() {
 
                     <RippleButton
                         onClick={() => setConsultationStep('office')}
-                        className="flex w-full items-center gap-3 rounded-lg bg-gray-100 p-4 text-gray-800 hover:bg-gray-200"
+                        className="flex w-full items-center gap-3 rounded-lg border border-gray-500 bg-gray-700 p-4 text-gray-200 transition-all duration-300 hover:bg-gray-600"
                     >
                         <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
@@ -184,26 +187,34 @@ export default function CahayaAnbiyaHero() {
             title: 'WhatsApp Consultation',
             content: (
                 <div className="space-y-4">
-                    <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                        <h3 className="mb-2 font-semibold text-green-800">📱 Instant WhatsApp Support</h3>
-                        <p className="mb-4 text-sm text-green-700">Get immediate responses from our certified travel consultants</p>
+                    <div className="rounded-xl border border-green-500/30 bg-gradient-to-r from-green-900/20 to-emerald-900/20 p-6">
+                        <div className="mb-4 flex items-center gap-3">
+                            <div className="text-2xl">📱</div>
+                            <h3 className="text-xl font-bold text-white">Instant WhatsApp Support</h3>
+                        </div>
+                        <p className="mb-4 text-sm text-green-200">Get immediate responses from our certified travel consultants</p>
                         <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">Main Consultant:</span>
-                                <span className="text-sm">+62 812-3456-7890</span>
+                            <div className="flex items-center justify-between rounded border border-green-500/30 bg-green-500/10 p-3">
+                                <span className="text-sm font-medium text-green-300">Main Consultant:</span>
+                                <span className="text-sm text-green-200">+62 812-3456-7890</span>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">Hajj Specialist:</span>
-                                <span className="text-sm">+62 812-3456-7891</span>
+                            <div className="flex items-center justify-between rounded border border-green-500/30 bg-green-500/10 p-3">
+                                <span className="text-sm font-medium text-green-300">Hajj Specialist:</span>
+                                <span className="text-sm text-green-200">+62 812-3456-7891</span>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">Available:</span>
-                                <span className="text-sm text-green-600">24/7 Support</span>
+                            <div className="flex items-center justify-between rounded border border-green-500/30 bg-green-500/10 p-3">
+                                <span className="text-sm font-medium text-green-300">Available:</span>
+                                <span className="text-sm font-semibold text-green-400">24/7 Support</span>
                             </div>
                         </div>
                     </div>
-                    <RippleButton className="w-full bg-green-500 text-white hover:bg-green-600">Open WhatsApp Chat</RippleButton>
-                    <button onClick={() => setConsultationStep('start')} className="w-full text-sm text-gray-600 hover:text-gray-800">
+                    <RippleButton className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 p-4 text-white transition-all duration-300 hover:from-green-600 hover:to-green-700">
+                        Open WhatsApp Chat
+                    </RippleButton>
+                    <button
+                        onClick={() => setConsultationStep('start')}
+                        className="w-full text-sm text-gray-400 transition-colors hover:text-gray-200"
+                    >
                         ← Back to consultation options
                     </button>
                 </div>
@@ -213,32 +224,38 @@ export default function CahayaAnbiyaHero() {
             title: 'Phone Consultation',
             content: (
                 <div className="space-y-4">
-                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                        <h3 className="mb-2 font-semibold text-blue-800">📞 Professional Phone Support</h3>
-                        <p className="mb-4 text-sm text-blue-700">Speak directly with our experienced travel advisors</p>
+                    <div className="rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-900/20 to-indigo-900/20 p-6">
+                        <div className="mb-4 flex items-center gap-3">
+                            <div className="text-2xl">📞</div>
+                            <h3 className="text-xl font-bold text-white">Professional Phone Support</h3>
+                        </div>
+                        <p className="mb-4 text-sm text-blue-200">Speak directly with our experienced travel advisors</p>
                         <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">Main Office:</span>
-                                <span className="font-mono text-sm">021-1234-5678</span>
+                            <div className="flex items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-3">
+                                <span className="text-sm font-medium text-blue-300">Main Office:</span>
+                                <span className="font-mono text-sm text-blue-200">021-1234-5678</span>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">Toll-Free:</span>
-                                <span className="font-mono text-sm">0800-1234-5678</span>
+                            <div className="flex items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-3">
+                                <span className="text-sm font-medium text-blue-300">Toll-Free:</span>
+                                <span className="font-mono text-sm text-blue-200">0800-1234-5678</span>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">Business Hours:</span>
-                                <span className="text-sm">Mon-Fri: 08:00-17:00 WIB</span>
+                            <div className="flex items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-3">
+                                <span className="text-sm font-medium text-blue-300">Business Hours:</span>
+                                <span className="text-sm text-blue-200">Mon-Fri: 08:00-17:00 WIB</span>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">Weekend:</span>
-                                <span className="text-sm">Sat: 09:00-15:00 WIB</span>
+                            <div className="flex items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-3">
+                                <span className="text-sm font-medium text-blue-300">Weekend:</span>
+                                <span className="text-sm text-blue-200">Sat: 09:00-15:00 WIB</span>
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-lg bg-amber-50 p-3">
-                        <p className="text-xs text-amber-700">💡 Best time to call: 10:00-12:00 WIB for immediate assistance</p>
+                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+                        <p className="text-xs text-amber-200">💡 Best time to call: 10:00-12:00 WIB for immediate assistance</p>
                     </div>
-                    <button onClick={() => setConsultationStep('start')} className="w-full text-sm text-gray-600 hover:text-gray-800">
+                    <button
+                        onClick={() => setConsultationStep('start')}
+                        className="w-full text-sm text-gray-400 transition-colors hover:text-gray-200"
+                    >
                         ← Back to consultation options
                     </button>
                 </div>
@@ -248,33 +265,41 @@ export default function CahayaAnbiyaHero() {
             title: 'Visit Our Office',
             content: (
                 <div className="space-y-4">
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                        <h3 className="mb-2 font-semibold text-gray-800">🏢 In-Person Consultation</h3>
-                        <p className="mb-4 text-sm text-gray-700">Visit our office for comprehensive face-to-face planning</p>
+                    <div className="rounded-xl border border-gray-500/30 bg-gradient-to-r from-gray-800/50 to-gray-700/50 p-6">
+                        <div className="mb-4 flex items-center gap-3">
+                            <div className="text-2xl">🏢</div>
+                            <h3 className="text-xl font-bold text-white">In-Person Consultation</h3>
+                        </div>
+                        <p className="mb-4 text-sm text-gray-300">Visit our office for comprehensive face-to-face planning</p>
                         <div className="space-y-3">
-                            <div>
-                                <span className="block text-sm font-medium">Address:</span>
-                                <span className="text-sm text-gray-600">
+                            <div className="rounded border border-gray-500/30 bg-gray-700/50 p-3">
+                                <span className="mb-1 block text-sm font-medium text-gray-300">Address:</span>
+                                <span className="text-sm text-gray-200">
                                     Jl. Sudirman No. 123, Jakarta Pusat
                                     <br />
                                     DKI Jakarta 10220, Indonesia
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">Office Hours:</span>
-                                <span className="text-sm">Mon-Fri: 08:00-17:00</span>
+                            <div className="flex items-center justify-between rounded border border-gray-500/30 bg-gray-700/50 p-3">
+                                <span className="text-sm font-medium text-gray-300">Office Hours:</span>
+                                <span className="text-sm text-gray-200">Mon-Fri: 08:00-17:00</span>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">Saturday:</span>
-                                <span className="text-sm">09:00-15:00</span>
+                            <div className="flex items-center justify-between rounded border border-gray-500/30 bg-gray-700/50 p-3">
+                                <span className="text-sm font-medium text-gray-300">Saturday:</span>
+                                <span className="text-sm text-gray-200">09:00-15:00</span>
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-lg bg-amber-50 p-3">
-                        <p className="text-xs text-amber-700">📋 Please bring: ID, passport copy, and any specific requirements</p>
+                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+                        <p className="text-xs text-amber-200">📋 Please bring: ID, passport copy, and any specific requirements</p>
                     </div>
-                    <RippleButton className="w-full bg-amber-500 text-white hover:bg-amber-600">Schedule Appointment</RippleButton>
-                    <button onClick={() => setConsultationStep('start')} className="w-full text-sm text-gray-600 hover:text-gray-800">
+                    <RippleButton className="w-full rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 p-4 text-white transition-all duration-300 hover:from-amber-600 hover:to-amber-700">
+                        Schedule Appointment
+                    </RippleButton>
+                    <button
+                        onClick={() => setConsultationStep('start')}
+                        className="w-full text-sm text-gray-400 transition-colors hover:text-gray-200"
+                    >
                         ← Back to consultation options
                     </button>
                 </div>
