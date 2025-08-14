@@ -208,7 +208,10 @@ export default function CahayaAnbiyaHero() {
                             </div>
                         </div>
                     </div>
-                    <RippleButton className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 p-4 text-white transition-all duration-300 hover:from-green-600 hover:to-green-700">
+                    <RippleButton
+                        onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
+                        className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 p-4 text-white transition-all duration-300 hover:from-green-600 hover:to-green-700"
+                    >
                         Open WhatsApp Chat
                     </RippleButton>
                     <button

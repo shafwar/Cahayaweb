@@ -40,32 +40,12 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                     {/* Clean and Elegant Logo Design - B2B Version */}
                     <motion.div style={{ scale }} className="mr-4 -ml-2 shrink-0 pr-4 md:mr-8 md:-ml-4">
                         <Link href={route('b2b.index')} className="group relative inline-block">
-                            <div className="flex items-baseline">
-                                {/* Cahaya - Elegant Gold */}
-                                <span
-                                    className="text-xl leading-none font-medium tracking-wide md:text-2xl"
-                                    style={{
-                                        fontFamily: '"Playfair Display", "Georgia", serif',
-                                        color: '#D4AF37',
-                                        letterSpacing: '0.02em',
-                                    }}
-                                >
-                                    Cahaya
-                                </span>
-
-                                {/* Anbiya - Clean White */}
-                                <span
-                                    className="ml-1.5 text-xl leading-none font-semibold tracking-wide text-white md:text-2xl"
-                                    style={{
-                                        fontFamily: '"Playfair Display", "Georgia", serif',
-                                        letterSpacing: '0.02em',
-                                    }}
-                                >
-                                    Anbiya
-                                </span>
+                            <div className="flex items-center gap-3">
+                                {/* Cahaya Anbiya Logo */}
+                                <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Logo" className="h-12 w-auto md:h-16" />
 
                                 {/* B2B Label */}
-                                <span className="ml-2 text-sm font-normal text-muted-foreground md:text-base">/ B2B</span>
+                                <span className="text-sm font-normal text-muted-foreground md:text-base">/ B2B</span>
                             </div>
 
                             {/* Subtle hover underline */}

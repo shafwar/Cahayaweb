@@ -40,29 +40,9 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                     {/* Clean and Elegant Logo Design */}
                     <motion.div style={{ scale }} className="mr-4 -ml-2 shrink-0 pr-4 md:mr-8 md:-ml-4">
                         <Link href={route('b2c.home')} className="group relative inline-block">
-                            <div className="flex items-baseline">
-                                {/* Cahaya - Elegant Gold */}
-                                <span
-                                    className="text-xl leading-none font-medium tracking-wide md:text-2xl"
-                                    style={{
-                                        fontFamily: '"Playfair Display", "Georgia", serif',
-                                        color: '#D4AF37',
-                                        letterSpacing: '0.02em',
-                                    }}
-                                >
-                                    Cahaya
-                                </span>
-
-                                {/* Anbiya - Clean White */}
-                                <span
-                                    className="ml-1.5 text-xl leading-none font-semibold tracking-wide text-white md:text-2xl"
-                                    style={{
-                                        fontFamily: '"Playfair Display", "Georgia", serif',
-                                        letterSpacing: '0.02em',
-                                    }}
-                                >
-                                    Anbiya
-                                </span>
+                            <div className="flex items-center">
+                                {/* Cahaya Anbiya Logo */}
+                                <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Logo" className="h-12 w-auto md:h-16" />
                             </div>
 
                             {/* Subtle hover underline */}
