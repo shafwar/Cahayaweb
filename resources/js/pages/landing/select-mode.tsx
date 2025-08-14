@@ -7,13 +7,18 @@ export default function SelectMode() {
     const [showSplash, setShowSplash] = useState(true);
 
     useEffect(() => {
-        // Check if user has visited before
+        // Check if user has visited before and current session
         const visited = localStorage.getItem('cahaya-anbiya-visited');
+        const sessionVisited = sessionStorage.getItem('cahaya-anbiya-session');
 
-        if (visited) {
-            // Return visit - show smooth splash animation
+        if (sessionVisited) {
+            // Already visited in this session - show main content immediately
+            setShowSplash(false);
+        } else if (visited) {
+            // Return visit but new session - show smooth splash animation
             const timer = setTimeout(() => {
                 setShowSplash(false);
+                sessionStorage.setItem('cahaya-anbiya-session', 'true');
             }, 2000);
             return () => clearTimeout(timer);
         } else {
@@ -21,6 +26,7 @@ export default function SelectMode() {
             const timer = setTimeout(() => {
                 setShowSplash(false);
                 localStorage.setItem('cahaya-anbiya-visited', 'true');
+                sessionStorage.setItem('cahaya-anbiya-session', 'true');
             }, 2000);
             return () => clearTimeout(timer);
         }
