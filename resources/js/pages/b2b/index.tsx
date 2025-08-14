@@ -658,86 +658,179 @@ export default function CahayaAnbiyaHero() {
                                 <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full border-2 border-white bg-green-400"></div>
                             </motion.button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-md">
-                            <DialogHeader>
-                                <DialogTitle className="flex items-center gap-2">
-                                    <div className="h-3 w-3 rounded-full bg-green-400"></div>
+                        <DialogContent className="max-w-lg border border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-black sm:max-w-xl">
+                            <DialogHeader className="pb-4">
+                                <DialogTitle className="flex items-center gap-2 text-lg font-bold text-white sm:text-xl">
+                                    <motion.div
+                                        animate={{ scale: [1, 1.2, 1] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                        className="h-4 w-4 rounded-full bg-green-400"
+                                    />
                                     Live Support Center
                                 </DialogTitle>
-                                <DialogDescription>
-                                    Connect with our expert consultants for immediate assistance with your pilgrimage planning
+                                <DialogDescription className="text-sm leading-relaxed text-gray-300 sm:text-base">
+                                    Connect with our expert consultants for immediate assistance
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-4">
-                                <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                                    <div className="mb-2 flex items-center gap-2">
-                                        <svg className="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.487" />
-                                        </svg>
-                                        <span className="font-semibold text-green-800">WhatsApp Live Chat</span>
-                                    </div>
-                                    <p className="mb-3 text-sm text-green-700">Get instant responses from our certified pilgrimage consultants</p>
-                                    <div className="space-y-2 text-sm">
-                                        <div className="flex justify-between">
-                                            <span>Response Time:</span>
-                                            <span className="font-medium text-green-600">&lt; 2 minutes</span>
+
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                {/* WhatsApp Live Chat */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="rounded-lg border border-green-500/30 bg-gradient-to-r from-green-900/20 to-emerald-900/20 p-4"
+                                >
+                                    <div className="mb-3 flex items-center gap-2">
+                                        <motion.div
+                                            animate={{ rotate: [0, 10, -10, 0] }}
+                                            transition={{ duration: 2, repeat: Infinity }}
+                                            className="text-lg"
+                                        >
+                                            📱
+                                        </motion.div>
+                                        <div className="flex-1">
+                                            <h3 className="text-base font-bold text-white">WhatsApp Live Chat</h3>
+                                            <p className="text-sm text-green-200">Get instant responses from our consultants</p>
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span>Available:</span>
-                                            <span className="font-medium text-green-600">24/7</span>
+                                    </div>
+
+                                    <div className="mb-3 space-y-2">
+                                        <div className="flex items-center justify-between rounded border border-green-500/30 bg-green-500/10 p-2">
+                                            <span className="text-sm font-medium text-green-300">Response Time:</span>
+                                            <motion.span
+                                                animate={{ color: ['#10b981', '#34d399', '#10b981'] }}
+                                                transition={{ duration: 1.5, repeat: Infinity }}
+                                                className="text-sm font-bold text-green-400"
+                                            >
+                                                &lt; 2 minutes
+                                            </motion.span>
+                                        </div>
+                                        <div className="flex items-center justify-between rounded border border-green-500/30 bg-green-500/10 p-2">
+                                            <span className="text-sm font-medium text-green-300">Available:</span>
+                                            <motion.span
+                                                animate={{ scale: [1, 1.1, 1] }}
+                                                transition={{ duration: 2, repeat: Infinity }}
+                                                className="text-sm font-bold text-green-400"
+                                            >
+                                                24/7 Support
+                                            </motion.span>
                                         </div>
                                     </div>
-                                    <RippleButton className="mt-3 w-full bg-green-500 text-white hover:bg-green-600">
-                                        Start WhatsApp Chat
+
+                                    <RippleButton
+                                        onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
+                                        className="w-full transform rounded-lg bg-gradient-to-r from-green-500 to-green-600 p-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-105 hover:from-green-600 hover:to-green-700"
+                                    >
+                                        🚀 Start WhatsApp Chat
                                     </RippleButton>
-                                </div>
+                                </motion.div>
 
-                                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                                    <div className="mb-2 flex items-center gap-2">
-                                        <svg className="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-                                        </svg>
-                                        <span className="font-semibold text-blue-800">Direct Phone Line</span>
+                                {/* Direct Phone Line */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="rounded-lg border border-blue-500/30 bg-gradient-to-r from-blue-900/20 to-indigo-900/20 p-4"
+                                >
+                                    <div className="mb-3 flex items-center gap-2">
+                                        <motion.div
+                                            animate={{ rotate: [0, 5, -5, 0] }}
+                                            transition={{ duration: 3, repeat: Infinity }}
+                                            className="text-lg"
+                                        >
+                                            📞
+                                        </motion.div>
+                                        <div className="flex-1">
+                                            <h3 className="text-base font-bold text-white">Direct Phone Line</h3>
+                                            <p className="text-sm text-blue-200">Speak directly with our advisors</p>
+                                        </div>
                                     </div>
-                                    <div className="space-y-2 text-sm">
-                                        <div className="flex justify-between">
-                                            <span>Main Office:</span>
-                                            <span className="font-mono">021-1234-5678</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Toll-Free:</span>
-                                            <span className="font-mono">0800-1234-5678</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Business Hours:</span>
-                                            <span>Mon-Fri: 08:00-17:00</span>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                                    <div className="mb-2 flex items-center gap-2">
-                                        <svg className="h-5 w-5 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                                        </svg>
-                                        <span className="font-semibold text-amber-800">Visit Our Office</span>
+                                    <div className="space-y-2">
+                                        <RippleButton
+                                            onClick={() => window.open('tel:02112345678', '_self')}
+                                            className="flex w-full items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-2 transition-colors hover:bg-blue-500/20"
+                                        >
+                                            <span className="text-sm font-medium text-blue-300">Main Office:</span>
+                                            <span className="font-mono text-sm text-blue-200">021-1234-5678</span>
+                                        </RippleButton>
+                                        <RippleButton
+                                            onClick={() => window.open('tel:080012345678', '_self')}
+                                            className="flex w-full items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-2 transition-colors hover:bg-blue-500/20"
+                                        >
+                                            <span className="text-sm font-medium text-blue-300">Toll-Free:</span>
+                                            <span className="font-mono text-sm text-blue-200">0800-1234-5678</span>
+                                        </RippleButton>
+                                        <div className="flex items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-2">
+                                            <span className="text-sm font-medium text-blue-300">Business Hours:</span>
+                                            <span className="text-sm text-blue-200">Mon-Fri: 08:00-17:00</span>
+                                        </div>
                                     </div>
-                                    <p className="mb-2 text-sm text-amber-700">Comprehensive face-to-face consultation</p>
-                                    <div className="space-y-1 text-sm">
-                                        <p>
-                                            <strong>Address:</strong> Jl. Sudirman No. 123
-                                        </p>
-                                        <p>Jakarta Pusat, DKI Jakarta 10220</p>
-                                        <p>
-                                            <strong>Office Hours:</strong> Mon-Sat: 08:00-17:00
-                                        </p>
-                                    </div>
-                                    <RippleButton className="mt-3 w-full bg-amber-500 text-white hover:bg-amber-600">Schedule Visit</RippleButton>
-                                </div>
+                                </motion.div>
 
-                                <div className="rounded-lg bg-gray-50 p-3 text-center">
-                                    <p className="text-xs text-gray-600">🔒 All consultations are confidential and free of charge</p>
-                                </div>
+                                {/* Visit Our Office - Full Width */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="rounded-lg border border-amber-500/30 bg-gradient-to-r from-amber-900/20 to-orange-900/20 p-4 sm:col-span-2"
+                                >
+                                    <div className="mb-3 flex items-center gap-2">
+                                        <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 2, repeat: Infinity }} className="text-lg">
+                                            🏢
+                                        </motion.div>
+                                        <div className="flex-1">
+                                            <h3 className="text-base font-bold text-white">Visit Our Office</h3>
+                                            <p className="text-sm text-amber-200">Comprehensive face-to-face consultation</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <div className="space-y-2">
+                                            <div className="rounded border border-amber-500/30 bg-amber-500/10 p-3">
+                                                <span className="mb-2 block text-sm font-medium text-amber-300">Address:</span>
+                                                <span className="text-sm text-amber-200">
+                                                    Jl. Sudirman No. 123, Jakarta Pusat
+                                                    <br />
+                                                    DKI Jakarta 10220, Indonesia
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between rounded border border-amber-500/30 bg-amber-500/10 p-3">
+                                                <span className="text-sm font-medium text-amber-300">Office Hours:</span>
+                                                <span className="text-sm text-amber-200">Mon-Sat: 08:00-17:00</span>
+                                            </div>
+                                            <RippleButton
+                                                onClick={() =>
+                                                    window.open('https://maps.google.com/?q=Jl.+Sudirman+No.+123,+Jakarta+Pusat', '_blank')
+                                                }
+                                                className="w-full transform rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 p-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-105 hover:from-amber-600 hover:to-amber-700"
+                                            >
+                                                📅 Schedule Visit
+                                            </RippleButton>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                {/* Live Status Indicator - Full Width */}
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="rounded-lg border border-gray-500/30 bg-gray-800/50 p-3 text-center sm:col-span-2"
+                                >
+                                    <div className="mb-2 flex items-center justify-center gap-2">
+                                        <motion.div
+                                            animate={{ scale: [1, 1.2, 1] }}
+                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                            className="h-3 w-3 rounded-full bg-green-400"
+                                        />
+                                        <span className="text-sm font-semibold text-green-400">Live Support Active</span>
+                                    </div>
+                                    <p className="text-sm text-gray-400">🔒 All consultations are confidential and free of charge</p>
+                                </motion.div>
                             </div>
                         </DialogContent>
                     </Dialog>
