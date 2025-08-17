@@ -238,8 +238,49 @@ export default function Home() {
                     className="xs:mt-7 xs:gap-4 mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-5 md:mt-10 md:gap-6 lg:grid-cols-4 lg:gap-8"
                     variants={staggerContainer}
                 >
-                    {[1, 2, 3, 4].map((i) => (
-                        <Dialog key={i}>
+                    {[
+                        {
+                            id: 1,
+                            title: 'Arab Saudi',
+                            subtitle: 'Spiritual journey to Holy Land',
+                            image: '/arabsaudi.jpg',
+                            duration: '9D8N',
+                            price: 'Rp 28.5M',
+                            location: 'Makkah & Madinah',
+                            highlights: '5-star hotels, direct flights, professional guide',
+                        },
+                        {
+                            id: 2,
+                            title: 'Turkey Heritage',
+                            subtitle: 'Istanbul to Cappadocia',
+                            image: '/TURKEY.jpeg',
+                            duration: '8D7N',
+                            price: 'Rp 15.8M',
+                            location: 'Istanbul, Cappadocia',
+                            highlights: 'Historical sites, hot air balloon, cultural experience',
+                        },
+                        {
+                            id: 3,
+                            title: 'Egypt Wonders',
+                            subtitle: 'Pyramids & Nile River',
+                            image: '/egypt.jpeg',
+                            duration: '8D7N',
+                            price: 'Rp 16.5M',
+                            location: 'Cairo, Luxor, Aswan',
+                            highlights: 'Pyramids of Giza, Nile cruise, ancient temples',
+                        },
+                        {
+                            id: 4,
+                            title: 'Dubai Luxury',
+                            subtitle: 'Modern wonders',
+                            image: '/dubai1.jpeg',
+                            duration: '5D4N',
+                            price: 'Rp 14.2M',
+                            location: 'Dubai, UAE',
+                            highlights: 'Burj Khalifa, desert safari, luxury shopping',
+                        },
+                    ].map((pkg) => (
+                        <Dialog key={pkg.id}>
                             <DialogTrigger asChild>
                                 <motion.article
                                     variants={fadeInUp}
@@ -255,16 +296,34 @@ export default function Home() {
                                 >
                                     <motion.div variants={cardHover}>
                                         <div className="relative overflow-hidden">
-                                            <PlaceholderImage className="xs:aspect-[4/3] aspect-[5/4] w-full transition-transform duration-500 group-hover:scale-105 sm:aspect-video" />
+                                            <img
+                                                src={pkg.image}
+                                                alt={pkg.title}
+                                                className="xs:aspect-[4/3] aspect-[5/4] w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:aspect-video"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                                    if (nextElement) {
+                                                        nextElement.style.display = 'block';
+                                                    }
+                                                }}
+                                            />
+                                            <PlaceholderImage className="xs:aspect-[4/3] hidden aspect-[5/4] w-full transition-transform duration-500 group-hover:scale-105 sm:aspect-video" />
                                             {/* Mobile-optimized overlay */}
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                            {/* Badge */}
+                                            <div className="absolute top-3 right-3">
+                                                <span className="rounded-full bg-amber-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
+                                                    Best Seller
+                                                </span>
+                                            </div>
                                         </div>
                                         <div className="xs:p-4 p-3 sm:p-5 md:p-6">
                                             <h3 className="xs:text-base text-sm leading-tight font-semibold tracking-tight sm:text-lg md:text-lg">
-                                                Itinerary {i}
+                                                {pkg.title}
                                             </h3>
                                             <p className="xs:mt-1.5 xs:text-sm mt-1 text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:text-sm">
-                                                Short description here.
+                                                {pkg.subtitle}
                                             </p>
                                         </div>
                                     </motion.div>
@@ -272,18 +331,20 @@ export default function Home() {
                             </DialogTrigger>
                             <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg">
                                 <DialogHeader>
-                                    <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">Itinerary {i}</DialogTitle>
+                                    <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">{pkg.title}</DialogTitle>
                                     <DialogDescription className="xs:text-sm text-xs leading-relaxed sm:text-base">
-                                        Explore a curated journey with beautiful stays and halal-friendly experiences. Perfect for families and small
-                                        groups.
+                                        {pkg.subtitle} - Experience the best of {pkg.location} with our carefully curated package.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="xs:mt-4 xs:gap-3 xs:text-sm mt-3 grid gap-2.5 text-xs sm:gap-4">
                                     <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
-                                        <strong>Location:</strong> Multi-city · <strong>Duration:</strong> 6D5N
+                                        <strong>Location:</strong> {pkg.location} · <strong>Duration:</strong> {pkg.duration}
                                     </div>
                                     <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
-                                        <strong>Highlights:</strong> Scenic spots, culinary, culture
+                                        <strong>Price:</strong> {pkg.price} per person
+                                    </div>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
+                                        <strong>Highlights:</strong> {pkg.highlights}
                                     </div>
                                 </div>
                             </DialogContent>
@@ -311,8 +372,49 @@ export default function Home() {
                     className="xs:mt-7 xs:gap-4 mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-5 md:mt-10 md:gap-6 lg:grid-cols-4 lg:gap-8"
                     variants={staggerContainer}
                 >
-                    {[1, 2, 3, 4].map((i) => (
-                        <Dialog key={i}>
+                    {[
+                        {
+                            id: 1,
+                            title: 'Oman Adventure',
+                            subtitle: 'Muscat + Nizwa + Wahiba Sands',
+                            image: '/oman.jpg',
+                            duration: '6D5N',
+                            price: 'Rp 18.9M',
+                            location: 'Muscat, Nizwa, Wahiba Sands',
+                            highlights: 'Desert camping, forts, wadis',
+                        },
+                        {
+                            id: 2,
+                            title: 'Qatar Luxury',
+                            subtitle: 'Doha + The Pearl + Desert',
+                            image: '/qatar.jpg',
+                            duration: '5D4N',
+                            price: 'Rp 16.2M',
+                            location: 'Doha, The Pearl, Desert',
+                            highlights: 'Museum of Islamic Art, Souq Waqif, desert safari',
+                        },
+                        {
+                            id: 3,
+                            title: 'Kuwait Heritage',
+                            subtitle: 'Kuwait City + Failaka Island',
+                            image: '/kuwait.jpg',
+                            duration: '4D3N',
+                            price: 'Rp 12.8M',
+                            location: 'Kuwait City, Failaka Island',
+                            highlights: 'Kuwait Towers, Grand Mosque, island visit',
+                        },
+                        {
+                            id: 4,
+                            title: 'Bahrain Pearl',
+                            subtitle: "Manama + Qal'at al-Bahrain",
+                            image: '/bahrain.jpg',
+                            duration: '4D3N',
+                            price: 'Rp 11.5M',
+                            location: "Manama, Qal'at al-Bahrain",
+                            highlights: 'Pearl diving, ancient forts, Formula 1 circuit',
+                        },
+                    ].map((destination) => (
+                        <Dialog key={destination.id}>
                             <DialogTrigger asChild>
                                 <motion.article
                                     variants={fadeInUp}
@@ -328,15 +430,31 @@ export default function Home() {
                                 >
                                     <motion.div variants={cardHover}>
                                         <div className="relative overflow-hidden">
-                                            <PlaceholderImage className="xs:aspect-[4/3] aspect-[5/4] w-full transition-transform duration-500 group-hover:scale-105 sm:aspect-video" />
+                                            <img
+                                                src={destination.image}
+                                                alt={destination.title}
+                                                className="xs:aspect-[4/3] aspect-[5/4] w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:aspect-video"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                                    if (nextElement) {
+                                                        nextElement.style.display = 'block';
+                                                    }
+                                                }}
+                                            />
+                                            <PlaceholderImage className="xs:aspect-[4/3] hidden aspect-[5/4] w-full transition-transform duration-500 group-hover:scale-105 sm:aspect-video" />
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                            {/* New Badge */}
+                                            <div className="absolute top-3 right-3">
+                                                <span className="rounded-full bg-blue-500 px-2 py-1 text-xs font-bold text-white shadow-lg">New</span>
+                                            </div>
                                         </div>
                                         <div className="xs:p-4 p-3 sm:p-5 md:p-6">
                                             <h3 className="xs:text-base text-sm leading-tight font-semibold tracking-tight sm:text-lg md:text-lg">
-                                                Blog Article {i}
+                                                {destination.title}
                                             </h3>
                                             <p className="xs:mt-1.5 xs:text-sm mt-1 text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:text-sm">
-                                                Recently added insights.
+                                                {destination.subtitle}
                                             </p>
                                         </div>
                                     </motion.div>
@@ -344,13 +462,21 @@ export default function Home() {
                             </DialogTrigger>
                             <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg">
                                 <DialogHeader>
-                                    <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">Blog Article {i}</DialogTitle>
+                                    <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">{destination.title}</DialogTitle>
                                     <DialogDescription className="xs:text-sm text-xs leading-relaxed sm:text-base">
-                                        Short preview of the article. Click read more to continue on the blog page.
+                                        {destination.subtitle} - Discover the hidden gems of {destination.location} with our exclusive new package.
                                     </DialogDescription>
                                 </DialogHeader>
-                                <div className="xs:text-sm text-xs leading-relaxed sm:text-base">
-                                    This article covers travel tips, culture, and food highlights from our latest journeys.
+                                <div className="xs:mt-4 xs:gap-3 xs:text-sm mt-3 grid gap-2.5 text-xs sm:gap-4">
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
+                                        <strong>Location:</strong> {destination.location} · <strong>Duration:</strong> {destination.duration}
+                                    </div>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
+                                        <strong>Price:</strong> {destination.price} per person
+                                    </div>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
+                                        <strong>Highlights:</strong> {destination.highlights}
+                                    </div>
                                 </div>
                             </DialogContent>
                         </Dialog>

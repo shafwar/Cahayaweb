@@ -348,11 +348,7 @@ export default function CahayaAnbiyaHero() {
 
                 {/* Background Image with Overlay */}
                 <div className="absolute inset-0">
-                    <img
-                        src="https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-                        alt="Beautiful view of Kaaba and Masjid al-Haram"
-                        className="h-full w-full object-cover"
-                    />
+                    <img src="/b2b.jpeg" alt="Beautiful view of Kaaba and Masjid al-Haram" className="h-full w-full object-cover" />
                     {/* Enhanced dark overlay for better text readability */}
                     <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60"></div>
                     {/* Warm golden overlay for premium feel */}
