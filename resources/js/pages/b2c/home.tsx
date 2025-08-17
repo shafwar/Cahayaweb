@@ -25,11 +25,11 @@ interface Slide {
 }
 
 const slidesSeed: Slide[] = [
-    { id: 1, title: 'Umrah Premium', subtitle: 'Comfort-first journeys', image: '/images/hero-1.jpg' },
-    { id: 2, title: 'Turkey Highlights', subtitle: 'Istanbul to Cappadocia', image: '/images/hero-2.jpg' },
-    { id: 3, title: 'Bali Serenity', subtitle: 'Island escapes', image: '/images/hero-3.jpg' },
-    { id: 4, title: 'Jordan Discovery', subtitle: 'Wadi Rum & Petra', image: '/images/hero-4.jpg' },
-    { id: 5, title: 'Halal Culinary', subtitle: 'Taste the world', image: '/images/hero-5.jpg' },
+    { id: 1, title: 'Umrah Premium', subtitle: 'Comfort-first journeys', image: '/umrah.jpeg' },
+    { id: 2, title: 'Turkey Highlights', subtitle: 'Istanbul to Cappadocia', image: '/TURKEY.jpeg' },
+    { id: 3, title: 'Bali Serenity', subtitle: 'Island escapes', image: '/bali.jpeg' },
+    { id: 4, title: 'Jordan Discovery', subtitle: 'Wadi Rum & Petra', image: '/jordan.jpeg' },
+    { id: 5, title: 'Egypt Wonders', subtitle: 'Pyramids & Nile River', image: '/egypt.jpeg' },
 ];
 
 export default function Home() {
@@ -118,7 +118,7 @@ export default function Home() {
                             src={slide.image}
                             alt={slide.title}
                             loading="lazy"
-                            className="size-full object-cover object-center"
+                            className="size-full object-cover object-center transition-all duration-700"
                             onError={(e) => (e.currentTarget.style.display = 'none')}
                             initial={{ opacity: 0, scale: 1.08, rotateX: 2, filter: 'blur(15px)' }}
                             animate={{ opacity: 1, scale: 1, rotateX: 0, filter: 'blur(0px)' }}
@@ -179,7 +179,7 @@ export default function Home() {
                                     onClick={() => smoothScrollTo('packages')}
                                     className="xs:px-8 xs:py-4 xs:text-base inline-flex items-center justify-center rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-xl backdrop-blur-sm transition-all duration-300 hover:brightness-110 sm:px-10 sm:py-5 sm:text-lg md:px-12 md:py-6 md:text-xl"
                                 >
-                                    Explore packages
+                                    Explore Packages
                                     <motion.svg
                                         className="xs:h-5 xs:w-5 ml-2 h-4 w-4 sm:ml-3 sm:h-6 sm:w-6"
                                         fill="none"
