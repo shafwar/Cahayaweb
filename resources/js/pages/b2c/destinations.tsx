@@ -293,7 +293,10 @@ export default function Destinations() {
                     <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
                         Contact our team for travel destination consultation according to your preferences
                     </p>
-                    <motion.button
+                    <motion.a
+                        href="https://wa.me/6281234567890"
+                        target="_blank"
+                        rel="noreferrer"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="inline-flex items-center rounded-full bg-primary px-8 py-4 font-medium text-primary-foreground transition-all duration-300 hover:shadow-lg"
@@ -302,7 +305,7 @@ export default function Destinations() {
                         <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
-                    </motion.button>
+                    </motion.a>
                 </motion.div>
             </section>
 

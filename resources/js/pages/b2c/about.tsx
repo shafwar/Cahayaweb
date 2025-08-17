@@ -193,13 +193,16 @@ export default function About() {
                             >
                                 <h3 className="mb-2 text-xl font-semibold text-white">Ready to Start Your Journey?</h3>
                                 <p className="mb-4 text-sm text-purple-100">Contact us for a free consultation</p>
-                                <motion.button
+                                <motion.a
+                                    href="https://wa.me/6281234567890"
+                                    target="_blank"
+                                    rel="noreferrer"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     className="rounded-full bg-white px-6 py-3 font-medium text-purple-700 shadow-lg transition-colors duration-300 hover:bg-purple-50"
                                 >
                                     Free Consultation
-                                </motion.button>
+                                </motion.a>
                             </motion.div>
                         </motion.div>
                     </div>
