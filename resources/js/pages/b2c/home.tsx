@@ -503,8 +503,45 @@ export default function Home() {
                     className="xs:mt-7 xs:gap-4 mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-5 md:mt-10 md:gap-6 lg:grid-cols-4 lg:gap-8"
                     variants={staggerContainer}
                 >
-                    {[1, 2, 3, 4].map((i) => (
-                        <Dialog key={i}>
+                    {[
+                        {
+                            id: 1,
+                            title: 'Kaaba Experience',
+                            subtitle: 'Spiritual journey to the heart of Islam',
+                            image: '/umrah.jpeg',
+                            description:
+                                'Experience the divine atmosphere of Masjid al-Haram, where millions of pilgrims gather to perform their spiritual journey. Feel the sacred energy as you stand before the Kaaba, the holiest site in Islam.',
+                            features: ['Masjid al-Haram visit', 'Kaaba tawaf experience', 'Spiritual guidance', 'Halal accommodation'],
+                        },
+                        {
+                            id: 2,
+                            title: 'Cappadocia Magic',
+                            subtitle: 'Hot air balloon adventure',
+                            image: '/turkey2.jpg',
+                            description:
+                                'Float above the fairy chimneys of Cappadocia at sunrise, witnessing one of the most breathtaking landscapes on earth. This magical experience combines adventure with natural wonder.',
+                            features: ['Hot air balloon ride', 'Fairy chimney views', 'Sunrise experience', 'Professional pilots'],
+                        },
+                        {
+                            id: 3,
+                            title: 'Pyramids Wonder',
+                            subtitle: 'Ancient Egyptian marvels',
+                            image: '/egypt.jpeg',
+                            description:
+                                'Stand in awe of the Great Pyramids of Giza, one of the Seven Wonders of the Ancient World. Explore the mysteries of ancient Egypt and discover the secrets of the pharaohs.',
+                            features: ['Pyramids of Giza', 'Sphinx visit', 'Ancient temples', 'Egyptian history'],
+                        },
+                        {
+                            id: 4,
+                            title: 'Dubai Desert',
+                            subtitle: 'Luxury desert safari',
+                            image: '/dubai1.jpeg',
+                            description:
+                                'Experience Arabian nights in the golden dunes of Dubai. From thrilling dune bashing to serene sunset views, discover the beauty of the desert landscape.',
+                            features: ['Desert safari', 'Dune bashing', 'Sunset views', 'Traditional camp'],
+                        },
+                    ].map((highlight) => (
+                        <Dialog key={highlight.id}>
                             <DialogTrigger asChild>
                                 <motion.article
                                     variants={fadeInUp}
@@ -520,15 +557,33 @@ export default function Home() {
                                 >
                                     <motion.div variants={cardHover}>
                                         <div className="relative overflow-hidden">
-                                            <PlaceholderImage className="xs:aspect-[4/3] aspect-[5/4] w-full transition-transform duration-500 group-hover:scale-105 sm:aspect-video" />
+                                            <img
+                                                src={highlight.image}
+                                                alt={highlight.title}
+                                                className="xs:aspect-[4/3] aspect-[5/4] w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:aspect-video"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                                    if (nextElement) {
+                                                        nextElement.style.display = 'block';
+                                                    }
+                                                }}
+                                            />
+                                            <PlaceholderImage className="xs:aspect-[4/3] hidden aspect-[5/4] w-full transition-transform duration-500 group-hover:scale-105 sm:aspect-video" />
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                            {/* Featured Badge */}
+                                            <div className="absolute top-3 right-3">
+                                                <span className="rounded-full bg-purple-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
+                                                    Featured
+                                                </span>
+                                            </div>
                                         </div>
                                         <div className="xs:p-4 p-3 sm:p-5 md:p-6">
                                             <h3 className="xs:text-base text-sm leading-tight font-semibold tracking-tight sm:text-lg md:text-lg">
-                                                Highlight {i}
+                                                {highlight.title}
                                             </h3>
                                             <p className="xs:mt-1.5 xs:text-sm mt-1 text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:text-sm">
-                                                Why travelers love this.
+                                                {highlight.subtitle}
                                             </p>
                                         </div>
                                     </motion.div>
@@ -536,13 +591,26 @@ export default function Home() {
                             </DialogTrigger>
                             <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg">
                                 <DialogHeader>
-                                    <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">Highlight {i}</DialogTitle>
+                                    <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">{highlight.title}</DialogTitle>
                                     <DialogDescription className="xs:text-sm text-xs leading-relaxed sm:text-base">
-                                        A quick spotlight on what makes this special.
+                                        {highlight.subtitle} - Discover what makes this experience truly special.
                                     </DialogDescription>
                                 </DialogHeader>
-                                <div className="xs:text-sm text-xs leading-relaxed sm:text-base">
-                                    From stunning landscapes to unique local experiences, this highlight captures the essence of the destination.
+                                <div className="xs:mt-4 xs:gap-3 xs:text-sm mt-3 space-y-4 text-xs sm:gap-4">
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
+                                        <p className="text-sm leading-relaxed text-gray-300">{highlight.description}</p>
+                                    </div>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
+                                        <h4 className="mb-2 text-sm font-semibold text-white">What's Included:</h4>
+                                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                            {highlight.features.map((feature, index) => (
+                                                <div key={index} className="flex items-center gap-2">
+                                                    <div className="h-1.5 w-1.5 rounded-full bg-green-400"></div>
+                                                    <span className="text-xs text-gray-300">{feature}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </DialogContent>
                         </Dialog>
