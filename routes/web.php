@@ -7,6 +7,21 @@ Route::get('/', function () {
     return Inertia::render('landing/select-mode');
 })->name('home');
 
+// Debug route untuk test environment variables
+Route::get('/debug-env', function() {
+    if (app()->environment('production')) {
+        return [
+            'APP_ENV' => env('APP_ENV'),
+            'DB_CONNECTION' => env('DB_CONNECTION'),
+            'MEMCACHED_PERSISTENT_ID' => env('MEMCACHED_PERSISTENT_ID', 'NOT_SET'),
+            'AWS_ACCESS_KEY_ID' => env('AWS_ACCESS_KEY_ID', 'NOT_SET'),
+            'all_env' => array_keys($_ENV),
+            'server_env_count' => count($_ENV)
+        ];
+    }
+    return 'Only available in production';
+});
+
 // Public B2C pages (Term 1 UI only)
 Route::get('/home', function () {
     return Inertia::render('b2c/home');
