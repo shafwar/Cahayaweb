@@ -2654,22 +2654,26 @@ git push origin main
 #### **1. Select Mode Page (`resources/js/pages/landing/select-mode.tsx`)**
 
 **Layout Optimization:**
+
 - **Container Spacing**: `gap-4 px-3 sm:gap-6 sm:px-4 md:gap-8 lg:gap-12` - More compact mobile layout
 - **Typography Scaling**: `text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl` - Better mobile text sizing
 - **Card Grid**: `gap-3 sm:gap-4 md:gap-6 lg:grid-cols-2` - Single column on mobile, two columns on larger screens
 
 **Card Design Improvements:**
+
 - **Reduced Hover Effects**: `y: -2, scale: 1.005` - Subtle mobile-friendly animations
 - **Optimized Padding**: `p-3 sm:p-4 md:p-5 lg:p-6` - Progressive padding scaling
 - **Better Border Radius**: `rounded-lg sm:rounded-xl md:rounded-2xl` - Responsive border radius
 - **Enhanced Shadows**: `shadow-[0_10px_25px_rgba(0,0,0,0.08)]` - Lighter, more subtle shadows
 
 **Button & Content Optimization:**
+
 - **Touch-Friendly Buttons**: `px-3 py-2.5 sm:px-4 sm:py-3 md:px-5 md:text-base` - Optimal touch targets
 - **Responsive Text**: `text-sm sm:text-base md:text-lg lg:text-xl` - Progressive text scaling
 - **Icon Sizing**: `h-3.5 w-3.5 sm:h-4 sm:w-4` - Responsive icon sizing
 
 **Footer & Instagram Icon Fix:**
+
 - **Better Positioning**: `bottom-2 sm:bottom-4` - Improved mobile positioning
 - **Responsive Container**: `max-w-[280px] sm:max-w-xs` - Better width control
 - **Instagram Icon**: `h-6 w-6 sm:h-7 sm:w-7` - Properly sized and visible
@@ -2678,22 +2682,26 @@ git push origin main
 #### **2. Blog Modal (`resources/js/pages/b2c/blog/index.tsx`)**
 
 **Modal Size Optimization:**
+
 - **Reduced Max Width**: `max-w-[90vw] sm:max-w-[80vw]` - More proportional mobile sizing
 - **Better Height Control**: `max-h-[90vh]` - Improved height management
 - **Responsive Breakpoints**: `md:max-w-2xl lg:max-w-3xl xl:max-w-4xl` - Progressive sizing
 
 **Content Layout Improvements:**
+
 - **Optimized Spacing**: `space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-6` - Better content flow
 - **Image Sizing**: `h-28 sm:h-32 md:h-40 lg:h-48 xl:h-56` - Progressive image heights
 - **Typography Scaling**: `text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl` - Responsive headings
 
 **Enhanced Mobile Experience:**
+
 - **Meta Information**: `gap-1.5 sm:gap-2 md:gap-3` - Better spacing for mobile
 - **Content Padding**: `p-2.5 sm:p-3 md:p-4` - Responsive content padding
 - **Button Optimization**: `px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3` - Touch-friendly CTA
 - **Icon Scaling**: `h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4` - Responsive icons
 
 ### **Technical Implementation:**
+
 ```bash
 # Build and deploy process
 npm run build
@@ -2704,6 +2712,7 @@ git push origin main
 ```
 
 ### **Mobile-First Design Principles Applied:**
+
 - **Progressive Enhancement**: Start with mobile, enhance for larger screens
 - **Touch-Friendly**: Minimum 44px touch targets
 - **Readable Typography**: Optimal text sizes for mobile reading
