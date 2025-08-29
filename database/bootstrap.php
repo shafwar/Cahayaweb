@@ -1,7 +1,7 @@
 <?php
 
 // Ensure database directory exists
-$databasePath = storage_path('database.sqlite');
+$databasePath = __DIR__ . '/../storage/database.sqlite';
 $databaseDir = dirname($databasePath);
 
 if (!file_exists($databaseDir)) {
