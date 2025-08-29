@@ -3,29 +3,467 @@ import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 
 export default function Highlights() {
+    // Animation variants for stagger effect
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.2,
+            },
+        },
+    };
+
+    const cardVariants = {
+        hidden: {
+            opacity: 0,
+            y: 30,
+            scale: 0.95,
+        },
+        visible: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            transition: {
+                duration: 0.6,
+                ease: 'easeOut',
+            },
+        },
+    };
+
+    // Comprehensive highlights with travel-related content
+    const highlights = [
+        {
+            id: 1,
+            title: 'Spiritual Journey to the Holy Land',
+            subtitle: 'Umrah & Hajj Experiences',
+            description: 'Experience the profound spiritual journey to Makkah and Madinah. Our Umrah and Hajj packages provide complete guidance, luxury accommodations, and authentic spiritual experiences that connect you with the sacred traditions of Islam.',
+            image: '/umrah.jpeg',
+            category: 'Spiritual',
+            features: [
+                'Professional spiritual guidance',
+                '5-star hotel accommodations',
+                'Direct flights from Indonesia',
+                'VIP access to holy sites',
+                'Comprehensive travel insurance',
+                'Daily spiritual programs'
+            ],
+            stats: {
+                travelers: '5000+',
+                satisfaction: '98%',
+                experience: '15+ years'
+            },
+            badge: 'Featured',
+            badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500',
+        },
+        {
+            id: 2,
+            title: 'Cultural Heritage of Turkey',
+            subtitle: 'Istanbul to Cappadocia Adventure',
+            description: 'Discover the perfect blend of East and West in Turkey. From the magnificent Hagia Sophia and Blue Mosque in Istanbul to the magical hot air balloon rides over Cappadocia\'s fairy chimneys.',
+            image: '/TURKEY.jpeg',
+            category: 'Cultural',
+            features: [
+                'Hot air balloon experience',
+                'Historical site guided tours',
+                'Traditional Turkish bath',
+                'Bosphorus cruise',
+                'Local cuisine tasting',
+                'Cultural workshops'
+            ],
+            stats: {
+                travelers: '3200+',
+                satisfaction: '96%',
+                experience: '12+ years'
+            },
+            badge: 'Popular',
+            badgeColor: 'bg-gradient-to-r from-orange-500 to-red-500',
+        },
+        {
+            id: 3,
+            title: 'Ancient Wonders of Egypt',
+            subtitle: 'Pyramids & Nile River Expedition',
+            description: 'Journey through the cradle of civilization and explore the magnificent wonders of ancient Egypt. From the Great Pyramids of Giza to the majestic Nile River cruises, experience the magic of pharaonic history.',
+            image: '/egypt.jpeg',
+            category: 'Historical',
+            features: [
+                'Nile River luxury cruise',
+                'Pyramids guided exploration',
+                'Valley of the Kings tour',
+                'Abu Simbel temple visit',
+                'Egyptian Museum tour',
+                'Traditional felucca sailing'
+            ],
+            stats: {
+                travelers: '2800+',
+                satisfaction: '95%',
+                experience: '10+ years'
+            },
+            badge: 'Heritage',
+            badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
+        },
+        {
+            id: 4,
+            title: 'Luxury Dubai Experience',
+            subtitle: 'Modern Wonders & Desert Adventures',
+            description: 'Experience the epitome of luxury and innovation in Dubai. From the iconic Burj Khalifa to thrilling desert safaris, discover why Dubai is the ultimate destination for luxury travelers seeking modern Arabian hospitality.',
+            image: '/dubai1.jpeg',
+            category: 'Luxury',
+            features: [
+                'Burj Khalifa observation deck',
+                'Desert safari with dinner',
+                'Luxury shopping experience',
+                'Sheikh Zayed Mosque tour',
+                'Ferrari World theme park',
+                'Dhow cruise dinner'
+            ],
+            stats: {
+                travelers: '4500+',
+                satisfaction: '97%',
+                experience: '14+ years'
+            },
+            badge: 'Premium',
+            badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500',
+        },
+        {
+            id: 5,
+            title: 'Oman Adventure Discovery',
+            subtitle: 'Hidden Gems of the Arabian Peninsula',
+            description: 'Explore the hidden gem of the Arabian Peninsula. From the stunning fjords of Musandam to the ancient forts of Nizwa, discover authentic Arabian experiences away from the crowds in this pristine destination.',
+            image: '/oman.jpg',
+            category: 'Adventure',
+            features: [
+                'Desert camping in Wahiba Sands',
+                'Ancient fort exploration',
+                'Wadi hiking adventures',
+                'Traditional souk visits',
+                'Dolphin watching cruise',
+                'Mountain village tours'
+            ],
+            stats: {
+                travelers: '1800+',
+                satisfaction: '99%',
+                experience: '8+ years'
+            },
+            badge: 'Explorer',
+            badgeColor: 'bg-gradient-to-r from-green-500 to-emerald-500',
+        },
+        {
+            id: 6,
+            title: 'Qatar Luxury & Culture',
+            subtitle: 'Tradition Meets Modernity',
+            description: 'Experience the perfect blend of tradition and modernity in Qatar. From the stunning Museum of Islamic Art to luxury at The Pearl, discover why Qatar is becoming a premier travel destination in the Gulf region.',
+            image: '/qatar.jpg',
+            category: 'Luxury',
+            features: [
+                'Museum of Islamic Art tour',
+                'Souq Waqif cultural experience',
+                'Desert safari adventure',
+                'The Pearl luxury experience',
+                'Katara Cultural Village',
+                'Luxury resort accommodations'
+            ],
+            stats: {
+                travelers: '2200+',
+                satisfaction: '94%',
+                experience: '9+ years'
+            },
+            badge: 'Premium',
+            badgeColor: 'bg-gradient-to-r from-purple-500 to-indigo-500',
+        },
+    ];
+
     return (
         <PublicLayout>
-            <Head title="Highlights" />
-            <section className="mx-auto max-w-6xl p-6 md:p-10">
-                <h1 className="text-3xl font-semibold">Highlights</h1>
-                <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {[...Array(6)].map((_, i) => (
+            <Head title="Highlights - Cahaya Anbiya Wisata" />
+
+            <section className="mx-auto max-w-7xl px-6 py-12 md:px-10 md:py-16">
+                {/* Enhanced Header Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                    className="mb-12 text-center md:mb-16"
+                >
+                    <h1 className="mb-4 text-4xl font-bold text-foreground md:text-6xl lg:text-7xl">
+                        <span className="bg-gradient-to-r from-primary via-purple-500 to-secondary bg-clip-text text-transparent">
+                            Travel Highlights & Experiences
+                        </span>
+                    </h1>
+                    <p className="mx-auto max-w-3xl text-lg text-muted-foreground md:text-xl">
+                        Discover our most popular and unforgettable travel experiences. From spiritual journeys to luxury adventures,
+                        each highlight represents the best of what we offer to create lasting memories for our travelers.
+                    </p>
+                    <div className="mt-6 flex items-center justify-center space-x-4 text-sm text-muted-foreground">
+                        <div className="flex items-center space-x-2">
+                            <div className="h-2 w-2 rounded-full bg-primary"></div>
+                            <span>Premium Experiences</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <div className="h-2 w-2 rounded-full bg-purple-500"></div>
+                            <span>Expert Guidance</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <div className="h-2 w-2 rounded-full bg-secondary"></div>
+                            <span>Unforgettable Memories</span>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Highlights Grid */}
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:gap-10"
+                >
+                    {highlights.map((highlight) => (
                         <motion.article
-                            key={i}
-                            className="overflow-hidden rounded-xl border"
-                            initial={{ opacity: 0, scale: 0.98 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
+                            key={highlight.id}
+                            variants={cardVariants}
+                            whileHover={{
+                                scale: 1.03,
+                                y: -8,
+                                transition: { duration: 0.3, ease: 'easeOut' },
+                            }}
+                            className="group cursor-pointer overflow-hidden rounded-xl border border-border bg-card shadow-md transition-all duration-500 ease-in-out hover:shadow-xl"
                         >
-                            <div className="aspect-video bg-muted" />
-                            <div className="p-4">
-                                <h3 className="font-medium">Highlight {i + 1}</h3>
-                                <p className="text-sm text-muted-foreground">Explanation and key moments.</p>
+                            {/* Highlight Image */}
+                            <div className="relative aspect-video overflow-hidden">
+                                <img
+                                    src={highlight.image}
+                                    alt={highlight.title}
+                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                                {/* Category Badge */}
+                                <div className="absolute top-3 left-3">
+                                    <span className="rounded-full bg-black/50 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                                        {highlight.category}
+                                    </span>
+                                </div>
+
+                                {/* Featured Badge */}
+                                <div className="absolute top-3 right-3">
+                                    <span className={`rounded-full px-3 py-1 text-xs font-bold text-white shadow-lg ${highlight.badgeColor}`}>
+                                        {highlight.badge}
+                                    </span>
+                                </div>
                             </div>
+
+                            {/* Highlight Content */}
+                            <div className="p-6">
+                                <h3 className="mb-2 text-xl font-bold text-card-foreground transition-colors duration-300 group-hover:text-primary md:text-2xl">
+                                    {highlight.title}
+                                </h3>
+                                <p className="mb-3 text-sm font-medium text-primary">{highlight.subtitle}</p>
+
+                                <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                                    {highlight.description}
+                                </p>
+
+                                {/* Statistics */}
+                                <div className="mb-4 grid grid-cols-3 gap-3 rounded-lg bg-muted/50 p-3">
+                                    <div className="text-center">
+                                        <div className="text-lg font-bold text-primary">{highlight.stats.travelers}</div>
+                                        <div className="text-xs text-muted-foreground">Travelers</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="text-lg font-bold text-primary">{highlight.stats.satisfaction}</div>
+                                        <div className="text-xs text-muted-foreground">Satisfaction</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="text-lg font-bold text-primary">{highlight.stats.experience}</div>
+                                        <div className="text-xs text-muted-foreground">Experience</div>
+                                    </div>
+                                </div>
+
+                                {/* Features */}
+                                <div className="mb-4">
+                                    <h4 className="mb-2 text-sm font-semibold text-foreground">Key Features:</h4>
+                                    <ul className="grid grid-cols-1 gap-1 text-xs text-muted-foreground">
+                                        {highlight.features.slice(0, 4).map((feature, index) => (
+                                            <li key={index} className="flex items-center space-x-2">
+                                                <svg className="h-3 w-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                <span>{feature}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                {/* CTA Button */}
+                                <div className="flex items-center justify-between">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-lg"
+                                    >
+                                        Learn More
+                                    </motion.button>
+                                    <div className="text-xs text-muted-foreground">
+                                        {highlight.features.length} features included
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Bottom Accent Line */}
+                            <div className="h-1 origin-left scale-x-0 transform bg-gradient-to-r from-primary to-secondary transition-transform duration-500 group-hover:scale-x-100" />
                         </motion.article>
                     ))}
-                </div>
+                </motion.div>
+
+                {/* Call to Action Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                    className="mt-16 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-8 text-center backdrop-blur-sm sm:p-12"
+                >
+                    <div className="mx-auto max-w-3xl">
+                        <h3 className="mb-4 text-2xl font-bold text-foreground sm:text-3xl">
+                            Ready to Experience These Highlights?
+                        </h3>
+                        <p className="mb-6 text-muted-foreground">
+                            Join thousands of satisfied travelers who have experienced the magic of our carefully curated destinations.
+                            Let us help you create unforgettable memories with our expert guidance and premium travel experiences.
+                        </p>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                            <motion.a
+                                href="https://wa.me/6281234567890"
+                                target="_blank"
+                                rel="noreferrer"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-lg sm:px-8 sm:py-4 sm:text-base"
+                            >
+                                Start Your Journey
+                                <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </motion.a>
+                            <motion.a
+                                href="/destinations"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="inline-flex items-center justify-center rounded-lg border border-primary px-6 py-3 text-sm font-medium text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground sm:px-8 sm:py-4 sm:text-base"
+                            >
+                                View All Destinations
+                                <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </motion.a>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Testimonials Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.4 }}
+                    className="mt-16"
+                >
+                    <h3 className="mb-8 text-center text-2xl font-bold text-foreground sm:text-3xl">
+                        What Our Travelers Say
+                    </h3>
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        {[
+                            {
+                                name: 'Ahmad Rizki',
+                                location: 'Jakarta',
+                                testimonial: 'The Umrah experience with Cahaya Anbiya was truly spiritual and well-organized. Every detail was taken care of perfectly.',
+                                rating: 5,
+                                trip: 'Umrah Package'
+                            },
+                            {
+                                name: 'Sarah Putri',
+                                location: 'Bandung',
+                                testimonial: 'Our Turkey adventure was beyond expectations. The hot air balloon ride in Cappadocia was absolutely magical!',
+                                rating: 5,
+                                trip: 'Turkey Heritage'
+                            },
+                            {
+                                name: 'Budi Santoso',
+                                location: 'Surabaya',
+                                testimonial: 'Dubai luxury experience was incredible. The desert safari and Burj Khalifa visit were highlights of our trip.',
+                                rating: 5,
+                                trip: 'Dubai Luxury'
+                            }
+                        ].map((testimonial, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: index * 0.1 }}
+                                className="rounded-xl border border-border bg-card p-6 shadow-md"
+                            >
+                                <div className="mb-4 flex items-center space-x-1">
+                                    {[...Array(testimonial.rating)].map((_, i) => (
+                                        <svg key={i} className="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    ))}
+                                </div>
+                                <p className="mb-4 text-sm text-muted-foreground">"{testimonial.testimonial}"</p>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="font-medium text-foreground">{testimonial.name}</div>
+                                        <div className="text-xs text-muted-foreground">{testimonial.location}</div>
+                                    </div>
+                                    <div className="text-xs text-primary">{testimonial.trip}</div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </motion.div>
             </section>
+
+            {/* Enhanced Footer */}
+            <footer className="border-t border-white/20 bg-card/60 backdrop-blur-xl">
+                <motion.div
+                    className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:flex md:items-center md:justify-between md:px-6 md:py-12 lg:px-8 xl:px-10"
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5 }}
+                >
+                    {/* Contact Info */}
+                    <div className="xs:text-sm text-center text-xs leading-relaxed text-muted-foreground sm:text-left md:text-sm">
+                        <div className="font-medium">Email: hello@cahaya-anbiya.com</div>
+                        <div className="xs:mt-1 mt-0.5 font-medium">WhatsApp: +62 812-3456-7890</div>
+                        <div className="xs:mt-1 mt-0.5 font-medium">24/7 Customer Support</div>
+                    </div>
+
+                    {/* Social Links */}
+                    <div className="xs:gap-5 xs:text-sm mt-4 flex items-center justify-center gap-4 text-xs sm:mt-6 sm:gap-6 md:mt-0 md:text-sm">
+                        {[
+                            { name: 'Instagram', url: 'https://instagram.com' },
+                            { name: 'TikTok', url: 'https://tiktok.com' },
+                            { name: 'YouTube', url: 'https://youtube.com' },
+                        ].map((social) => (
+                            <motion.a
+                                key={social.name}
+                                href={social.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-medium transition-colors duration-200 hover:text-accent"
+                                whileHover={{ scale: 1.05, y: -1 }}
+                                whileTap={{ scale: 0.95 }}
+                                style={{ minHeight: '44px', minWidth: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                                {social.name}
+                            </motion.a>
+                        ))}
+                    </div>
+                </motion.div>
+            </footer>
         </PublicLayout>
     );
 }

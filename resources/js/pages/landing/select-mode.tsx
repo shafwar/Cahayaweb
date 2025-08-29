@@ -268,12 +268,7 @@ export default function SelectMode() {
                             </motion.h3>
 
                             {/* Enhanced Loading dots dengan smoother animation */}
-                            <motion.div
-                                variants={dotVariants}
-                                initial="hidden"
-                                animate="visible"
-                                className="mt-10 flex space-x-3"
-                            >
+                            <motion.div variants={dotVariants} initial="hidden" animate="visible" className="mt-10 flex space-x-3">
                                 {[0, 1, 2].map((i) => (
                                     <motion.div
                                         key={i}

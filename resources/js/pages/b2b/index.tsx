@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { RippleButton } from '@/components/ui/ripple-button';
 import B2BLayout from '@/layouts/b2b-layout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
@@ -61,329 +61,71 @@ function LiveCounter({ end, label, delay = 0 }: { end: number; label: string; de
     );
 }
 
-export default function CahayaAnbiyaHero() {
-    const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
-    const [consultationStep, setConsultationStep] = useState<'start' | 'whatsapp' | 'phone' | 'office'>('start');
-    const [showPackagesDialog, setShowPackagesDialog] = useState(false);
-
-    const packages = [
+export default function B2BIndex() {
+    const services = [
         {
             id: 1,
-            name: 'Premium Umrah Package',
-            duration: '9 Days 8 Nights',
-            price: 'Starting from Rp 28,500,000',
-            features: [
-                '5-star hotel accommodation (Makkah & Madinah)',
-                'Direct flights with premium airlines',
-                'Private transportation throughout',
-                'Professional multilingual guide',
-                'All meals included (Halal certified)',
-                'Zam-zam water supply',
-                '24/7 customer support',
-                'Comprehensive travel insurance',
-            ],
-            highlights: 'Best for first-time pilgrims seeking comfort and guidance',
+            title: 'Group Pilgrimages',
+            description: 'Organized Umrah and Hajj packages for corporate groups with comprehensive logistics management.',
+            icon: '🕌',
+            color: 'from-purple-500 to-purple-600',
+            bgColor: 'bg-purple-500/10',
+            borderColor: 'border-purple-500/30'
         },
         {
             id: 2,
-            name: 'Luxury Hajj Package',
-            duration: '14 Days 13 Nights',
-            price: 'Starting from Rp 87,500,000',
-            features: [
-                'Luxury 5-star hotels (closest to Haram)',
-                'VIP airport transfers',
-                'Premium tent accommodation in Mina',
-                'Dedicated scholar for spiritual guidance',
-                'All rituals assistance included',
-                'Premium meal arrangements',
-                'Health monitoring service',
-                'Exclusive group sizes (max 20 people)',
-            ],
-            highlights: 'Ultimate spiritual journey with maximum comfort and personalized service',
+            title: 'Business Travel Management',
+            description: 'End-to-end corporate travel solutions including flights, hotels, and ground transportation.',
+            icon: '✈️',
+            color: 'from-blue-500 to-blue-600',
+            bgColor: 'bg-blue-500/10',
+            borderColor: 'border-blue-500/30'
         },
         {
             id: 3,
-            name: 'Economy Umrah Package',
-            duration: '7 Days 6 Nights',
-            price: 'Starting from Rp 18,500,000',
-            features: [
-                '4-star hotel accommodation',
-                'Shared transportation',
-                'Experienced group leader',
-                'Daily breakfast included',
-                'Basic travel insurance',
-                'Group guidance sessions',
-                'Essential amenities provided',
-            ],
-            highlights: 'Perfect for budget-conscious pilgrims without compromising essentials',
+            title: 'Corporate Events & Incentives',
+            description: 'Team building trips and incentive travel programs to boost employee morale.',
+            icon: '🏢',
+            color: 'from-orange-500 to-orange-600',
+            bgColor: 'bg-orange-500/10',
+            borderColor: 'border-orange-500/30'
         },
+        {
+            id: 4,
+            title: 'Travel Analytics & Reporting',
+            description: 'Comprehensive reporting and analytics to optimize corporate travel spend.',
+            icon: '📊',
+            color: 'from-green-500 to-green-600',
+            bgColor: 'bg-green-500/10',
+            borderColor: 'border-green-500/30'
+        }
     ];
 
-    const consultationSteps = {
-        start: {
-            title: 'Free Consultation - Get Started',
-            content: (
-                <div className="space-y-6">
-                    <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-900/20 to-orange-900/20 p-6">
-                        <div className="mb-4 flex items-center gap-3">
-                            <div className="text-2xl">🌟</div>
-                            <h3 className="text-xl font-bold text-white">What You'll Get:</h3>
-                        </div>
-                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                            <div className="flex items-start gap-3 rounded border border-amber-500/30 bg-amber-500/10 p-3">
-                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400"></div>
-                                <span className="text-sm text-amber-200">Personalized pilgrimage planning</span>
-                            </div>
-                            <div className="flex items-start gap-3 rounded border border-amber-500/30 bg-amber-500/10 p-3">
-                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400"></div>
-                                <span className="text-sm text-amber-200">Budget optimization guidance</span>
-                            </div>
-                            <div className="flex items-start gap-3 rounded border border-amber-500/30 bg-amber-500/10 p-3">
-                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400"></div>
-                                <span className="text-sm text-amber-200">Travel document assistance</span>
-                            </div>
-                            <div className="flex items-start gap-3 rounded border border-amber-500/30 bg-amber-500/10 p-3">
-                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400"></div>
-                                <span className="text-sm text-amber-200">Spiritual preparation resources</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <RippleButton
-                            onClick={() => setConsultationStep('whatsapp')}
-                            className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-green-500 to-green-600 p-4 text-white transition-all duration-300 hover:from-green-600 hover:to-green-700"
-                        >
-                            <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.487" />
-                            </svg>
-                            WhatsApp Consultation
-                        </RippleButton>
-
-                        <RippleButton
-                            onClick={() => setConsultationStep('phone')}
-                            className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white transition-all duration-300 hover:from-blue-600 hover:to-blue-700"
-                        >
-                            <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-                            </svg>
-                            Phone Consultation
-                        </RippleButton>
-                    </div>
-
-                    <RippleButton
-                        onClick={() => setConsultationStep('office')}
-                        className="flex w-full items-center gap-3 rounded-lg border border-gray-500 bg-gray-700 p-4 text-gray-200 transition-all duration-300 hover:bg-gray-600"
-                    >
-                        <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                        </svg>
-                        Visit Our Office
-                    </RippleButton>
-                </div>
-            ),
-        },
-        whatsapp: {
-            title: 'WhatsApp Consultation',
-            content: (
-                <div className="space-y-4">
-                    <div className="rounded-xl border border-green-500/30 bg-gradient-to-r from-green-900/20 to-emerald-900/20 p-6">
-                        <div className="mb-4 flex items-center gap-3">
-                            <div className="text-2xl">📱</div>
-                            <h3 className="text-xl font-bold text-white">Instant WhatsApp Support</h3>
-                        </div>
-                        <p className="mb-4 text-sm text-green-200">Get immediate responses from our certified travel consultants</p>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between rounded border border-green-500/30 bg-green-500/10 p-3">
-                                <span className="text-sm font-medium text-green-300">Main Consultant:</span>
-                                <span className="text-sm text-green-200">+62 812-3456-7890</span>
-                            </div>
-                            <div className="flex items-center justify-between rounded border border-green-500/30 bg-green-500/10 p-3">
-                                <span className="text-sm font-medium text-green-300">Hajj Specialist:</span>
-                                <span className="text-sm text-green-200">+62 812-3456-7891</span>
-                            </div>
-                            <div className="flex items-center justify-between rounded border border-green-500/30 bg-green-500/10 p-3">
-                                <span className="text-sm font-medium text-green-300">Available:</span>
-                                <span className="text-sm font-semibold text-green-400">24/7 Support</span>
-                            </div>
-                        </div>
-                    </div>
-                    <RippleButton
-                        onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
-                        className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 p-4 text-white transition-all duration-300 hover:from-green-600 hover:to-green-700"
-                    >
-                        Open WhatsApp Chat
-                    </RippleButton>
-                    <button
-                        onClick={() => setConsultationStep('start')}
-                        className="w-full text-sm text-gray-400 transition-colors hover:text-gray-200"
-                    >
-                        ← Back to consultation options
-                    </button>
-                </div>
-            ),
-        },
-        phone: {
-            title: 'Phone Consultation',
-            content: (
-                <div className="space-y-4">
-                    <div className="rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-900/20 to-indigo-900/20 p-6">
-                        <div className="mb-4 flex items-center gap-3">
-                            <div className="text-2xl">📞</div>
-                            <h3 className="text-xl font-bold text-white">Professional Phone Support</h3>
-                        </div>
-                        <p className="mb-4 text-sm text-blue-200">Speak directly with our experienced travel advisors</p>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-3">
-                                <span className="text-sm font-medium text-blue-300">Main Office:</span>
-                                <span className="font-mono text-sm text-blue-200">021-1234-5678</span>
-                            </div>
-                            <div className="flex items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-3">
-                                <span className="text-sm font-medium text-blue-300">Toll-Free:</span>
-                                <span className="font-mono text-sm text-blue-200">0800-1234-5678</span>
-                            </div>
-                            <div className="flex items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-3">
-                                <span className="text-sm font-medium text-blue-300">Business Hours:</span>
-                                <span className="text-sm text-blue-200">Mon-Fri: 08:00-17:00 WIB</span>
-                            </div>
-                            <div className="flex items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-3">
-                                <span className="text-sm font-medium text-blue-300">Weekend:</span>
-                                <span className="text-sm text-blue-200">Sat: 09:00-15:00 WIB</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
-                        <p className="text-xs text-amber-200">💡 Best time to call: 10:00-12:00 WIB for immediate assistance</p>
-                    </div>
-                    <button
-                        onClick={() => setConsultationStep('start')}
-                        className="w-full text-sm text-gray-400 transition-colors hover:text-gray-200"
-                    >
-                        ← Back to consultation options
-                    </button>
-                </div>
-            ),
-        },
-        office: {
-            title: 'Visit Our Office',
-            content: (
-                <div className="space-y-4">
-                    <div className="rounded-xl border border-gray-500/30 bg-gradient-to-r from-gray-800/50 to-gray-700/50 p-6">
-                        <div className="mb-4 flex items-center gap-3">
-                            <div className="text-2xl">🏢</div>
-                            <h3 className="text-xl font-bold text-white">In-Person Consultation</h3>
-                        </div>
-                        <p className="mb-4 text-sm text-gray-300">Visit our office for comprehensive face-to-face planning</p>
-                        <div className="space-y-3">
-                            <div className="rounded border border-gray-500/30 bg-gray-700/50 p-3">
-                                <span className="mb-1 block text-sm font-medium text-gray-300">Address:</span>
-                                <span className="text-sm text-gray-200">
-                                    Jl. Sudirman No. 123, Jakarta Pusat
-                                    <br />
-                                    DKI Jakarta 10220, Indonesia
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between rounded border border-gray-500/30 bg-gray-700/50 p-3">
-                                <span className="text-sm font-medium text-gray-300">Office Hours:</span>
-                                <span className="text-sm text-gray-200">Mon-Fri: 08:00-17:00</span>
-                            </div>
-                            <div className="flex items-center justify-between rounded border border-gray-500/30 bg-gray-700/50 p-3">
-                                <span className="text-sm font-medium text-gray-300">Saturday:</span>
-                                <span className="text-sm text-gray-200">09:00-15:00</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
-                        <p className="text-xs text-amber-200">📋 Please bring: ID, passport copy, and any specific requirements</p>
-                    </div>
-                    <RippleButton className="w-full rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 p-4 text-white transition-all duration-300 hover:from-amber-600 hover:to-amber-700">
-                        Schedule Appointment
-                    </RippleButton>
-                    <button
-                        onClick={() => setConsultationStep('start')}
-                        className="w-full text-sm text-gray-400 transition-colors hover:text-gray-200"
-                    >
-                        ← Back to consultation options
-                    </button>
-                </div>
-            ),
-        },
-    };
+    const stats = [
+        { number: '500+', label: 'Companies Served' },
+        { number: '5+', label: 'Years Experience' },
+        { number: '10,000+', label: 'Happy Travelers' },
+        { number: '24/7', label: 'Support Available' }
+    ];
 
     return (
         <B2BLayout>
-            <Head title="Cahaya Anbiya - Premium Hajj & Umrah Services" />
+            <Head title="Cahaya Anbiya - Corporate Travel Solutions" />
 
             {/* Hero Section */}
-            <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
-                {/* Floating Elements Animation */}
-                <div className="pointer-events-none absolute inset-0">
-                    <motion.div
-                        animate={{
-                            x: [0, 30, 0],
-                            y: [0, -20, 0],
-                            rotate: [0, 5, 0],
-                        }}
-                        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-                        className="absolute top-20 left-10 h-16 w-16 rounded-full bg-amber-400/10 blur-xl"
-                    />
-                    <motion.div
-                        animate={{
-                            x: [0, -25, 0],
-                            y: [0, 15, 0],
-                            rotate: [0, -3, 0],
-                        }}
-                        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                        className="absolute top-40 right-20 h-24 w-24 rounded-full bg-amber-300/8 blur-xl"
-                    />
-                    <motion.div
-                        animate={{
-                            x: [0, 20, 0],
-                            y: [0, -10, 0],
-                        }}
-                        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-                        className="absolute bottom-32 left-1/4 h-20 w-20 rounded-full bg-white/5 blur-xl"
-                    />
-                </div>
-
-                {/* Background Image with Overlay */}
+            <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+                {/* Background */}
                 <div className="absolute inset-0">
-                    <img src="/b2b.jpeg" alt="Beautiful view of Kaaba and Masjid al-Haram" className="h-full w-full object-cover" />
-                    {/* Enhanced dark overlay for better text readability */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60"></div>
-                    {/* Warm golden overlay for premium feel */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-900/20 via-transparent to-amber-800/30"></div>
-                    {/* Additional text enhancement overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-
-                    {/* Animated Particles */}
-                    <div className="absolute inset-0 overflow-hidden">
-                        {[...Array(15)].map((_, i) => (
-                            <motion.div
-                                key={i}
-                                className="absolute h-1 w-1 rounded-full bg-amber-300/30"
-                                initial={{
-                                    x: Math.random() * 1200,
-                                    y: Math.random() * 800,
-                                    opacity: 0,
-                                }}
-                                animate={{
-                                    y: [null, -100],
-                                    opacity: [0, 1, 0],
-                                }}
-                                transition={{
-                                    duration: Math.random() * 8 + 4,
-                                    repeat: Infinity,
-                                    delay: Math.random() * 3,
-                                    ease: 'linear',
-                                }}
-                            />
-                        ))}
-                    </div>
+                    <img 
+                        src="/b2b.jpeg" 
+                        alt="Corporate Travel" 
+                        className="h-full w-full object-cover" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
                 </div>
 
-                {/* Content Container */}
-                <div className="relative z-10 mx-auto max-w-7xl px-6 text-center">
+                {/* Content */}
+                <div className="relative z-10 mx-auto max-w-6xl px-6 text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -395,14 +137,12 @@ export default function CahayaAnbiyaHero() {
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1, delay: 0.3 }}
-                            className="text-5xl leading-tight font-bold tracking-wide text-white sm:text-6xl md:text-7xl lg:text-8xl"
-                            style={{
-                                fontFamily: 'Playfair Display, serif',
-                                textShadow: '3px 6px 12px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.3)',
-                                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))',
-                            }}
+                            className="text-4xl font-bold text-white sm:text-5xl md:text-6xl lg:text-7xl"
                         >
-                            Cahaya Anbiya
+                            Your Trusted Partner in
+                            <span className="block bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                                Corporate Travel
+                            </span>
                         </motion.h1>
 
                         {/* Subtitle */}
@@ -410,594 +150,202 @@ export default function CahayaAnbiyaHero() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1, delay: 0.6 }}
-                            className="mx-auto max-w-4xl px-4 text-lg leading-relaxed font-light text-white sm:text-xl md:text-2xl"
-                            style={{
-                                fontFamily: 'Poppins, sans-serif',
-                                textShadow: '2px 4px 8px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.2)',
-                                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))',
-                            }}
+                            className="mx-auto max-w-3xl text-lg text-gray-300 sm:text-xl"
                         >
-                            Embark on an unforgettable spiritual journey to the Holy Land with premium services and over 15 years of experience
+                            We specialize in providing comprehensive corporate travel solutions, 
+                            group pilgrimages, and business travel services with unmatched professionalism.
                         </motion.p>
-
-                        {/* Decorative Line */}
-                        <motion.div
-                            initial={{ opacity: 0, scaleX: 0 }}
-                            animate={{ opacity: 1, scaleX: 1 }}
-                            transition={{ duration: 0.8, delay: 0.9 }}
-                            className="mx-auto h-1 w-24 rounded-full bg-gradient-to-r from-amber-400 to-amber-600"
-                        />
 
                         {/* CTA Buttons */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 1, delay: 1.2 }}
-                            className="flex flex-col items-center justify-center gap-4 pt-4 sm:flex-row"
+                            transition={{ duration: 1, delay: 0.9 }}
+                            className="flex flex-col gap-4 sm:flex-row sm:justify-center"
                         >
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <RippleButton
-                                        className="transform rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:from-amber-600 hover:to-amber-700 hover:shadow-xl"
-                                        style={{ fontFamily: 'Poppins, sans-serif' }}
-                                    >
-                                        Free Consultation
-                                    </RippleButton>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-md">
-                                    <DialogHeader>
-                                        <DialogTitle>{consultationSteps[consultationStep].title}</DialogTitle>
-                                        <DialogDescription>
-                                            Connect with our expert consultants for personalized pilgrimage planning
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    {consultationSteps[consultationStep].content}
-                                </DialogContent>
-                            </Dialog>
-
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="rounded-full border border-white/20 bg-white/10 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20"
-                                        style={{ fontFamily: 'Poppins, sans-serif' }}
-                                    >
-                                        View Packages
-                                    </motion.button>
-                                </DialogTrigger>
-                                <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto border border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-                                    <DialogHeader className="pb-6">
-                                        <DialogTitle className="mb-3 text-3xl font-bold text-white">✨ Premium Hajj & Umrah Packages</DialogTitle>
-                                        <DialogDescription className="text-lg leading-relaxed text-gray-300">
-                                            Choose from our carefully curated packages designed to meet your spiritual journey needs
-                                        </DialogDescription>
-                                    </DialogHeader>
-
-                                    <div className="space-y-6">
-                                        {packages.map((pkg) => (
-                                            <motion.div
-                                                key={pkg.id}
-                                                initial={{ opacity: 0, y: 20 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: pkg.id * 0.1 }}
-                                                className={`group relative overflow-hidden rounded-xl border transition-all duration-300 ${
-                                                    selectedPackage === pkg.id
-                                                        ? 'border-amber-500 bg-gradient-to-r from-amber-900/20 to-orange-900/20'
-                                                        : 'border-gray-600 bg-gray-800/50 hover:border-amber-400 hover:bg-gray-800/70'
-                                                }`}
-                                                onClick={() => setSelectedPackage(selectedPackage === pkg.id ? null : pkg.id)}
-                                            >
-                                                {/* Package Header */}
-                                                <div className="p-6">
-                                                    <div className="mb-4 flex items-start justify-between">
-                                                        <div className="flex-1">
-                                                            <div className="mb-2 flex items-center gap-3">
-                                                                <div
-                                                                    className={`h-2 w-2 rounded-full ${
-                                                                        pkg.id === 1 ? 'bg-amber-400' : pkg.id === 2 ? 'bg-purple-400' : 'bg-blue-400'
-                                                                    }`}
-                                                                ></div>
-                                                                <h3 className="text-xl font-bold text-white">{pkg.name}</h3>
-                                                            </div>
-                                                            <p className="text-gray-300">📅 {pkg.duration}</p>
-                                                        </div>
-                                                        <div className="ml-4 text-right">
-                                                            <div className="rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-white">
-                                                                <p className="text-lg font-bold">{pkg.price}</p>
-                                                                <p className="text-xs opacity-90">per person</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Package Highlights */}
-                                                    <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
-                                                        <div className="flex items-start gap-2">
-                                                            <div className="text-lg">💡</div>
-                                                            <p className="text-sm text-amber-200">{pkg.highlights}</p>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Expandable Features */}
-                                                    {selectedPackage === pkg.id && (
-                                                        <motion.div
-                                                            initial={{ opacity: 0, height: 0 }}
-                                                            animate={{ opacity: 1, height: 'auto' }}
-                                                            transition={{ duration: 0.3, ease: 'easeOut' }}
-                                                            className="border-t border-gray-600 pt-4"
-                                                        >
-                                                            <div className="mb-4">
-                                                                <h4 className="mb-3 flex items-center gap-2 text-lg font-bold text-white">
-                                                                    <span className="text-xl">✅</span>
-                                                                    Package Includes:
-                                                                </h4>
-                                                                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                                                                    {pkg.features.map((feature, index) => (
-                                                                        <motion.div
-                                                                            key={index}
-                                                                            initial={{ opacity: 0, x: -10 }}
-                                                                            animate={{ opacity: 1, x: 0 }}
-                                                                            transition={{ delay: index * 0.05 }}
-                                                                            className="flex items-start gap-2 rounded border border-gray-600 bg-gray-700/50 p-2 text-sm"
-                                                                        >
-                                                                            <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-400"></div>
-                                                                            <span className="text-gray-300">{feature}</span>
-                                                                        </motion.div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        </motion.div>
-                                                    )}
-
-                                                    {/* Expand/Collapse Indicator */}
-                                                    <div className="mt-3 flex justify-center">
-                                                        <motion.div
-                                                            animate={{ rotate: selectedPackage === pkg.id ? 180 : 0 }}
-                                                            transition={{ duration: 0.3 }}
-                                                            className="text-amber-400"
-                                                        >
-                                                            {selectedPackage === pkg.id ? '▲' : '▼'}
-                                                        </motion.div>
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        ))}
-
-                                        {/* Custom Package Section */}
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.5 }}
-                                            className="rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-900/20 to-purple-900/20 p-6"
-                                        >
-                                            <div className="mb-4 flex items-start gap-3">
-                                                <div className="text-2xl">🎯</div>
-                                                <div>
-                                                    <h3 className="mb-2 text-xl font-bold text-white">Need a Custom Package?</h3>
-                                                    <p className="text-sm text-gray-300">
-                                                        We can create personalized pilgrimage experiences tailored to your specific needs, budget, and
-                                                        travel schedule.
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-                                                <div className="rounded border border-blue-500/30 bg-blue-500/10 p-3">
-                                                    <div className="mb-1 text-lg">📋</div>
-                                                    <h4 className="mb-1 text-sm font-semibold text-blue-300">Free Consultation</h4>
-                                                    <p className="text-xs text-blue-200">In-depth discussion about your needs</p>
-                                                </div>
-                                                <div className="rounded border border-blue-500/30 bg-blue-500/10 p-3">
-                                                    <div className="mb-1 text-lg">💰</div>
-                                                    <h4 className="mb-1 text-sm font-semibold text-blue-300">Custom Pricing</h4>
-                                                    <p className="text-xs text-blue-200">Prices adjusted to your budget</p>
-                                                </div>
-                                                <div className="rounded border border-blue-500/30 bg-blue-500/10 p-3">
-                                                    <div className="mb-1 text-lg">⚡</div>
-                                                    <h4 className="mb-1 text-sm font-semibold text-blue-300">Fast Process</h4>
-                                                    <p className="text-xs text-blue-200">Document preparation and permits</p>
-                                                </div>
-                                            </div>
-
-                                            <RippleButton className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 font-bold text-white transition-all duration-300 hover:from-blue-600 hover:to-purple-700">
-                                                💬 Request Custom Quote
-                                            </RippleButton>
-                                        </motion.div>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                        </motion.div>
-
-                        {/* Trust Indicators with Live Counter */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 1, delay: 1.5 }}
-                            className="flex flex-wrap items-center justify-center gap-8 pt-8 text-white/80"
-                            style={{ fontFamily: 'Poppins, sans-serif' }}
-                        >
-                            <LiveCounter end={1247} label="Pilgrims Served" delay={1.8} />
-                            <div className="flex items-center gap-2 text-sm">
-                                <div className="h-2 w-2 rounded-full bg-amber-400"></div>
-                                <span>Licensed Tour & Travel</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <div className="h-2 w-2 rounded-full bg-amber-400"></div>
-                                <span>15+ Years Experience</span>
-                            </div>
-                            <LiveCounter end={98} label="% Customer Satisfaction" delay={2.2} />
+                            <Link
+                                href="https://wa.me/6281234567890"
+                                target="_blank"
+                                className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-green-500 to-green-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl"
+                            >
+                                Start Consultation
+                            </Link>
+                            <Link
+                                href="/packages"
+                                className="inline-flex items-center justify-center rounded-lg border-2 border-white/30 bg-white/10 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 hover:border-white/50"
+                            >
+                                View Packages
+                            </Link>
                         </motion.div>
                     </motion.div>
                 </div>
-
-                {/* Live Chat Floating Button */}
-                <motion.div
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 2.5 }}
-                    className="fixed right-6 bottom-6 z-50"
-                >
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className="relative rounded-full bg-gradient-to-r from-green-500 to-green-600 p-4 text-white shadow-lg transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl"
-                            >
-                                {/* Pulse animation */}
-                                <motion.div
-                                    animate={{ scale: [1, 1.2, 1] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
-                                    className="absolute inset-0 rounded-full bg-green-400 opacity-30"
-                                />
-                                <svg className="relative z-10 h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4v3c0 .6.4 1 1 1 .2 0 .5-.1.7-.3L16.4 18H20c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H16l-4 3v-3H4V4h16v12z" />
-                                </svg>
-                                {/* Online indicator */}
-                                <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full border-2 border-white bg-green-400"></div>
-                            </motion.button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-lg border border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-black sm:max-w-xl">
-                            <DialogHeader className="pb-4">
-                                <DialogTitle className="flex items-center gap-2 text-lg font-bold text-white sm:text-xl">
-                                    <motion.div
-                                        animate={{ scale: [1, 1.2, 1] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                        className="h-4 w-4 rounded-full bg-green-400"
-                                    />
-                                    Live Support Center
-                                </DialogTitle>
-                                <DialogDescription className="text-sm leading-relaxed text-gray-300 sm:text-base">
-                                    Connect with our expert consultants for immediate assistance
-                                </DialogDescription>
-                            </DialogHeader>
-
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                {/* WhatsApp Live Chat */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                    className="rounded-lg border border-green-500/30 bg-gradient-to-r from-green-900/20 to-emerald-900/20 p-4"
-                                >
-                                    <div className="mb-3 flex items-center gap-2">
-                                        <motion.div
-                                            animate={{ rotate: [0, 10, -10, 0] }}
-                                            transition={{ duration: 2, repeat: Infinity }}
-                                            className="text-lg"
-                                        >
-                                            📱
-                                        </motion.div>
-                                        <div className="flex-1">
-                                            <h3 className="text-base font-bold text-white">WhatsApp Live Chat</h3>
-                                            <p className="text-sm text-green-200">Get instant responses from our consultants</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-3 space-y-2">
-                                        <div className="flex items-center justify-between rounded border border-green-500/30 bg-green-500/10 p-2">
-                                            <span className="text-sm font-medium text-green-300">Response Time:</span>
-                                            <motion.span
-                                                animate={{ color: ['#10b981', '#34d399', '#10b981'] }}
-                                                transition={{ duration: 1.5, repeat: Infinity }}
-                                                className="text-sm font-bold text-green-400"
-                                            >
-                                                &lt; 2 minutes
-                                            </motion.span>
-                                        </div>
-                                        <div className="flex items-center justify-between rounded border border-green-500/30 bg-green-500/10 p-2">
-                                            <span className="text-sm font-medium text-green-300">Available:</span>
-                                            <motion.span
-                                                animate={{ scale: [1, 1.1, 1] }}
-                                                transition={{ duration: 2, repeat: Infinity }}
-                                                className="text-sm font-bold text-green-400"
-                                            >
-                                                24/7 Support
-                                            </motion.span>
-                                        </div>
-                                    </div>
-
-                                    <RippleButton
-                                        onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
-                                        className="w-full transform rounded-lg bg-gradient-to-r from-green-500 to-green-600 p-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-105 hover:from-green-600 hover:to-green-700"
-                                    >
-                                        🚀 Start WhatsApp Chat
-                                    </RippleButton>
-                                </motion.div>
-
-                                {/* Direct Phone Line */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="rounded-lg border border-blue-500/30 bg-gradient-to-r from-blue-900/20 to-indigo-900/20 p-4"
-                                >
-                                    <div className="mb-3 flex items-center gap-2">
-                                        <motion.div
-                                            animate={{ rotate: [0, 5, -5, 0] }}
-                                            transition={{ duration: 3, repeat: Infinity }}
-                                            className="text-lg"
-                                        >
-                                            📞
-                                        </motion.div>
-                                        <div className="flex-1">
-                                            <h3 className="text-base font-bold text-white">Direct Phone Line</h3>
-                                            <p className="text-sm text-blue-200">Speak directly with our advisors</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <RippleButton
-                                            onClick={() => window.open('tel:02112345678', '_self')}
-                                            className="flex w-full items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-2 transition-colors hover:bg-blue-500/20"
-                                        >
-                                            <span className="text-sm font-medium text-blue-300">Main Office:</span>
-                                            <span className="font-mono text-sm text-blue-200">021-1234-5678</span>
-                                        </RippleButton>
-                                        <RippleButton
-                                            onClick={() => window.open('tel:080012345678', '_self')}
-                                            className="flex w-full items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-2 transition-colors hover:bg-blue-500/20"
-                                        >
-                                            <span className="text-sm font-medium text-blue-300">Toll-Free:</span>
-                                            <span className="font-mono text-sm text-blue-200">0800-1234-5678</span>
-                                        </RippleButton>
-                                        <div className="flex items-center justify-between rounded border border-blue-500/30 bg-blue-500/10 p-2">
-                                            <span className="text-sm font-medium text-blue-300">Business Hours:</span>
-                                            <span className="text-sm text-blue-200">Mon-Fri: 08:00-17:00</span>
-                                        </div>
-                                    </div>
-                                </motion.div>
-
-                                {/* Visit Our Office - Full Width */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="rounded-lg border border-amber-500/30 bg-gradient-to-r from-amber-900/20 to-orange-900/20 p-4 sm:col-span-2"
-                                >
-                                    <div className="mb-3 flex items-center gap-2">
-                                        <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 2, repeat: Infinity }} className="text-lg">
-                                            🏢
-                                        </motion.div>
-                                        <div className="flex-1">
-                                            <h3 className="text-base font-bold text-white">Visit Our Office</h3>
-                                            <p className="text-sm text-amber-200">Comprehensive face-to-face consultation</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <div className="space-y-2">
-                                            <div className="rounded border border-amber-500/30 bg-amber-500/10 p-3">
-                                                <span className="mb-2 block text-sm font-medium text-amber-300">Address:</span>
-                                                <span className="text-sm text-amber-200">
-                                                    Jl. Sudirman No. 123, Jakarta Pusat
-                                                    <br />
-                                                    DKI Jakarta 10220, Indonesia
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <div className="flex items-center justify-between rounded border border-amber-500/30 bg-amber-500/10 p-3">
-                                                <span className="text-sm font-medium text-amber-300">Office Hours:</span>
-                                                <span className="text-sm text-amber-200">Mon-Sat: 08:00-17:00</span>
-                                            </div>
-                                            <RippleButton
-                                                onClick={() =>
-                                                    window.open('https://maps.google.com/?q=Jl.+Sudirman+No.+123,+Jakarta+Pusat', '_blank')
-                                                }
-                                                className="w-full transform rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 p-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-105 hover:from-amber-600 hover:to-amber-700"
-                                            >
-                                                📅 Schedule Visit
-                                            </RippleButton>
-                                        </div>
-                                    </div>
-                                </motion.div>
-
-                                {/* Live Status Indicator - Full Width */}
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.5 }}
-                                    className="rounded-lg border border-gray-500/30 bg-gray-800/50 p-3 text-center sm:col-span-2"
-                                >
-                                    <div className="mb-2 flex items-center justify-center gap-2">
-                                        <motion.div
-                                            animate={{ scale: [1, 1.2, 1] }}
-                                            transition={{ duration: 1.5, repeat: Infinity }}
-                                            className="h-3 w-3 rounded-full bg-green-400"
-                                        />
-                                        <span className="text-sm font-semibold text-green-400">Live Support Active</span>
-                                    </div>
-                                    <p className="text-sm text-gray-400">🔒 All consultations are confidential and free of charge</p>
-                                </motion.div>
-                            </div>
-                        </DialogContent>
-                    </Dialog>
-                </motion.div>
-
-                {/* Scroll Indicator */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 2 }}
-                    className="absolute bottom-8 left-1/2 -translate-x-1/2 transform"
-                >
-                    <motion.div
-                        animate={{ y: [0, 8, 0] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="flex h-10 w-6 justify-center rounded-full border-2 border-white/40"
-                    >
-                        <motion.div
-                            animate={{ y: [0, 12, 0] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className="mt-2 h-3 w-1 rounded-full bg-white/60"
-                        />
-                    </motion.div>
-                </motion.div>
             </section>
 
-            {/* Packages Dialog from Header */}
-            <Dialog open={showPackagesDialog} onOpenChange={setShowPackagesDialog}>
-                <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto border border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-                    <DialogHeader className="pb-6">
-                        <DialogTitle className="mb-3 text-3xl font-bold text-white">✨ Premium Hajj & Umrah Packages</DialogTitle>
-                        <DialogDescription className="text-lg leading-relaxed text-gray-300">
-                            Choose from our carefully curated packages designed to meet your spiritual journey needs
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="space-y-6">
-                        {packages.map((pkg) => (
+            {/* Stats Section */}
+            <section className="bg-gradient-to-br from-gray-900 to-black py-16">
+                <div className="mx-auto max-w-6xl px-6">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                        className="grid grid-cols-2 gap-8 sm:grid-cols-4"
+                    >
+                        {stats.map((stat, index) => (
                             <motion.div
-                                key={pkg.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: pkg.id * 0.1 }}
-                                className={`group relative overflow-hidden rounded-xl border transition-all duration-300 ${
-                                    selectedPackage === pkg.id
-                                        ? 'border-amber-500 bg-gradient-to-r from-amber-900/20 to-orange-900/20'
-                                        : 'border-gray-600 bg-gray-800/50 hover:border-amber-400 hover:bg-gray-800/70'
-                                }`}
-                                onClick={() => setSelectedPackage(selectedPackage === pkg.id ? null : pkg.id)}
+                                key={stat.label}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: index * 0.1 }}
+                                className="text-center"
                             >
-                                {/* Package Header */}
-                                <div className="p-6">
-                                    <div className="mb-4 flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <div className="mb-2 flex items-center gap-3">
-                                                <div
-                                                    className={`h-2 w-2 rounded-full ${
-                                                        pkg.id === 1 ? 'bg-amber-400' : pkg.id === 2 ? 'bg-purple-400' : 'bg-blue-400'
-                                                    }`}
-                                                ></div>
-                                                <h3 className="text-xl font-bold text-white">{pkg.name}</h3>
-                                            </div>
-                                            <p className="text-gray-300">📅 {pkg.duration}</p>
-                                        </div>
-                                        <div className="ml-4 text-right">
-                                            <div className="rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-white">
-                                                <p className="text-lg font-bold">{pkg.price}</p>
-                                                <p className="text-xs opacity-90">per person</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Package Highlights */}
-                                    <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
-                                        <div className="flex items-start gap-2">
-                                            <div className="text-lg">💡</div>
-                                            <p className="text-sm text-amber-200">{pkg.highlights}</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Expandable Features */}
-                                    {selectedPackage === pkg.id && (
-                                        <motion.div
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 'auto' }}
-                                            transition={{ duration: 0.3, ease: 'easeOut' }}
-                                            className="border-t border-gray-600 pt-4"
-                                        >
-                                            <div className="mb-4">
-                                                <h4 className="mb-3 flex items-center gap-2 text-lg font-bold text-white">
-                                                    <span className="text-xl">✅</span>
-                                                    Package Includes:
-                                                </h4>
-                                                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                                                    {pkg.features.map((feature, index) => (
-                                                        <motion.div
-                                                            key={index}
-                                                            initial={{ opacity: 0, x: -10 }}
-                                                            animate={{ opacity: 1, x: 0 }}
-                                                            transition={{ delay: index * 0.05 }}
-                                                            className="flex items-start gap-2 rounded border border-gray-600 bg-gray-700/50 p-2 text-sm"
-                                                        >
-                                                            <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-400"></div>
-                                                            <span className="text-gray-300">{feature}</span>
-                                                        </motion.div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    )}
-
-                                    {/* Expand/Collapse Indicator */}
-                                    <div className="mt-3 flex justify-center">
-                                        <motion.div
-                                            animate={{ rotate: selectedPackage === pkg.id ? 180 : 0 }}
-                                            transition={{ duration: 0.3 }}
-                                            className="text-amber-400"
-                                        >
-                                            {selectedPackage === pkg.id ? '▲' : '▼'}
-                                        </motion.div>
-                                    </div>
+                                <div className="text-3xl font-bold text-amber-400 sm:text-4xl">
+                                    {stat.number}
+                                </div>
+                                <div className="mt-2 text-sm text-gray-400 sm:text-base">
+                                    {stat.label}
                                 </div>
                             </motion.div>
                         ))}
+                    </motion.div>
+                </div>
+            </section>
 
-                        {/* Custom Package Section */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
-                            className="rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-900/20 to-purple-900/20 p-6"
-                        >
-                            <div className="mb-4 flex items-start gap-3">
-                                <div className="text-2xl">🎯</div>
-                                <div>
-                                    <h3 className="mb-2 text-xl font-bold text-white">Need a Custom Package?</h3>
-                                    <p className="text-sm text-gray-300">
-                                        We can create personalized pilgrimage experiences tailored to your specific needs, budget, and travel
-                                        schedule.
-                                    </p>
-                                </div>
-                            </div>
+            {/* Services Section */}
+            <section className="bg-white py-16">
+                <div className="mx-auto max-w-6xl px-6">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                        className="text-center mb-12"
+                    >
+                        <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+                            Corporate Services
+                        </h2>
+                        <p className="mt-4 text-lg text-gray-600">
+                            Comprehensive solutions tailored for your business needs
+                        </p>
+                    </motion.div>
 
-                            <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-                                <div className="rounded border border-blue-500/30 bg-blue-500/10 p-3">
-                                    <div className="mb-1 text-lg">📋</div>
-                                    <h4 className="mb-1 text-sm font-semibold text-blue-300">Free Consultation</h4>
-                                    <p className="text-xs text-blue-200">In-depth discussion about your needs</p>
-                                </div>
-                                <div className="rounded border border-blue-500/30 bg-blue-500/10 p-3">
-                                    <div className="mb-1 text-lg">💰</div>
-                                    <h4 className="mb-1 text-sm font-semibold text-blue-300">Custom Pricing</h4>
-                                    <p className="text-xs text-blue-200">Prices adjusted to your budget</p>
-                                </div>
-                                <div className="rounded border border-blue-500/30 bg-blue-500/10 p-3">
-                                    <div className="mb-1 text-lg">⚡</div>
-                                    <h4 className="mb-1 text-sm font-semibold text-blue-300">Fast Process</h4>
-                                    <p className="text-xs text-blue-200">Document preparation and permits</p>
-                                </div>
-                            </div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4"
+                    >
+                        {services.map((service, index) => (
+                            <motion.div
+                                key={service.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: index * 0.1 }}
+                                whileHover={{ y: -5 }}
+                                className={`rounded-xl border ${service.borderColor} ${service.bgColor} p-6 text-center transition-all duration-300 hover:shadow-lg`}
+                            >
+                                <div className="text-4xl mb-4">{service.icon}</div>
+                                <h3 className="mb-3 text-xl font-semibold text-gray-900">
+                                    {service.title}
+                                </h3>
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                    {service.description}
+                                </p>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                </div>
+            </section>
 
-                            <RippleButton className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 font-bold text-white transition-all duration-300 hover:from-blue-600 hover:to-purple-700">
-                                💬 Request Custom Quote
-                            </RippleButton>
-                        </motion.div>
-                    </div>
-                </DialogContent>
-            </Dialog>
+            {/* About Section */}
+            <section className="bg-gray-50 py-16">
+                <div className="mx-auto max-w-4xl px-6">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                        className="text-center"
+                    >
+                        <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-6">
+                            Corporate Travel Excellence
+                        </h2>
+                        <p className="text-lg text-gray-600 leading-relaxed">
+                            PT Cahaya Anbiya Travel is a leading corporate travel management company 
+                            specializing in business travel, group pilgrimages, and corporate events. 
+                            With over 5 years of experience serving hundreds of companies, we deliver 
+                            exceptional service with attention to detail and professional excellence.
+                        </p>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3"
+                    >
+                        <div className="text-center">
+                            <div className="text-3xl mb-3">🎯</div>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">Strategic Planning</h3>
+                            <p className="text-gray-600 text-sm">
+                                Customized travel solutions aligned with corporate goals and budget requirements.
+                            </p>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl mb-3">🤝</div>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">Partnership Focus</h3>
+                            <p className="text-gray-600 text-sm">
+                                Long-term relationships built on trust, reliability, and mutual success.
+                            </p>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl mb-3">📊</div>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">Data-Driven</h3>
+                            <p className="text-gray-600 text-sm">
+                                Comprehensive reporting and analytics to optimize travel spend.
+                            </p>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* Contact Section */}
+            <section className="bg-gradient-to-br from-gray-900 to-black py-16">
+                <div className="mx-auto max-w-4xl px-6 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        <h2 className="text-3xl font-bold text-white sm:text-4xl mb-6">
+                            Ready to Get Started?
+                        </h2>
+                        <p className="text-lg text-gray-300 mb-8">
+                            Contact us today to discuss your corporate travel needs
+                        </p>
+                        <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+                            <Link
+                                href="https://wa.me/6281234567890"
+                                target="_blank"
+                                className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-green-500 to-green-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-300 hover:from-green-600 hover:to-green-700"
+                            >
+                                WhatsApp Consultation
+                            </Link>
+                            <Link
+                                href="tel:+6281234567890"
+                                className="inline-flex items-center justify-center rounded-lg border-2 border-white/30 bg-white/10 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20"
+                            >
+                                Call Us Now
+                            </Link>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
         </B2BLayout>
     );
 }

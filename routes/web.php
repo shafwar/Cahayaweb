@@ -43,6 +43,7 @@ Route::get('/packages', fn () => Inertia::render('b2c/packages/index'))->name('b
 Route::get('/packages/{slug}', fn ($slug) => Inertia::render('b2c/packages/show', ['slug' => $slug]))->name('b2c.packages.show');
 Route::get('/highlights', fn () => Inertia::render('b2c/highlights'))->name('b2c.highlights');
 Route::get('/blog', fn () => Inertia::render('b2c/blog/index'))->name('b2c.blog');
+Route::get('/blog/{id}', fn ($id) => Inertia::render('b2c/blog/[id]', ['id' => $id]))->name('b2c.blog.show');
 Route::get('/contact', fn () => Inertia::render('b2c/contact'))->name('b2c.contact');
 
 // Simple B2B view
