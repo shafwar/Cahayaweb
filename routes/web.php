@@ -3,6 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Health check route for Railway
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'healthy',
+        'timestamp' => now()->toISOString(),
+        'port' => $_ENV['PORT'] ?? '8000'
+    ]);
+});
+
 Route::get('/', function () {
     return Inertia::render('landing/select-mode');
 })->name('home');

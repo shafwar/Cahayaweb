@@ -14,6 +14,19 @@ export default defineConfig({
         react(),
         tailwindcss(),
     ],
+    build: {
+        manifest: true,
+        outDir: 'public/build',
+        emptyOutDir: true,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['react', 'react-dom'],
+                    inertia: ['@inertiajs/react']
+                }
+            }
+        }
+    },
     esbuild: {
         jsx: 'automatic',
     },
@@ -22,4 +35,10 @@ export default defineConfig({
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
     },
+    server: {
+        hmr: {
+            host: 'localhost',
+        },
+    },
+    base: process.env.NODE_ENV === 'production' ? '/build/' : '/'
 });
