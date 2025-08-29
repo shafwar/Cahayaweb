@@ -429,7 +429,7 @@ export default function SelectMode() {
 
             {/* Enhanced Footer with Social Links */}
             <motion.div
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center px-4 w-full max-w-xs sm:max-w-sm"
+                className="absolute bottom-4 left-1/2 w-full max-w-xs -translate-x-1/2 px-4 text-center sm:max-w-sm"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1, duration: 0.6 }}

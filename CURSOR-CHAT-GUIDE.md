@@ -2443,80 +2443,88 @@ const [showPackagesDialog, setShowPackagesDialog] = useState(false);
 **Files Modified:** `resources/js/pages/landing/select-mode.tsx`, `resources/js/pages/b2c/blog/index.tsx`
 
 ### Problems Identified:
+
 1. **Select Mode Mobile Issues:**
-   - Instagram icon layout was messy and not properly responsive
-   - Card spacing and button sizes were not optimized for mobile
-   - Footer positioning needed adjustment for smaller screens
+    - Instagram icon layout was messy and not properly responsive
+    - Card spacing and button sizes were not optimized for mobile
+    - Footer positioning needed adjustment for smaller screens
 
 2. **Blog Modal Mobile Issues:**
-   - Dialog was too large and not proportional for mobile reading
-   - Content overflow and poor readability on small screens
-   - Modal sizing needed responsive breakpoints
+    - Dialog was too large and not proportional for mobile reading
+    - Content overflow and poor readability on small screens
+    - Modal sizing needed responsive breakpoints
 
 ### Solution Implemented:
 
 #### 1. Select Mode Mobile Improvements:
+
 - **Instagram Icon Optimization:**
-  - Reduced icon size from `h-10 w-10` to `h-8 w-8` on mobile
-  - Adjusted padding and spacing for better mobile fit
-  - Improved container sizing with `max-w-sm` constraint
-  - Better responsive text sizing (`text-xs` on mobile, `text-sm` on larger screens)
+    - Reduced icon size from `h-10 w-10` to `h-8 w-8` on mobile
+    - Adjusted padding and spacing for better mobile fit
+    - Improved container sizing with `max-w-sm` constraint
+    - Better responsive text sizing (`text-xs` on mobile, `text-sm` on larger screens)
 
 - **Card Layout Enhancements:**
-  - Reduced card padding from `p-6` to `p-4` on mobile
-  - Adjusted gap between cards from `gap-6` to `gap-4` on mobile
-  - Improved button sizing with responsive padding
-  - Better text sizing hierarchy for mobile readability
+    - Reduced card padding from `p-6` to `p-4` on mobile
+    - Adjusted gap between cards from `gap-6` to `gap-4` on mobile
+    - Improved button sizing with responsive padding
+    - Better text sizing hierarchy for mobile readability
 
 - **Button Responsiveness:**
-  - Smaller button padding on mobile (`px-3 py-2.5` vs `px-4 py-3`)
-  - Responsive icon sizing (`h-3.5 w-3.5` on mobile, `h-4 w-4` on larger screens)
-  - Improved text sizing with responsive classes
+    - Smaller button padding on mobile (`px-3 py-2.5` vs `px-4 py-3`)
+    - Responsive icon sizing (`h-3.5 w-3.5` on mobile, `h-4 w-4` on larger screens)
+    - Improved text sizing with responsive classes
 
 #### 2. Blog Modal Mobile Improvements:
+
 - **Dialog Sizing:**
-  - Changed from fixed `max-w-4xl` to responsive sizing
-  - Mobile: `max-w-[95vw]` (95% of viewport width)
-  - Small screens: `sm:max-w-2xl`
-  - Medium screens: `md:max-w-3xl`
-  - Large screens: `lg:max-w-4xl`
-  - Height: `max-h-[95vh]` for better mobile viewing
+    - Changed from fixed `max-w-4xl` to responsive sizing
+    - Mobile: `max-w-[95vw]` (95% of viewport width)
+    - Small screens: `sm:max-w-2xl`
+    - Medium screens: `md:max-w-3xl`
+    - Large screens: `lg:max-w-4xl`
+    - Height: `max-h-[95vh]` for better mobile viewing
 
 - **Content Layout:**
-  - Responsive image height: `h-48` on mobile, `sm:h-64` on larger screens
-  - Better text sizing: `text-sm` on mobile, `sm:text-base` on larger screens
-  - Improved spacing and padding for mobile readability
-  - Grid layout adjustments for mobile screens
+    - Responsive image height: `h-48` on mobile, `sm:h-64` on larger screens
+    - Better text sizing: `text-sm` on mobile, `sm:text-base` on larger screens
+    - Improved spacing and padding for mobile readability
+    - Grid layout adjustments for mobile screens
 
 ### Technical Details:
+
 ```typescript
 // Select Mode Mobile Optimizations
-className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center px-4 w-full max-w-sm"
+className = 'absolute bottom-4 left-1/2 -translate-x-1/2 text-center px-4 w-full max-w-sm';
 
 // Instagram Icon Responsive Sizing
-className="group flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 via-purple-500 to-orange-500 p-2 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
+className =
+    'group flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 via-purple-500 to-orange-500 p-2 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl';
 
 // Blog Modal Responsive Sizing
-className="max-h-[95vh] max-w-[95vw] overflow-y-auto border border-amber-500/30 bg-gradient-to-br from-amber-950 via-orange-950 to-amber-900 shadow-2xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl"
+className =
+    'max-h-[95vh] max-w-[95vw] overflow-y-auto border border-amber-500/30 bg-gradient-to-br from-amber-950 via-orange-950 to-amber-900 shadow-2xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl';
 
 // Responsive Image Height
-className="h-48 w-full object-cover sm:h-64"
+className = 'h-48 w-full object-cover sm:h-64';
 ```
 
 ### Mobile Responsiveness Features:
+
 1. ✅ **Select Mode:**
-   - Optimized Instagram icon layout and sizing
-   - Improved card spacing and button responsiveness
-   - Better footer positioning for mobile screens
-   - Responsive text sizing throughout
+    - Optimized Instagram icon layout and sizing
+    - Improved card spacing and button responsiveness
+    - Better footer positioning for mobile screens
+    - Responsive text sizing throughout
 
 2. ✅ **Blog Modal:**
-   - Proportional dialog sizing for all screen sizes
-   - Improved content readability on mobile
-   - Better image sizing and layout
-   - Responsive grid and spacing
+    - Proportional dialog sizing for all screen sizes
+    - Improved content readability on mobile
+    - Better image sizing and layout
+    - Responsive grid and spacing
 
 ### UI/UX Improvements:
+
 - **Mobile-First Design:** All elements optimized for mobile viewing
 - **Responsive Breakpoints:** Proper scaling from mobile to desktop
 - **Touch-Friendly:** Appropriate button and icon sizes for touch interaction
@@ -2524,6 +2532,7 @@ className="h-48 w-full object-cover sm:h-64"
 - **Consistent Branding:** Maintained Cahaya Anbiya visual identity across all screen sizes
 
 ### Testing Results:
+
 - ✅ iPhone 11 Pro compatibility verified
 - ✅ Responsive design works across all device sizes
 - ✅ Touch interactions optimized for mobile
@@ -2531,6 +2540,7 @@ className="h-48 w-full object-cover sm:h-64"
 - ✅ Instagram icon properly positioned and sized
 
 ### Deployment:
+
 - Changes committed and pushed to main branch
 - Ready for Railway deployment
 - Mobile responsiveness thoroughly tested
