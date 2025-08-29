@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import PublicLayout from '@/layouts/public-layout';
 import { Head } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 // Smooth scroll function
 const smoothScrollTo = (elementId: string) => {
@@ -34,29 +34,173 @@ const slidesSeed: Slide[] = [
 
 export default function Home() {
     const [index, setIndex] = useState(0);
+    const [isTransitioning, setIsTransitioning] = useState(false);
 
-    // Auto-slide functionality dengan smooth transition
+    // Ultra-smooth auto-slide dengan transition handling
     useEffect(() => {
-        const t = setInterval(() => setIndex((i) => (i + 1) % slidesSeed.length), 5000);
-        return () => clearInterval(t);
-    }, []);
+        const interval = setInterval(() => {
+            if (!isTransitioning) {
+                setIsTransitioning(true);
+                setIndex((i) => (i + 1) % slidesSeed.length);
+                setTimeout(() => setIsTransitioning(false), 1000);
+            }
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [isTransitioning]);
 
     const slide = slidesSeed[index];
 
-    // Animation variants untuk reusable animations - Mobile optimized
+    // Ultra-smooth animation variants - Mobile optimized dengan hardware acceleration
+    const heroImageVariants = {
+        initial: {
+            opacity: 0,
+            scale: 1.02,
+            filter: 'brightness(0.9)',
+        },
+        animate: {
+            opacity: 1,
+            scale: 1,
+            filter: 'brightness(1)',
+            transition: {
+                duration: 0.8,
+                ease: [0.25, 0.46, 0.45, 0.94],
+            },
+        },
+        exit: {
+            opacity: 0,
+            scale: 0.98,
+            filter: 'brightness(0.95)',
+            transition: {
+                duration: 0.6,
+                ease: [0.25, 0.46, 0.45, 0.94],
+            },
+        },
+    };
+
+    const heroContentVariants = {
+        initial: {
+            opacity: 0,
+            y: 20,
+        },
+        animate: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.6,
+                delay: 0.2,
+                ease: [0.25, 0.46, 0.45, 0.94],
+            },
+        },
+        exit: {
+            opacity: 0,
+            y: -15,
+            transition: {
+                duration: 0.4,
+                ease: [0.25, 0.46, 0.45, 0.94],
+            },
+        },
+    };
+
+    const titleVariants = {
+        initial: { opacity: 0, y: 15, scale: 0.98 },
+        animate: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            transition: {
+                duration: 0.6,
+                delay: 0.3,
+                ease: [0.25, 0.46, 0.45, 0.94],
+            },
+        },
+        exit: {
+            opacity: 0,
+            y: -10,
+            scale: 0.99,
+            transition: {
+                duration: 0.4,
+                ease: [0.25, 0.46, 0.45, 0.94],
+            },
+        },
+    };
+
+    const subtitleVariants = {
+        initial: { opacity: 0, y: 10, scale: 0.99 },
+        animate: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            transition: {
+                duration: 0.6,
+                delay: 0.5,
+                ease: [0.25, 0.46, 0.45, 0.94],
+            },
+        },
+        exit: {
+            opacity: 0,
+            y: -8,
+            scale: 0.995,
+            transition: {
+                duration: 0.4,
+                ease: [0.25, 0.46, 0.45, 0.94],
+            },
+        },
+    };
+
+    const buttonVariants = {
+        initial: { opacity: 0, y: 15, scale: 0.95 },
+        animate: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            transition: {
+                duration: 0.6,
+                delay: 0.7,
+                ease: [0.25, 0.46, 0.45, 0.94],
+            },
+        },
+        exit: {
+            opacity: 0,
+            y: -12,
+            scale: 0.97,
+            transition: {
+                duration: 0.4,
+                ease: [0.25, 0.46, 0.45, 0.94],
+            },
+        },
+    };
+
+    // Optimized hover effects untuk mobile
+    const buttonHover = {
+        rest: {
+            scale: 1,
+            boxShadow: '0 4px 12px rgba(188, 142, 46, 0.25)',
+            transition: { duration: 0.2, ease: 'easeOut' },
+        },
+        hover: {
+            scale: 1.02,
+            boxShadow: '0 8px 25px rgba(188, 142, 46, 0.35)',
+            transition: { duration: 0.2, ease: 'easeOut' },
+        },
+        tap: {
+            scale: 0.98,
+            transition: { duration: 0.1 },
+        },
+    };
+
+    // Animation variants untuk section lainnya
     const fadeInUp = {
         hidden: {
             opacity: 0,
-            y: 20, // Reduced movement untuk mobile
-            filter: 'blur(8px)', // Reduced blur untuk performance
+            y: 20,
         },
         visible: {
             opacity: 1,
             y: 0,
-            filter: 'blur(0px)',
             transition: {
-                duration: 0.5, // Faster animations untuk mobile
-                ease: [0.25, 0.25, 0, 1],
+                duration: 0.6,
+                ease: [0.25, 0.46, 0.45, 0.94],
             },
         },
     };
@@ -66,157 +210,163 @@ export default function Home() {
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.08, // Faster stagger untuk mobile
+                staggerChildren: 0.08,
                 delayChildren: 0.1,
             },
         },
     };
 
-    // Mobile-optimized hover effects
     const cardHover = {
         rest: {
             scale: 1,
             y: 0,
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)', // Lighter shadow untuk mobile
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
             transition: { duration: 0.2, ease: 'easeOut' },
         },
         hover: {
-            scale: 1.02, // Smaller scale untuk mobile
-            y: -4, // Reduced movement
+            scale: 1.02,
+            y: -4,
             boxShadow: '0 8px 25px rgba(0, 0, 0, 0.12)',
             transition: { duration: 0.2, ease: 'easeOut' },
         },
     };
 
-    const buttonHover = {
-        rest: {
-            scale: 1,
-            boxShadow: '0 3px 10px rgba(188, 142, 46, 0.2)',
+    // Smooth slide change handler
+    const handleSlideChange = useCallback(
+        (newIndex: number) => {
+            if (!isTransitioning && newIndex !== index) {
+                setIsTransitioning(true);
+                setIndex(newIndex);
+                setTimeout(() => setIsTransitioning(false), 1000);
+            }
         },
-        hover: {
-            scale: 1.03, // Smaller scale untuk mobile
-            boxShadow: '0 6px 20px rgba(188, 142, 46, 0.3)',
-            transition: { duration: 0.2, ease: 'easeOut' },
-        },
-        tap: {
-            scale: 0.97,
-            transition: { duration: 0.1 },
-        },
-    };
+        [index, isTransitioning],
+    );
 
     return (
         <PublicLayout>
             <Head title="Home" />
 
-            {/* Mobile-First Hero Section dengan fully responsive design */}
-            <motion.section className="relative" initial="hidden" animate="visible" variants={fadeInUp}>
-                {/* Mobile-first aspect ratios - Optimized untuk semua screen sizes */}
-                <div className="xs:aspect-[4/5] aspect-[3/4] w-full overflow-hidden bg-muted [perspective:1000px] sm:aspect-[16/10] md:aspect-[16/9] lg:aspect-[16/8] xl:aspect-[16/7] 2xl:aspect-[16/6]">
-                    <AnimatePresence mode="wait">
-                        <motion.img
+            {/* Ultra-Smooth Hero Section dengan mobile-first optimization */}
+            <section className="relative overflow-hidden">
+                {/* Optimized aspect ratios untuk semua device */}
+                <div className="aspect-[4/5] w-full overflow-hidden bg-muted sm:aspect-[16/10] md:aspect-[16/9] lg:aspect-[16/8] xl:aspect-[16/7] 2xl:aspect-[16/6]">
+                    <AnimatePresence mode="wait" initial={false}>
+                        <motion.div
                             key={slide.id}
-                            src={slide.image}
-                            alt={slide.title}
-                            loading="lazy"
-                            className="size-full object-cover object-center transition-all duration-700"
-                            onError={(e) => (e.currentTarget.style.display = 'none')}
-                            initial={{ opacity: 0, scale: 1.08, rotateX: 2, filter: 'blur(15px)' }}
-                            animate={{ opacity: 1, scale: 1, rotateX: 0, filter: 'blur(0px)' }}
-                            exit={{ opacity: 0, scale: 0.96, rotateX: -2, filter: 'blur(8px)' }}
-                            transition={{ duration: 0.7, ease: 'easeOut' }}
-                        />
+                            className="relative h-full w-full"
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            variants={heroImageVariants}
+                        >
+                            <img
+                                src={slide.image}
+                                alt={slide.title}
+                                loading="lazy"
+                                className="h-full w-full object-cover object-center"
+                                style={{
+                                    willChange: 'transform, opacity, filter',
+                                    transform: 'translateZ(0)', // Hardware acceleration
+                                }}
+                            />
+                        </motion.div>
                     </AnimatePresence>
 
-                    {/* Mobile-optimized gradient overlays dengan better readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/15 sm:from-black/75 sm:via-black/35 md:from-black/70 md:via-black/30 md:to-black/20" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50 sm:bg-gradient-to-r sm:from-black/35 sm:to-transparent md:from-black/40" />
+                    {/* Enhanced gradient overlays untuk better readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 sm:from-black/80 sm:via-black/40 md:from-black/75 md:via-black/35" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 sm:bg-gradient-to-r sm:from-black/40 sm:to-transparent md:from-black/45" />
 
-                    {/* Clean centered hero content - optimized sizing */}
-                    <motion.div
-                        className="xs:p-6 absolute inset-0 flex items-center justify-center p-4 sm:p-8 md:p-10 lg:p-12"
-                        initial={{ y: 30, opacity: 0, filter: 'blur(8px)' }}
-                        animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
-                        transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
-                    >
-                        {/* Main hero content - balanced sizing */}
-                        <div className="text-center text-white">
-                            <motion.h1
-                                className="xs:text-3xl text-2xl leading-tight font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
-                                style={{
-                                    letterSpacing: '-0.02em',
-                                    textShadow: '0 4px 16px rgba(0, 0, 0, 0.8)',
-                                }}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.7, delay: 0.4 }}
-                            >
-                                {slide.title}
-                            </motion.h1>
-                            <motion.p
-                                className="xs:text-lg mt-3 text-base leading-relaxed opacity-95 sm:mt-4 sm:text-xl md:mt-5 md:text-2xl lg:text-3xl xl:text-4xl"
-                                style={{
-                                    lineHeight: '1.4',
-                                    letterSpacing: '0.01em',
-                                    textShadow: '0 3px 10px rgba(0, 0, 0, 0.7)',
-                                }}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.7, delay: 0.6 }}
-                            >
-                                {slide.subtitle}
-                            </motion.p>
-                            <motion.div
-                                className="xs:mt-7 mt-6 sm:mt-8 md:mt-10 lg:mt-12"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.7, delay: 0.8 }}
-                            >
-                                <motion.button
-                                    variants={buttonHover}
-                                    initial="rest"
-                                    whileHover="hover"
-                                    whileTap="tap"
-                                    onClick={() => smoothScrollTo('packages')}
-                                    className="xs:px-8 xs:py-4 xs:text-base inline-flex items-center justify-center rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-xl backdrop-blur-sm transition-all duration-300 hover:brightness-110 sm:px-10 sm:py-5 sm:text-lg md:px-12 md:py-6 md:text-xl"
+                    {/* Smooth hero content dengan staggered animations */}
+                    <AnimatePresence mode="wait" initial={false}>
+                        <motion.div
+                            key={`content-${slide.id}`}
+                            className="absolute inset-0 flex items-center justify-center p-4 sm:p-8 md:p-10 lg:p-12"
+                            variants={heroContentVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                        >
+                            <div className="text-center text-white">
+                                <motion.h1
+                                    className="text-2xl leading-tight font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
+                                    style={{
+                                        letterSpacing: '-0.02em',
+                                        textShadow: '0 4px 20px rgba(0, 0, 0, 0.9)',
+                                        willChange: 'transform, opacity',
+                                    }}
+                                    variants={titleVariants}
                                 >
-                                    Explore Packages
-                                    <motion.svg
-                                        className="xs:h-5 xs:w-5 ml-2 h-4 w-4 sm:ml-3 sm:h-6 sm:w-6"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        initial={{ x: 0 }}
-                                        whileHover={{ x: 4 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                    </motion.svg>
-                                </motion.button>
-                            </motion.div>
-                        </div>
-                    </motion.div>
+                                    {slide.title}
+                                </motion.h1>
 
-                    {/* Bottom slide indicators - proportional sizing */}
-                    <div className="xs:bottom-8 absolute bottom-6 left-1/2 -translate-x-1/2 sm:bottom-10 md:bottom-12">
-                        <div className="xs:gap-3 flex items-center gap-2 sm:gap-3">
+                                <motion.p
+                                    className="mt-3 text-base leading-relaxed opacity-95 sm:mt-4 sm:text-xl md:mt-5 md:text-2xl lg:text-3xl xl:text-4xl"
+                                    style={{
+                                        lineHeight: '1.4',
+                                        letterSpacing: '0.01em',
+                                        textShadow: '0 3px 12px rgba(0, 0, 0, 0.8)',
+                                        willChange: 'transform, opacity',
+                                    }}
+                                    variants={subtitleVariants}
+                                >
+                                    {slide.subtitle}
+                                </motion.p>
+
+                                <motion.div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12" variants={buttonVariants}>
+                                    <motion.button
+                                        variants={buttonHover}
+                                        initial="rest"
+                                        whileHover="hover"
+                                        whileTap="tap"
+                                        onClick={() => smoothScrollTo('packages')}
+                                        className="inline-flex items-center justify-center rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-xl backdrop-blur-sm transition-all duration-300 hover:brightness-110 sm:px-10 sm:py-5 sm:text-lg md:px-12 md:py-6 md:text-xl"
+                                        style={{
+                                            willChange: 'transform, box-shadow',
+                                        }}
+                                    >
+                                        Explore Packages
+                                        <motion.svg
+                                            className="ml-2 h-4 w-4 sm:ml-3 sm:h-6 sm:w-6"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            initial={{ x: 0 }}
+                                            whileHover={{ x: 4 }}
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                        </motion.svg>
+                                    </motion.button>
+                                </motion.div>
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
+
+                    {/* Smooth slide indicators */}
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 sm:bottom-10 md:bottom-12">
+                        <div className="flex items-center gap-2 sm:gap-3">
                             {slidesSeed.map((s, i) => (
                                 <motion.button
                                     key={s.id}
                                     aria-label={`Slide ${i + 1}`}
                                     className={`rounded-full transition-all duration-300 ${
                                         i === index
-                                            ? 'xs:h-2.5 xs:w-7 h-2 w-6 bg-accent shadow-lg sm:h-3 sm:w-8'
-                                            : 'xs:h-2.5 xs:w-2.5 h-2 w-2 bg-white/60 hover:bg-white/80 sm:h-3 sm:w-3'
+                                            ? 'h-2 w-6 bg-accent shadow-lg sm:h-3 sm:w-8'
+                                            : 'h-2 w-2 bg-white/60 hover:bg-white/80 sm:h-3 sm:w-3'
                                     }`}
-                                    onClick={() => setIndex(i)}
+                                    onClick={() => handleSlideChange(i)}
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
+                                    style={{
+                                        willChange: 'transform, background-color',
+                                    }}
                                 />
                             ))}
                         </div>
                     </div>
                 </div>
-            </motion.section>
+            </section>
 
             {/* Mobile-First Best Sellers Section dengan enhanced spacing */}
             <motion.section
