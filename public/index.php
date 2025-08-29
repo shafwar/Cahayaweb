@@ -11,11 +11,6 @@ if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php'))
 
 require __DIR__.'/../vendor/autoload.php';
 
-// Initialize database if needed
-if (file_exists(__DIR__.'/../database/bootstrap.php')) {
-    require __DIR__.'/../database/bootstrap.php';
-}
-
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
 $kernel = $app->make(Kernel::class);
