@@ -2337,6 +2337,7 @@ curl -I https://cahayaweb-production.up.railway.app
 **Files Modified:** `resources/js/layouts/b2b-layout.tsx`
 
 ### Problem Identified:
+
 - B2C Site button in B2B header was navigating directly to B2C instead of select mode
 - Packages button was trying to scroll to non-existent section instead of opening dialog
 - Mobile menu Packages button was not functional
@@ -2345,29 +2346,34 @@ curl -I https://cahayaweb-production.up.railway.app
 ### Solution Implemented:
 
 #### 1. Fixed Navigation Buttons:
+
 - **B2C Site Button**: Changed from `route('b2c.home')` to `route('home')` (select mode)
 - **Switch Button**: Already correctly pointing to `route('home')` (select mode)
 - **Logo Link**: Already correctly pointing to `route('home')` (select mode)
 
 #### 2. Implemented Packages Dialog:
+
 - Added `Dialog` import from `@/components/ui/dialog`
 - Added `showPackagesDialog` state management
 - Converted Packages button from link to functional button that opens dialog
 - Created comprehensive packages dialog with:
-  - Dark amber theme matching Cahaya Anbiya brand
-  - Two premium packages (Umrah & Hajj)
-  - Detailed features and pricing
-  - "Get Quote" buttons linking to WhatsApp
+    - Dark amber theme matching Cahaya Anbiya brand
+    - Two premium packages (Umrah & Hajj)
+    - Detailed features and pricing
+    - "Get Quote" buttons linking to WhatsApp
 
 #### 3. Enhanced Mobile Menu:
+
 - Fixed Packages button in mobile menu to open dialog
 - Updated mobile menu structure to handle both links and action buttons
 - Ensured all mobile menu items close menu when clicked
 
 #### 4. Fixed Breadcrumb Navigation:
+
 - Changed breadcrumb "B2B" link from `route('b2b.index')` to `route('home')`
 
 ### Technical Details:
+
 ```typescript
 // State management for packages dialog
 const [showPackagesDialog, setShowPackagesDialog] = useState(false);
@@ -2401,6 +2407,7 @@ const [showPackagesDialog, setShowPackagesDialog] = useState(false);
 ```
 
 ### Features Now Fully Functional:
+
 1. ✅ **Agency Button**: Navigates to B2B index page
 2. ✅ **Packages Button**: Opens comprehensive packages dialog
 3. ✅ **WhatsApp Button**: Opens WhatsApp chat in new tab
@@ -2411,6 +2418,7 @@ const [showPackagesDialog, setShowPackagesDialog] = useState(false);
 8. ✅ **Breadcrumb Navigation**: Consistent with select mode navigation
 
 ### UI/UX Improvements:
+
 - Consistent navigation flow: All header elements return to select mode
 - Professional packages dialog with Cahaya Anbiya branding
 - Smooth animations and transitions
@@ -2418,6 +2426,7 @@ const [showPackagesDialog, setShowPackagesDialog] = useState(false);
 - Intuitive user experience
 
 ### Deployment:
+
 - Changes committed and pushed to main branch
 - Ready for Railway deployment
 - All functionality tested and verified
