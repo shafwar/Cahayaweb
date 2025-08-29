@@ -89,7 +89,6 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL', 'null'),
                 'port' => env('PAPERTRAIL_PORT', 'null'),
-                'connectionString' => env('PAPERTRAIL_URL') ? 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT') : null,
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],
