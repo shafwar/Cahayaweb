@@ -39,6 +39,11 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        // Force HTTPS URL for Ziggy
+        $ziggy = new Ziggy();
+        $ziggyArray = $ziggy->toArray();
+        $ziggyArray['url'] = 'https://cahayaweb-production.up.railway.app';
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -47,8 +52,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'ziggy' => fn (): array => [
-                ...(new Ziggy)->toArray(),
-                'url' => 'https://cahayaweb-production.up.railway.app',
+                ...$ziggyArray,
                 'location' => $request->url(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
