@@ -5,6 +5,16 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// Force clear opcache in production
+if (function_exists('opcache_reset')) {
+    opcache_reset();
+}
+
+// Clear any persistent configuration cache
+if (file_exists(__DIR__.'/../bootstrap/cache/config.php')) {
+    unlink(__DIR__.'/../bootstrap/cache/config.php');
+}
+
 // Determine if the application is in maintenance mode...
 if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
     require $maintenance;
