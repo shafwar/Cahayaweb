@@ -4,3 +4,4 @@
 # Use SQLite for deployment Fri Aug 29 13:41:17 WIB 2025
 # Trigger redeploy
 # Force cache clear
+# Enable debug mode
