@@ -19,7 +19,7 @@ export default function SelectMode() {
             const timer = setTimeout(() => {
                 setShowSplash(false);
                 sessionStorage.setItem('cahaya-anbiya-session', 'true');
-            }, 2000);
+            }, 2800); // Slightly longer for better experience
             return () => clearTimeout(timer);
         } else {
             // First time ever - show full splash animation
@@ -27,63 +27,71 @@ export default function SelectMode() {
                 setShowSplash(false);
                 localStorage.setItem('cahaya-anbiya-visited', 'true');
                 sessionStorage.setItem('cahaya-anbiya-session', 'true');
-            }, 2000);
+            }, 3200); // Optimal duration for first-time users
             return () => clearTimeout(timer);
         }
     }, []);
 
-    // Splash screen animation variants
+    // Ultra-smooth splash screen animation variants
     const splashVariants = {
-        hidden: { opacity: 0 },
+        hidden: {
+            opacity: 0,
+            scale: 0.98,
+        },
         visible: {
             opacity: 1,
+            scale: 1,
             transition: {
-                duration: 0.8,
-                ease: 'easeOut',
+                duration: 1.2,
+                ease: [0.25, 0.46, 0.45, 0.94], // Custom easing untuk smoothness
             },
         },
         exit: {
             opacity: 0,
-            scale: 1.1,
+            scale: 1.05,
             transition: {
-                duration: 0.6,
-                ease: 'easeIn',
+                duration: 0.8,
+                ease: [0.25, 0.46, 0.45, 0.94],
             },
         },
     };
 
+    // Enhanced logo animation dengan smoother transitions
     const logoVariants = {
         hidden: {
             opacity: 0,
-            scale: 0.5,
+            scale: 0.3,
             rotate: -180,
+            filter: 'blur(8px)',
         },
         visible: {
             opacity: 1,
             scale: 1,
             rotate: 0,
+            filter: 'blur(0px)',
             transition: {
-                duration: 0.6,
+                duration: 1.2,
                 ease: [0.25, 0.46, 0.45, 0.94],
-                delay: 0.2,
+                delay: 0.3,
             },
         },
     };
 
+    // Smooth text animations dengan staggered timing
     const textVariants = {
         hidden: {
             opacity: 0,
-            y: 30,
-            filter: 'blur(10px)',
+            y: 40,
+            filter: 'blur(6px)',
         },
         visible: {
             opacity: 1,
             y: 0,
             filter: 'blur(0px)',
             transition: {
-                duration: 0.5,
-                ease: 'easeOut',
-                delay: 0.6,
+                duration: 0.9,
+                ease: [0.25, 0.46, 0.45, 0.94],
+                delay: 0.8,
             },
         },
     };
@@ -91,31 +99,49 @@ export default function SelectMode() {
     const subtitleVariants = {
         hidden: {
             opacity: 0,
-            y: 20,
-            scale: 0.9,
+            y: 25,
+            scale: 0.95,
         },
         visible: {
             opacity: 1,
             y: 0,
             scale: 1,
             transition: {
-                duration: 0.4,
-                ease: 'easeOut',
-                delay: 0.8,
+                duration: 0.8,
+                ease: [0.25, 0.46, 0.45, 0.94],
+                delay: 1.1,
             },
         },
     };
 
+    // Enhanced glow effects dengan smoother pulsing
     const glowVariants = {
-        hidden: { opacity: 0, scale: 0.8 },
+        hidden: {
+            opacity: 0,
+            scale: 0.7,
+        },
         visible: {
-            opacity: [0, 0.5, 0.3, 0.5, 0.3],
-            scale: [0.8, 1.2, 1, 1.1, 1],
+            opacity: [0, 0.6, 0.4, 0.6, 0.4],
+            scale: [0.7, 1.3, 1, 1.2, 1],
             transition: {
-                duration: 1.5,
+                duration: 2.5,
                 repeat: Infinity,
                 ease: 'easeInOut',
-                delay: 0.8,
+                delay: 1.2,
+            },
+        },
+    };
+
+    // Smooth loading dots animation
+    const dotVariants = {
+        hidden: { opacity: 0, scale: 0.5 },
+        visible: {
+            opacity: 1,
+            scale: 1,
+            transition: {
+                duration: 0.6,
+                ease: [0.25, 0.46, 0.45, 0.94],
+                delay: 1.4,
             },
         },
     };
@@ -126,9 +152,9 @@ export default function SelectMode() {
         show: {
             opacity: 1,
             transition: {
-                duration: 0.4,
-                staggerChildren: 0.05,
-                delayChildren: 0.1,
+                duration: 0.6,
+                staggerChildren: 0.08,
+                delayChildren: 0.2,
             },
         },
     };
@@ -139,7 +165,7 @@ export default function SelectMode() {
             opacity: 0,
             y: 30,
             scale: 0.95,
-            filter: 'blur(10px)',
+            filter: 'blur(8px)',
         },
         show: {
             opacity: 1,
@@ -147,8 +173,8 @@ export default function SelectMode() {
             scale: 1,
             filter: 'blur(0px)',
             transition: {
-                duration: 0.7,
-                ease: [0.25, 0.25, 0, 1], // Custom cubic bezier untuk smooth easing
+                duration: 0.8,
+                ease: [0.25, 0.46, 0.45, 0.94],
             },
         },
     };
@@ -157,8 +183,8 @@ export default function SelectMode() {
         <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background p-6 text-foreground">
             <Head title="Welcome" />
 
-            {/* Welcome Splash Screen */}
-            <AnimatePresence>
+            {/* Ultra-Smooth Welcome Splash Screen */}
+            <AnimatePresence mode="wait">
                 {showSplash && (
                     <motion.div
                         className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900"
@@ -167,34 +193,46 @@ export default function SelectMode() {
                         animate="visible"
                         exit="exit"
                     >
-                        {/* Background glow effects */}
+                        {/* Enhanced background glow effects */}
                         <motion.div
-                            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(188,142,46,0.15),transparent_70%)]"
+                            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(188,142,46,0.18),transparent_70%)]"
                             variants={glowVariants}
                             initial="hidden"
                             animate="visible"
                         />
 
                         <div className="relative z-10 flex flex-col items-center justify-center text-center">
-                            {/* Logo Animation */}
-                            <motion.div variants={logoVariants} initial="hidden" animate="visible" className="mb-8">
+                            {/* Enhanced Logo Animation */}
+                            <motion.div
+                                variants={logoVariants}
+                                initial="hidden"
+                                animate="visible"
+                                className="mb-10"
+                                style={{
+                                    willChange: 'transform, opacity, filter',
+                                }}
+                            >
                                 <img
                                     src="/cahayanbiyalogo.png"
                                     alt="Cahaya Anbiya Logo"
                                     className="h-40 w-auto drop-shadow-2xl sm:h-48 md:h-56 lg:h-64"
+                                    style={{
+                                        willChange: 'transform',
+                                    }}
                                 />
                             </motion.div>
 
-                            {/* Welcome Text */}
+                            {/* Smooth Welcome Text */}
                             <motion.h1
                                 variants={textVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="mb-4 bg-gradient-to-br from-amber-400 via-yellow-300 to-orange-400 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-6xl lg:text-7xl"
+                                className="mb-6 bg-gradient-to-br from-amber-400 via-yellow-300 to-orange-400 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-6xl lg:text-7xl"
                                 style={{
                                     lineHeight: '1.1',
                                     letterSpacing: '-0.02em',
                                     fontFamily: 'Playfair Display, serif',
+                                    willChange: 'transform, opacity',
                                 }}
                             >
                                 Welcome to
@@ -204,11 +242,12 @@ export default function SelectMode() {
                                 variants={textVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="mb-6 bg-gradient-to-br from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-5xl lg:text-6xl"
+                                className="mb-8 bg-gradient-to-br from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-5xl lg:text-6xl"
                                 style={{
                                     lineHeight: '1.1',
                                     letterSpacing: '-0.02em',
                                     fontFamily: 'Playfair Display, serif',
+                                    willChange: 'transform, opacity',
                                 }}
                             >
                                 Cahaya Anbiya
@@ -222,25 +261,35 @@ export default function SelectMode() {
                                 style={{
                                     letterSpacing: '0.05em',
                                     fontFamily: 'Poppins, sans-serif',
+                                    willChange: 'transform, opacity',
                                 }}
                             >
                                 Wisata Indonesia
                             </motion.h3>
 
-                            {/* Loading dots */}
-                            <motion.div variants={subtitleVariants} initial="hidden" animate="visible" className="mt-8 flex space-x-2">
+                            {/* Enhanced Loading dots dengan smoother animation */}
+                            <motion.div
+                                variants={dotVariants}
+                                initial="hidden"
+                                animate="visible"
+                                className="mt-10 flex space-x-3"
+                            >
                                 {[0, 1, 2].map((i) => (
                                     <motion.div
                                         key={i}
                                         className="h-3 w-3 rounded-full bg-amber-400"
                                         animate={{
-                                            scale: [1, 1.5, 1],
-                                            opacity: [0.5, 1, 0.5],
+                                            scale: [1, 1.6, 1],
+                                            opacity: [0.4, 1, 0.4],
                                         }}
                                         transition={{
-                                            duration: 1.5,
+                                            duration: 2,
                                             repeat: Infinity,
-                                            delay: i * 0.2,
+                                            delay: i * 0.3,
+                                            ease: [0.25, 0.46, 0.45, 0.94],
+                                        }}
+                                        style={{
+                                            willChange: 'transform, opacity',
                                         }}
                                     />
                                 ))}
