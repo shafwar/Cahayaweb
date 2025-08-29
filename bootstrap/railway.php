@@ -1,30 +1,34 @@
 <?php
 
-// Ensure required directories exist
-$paths = [
-    storage_path('app'),
-    storage_path('logs'),
-    storage_path('framework/cache'),
+// Ensure SQLite database exists
+$databaseDir = dirname(database_path('database.sqlite'));
+if (!file_exists($databaseDir)) {
+    mkdir($databaseDir, 0755, true);
+}
+
+$databaseFile = database_path('database.sqlite');
+if (!file_exists($databaseFile)) {
+    touch($databaseFile);
+    chmod($databaseFile, 0644);
+}
+
+// Ensure storage directories exist
+$storageDirs = [
+    storage_path('app/public'),
+    storage_path('framework/cache/data'),
     storage_path('framework/sessions'),
     storage_path('framework/views'),
-    database_path()
+    storage_path('logs'),
 ];
 
-foreach ($paths as $path) {
-    if (!file_exists($path)) {
-        mkdir($path, 0755, true);
+foreach ($storageDirs as $dir) {
+    if (!file_exists($dir)) {
+        mkdir($dir, 0755, true);
     }
 }
 
-// Create SQLite database if it doesn't exist
-$sqliteFile = database_path('database.sqlite');
-if (!file_exists($sqliteFile)) {
-    touch($sqliteFile);
-    chmod($sqliteFile, 0644);
-}
-
 // Set proper permissions
-exec('chmod -R 755 ' . storage_path());
-exec('chmod -R 755 ' . bootstrap_path('cache'));
+chmod(storage_path(), 0755);
+chmod(bootstrap_path('cache'), 0755);
 
-echo "Railway bootstrap completed.\n";
+echo "Railway bootstrap completed successfully.\n";

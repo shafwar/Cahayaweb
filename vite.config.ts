@@ -22,10 +22,10 @@ export default defineConfig({
             output: {
                 manualChunks: {
                     vendor: ['react', 'react-dom'],
-                    inertia: ['@inertiajs/react']
-                }
-            }
-        }
+                    inertia: ['@inertiajs/react'],
+                },
+            },
+        },
     },
     esbuild: {
         jsx: 'automatic',
@@ -40,5 +40,5 @@ export default defineConfig({
             host: 'localhost',
         },
     },
-    base: process.env.NODE_ENV === 'production' ? '/build/' : '/'
+    base: process.env.NODE_ENV === 'production' ? '/build/' : '/',
 });
