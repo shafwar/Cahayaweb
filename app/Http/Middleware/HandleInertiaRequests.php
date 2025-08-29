@@ -48,7 +48,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),
-                'url' => env('ZIGGY_URL', env('APP_URL', $request->url())),
+                'url' => 'https://cahayaweb-production.up.railway.app',
                 'location' => $request->url(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
