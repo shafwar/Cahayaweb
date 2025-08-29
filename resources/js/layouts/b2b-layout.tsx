@@ -39,7 +39,7 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                 <motion.div className="mx-auto flex max-w-7xl items-center justify-between px-3 md:px-6" style={{ height: headerHeight }}>
                     {/* Clean and Elegant Logo Design - B2B Version */}
                     <motion.div style={{ scale }} className="mr-4 -ml-2 shrink-0 pr-4 md:mr-8 md:-ml-4">
-                        <Link href={route('b2b.index')} className="group relative inline-block">
+                        <Link href={route('home')} className="group relative inline-block">
                             <div className="flex items-center gap-3">
                                 {/* Cahaya Anbiya Logo */}
                                 <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Logo" className="h-14 w-auto sm:h-16 md:h-18 lg:h-20" />
