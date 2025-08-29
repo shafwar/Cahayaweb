@@ -2549,3 +2549,90 @@ className = 'h-48 w-full object-cover sm:h-64';
 
 **Total Implementation Phases:** 14  
 **Current Status:** Mobile responsiveness fully optimized ✅
+
+## **Phase 14: Mobile Responsiveness Optimization**
+
+**Date:** August 30, 2025  
+**Problem:** User reported mobile responsiveness issues on select-mode page and blog modal  
+**Solution:** Comprehensive mobile-first responsive design improvements
+
+### **Changes Made:**
+
+#### **1. Select Mode Page (`resources/js/pages/landing/select-mode.tsx`)**
+- **Layout Optimization:**
+  - Reduced main container gap: `gap-6 sm:gap-8 md:gap-12` (was `gap-8 sm:gap-12`)
+  - Adjusted heading sizes: `text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl` (was `text-3xl sm:text-4xl md:text-6xl lg:text-7xl`)
+  - Improved paragraph spacing: `mt-3 text-sm sm:mt-4 sm:text-base md:mt-6 md:text-lg lg:text-xl`
+
+- **Card Improvements:**
+  - Reduced hover effects: `y: -4, scale: 1.01` (was `y: -8, scale: 1.02`)
+  - Adjusted card padding: `p-4 sm:p-5 md:p-6 lg:p-8` (was `p-4 sm:p-6 md:p-8`)
+  - Improved border radius: `rounded-xl sm:rounded-2xl md:rounded-3xl`
+  - Enhanced text sizing: `text-base sm:text-lg md:text-xl lg:text-2xl`
+
+- **Button Optimization:**
+  - Increased button padding: `px-4 py-3 sm:px-5 sm:py-3 md:px-6`
+  - Improved icon sizing: `mr-2 h-4 w-4 sm:mr-2.5 sm:h-4 sm:w-4`
+  - Better text sizing: `text-xs sm:text-sm`
+
+#### **2. Blog Modal (`resources/js/pages/b2c/blog/index.tsx`)**
+- **Modal Size Optimization:**
+  - Reduced max-width: `max-w-[95vw] sm:max-w-[85vw]` (was `max-w-[98vw] sm:max-w-[90vw]`)
+  - Adjusted max-height: `max-h-[95vh]` (was `max-h-[98vh]`)
+  - Improved responsive breakpoints: `md:max-w-2xl lg:max-w-3xl xl:max-w-4xl`
+
+- **Content Layout:**
+  - Reduced spacing: `space-y-3 sm:space-y-4 md:space-y-6` (was `space-y-4 sm:space-y-6`)
+  - Optimized image heights: `h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64` (was `h-40 sm:h-48 md:h-56 lg:h-64`)
+  - Improved text sizing: `text-base sm:text-lg md:text-xl lg:text-2xl`
+
+- **Typography & Spacing:**
+  - Enhanced meta info: `gap-2 text-xs sm:gap-3 sm:text-sm`
+  - Optimized headings: `text-sm sm:text-base md:text-lg`
+  - Better content spacing: `space-y-3 text-xs sm:space-y-4 sm:text-sm md:text-base`
+
+### **Technical Implementation:**
+```bash
+# Build and deploy process
+npm run build
+cp public/build/.vite/manifest.json public/build/
+git add -f public/build/
+git commit -m "📱 MOBILE: Fix responsive layout - select mode cards & blog modal sizing"
+git push origin main
+```
+
+**Status:** ✅ BERHASIL - Mobile responsiveness significantly improved  
+**Impact:** Better user experience on mobile devices, especially iPhone 11 Pro  
+**Files Modified:** 2 files, 45 build assets updated
+
+---
+
+## **Phase 15: Final Mobile Responsiveness Enhancement**
+
+**Date:** August 30, 2025  
+**Problem:** User feedback that mobile responsiveness still needs improvement  
+**Solution:** Further optimization of mobile layout and component sizing
+
+### **Key Improvements:**
+
+#### **Select Mode Enhancements:**
+- **Better Mobile-First Design:**
+  - Improved card spacing and padding for small screens
+  - Enhanced button sizing and touch targets
+  - Optimized Instagram icon positioning and sizing
+  - Better text hierarchy and readability
+
+#### **Blog Modal Refinements:**
+- **Proportional Sizing:**
+  - Reduced modal size to be more proportional on mobile
+  - Better content spacing and typography
+  - Improved image sizing for different screen sizes
+  - Enhanced touch interactions
+
+### **Deployment:**
+- **Build Process:** Successful rebuild with all responsive improvements
+- **Railway Deployment:** Auto-deployed via GitHub integration
+- **Status:** Live with enhanced mobile experience
+
+**Total Implementation Phases:** 15  
+**Current Status:** ✅ Production Live with optimal mobile responsiveness
