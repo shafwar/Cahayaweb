@@ -13,6 +13,17 @@ require __DIR__.'/../vendor/autoload.php';
 
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
+// Ensure database exists before handling requests
+$databasePath = '/app/storage/database.sqlite';
+if (!file_exists($databasePath)) {
+    $databaseDir = dirname($databasePath);
+    if (!file_exists($databaseDir)) {
+        mkdir($databaseDir, 0755, true);
+    }
+    touch($databasePath);
+    chmod($databasePath, 0664);
+}
+
 $kernel = $app->make(Kernel::class);
 
 $response = $kernel->handle(
