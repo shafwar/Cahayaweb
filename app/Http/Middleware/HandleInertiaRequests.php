@@ -54,6 +54,7 @@ class HandleInertiaRequests extends Middleware
             'ziggy' => fn (): array => [
                 ...$ziggyArray,
                 'location' => $request->url(),
+                'forceHttps' => true, // Add flag to force HTTPS
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

@@ -41,6 +41,13 @@
                 // Override Ziggy URL to force HTTPS
                 if (typeof Ziggy !== 'undefined') {
                     Ziggy.url = Ziggy.url.replace('http://', 'https://');
+
+                    // Override route function to force HTTPS
+                    const originalRoute = window.route;
+                    window.route = function(name, params, absolute, config) {
+                        const url = originalRoute(name, params, absolute, config);
+                        return url.replace('http://', 'https://');
+                    };
                 }
             }
         </script>
