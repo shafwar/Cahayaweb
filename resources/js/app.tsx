@@ -8,6 +8,27 @@ import { initializeTheme } from './hooks/use-appearance';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+// Force HTTPS for all requests to prevent Mixed Content errors
+if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    // Override fetch to force HTTPS
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options) {
+        if (typeof url === 'string' && url.startsWith('http://')) {
+            url = url.replace('http://', 'https://');
+        }
+        return originalFetch(url, options);
+    };
+
+    // Override XMLHttpRequest to force HTTPS
+    const originalXHROpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url, ...args) {
+        if (typeof url === 'string' && url.startsWith('http://')) {
+            url = url.replace('http://', 'https://');
+        }
+        return originalXHROpen.call(this, method, url, ...args);
+    };
+}
+
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) =>
