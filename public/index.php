@@ -16,11 +16,6 @@ require __DIR__.'/../vendor/autoload.php';
 // Bootstrap Laravel and handle the request...
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
-// Railway-specific bootstrap
-if (file_exists(__DIR__.'/../bootstrap/railway.php') && env('APP_ENV') === 'production') {
-    require_once __DIR__.'/../bootstrap/railway.php';
-}
-
 $kernel = $app->make(Kernel::class);
 
 $response = $kernel->handle(
