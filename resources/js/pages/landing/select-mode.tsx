@@ -330,7 +330,7 @@ export default function SelectMode() {
                 </motion.div>
 
                 {/* Cards Grid dengan enhanced glassmorphism */}
-                <motion.div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2" variants={containerVariants}>
+                <motion.div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2" variants={containerVariants}>
                     {/* B2B Card */}
                     <motion.div
                         variants={cardVariants}
@@ -340,7 +340,7 @@ export default function SelectMode() {
                             boxShadow: '0 25px 50px rgba(0, 0, 0, 0.2)',
                             transition: { duration: 0.3, ease: 'easeOut' },
                         }}
-                        className="group relative overflow-hidden rounded-2xl border border-white/20 bg-card/60 p-6 shadow-[0_20px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl supports-[backdrop-filter]:bg-card/40 sm:rounded-3xl sm:p-8 md:p-10"
+                        className="group relative overflow-hidden rounded-2xl border border-white/20 bg-card/60 p-4 shadow-[0_20px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl supports-[backdrop-filter]:bg-card/40 sm:rounded-3xl sm:p-6 md:p-8"
                         style={{
                             background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
                             backdropFilter: 'blur(20px)',
@@ -353,31 +353,26 @@ export default function SelectMode() {
                         {/* Content */}
                         <div className="relative z-10">
                             <div className="mb-4 sm:mb-6">
-                                <h2 className="mb-2 text-xl font-bold text-white sm:mb-3 sm:text-2xl md:text-3xl">Business to Business</h2>
-                                <p className="text-sm text-muted-foreground sm:text-base">
-                                    Tailored solutions for travel agencies and corporate partners.
-                                </p>
+                                <h2 className="mb-2 text-lg font-bold text-white sm:mb-3 sm:text-xl md:text-2xl">Business to Business</h2>
+                                <p className="text-xs text-muted-foreground sm:text-sm">Tailored solutions for travel agencies and corporate partners.</p>
                             </div>
 
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                                 <Link href="/b2b" className="w-full sm:w-auto">
-                                    <RippleButton className="w-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:shadow-primary/25 sm:px-6 sm:text-base">
+                                    <RippleButton className="w-full bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:shadow-primary/25 sm:px-4 sm:py-3 sm:text-base">
                                         Enter B2B
                                     </RippleButton>
                                 </Link>
                                 <RippleButton
-                                    className="flex w-full items-center justify-center border border-muted-foreground/20 bg-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted-foreground/10 sm:w-auto"
+                                    className="flex w-full items-center justify-center border border-muted-foreground/20 bg-transparent px-3 py-2.5 text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-muted-foreground/10 sm:w-auto sm:px-4 sm:py-3 sm:text-sm"
                                     onClick={() =>
-                                        window.open(
-                                            'https://wa.me/6281234567890?text=Hi, I am interested in your corporate travel services',
-                                            '_blank',
-                                        )
+                                        window.open('https://wa.me/6281234567890?text=Hi, I am interested in your B2B services', '_blank')
                                     }
                                 >
-                                    <svg className="mr-2 h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg className="mr-1.5 h-3.5 w-3.5 flex-shrink-0 sm:mr-2 sm:h-4 sm:w-4" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
                                     </svg>
-                                    <span className="whitespace-nowrap">WhatsApp Corporate</span>
+                                    <span className="whitespace-nowrap text-xs sm:text-sm">WhatsApp Corporate</span>
                                 </RippleButton>
                             </div>
                         </div>
@@ -392,7 +387,7 @@ export default function SelectMode() {
                             boxShadow: '0 25px 50px rgba(0, 0, 0, 0.2)',
                             transition: { duration: 0.3, ease: 'easeOut' },
                         }}
-                        className="group relative overflow-hidden rounded-2xl border border-white/20 bg-card/60 p-6 shadow-[0_20px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl supports-[backdrop-filter]:bg-card/40 sm:rounded-3xl sm:p-8 md:p-10"
+                        className="group relative overflow-hidden rounded-2xl border border-white/20 bg-card/60 p-4 shadow-[0_20px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl supports-[backdrop-filter]:bg-card/40 sm:rounded-3xl sm:p-6 md:p-8"
                         style={{
                             background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
                             backdropFilter: 'blur(20px)',
@@ -405,26 +400,26 @@ export default function SelectMode() {
                         {/* Content */}
                         <div className="relative z-10">
                             <div className="mb-4 sm:mb-6">
-                                <h2 className="mb-2 text-xl font-bold text-white sm:mb-3 sm:text-2xl md:text-3xl">Business to Consumer</h2>
-                                <p className="text-sm text-muted-foreground sm:text-base">Explore destinations, packages, blogs, and more.</p>
+                                <h2 className="mb-2 text-lg font-bold text-white sm:mb-3 sm:text-xl md:text-2xl">Business to Consumer</h2>
+                                <p className="text-xs text-muted-foreground sm:text-sm">Explore destinations, packages, blogs, and more.</p>
                             </div>
 
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                                 <Link href="/home" className="w-full sm:w-auto">
-                                    <RippleButton className="w-full bg-secondary px-4 py-3 text-sm font-semibold text-secondary-foreground shadow-lg transition-all duration-300 hover:shadow-secondary/25 sm:px-6 sm:text-base">
+                                    <RippleButton className="w-full bg-secondary px-3 py-2.5 text-sm font-semibold text-secondary-foreground shadow-lg transition-all duration-300 hover:shadow-secondary/25 sm:px-4 sm:py-3 sm:text-base">
                                         Enter Website
                                     </RippleButton>
                                 </Link>
                                 <RippleButton
-                                    className="flex w-full items-center justify-center border border-muted-foreground/20 bg-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted-foreground/10 sm:w-auto"
+                                    className="flex w-full items-center justify-center border border-muted-foreground/20 bg-transparent px-3 py-2.5 text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-muted-foreground/10 sm:w-auto sm:px-4 sm:py-3 sm:text-sm"
                                     onClick={() =>
                                         window.open('https://wa.me/6281234567890?text=Hi, I am interested in your travel packages', '_blank')
                                     }
                                 >
-                                    <svg className="mr-2 h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg className="mr-1.5 h-3.5 w-3.5 flex-shrink-0 sm:mr-2 sm:h-4 sm:w-4" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
                                     </svg>
-                                    <span className="whitespace-nowrap">WhatsApp Personal</span>
+                                    <span className="whitespace-nowrap text-xs sm:text-sm">WhatsApp Personal</span>
                                 </RippleButton>
                             </div>
                         </div>
