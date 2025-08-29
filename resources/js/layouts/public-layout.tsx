@@ -42,7 +42,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                         <Link href={route('b2c.home')} className="group relative inline-block">
                             <div className="flex items-center">
                                 {/* Cahaya Anbiya Logo */}
-                                <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Logo" className="h-12 w-auto md:h-16" />
+                                <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Logo" className="h-14 w-auto sm:h-16 md:h-18 lg:h-20" />
                             </div>
 
                             {/* Subtle hover underline */}

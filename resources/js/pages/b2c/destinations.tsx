@@ -284,13 +284,15 @@ export default function Destinations() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: 0.3 }}
-                    className="mt-16 text-center md:mt-20"
+                    className="mt-12 text-center sm:mt-16 md:mt-20"
                 >
-                    <div className="mb-6 inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-6 py-3">
-                        <span className="text-sm font-medium text-primary">✨ Special Packages Available</span>
+                    <div className="mb-4 inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-4 py-2 sm:mb-6 sm:px-6 sm:py-3">
+                        <span className="text-xs font-medium text-primary sm:text-sm">✨ Special Packages Available</span>
                     </div>
-                    <h3 className="mb-4 text-2xl font-semibold text-foreground md:text-3xl">Can't Find the Destination You're Looking For?</h3>
-                    <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
+                    <h3 className="mb-3 text-xl font-semibold text-foreground sm:mb-4 sm:text-2xl md:text-3xl">
+                        Can't Find the Destination You're Looking For?
+                    </h3>
+                    <p className="mx-auto mb-6 max-w-2xl text-sm text-muted-foreground sm:mb-8 sm:text-base">
                         Contact our team for travel destination consultation according to your preferences
                     </p>
                     <motion.a
@@ -299,7 +301,7 @@ export default function Destinations() {
                         rel="noreferrer"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="inline-flex items-center rounded-full bg-primary px-8 py-4 font-medium text-primary-foreground transition-all duration-300 hover:shadow-lg"
+                        className="inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-lg sm:px-8 sm:py-4 sm:text-base"
                     >
                         Free Consultation
                         <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
