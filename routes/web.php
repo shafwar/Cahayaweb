@@ -3,6 +3,22 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Add this at the very top, before existing routes
+Route::get('/debug', function () {
+    return response()->json([
+        'status' => 'Laravel is running',
+        'php_version' => PHP_VERSION,
+        'laravel_version' => app()->version(),
+        'environment' => app()->environment(),
+        'database_path' => config('database.connections.sqlite.database'),
+        'database_exists' => file_exists(config('database.connections.sqlite.database')),
+        'storage_writable' => is_writable(storage_path()),
+        'cache_path' => storage_path('framework/cache'),
+        'session_path' => storage_path('framework/sessions'),
+        'views_path' => storage_path('framework/views')
+    ]);
+});
+
 // Health check route for Railway
 Route::get('/health', function () {
     return response()->json([
