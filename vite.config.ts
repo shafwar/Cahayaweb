@@ -40,5 +40,5 @@ export default defineConfig({
             host: 'localhost',
         },
     },
-    base: process.env.NODE_ENV === 'production' ? '/build/' : '/',
+    base: process.env.NODE_ENV === 'production' ? 'https://cahayaweb-production.up.railway.app/build/' : '/',
 });
