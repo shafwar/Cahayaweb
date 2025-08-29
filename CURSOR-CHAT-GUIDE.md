@@ -15,6 +15,7 @@
 - **"BOLEH DIUBAH"** - File yang aman untuk dimodifikasi
 - **"ViteManifestNotFoundException"** - Solusi untuk masalah manifest
 - **"Mixed Content Error"** - Solusi untuk HTTPS assets
+- **"B2B/B2C Navigation"** - Solusi untuk masalah navigasi
 - **"Railway deployment"** - Prosedur deployment yang aman
 - **"emergency"** - Langkah emergency jika website down
 
@@ -277,6 +278,196 @@ curl -s -I https://cahayaweb-production.up.railway.app/
 
 **Status:** ✅ BERHASIL - Build assets ter-update dengan benar
 
+### **6. B2B/B2C Navigation Fix - Mixed Content Error untuk Routes**
+
+**Masalah:** Tidak bisa mengakses halaman B2B dan B2C karena Mixed Content Error pada Ziggy routes
+**Solusi:** Implementasi HTTPS enforcement untuk semua AJAX requests dan Ziggy routes
+
+**Langkah Implementasi:**
+
+1. **Identifikasi masalah:** Ziggy masih generate HTTP URLs untuk routes, menyebabkan Mixed Content Error
+
+2. **Update Ziggy Configuration di HandleInertiaRequests.php:**
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Foundation\Inspiring;
+use Illuminate\Http\Request;
+use Inertia\Middleware;
+use Tighten\Ziggy\Ziggy;
+
+class HandleInertiaRequests extends Middleware
+{
+    // ... existing code ...
+
+    public function share(Request $request): array
+    {
+        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
+
+        // Force HTTPS URL for Ziggy
+        $ziggy = new Ziggy();
+        $ziggyArray = $ziggy->toArray();
+        $ziggyArray['url'] = 'https://cahayaweb-production.up.railway.app';
+
+        return [
+            ...parent::share($request),
+            'name' => config('app.name'),
+            'quote' => ['message' => trim($message), 'author' => trim($author)],
+            'auth' => [
+                'user' => $request->user(),
+            ],
+            'ziggy' => fn (): array => [
+                ...$ziggyArray,
+                'location' => $request->url(),
+                'forceHttps' => true, // Add flag to force HTTPS
+            ],
+            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+        ];
+    }
+}
+```
+
+3. **Add HTTPS Enforcement Script di app.tsx:**
+
+```typescript
+import '../css/app.css';
+
+import { createInertiaApp, type PageProps } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { createRoot } from 'react-dom/client';
+import { initializeTheme } from './hooks/use-appearance';
+
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+// Force HTTPS for all requests to prevent Mixed Content errors
+if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    // Override fetch to force HTTPS
+    const originalFetch = window.fetch;
+    window.fetch = function (url, options) {
+        if (typeof url === 'string' && url.startsWith('http://')) {
+            url = url.replace('http://', 'https://');
+        }
+        return originalFetch(url, options);
+    };
+
+    // Override XMLHttpRequest to force HTTPS
+    const originalXHROpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (method, url, ...args) {
+        if (typeof url === 'string' && url.startsWith('http://')) {
+            url = url.replace('http://', 'https://');
+        }
+        return originalXHROpen.call(this, method, url, ...args);
+    };
+}
+
+createInertiaApp({
+    // ... existing config ...
+});
+
+// This will set light / dark mode on load...
+initializeTheme();
+```
+
+4. **Add Route Function Override di app.blade.php:**
+
+```html
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+        <!-- Scripts -->
+        @routes @viteReactRefresh @vite(['resources/css/app.css', 'resources/js/app.tsx']) @inertiaHead
+
+        <!-- Force HTTPS for all requests -->
+        <script>
+            // Force HTTPS for all requests to prevent Mixed Content errors
+            if (window.location.protocol === 'https:') {
+                // Override fetch to force HTTPS
+                const originalFetch = window.fetch;
+                window.fetch = function (url, options) {
+                    if (typeof url === 'string' && url.startsWith('http://')) {
+                        url = url.replace('http://', 'https://');
+                    }
+                    return originalFetch(url, options);
+                };
+
+                // Override XMLHttpRequest to force HTTPS
+                const originalXHROpen = XMLHttpRequest.prototype.open;
+                XMLHttpRequest.prototype.open = function (method, url, ...args) {
+                    if (typeof url === 'string' && url.startsWith('http://')) {
+                        url = url.replace('http://', 'https://');
+                    }
+                    return originalXHROpen.call(this, method, url, ...args);
+                };
+
+                // Override Ziggy URL to force HTTPS
+                if (typeof Ziggy !== 'undefined') {
+                    Ziggy.url = Ziggy.url.replace('http://', 'https://');
+
+                    // Override route function to force HTTPS
+                    const originalRoute = window.route;
+                    window.route = function (name, params, absolute, config) {
+                        const url = originalRoute(name, params, absolute, config);
+                        return url.replace('http://', 'https://');
+                    };
+                }
+            }
+        </script>
+    </head>
+    <body class="font-sans antialiased">
+        @inertia
+    </body>
+</html>
+```
+
+5. **Set Environment Variables di Railway:**
+
+```bash
+railway variables --set "ZIGGY_URL=https://cahayaweb-production.up.railway.app"
+```
+
+6. **Rebuild dan Deploy:**
+
+```bash
+npm run build
+cp public/build/.vite/manifest.json public/build/manifest.json
+git add -f public/build/ app/Http/Middleware/HandleInertiaRequests.php resources/js/app.tsx resources/views/app.blade.php
+git commit -m "🔧 FIX: Add HTTPS enforcement for B2B/B2C navigation - prevent Mixed Content errors"
+git push origin main
+```
+
+7. **Test Navigation:**
+
+```bash
+# Test B2B page
+curl -s https://cahayaweb-production.up.railway.app/b2b | grep -i "component.*b2b"
+
+# Test B2C page
+curl -s https://cahayaweb-production.up.railway.app/home | grep -i "component.*b2c"
+```
+
+**Status:** ✅ BERHASIL - B2B dan B2C navigation berfungsi tanpa Mixed Content Error
+
+**Hasil Implementasi:**
+
+- Ziggy URL menggunakan HTTPS: `"url":"https:\/\/cahayaweb-production.up.railway.app"`
+- Halaman B2B menampilkan component: `"component":"b2b\/index"`
+- Halaman B2C menampilkan component: `"component":"b2c\/home"`
+- Flag forceHttps aktif: `"forceHttps":true`
+- Semua AJAX requests menggunakan HTTPS
+
 ---
 
 ## ❌ **IMPLEMENTASI YANG GAGAL (JANGAN ULANGI!)**
@@ -320,6 +511,18 @@ base: process.env.NODE_ENV === 'production' ? 'https://cahayaweb-production.up.r
 ```
 
 **Hasil:** ❌ `Undefined array key "database"` error
+
+### **❌ Ziggy HTTP URLs tanpa Override**
+
+```php
+// GAGAL - Mixed Content Error untuk routes
+'ziggy' => fn (): array => [
+    ...$ziggyArray,
+    'location' => $request->url(), // Masih HTTP
+],
+```
+
+**Hasil:** ❌ B2B/B2C navigation tidak berfungsi, Mixed Content Error
 
 ---
 
@@ -382,6 +585,27 @@ git commit -m "🔧 FIX: Resolve Mixed Content Error"
 git push origin main
 ```
 
+### **✅ JIKA B2B/B2C NAVIGATION TIDAK BERFUNGSI**
+
+```bash
+# 1. Cek Ziggy configuration di HandleInertiaRequests.php
+# Pastikan forceHttps: true dan URL menggunakan HTTPS
+
+# 2. Set environment variable
+railway variables --set "ZIGGY_URL=https://cahayaweb-production.up.railway.app"
+
+# 3. Rebuild dan deploy
+npm run build
+cp public/build/.vite/manifest.json public/build/manifest.json
+git add -f public/build/ app/Http/Middleware/HandleInertiaRequests.php resources/js/app.tsx resources/views/app.blade.php
+git commit -m "🔧 FIX: B2B/B2C navigation - force HTTPS for routes"
+git push origin main
+
+# 4. Test navigation
+curl -s https://cahayaweb-production.up.railway.app/b2b | grep -i "component.*b2b"
+curl -s https://cahayaweb-production.up.railway.app/home | grep -i "component.*b2c"
+```
+
 ### **✅ JIKA WEBSITE DOWN TOTAL**
 
 ```bash
@@ -417,6 +641,8 @@ git push origin main
 8. **Mengabaikan environment variables** di Railway
 9. **Deploy tanpa testing** di local
 10. **Mengubah build assets manual**
+11. **Mengabaikan Ziggy HTTPS configuration** - menyebabkan B2B/B2C tidak berfungsi
+12. **Tidak override fetch/XMLHttpRequest** untuk HTTPS enforcement
 
 ### **✅ SELALU LAKUKAN:**
 
@@ -430,6 +656,8 @@ git push origin main
 8. **Check Railway logs** jika ada error
 9. **Backup working state** sebelum eksperimen
 10. **Follow deployment procedure** yang sudah ada
+11. **Force HTTPS untuk Ziggy routes** - penting untuk B2B/B2C navigation
+12. **Override fetch/XMLHttpRequest** untuk HTTPS enforcement
 
 ---
 
@@ -451,6 +679,7 @@ php artisan serve
 # - Buka http://localhost:8000
 # - Cek console untuk errors
 # - Test semua halaman
+# - Test B2B/B2C navigation
 ```
 
 ### **Production Testing:**
@@ -465,10 +694,17 @@ curl -s https://cahayaweb-production.up.railway.app/build/manifest.json | head -
 # 3. Test assets
 curl -s https://cahayaweb-production.up.railway.app/build/assets/app-BcAkxhND.css | head -3
 
-# 4. Test di browser incognito
+# 4. Test B2B navigation
+curl -s https://cahayaweb-production.up.railway.app/b2b | grep -i "component.*b2b"
+
+# 5. Test B2C navigation
+curl -s https://cahayaweb-production.up.railway.app/home | grep -i "component.*b2c"
+
+# 6. Test di browser incognito
 # - Buka https://cahayaweb-production.up.railway.app/
 # - Cek console untuk errors
 # - Test semua fitur
+# - Test B2B/B2C navigation
 ```
 
 ---
@@ -497,6 +733,22 @@ railway variables --set "ASSET_URL=https://cahayaweb-production.up.railway.app"
 npm run build
 cp public/build/.vite/manifest.json public/build/manifest.json
 git add -f public/build/ vite.config.ts
+git push origin main
+```
+
+### **Error: B2B/B2C Navigation Not Working**
+
+```bash
+# Fix: Force HTTPS untuk Ziggy routes
+# 1. Update HandleInertiaRequests.php dengan forceHttps: true
+# 2. Add HTTPS enforcement di app.tsx dan app.blade.php
+# 3. Set environment variable:
+railway variables --set "ZIGGY_URL=https://cahayaweb-production.up.railway.app"
+# 4. Rebuild dan deploy
+npm run build
+cp public/build/.vite/manifest.json public/build/manifest.json
+git add -f public/build/ app/Http/Middleware/HandleInertiaRequests.php resources/js/app.tsx resources/views/app.blade.php
+git commit -m "🔧 FIX: B2B/B2C navigation - force HTTPS"
 git push origin main
 ```
 
@@ -537,32 +789,36 @@ git push origin main
 
 ### **✅ Halaman Lengkap:**
 
-- Landing page dengan select mode (B2B/B2C)
-- Home page dengan hero section
-- About page
-- Destinations page
-- Packages page dengan detail
-- Highlights page
-- Blog page
-- Contact page
-- B2B dashboard
+- Landing page dengan select mode (B2B/B2C) ✅
+- Home page dengan hero section ✅
+- About page ✅
+- Destinations page ✅
+- Packages page dengan detail ✅
+- Highlights page ✅
+- Blog page ✅
+- Contact page ✅
+- B2B dashboard ✅
+- B2C home page ✅
 
 ### **✅ Fitur Khusus:**
 
-- Inertia.js + React frontend
-- TypeScript support
-- Tailwind CSS styling
-- Responsive design
-- Dark mode support
-- SEO optimized
+- Inertia.js + React frontend ✅
+- TypeScript support ✅
+- Tailwind CSS styling ✅
+- Responsive design ✅
+- Dark mode support ✅
+- SEO optimized ✅
+- B2B/B2C navigation working ✅
+- HTTPS enforcement for all requests ✅
 
 ### **✅ Konfigurasi:**
 
-- Laravel 11 backend
-- Vite build system
-- Railway deployment
-- SQLite database (development)
-- Environment variables
+- Laravel 11 backend ✅
+- Vite build system ✅
+- Railway deployment ✅
+- SQLite database (development) ✅
+- Environment variables ✅
+- Ziggy HTTPS configuration ✅
 
 ---
 
@@ -577,6 +833,7 @@ git push origin main
 🔧 FIX: Resolve [issue] in [file]
 🚨 EMERGENCY: Fix website down
 🔧 CONFIG: Update [configuration]
+🔧 FIX: B2B/B2C navigation - [specific fix]
 ```
 
 ### **❌ Format yang Salah:**
@@ -598,6 +855,13 @@ merge
 3. **Check environment variables:** di Railway Dashboard
 4. **Rebuild assets:** `npm run build`
 
+### **Jika B2B/B2C Navigation Tidak Berfungsi:**
+
+1. **Check Ziggy configuration:** di HandleInertiaRequests.php
+2. **Verify HTTPS enforcement:** di app.tsx dan app.blade.php
+3. **Check environment variables:** ZIGGY_URL di Railway
+4. **Rebuild dan redeploy:** dengan HTTPS enforcement
+
 ### **Jika Masih Ada Masalah:**
 
 1. **Rollback ke commit stabil** terakhir
@@ -615,6 +879,7 @@ merge
 - Vite build system yang optimal
 - HTTPS assets tanpa Mixed Content Error
 - Manifest.json di lokasi yang benar
+- B2B/B2C navigation berfungsi dengan HTTPS enforcement
 
 ### **✅ DEPLOYMENT YANG AMAN:**
 
@@ -622,6 +887,7 @@ merge
 - Copy manifest.json ke lokasi yang benar
 - Set environment variables di Railway
 - Test di local sebelum deploy
+- Force HTTPS untuk semua requests dan routes
 
 ### **✅ WEBSITE STATUS:**
 
@@ -629,6 +895,7 @@ merge
 - Performance optimal
 - HTTPS secure
 - SEO optimized
+- B2B/B2C navigation working
 - Ready for production
 
 ---
@@ -660,6 +927,7 @@ merge
 - [ ] **Cek project structure** dan tech stack
 - [ ] **Review implementasi berhasil** yang sudah ada
 - [ ] **Pahami prosedur deployment** yang aman
+- [ ] **Test B2B/B2C navigation** setelah deployment
 
 ### **🚀 LANGKAH PERTAMA YANG HARUS DILAKUKAN:**
 
@@ -668,6 +936,7 @@ merge
 3. **Baca section "FILE-FILE SANGAT SENSITIF"**
 4. **Pahami "PROSEDUR DEPLOYMENT YANG AMAN"**
 5. **Review "IMPLEMENTASI YANG SUDAH BERHASIL"**
+6. **Test B2B/B2C navigation** di production
 
 ### **❓ JIKA ADA PERTANYAAN:**
 
@@ -683,6 +952,7 @@ merge
 3. **Test di local** sebelum push
 4. **Build assets** sebelum deploy
 5. **Monitor deployment** status
+6. **Test B2B/B2C navigation** setelah deploy
 
 ### **📞 JIKA ADA MASALAH:**
 
@@ -690,6 +960,7 @@ merge
 2. **Follow emergency procedures** jika website down
 3. **Review "IMPLEMENTASI YANG GAGAL"** untuk menghindari kesalahan
 4. **Use incognito mode** untuk testing
+5. **Check B2B/B2C navigation** jika ada masalah routing
 
 ---
 
@@ -870,6 +1141,196 @@ curl -s -I https://cahayaweb-production.up.railway.app/
 ```
 
 **Result:** ✅ Build assets updated correctly
+
+### **Phase 6: B2B/B2C Navigation Fix**
+
+**Problem:** Cannot access B2B and B2C pages due to Mixed Content Error on Ziggy routes
+**Solution:** Implement HTTPS enforcement for all AJAX requests and Ziggy routes
+
+**Steps:**
+
+1. **Identify issue:** Ziggy still generating HTTP URLs for routes, causing Mixed Content Error
+
+2. **Update Ziggy Configuration in HandleInertiaRequests.php:**
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Foundation\Inspiring;
+use Illuminate\Http\Request;
+use Inertia\Middleware;
+use Tighten\Ziggy\Ziggy;
+
+class HandleInertiaRequests extends Middleware
+{
+    // ... existing code ...
+
+    public function share(Request $request): array
+    {
+        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
+
+        // Force HTTPS URL for Ziggy
+        $ziggy = new Ziggy();
+        $ziggyArray = $ziggy->toArray();
+        $ziggyArray['url'] = 'https://cahayaweb-production.up.railway.app';
+
+        return [
+            ...parent::share($request),
+            'name' => config('app.name'),
+            'quote' => ['message' => trim($message), 'author' => trim($author)],
+            'auth' => [
+                'user' => $request->user(),
+            ],
+            'ziggy' => fn (): array => [
+                ...$ziggyArray,
+                'location' => $request->url(),
+                'forceHttps' => true, // Add flag to force HTTPS
+            ],
+            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+        ];
+    }
+}
+```
+
+3. **Add HTTPS Enforcement Script in app.tsx:**
+
+```typescript
+import '../css/app.css';
+
+import { createInertiaApp, type PageProps } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { createRoot } from 'react-dom/client';
+import { initializeTheme } from './hooks/use-appearance';
+
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+// Force HTTPS for all requests to prevent Mixed Content errors
+if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    // Override fetch to force HTTPS
+    const originalFetch = window.fetch;
+    window.fetch = function (url, options) {
+        if (typeof url === 'string' && url.startsWith('http://')) {
+            url = url.replace('http://', 'https://');
+        }
+        return originalFetch(url, options);
+    };
+
+    // Override XMLHttpRequest to force HTTPS
+    const originalXHROpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (method, url, ...args) {
+        if (typeof url === 'string' && url.startsWith('http://')) {
+            url = url.replace('http://', 'https://');
+        }
+        return originalXHROpen.call(this, method, url, ...args);
+    };
+}
+
+createInertiaApp({
+    // ... existing config ...
+});
+
+// This will set light / dark mode on load...
+initializeTheme();
+```
+
+4. **Add Route Function Override in app.blade.php:**
+
+```html
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+        <!-- Scripts -->
+        @routes @viteReactRefresh @vite(['resources/css/app.css', 'resources/js/app.tsx']) @inertiaHead
+
+        <!-- Force HTTPS for all requests -->
+        <script>
+            // Force HTTPS for all requests to prevent Mixed Content errors
+            if (window.location.protocol === 'https:') {
+                // Override fetch to force HTTPS
+                const originalFetch = window.fetch;
+                window.fetch = function (url, options) {
+                    if (typeof url === 'string' && url.startsWith('http://')) {
+                        url = url.replace('http://', 'https://');
+                    }
+                    return originalFetch(url, options);
+                };
+
+                // Override XMLHttpRequest to force HTTPS
+                const originalXHROpen = XMLHttpRequest.prototype.open;
+                XMLHttpRequest.prototype.open = function (method, url, ...args) {
+                    if (typeof url === 'string' && url.startsWith('http://')) {
+                        url = url.replace('http://', 'https://');
+                    }
+                    return originalXHROpen.call(this, method, url, ...args);
+                };
+
+                // Override Ziggy URL to force HTTPS
+                if (typeof Ziggy !== 'undefined') {
+                    Ziggy.url = Ziggy.url.replace('http://', 'https://');
+
+                    // Override route function to force HTTPS
+                    const originalRoute = window.route;
+                    window.route = function (name, params, absolute, config) {
+                        const url = originalRoute(name, params, absolute, config);
+                        return url.replace('http://', 'https://');
+                    };
+                }
+            }
+        </script>
+    </head>
+    <body class="font-sans antialiased">
+        @inertia
+    </body>
+</html>
+```
+
+5. **Set Environment Variables in Railway:**
+
+```bash
+railway variables --set "ZIGGY_URL=https://cahayaweb-production.up.railway.app"
+```
+
+6. **Rebuild and Deploy:**
+
+```bash
+npm run build
+cp public/build/.vite/manifest.json public/build/manifest.json
+git add -f public/build/ app/Http/Middleware/HandleInertiaRequests.php resources/js/app.tsx resources/views/app.blade.php
+git commit -m "🔧 FIX: Add HTTPS enforcement for B2B/B2C navigation - prevent Mixed Content errors"
+git push origin main
+```
+
+7. **Test Navigation:**
+
+```bash
+# Test B2B page
+curl -s https://cahayaweb-production.up.railway.app/b2b | grep -i "component.*b2b"
+
+# Test B2C page
+curl -s https://cahayaweb-production.up.railway.app/home | grep -i "component.*b2c"
+```
+
+**Result:** ✅ B2B and B2C navigation working without Mixed Content Error
+
+**Implementation Results:**
+
+- Ziggy URL using HTTPS: `"url":"https:\/\/cahayaweb-production.up.railway.app"`
+- B2B page showing component: `"component":"b2b\/index"`
+- B2C page showing component: `"component":"b2c\/home"`
+- forceHttps flag active: `"forceHttps":true`
+- All AJAX requests using HTTPS
 
 ---
 
