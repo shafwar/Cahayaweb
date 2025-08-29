@@ -1,0 +1,16 @@
+# Reduce snapshot size
+node_modules/
+.git/
+*.log
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+.env.local
+.env.*.local
+coverage/
+.nyc_output/
+.cache/
+dist/
+tmp/
+temp/
