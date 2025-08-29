@@ -4,7 +4,8 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "healthcheckPath": "/health",
+    "startCommand": "php bootstrap/railway-setup.php && php artisan serve --host=0.0.0.0 --port=$PORT",
+    "healthcheckPath": "/check.php",
     "healthcheckTimeout": 300
   }
 }
