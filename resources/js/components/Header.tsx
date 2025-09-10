@@ -177,34 +177,38 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
     // Check if current page is B2B or B2C to determine logo link
     const getLogoLink = () => {
         const currentPath = window.location.pathname;
-        
+
         // Check if we're in B2B or B2C pages
-        if (currentPath.startsWith('/b2b') || 
-            currentPath.startsWith('/home') || 
-            currentPath.startsWith('/about') || 
-            currentPath.startsWith('/destinations') || 
-            currentPath.startsWith('/packages') || 
-            currentPath.startsWith('/highlights') || 
-            currentPath.startsWith('/blog') || 
-            currentPath.startsWith('/contact')) {
+        if (
+            currentPath.startsWith('/b2b') ||
+            currentPath.startsWith('/home') ||
+            currentPath.startsWith('/about') ||
+            currentPath.startsWith('/destinations') ||
+            currentPath.startsWith('/packages') ||
+            currentPath.startsWith('/highlights') ||
+            currentPath.startsWith('/blog') ||
+            currentPath.startsWith('/contact')
+        ) {
             return '/'; // Return to select mode
         }
-        
+
         return '/'; // Default to home
     };
 
     const handleLogoClick = (e: React.MouseEvent) => {
         const currentPath = window.location.pathname;
-        
+
         // If we're in B2B or B2C pages, navigate to select mode
-        if (currentPath.startsWith('/b2b') || 
-            currentPath.startsWith('/home') || 
-            currentPath.startsWith('/about') || 
-            currentPath.startsWith('/destinations') || 
-            currentPath.startsWith('/packages') || 
-            currentPath.startsWith('/highlights') || 
-            currentPath.startsWith('/blog') || 
-            currentPath.startsWith('/contact')) {
+        if (
+            currentPath.startsWith('/b2b') ||
+            currentPath.startsWith('/home') ||
+            currentPath.startsWith('/about') ||
+            currentPath.startsWith('/destinations') ||
+            currentPath.startsWith('/packages') ||
+            currentPath.startsWith('/highlights') ||
+            currentPath.startsWith('/blog') ||
+            currentPath.startsWith('/contact')
+        ) {
             e.preventDefault();
             router.visit('/');
         }
@@ -246,9 +250,9 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
         <header className={getHeaderClasses()} style={getHeaderStyle()}>
             {/* Logo Section */}
             <div className="flex items-center pr-2 pl-2 sm:pr-4 sm:pl-3 lg:pr-6 lg:pl-4">
-                <a 
-                    href={getLogoLink()} 
-                    className="flex items-center transition-all duration-300 hover:scale-105" 
+                <a
+                    href={getLogoLink()}
+                    className="flex items-center transition-all duration-300 hover:scale-105"
                     aria-label="Cahaya Anbiya Wisata Logo"
                     onClick={handleLogoClick}
                 >
@@ -500,11 +504,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                 >
                     {/* Drawer header logo */}
                     <div className="flex items-center justify-center px-4 pt-6 pb-2">
-                        <a 
-                            href={getLogoLink()} 
-                            className="flex items-center transition-all duration-300 hover:scale-105" 
-                            onClick={handleLogoClick}
-                        >
+                        <a href={getLogoLink()} className="flex items-center transition-all duration-300 hover:scale-105" onClick={handleLogoClick}>
                             <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Wisata Logo" className="h-14 object-contain" />
                         </a>
                     </div>

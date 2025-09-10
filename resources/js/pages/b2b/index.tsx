@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { RippleButton } from '@/components/ui/ripple-button';
 import B2BLayout from '@/layouts/b2b-layout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
@@ -606,6 +606,18 @@ export default function CahayaAnbiyaHero() {
                                     </div>
                                 </DialogContent>
                             </Dialog>
+
+                            {/* Login Button - Added here */}
+                            <Link href={route('b2b.login')}>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="rounded-full border border-white/20 bg-white/10 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20"
+                                    style={{ fontFamily: 'Poppins, sans-serif' }}
+                                >
+                                    🔐 B2B Login
+                                </motion.button>
+                            </Link>
                         </motion.div>
 
                         {/* Trust Indicators with Live Counter */}

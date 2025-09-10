@@ -1,8 +1,8 @@
-import { Link, usePage } from '@inertiajs/react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowLeftRight, Briefcase, Building2, Home, MessageCircle } from 'lucide-react';
-import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Link, router, usePage } from '@inertiajs/react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ArrowLeftRight, Briefcase, Building2, Home, LogOut, MessageCircle, ShoppingCart, User, UserCircle } from 'lucide-react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 
 // Google Fonts import untuk Playfair Display
 const fontLink = document.createElement('link');
@@ -19,12 +19,75 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
     const headerHeight = useTransform(scrollY, [0, 120], [80, 60]);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [showPackagesDialog, setShowPackagesDialog] = useState(false);
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const { auth } = usePage().props as { auth: { user: any } };
 
     useEffect(() => {
         const onRoute = () => setMobileOpen(false);
         window.addEventListener('hashchange', onRoute);
         return () => window.removeEventListener('hashchange', onRoute);
     }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (userMenuOpen) {
+                const target = event.target as Element;
+                if (!target.closest('.user-menu-container')) {
+                    setUserMenuOpen(false);
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [userMenuOpen]);
+
+    const handleLogout = () => {
+        router.post(
+            route('logout'),
+            {},
+            {
+                onSuccess: () => {
+                    router.visit(route('b2b.login'));
+                },
+            },
+        );
+    };
+
+    const handleB2CSite = () => {
+        // Navigate to B2C site
+        window.open(route('home'), '_blank');
+    };
+
+    const handleSwitchMode = () => {
+        // Switch between B2B and B2C modes
+        const currentPath = window.location.pathname;
+        if (currentPath.startsWith('/b2b')) {
+            // Switch to B2C
+            router.visit(route('home'));
+        } else {
+            // Switch to B2B
+            router.visit(route('b2b.dashboard'));
+        }
+    };
+
+    const handleWhatsAppSupport = () => {
+        // Open WhatsApp support
+        const message = encodeURIComponent(
+            `Halo, saya butuh bantuan untuk akun B2B saya. Nama: ${auth?.user?.name || 'User'}, Email: ${auth?.user?.email || 'user@example.com'}`,
+        );
+        window.open(`https://wa.me/6281234567890?text=${message}`, '_blank');
+    };
+
+    const handleRefreshDashboard = () => {
+        // Refresh current page
+        window.location.reload();
+    };
+
+    const handleNewBooking = () => {
+        // Navigate to packages to create new booking
+        router.visit(route('b2b.packages'));
+    };
 
     return (
         <div className="flex min-h-dvh flex-col bg-background text-foreground">
@@ -62,36 +125,32 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
 
                     {/* Enhanced Navigation with Beautiful Design */}
                     <motion.nav className="hidden shrink-0 items-center text-[15px] md:flex" style={{ gap }}>
-                        <B2BLink href={route('b2b.index')} icon={Building2}>
-                            Agency
+                        <B2BLink href={route('b2b.dashboard')} icon={Building2}>
+                            Dashboard
                         </B2BLink>
-                        <button
-                            onClick={() => setShowPackagesDialog(true)}
-                            className="relative font-medium tracking-wide transition-colors hover:text-accent"
-                        >
+                        <B2BLink href={route('b2b.packages')} icon={Briefcase}>
+                            Packages
+                        </B2BLink>
+                        <B2BLink href={route('b2b.bookings.index')} icon={ShoppingCart}>
+                            My Bookings
+                        </B2BLink>
+                        <B2BLink href={route('b2b.profile')} icon={User}>
+                            Profile
+                        </B2BLink>
+                        <button onClick={handleWhatsAppSupport} className="relative font-medium tracking-wide transition-colors hover:text-accent">
                             <span className="inline-flex items-center gap-1.5">
-                                <Briefcase className="h-[18px] w-[18px] opacity-80" />
-                                Packages
+                                <MessageCircle className="h-[18px] w-[18px] opacity-80" />
+                                WhatsApp
                             </span>
-                            <motion.span
-                                layoutId="nav-underline"
-                                className="absolute -bottom-1 left-0 h-[2px] w-full bg-accent"
-                                initial={{ scaleX: 0 }}
-                                whileHover={{ scaleX: 1 }}
-                                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                            />
                         </button>
-                        <B2BLink href="https://wa.me/6281234567890" icon={MessageCircle} target="_blank">
-                            WhatsApp
-                        </B2BLink>
 
                         {/* Elegant Separator */}
                         <div className="mx-2 h-6 w-px bg-gradient-to-b from-transparent via-white/30 to-transparent" />
 
                         {/* Enhanced Action Buttons */}
                         <div className="flex items-center gap-3">
-                            <Link
-                                href={route('home')}
+                            <button
+                                onClick={handleB2CSite}
                                 className="group relative overflow-hidden rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/10 hover:shadow-lg"
                             >
                                 <span className="relative z-10 inline-flex items-center gap-2">
@@ -99,9 +158,9 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                                     B2C Site
                                 </span>
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                            </Link>
-                            <Link
-                                href={route('home')}
+                            </button>
+                            <button
+                                onClick={handleSwitchMode}
                                 className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-accent to-accent/90 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-accent/90 hover:to-accent hover:shadow-xl"
                             >
                                 <span className="relative z-10 inline-flex items-center gap-2">
@@ -109,7 +168,52 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                                     Switch
                                 </span>
                                 <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/20 to-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                            </Link>
+                            </button>
+
+                            {/* User Menu Dropdown */}
+                            <div className="user-menu-container relative">
+                                <button
+                                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                                    className="group relative overflow-hidden rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/10 hover:shadow-lg"
+                                >
+                                    <span className="relative z-10 inline-flex items-center gap-2">
+                                        <UserCircle className="h-[18px] w-[18px]" />
+                                        {auth?.user?.name || 'User'}
+                                    </span>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                </button>
+
+                                {/* Dropdown Menu */}
+                                {userMenuOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="absolute top-full right-0 mt-2 w-48 rounded-lg border border-white/20 bg-gray-800/95 py-2 shadow-xl backdrop-blur-xl"
+                                    >
+                                        <div className="border-b border-white/10 px-4 py-2">
+                                            <p className="text-sm font-medium text-white">{auth?.user?.name || 'User'}</p>
+                                            <p className="text-xs text-gray-400">{auth?.user?.email || 'user@example.com'}</p>
+                                        </div>
+                                        <Link
+                                            href={route('b2b.profile')}
+                                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                                            onClick={() => setUserMenuOpen(false)}
+                                        >
+                                            <User className="h-4 w-4" />
+                                            Profile
+                                        </Link>
+                                        <button
+                                            onClick={handleLogout}
+                                            className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
+                                        >
+                                            <LogOut className="h-4 w-4" />
+                                            Logout
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </div>
                         </div>
                     </motion.nav>
 
@@ -148,9 +252,11 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                         {/* Navigation Links */}
                         <div className="grid gap-1">
                             {[
-                                { href: route('b2b.index'), label: 'Agency', icon: Building2 },
-                                { label: 'Packages', icon: Briefcase, action: () => setShowPackagesDialog(true) },
-                                { href: 'https://wa.me/6281234567890', label: 'WhatsApp', icon: MessageCircle, target: '_blank' },
+                                { href: route('b2b.dashboard'), label: 'Dashboard', icon: Building2 },
+                                { href: route('b2b.packages'), label: 'Packages', icon: Briefcase },
+                                { href: route('b2b.bookings.index'), label: 'My Bookings', icon: ShoppingCart },
+                                { href: route('b2b.profile'), label: 'Profile', icon: User },
+                                { href: '#', label: 'WhatsApp', icon: MessageCircle, action: 'whatsapp' },
                             ].map((item, index) => (
                                 <motion.div
                                     key={item.label}
@@ -158,13 +264,13 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 0.3, delay: 0.1 }}
                                 >
-                                    {item.action ? (
+                                    {item.action === 'whatsapp' ? (
                                         <button
                                             onClick={() => {
-                                                item.action();
                                                 setMobileOpen(false);
+                                                handleWhatsAppSupport();
                                             }}
-                                            className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-base font-medium text-white transition-all duration-200 hover:bg-white/10 hover:shadow-lg"
+                                            className="group flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium text-white transition-all duration-200 hover:bg-white/10 hover:shadow-lg"
                                         >
                                             <item.icon className="h-5 w-5 opacity-70 transition-opacity group-hover:opacity-100" />
                                             <span>{item.label}</span>
@@ -200,25 +306,42 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                         {/* Action Buttons */}
                         <div className="grid gap-3">
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.2 }}>
-                                <Link
-                                    href={route('home')}
+                                <button
+                                    onClick={() => {
+                                        setMobileOpen(false);
+                                        handleB2CSite();
+                                    }}
                                     className="flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-base font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-white/40 hover:bg-white/10 hover:shadow-lg"
-                                    onClick={() => setMobileOpen(false)}
                                 >
                                     <Home className="h-4 w-4" />
                                     <span>Go to B2C Site</span>
-                                </Link>
+                                </button>
                             </motion.div>
 
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.3 }}>
-                                <Link
-                                    href={route('home')}
+                                <button
+                                    onClick={() => {
+                                        setMobileOpen(false);
+                                        handleSwitchMode();
+                                    }}
                                     className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent to-accent/80 px-4 py-3 text-base font-semibold text-accent-foreground shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-accent/90 hover:to-accent/70 hover:shadow-xl"
-                                    onClick={() => setMobileOpen(false)}
                                 >
                                     <ArrowLeftRight className="h-4 w-4" />
                                     <span>Switch Mode</span>
-                                </Link>
+                                </button>
+                            </motion.div>
+
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.4 }}>
+                                <button
+                                    onClick={() => {
+                                        setMobileOpen(false);
+                                        handleLogout();
+                                    }}
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-base font-medium text-red-400 backdrop-blur-sm transition-all duration-200 hover:border-red-500/50 hover:bg-red-500/20 hover:text-red-300"
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                    <span>Logout</span>
+                                </button>
                             </motion.div>
                         </div>
                     </div>
@@ -229,7 +352,7 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
 
             {/* Packages Dialog */}
             <Dialog open={showPackagesDialog} onOpenChange={setShowPackagesDialog}>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-amber-950 via-orange-950 to-amber-900 border border-amber-500/30 shadow-2xl">
+                <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto border border-amber-500/30 bg-gradient-to-br from-amber-950 via-orange-950 to-amber-900 shadow-2xl">
                     <DialogHeader className="border-b border-amber-500/30 pb-4">
                         <DialogTitle className="bg-gradient-to-r from-amber-300 via-yellow-200 to-orange-300 bg-clip-text text-2xl font-bold text-transparent">
                             ✨ Premium Hajj & Umrah Packages
@@ -275,7 +398,10 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                                 highlights: 'Ultimate luxury experience for the sacred journey',
                             },
                         ].map((pkg) => (
-                            <div key={pkg.id} className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-900/50 to-orange-900/50 p-6">
+                            <div
+                                key={pkg.id}
+                                className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-900/50 to-orange-900/50 p-6"
+                            >
                                 <h3 className="mb-2 text-xl font-bold text-amber-300">{pkg.name}</h3>
                                 <p className="mb-2 text-sm text-gray-300">{pkg.duration}</p>
                                 <p className="mb-4 text-lg font-semibold text-amber-200">{pkg.price}</p>
@@ -283,7 +409,7 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                                 <ul className="mb-6 space-y-2">
                                     {pkg.features.map((feature, index) => (
                                         <li key={index} className="flex items-start gap-2 text-sm text-gray-300">
-                                            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-400 flex-shrink-0"></span>
+                                            <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400"></span>
                                             {feature}
                                         </li>
                                     ))}

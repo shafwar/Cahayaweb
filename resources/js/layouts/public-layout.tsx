@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Home, Info, MapPin, Newspaper, Package, Phone, Sparkles } from 'lucide-react';
+import { Home, Info, MapPin, Newspaper, Phone, Sparkles } from 'lucide-react';
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 
 // Google Fonts import untuk Playfair Display
@@ -66,9 +66,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                         <NavLink icon={MapPin} href={route('b2c.destinations')}>
                             Destinations
                         </NavLink>
-                        <NavLink icon={Package} href={route('b2c.packages')}>
-                            Packages
-                        </NavLink>
+
                         <NavLink icon={Sparkles} href={route('b2c.highlights')}>
                             Highlights
                         </NavLink>
@@ -139,7 +137,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                                 { href: route('b2c.home'), label: 'Home', icon: Home },
                                 { href: route('b2c.about'), label: 'About', icon: Info },
                                 { href: route('b2c.destinations'), label: 'Destinations', icon: MapPin },
-                                { href: route('b2c.packages'), label: 'Packages', icon: Package },
+
                                 { href: route('b2c.highlights'), label: 'Highlights', icon: Sparkles },
                                 { href: route('b2c.blog'), label: 'Blog', icon: Newspaper },
                                 { href: route('b2c.contact'), label: 'Contact', icon: Phone },
