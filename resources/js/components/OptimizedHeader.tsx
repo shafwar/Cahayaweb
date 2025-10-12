@@ -196,36 +196,57 @@ export default function OptimizedHeader() {
 
     return (
         <>
-            {/* Enhanced Dynamic Header */}
+            {/* Enhanced Dynamic Header with Scroll Behavior */}
             <motion.header
                 initial={{ y: -100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
+                animate={{
+                    y: 0,
+                    opacity: 1,
+                    backgroundColor: shouldUseLightTheme
+                        ? `rgba(255, 255, 255, ${bgOpacity.get()})`
+                        : `rgba(0, 0, 0, ${Math.max(bgOpacity.get(), 0.1)})`
+                }}
                 transition={{ duration: 0.6, ease: [0.25, 0.25, 0, 1] }}
                 className={`fixed top-0 right-0 left-0 z-[9999] transition-all duration-700 ${
                     shouldUseLightTheme
-                        ? 'border-b border-secondary/20 bg-white/95 shadow-xl backdrop-blur-xl'
-                        : 'bg-gradient-to-r from-black/90 via-black/80 to-black/90'
+                        ? 'border-b border-secondary/20 shadow-xl backdrop-blur-xl'
+                        : 'backdrop-blur-xl'
                 }`}
                 style={{
-                    backgroundColor: shouldUseLightTheme ? `rgba(255, 255, 255, ${bgOpacity.get()})` : `rgba(0, 0, 0, ${bgOpacity.get()})`,
+                    backgroundColor: shouldUseLightTheme
+                        ? `rgba(255, 255, 255, ${bgOpacity.get()})`
+                        : `rgba(0, 0, 0, ${Math.max(bgOpacity.get(), 0.1)})`,
                     backdropFilter: `saturate(180%) blur(${blur.get()}px)`,
-                    boxShadow: shouldUseLightTheme ? '0 4px 20px rgba(0, 0, 0, 0.15)' : '0 4px 20px rgba(0, 0, 0, 0.3)',
+                    boxShadow: shouldUseLightTheme
+                        ? `0 4px 20px rgba(0, 0, 0, ${Math.min(bgOpacity.get() * 0.5, 0.15)})`
+                        : `0 4px 20px rgba(0, 0, 0, ${Math.min(bgOpacity.get() * 0.8, 0.3)})`,
                 }}
             >
                 <motion.div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" style={{ height: headerHeight }}>
                     <div className="flex h-full items-center justify-between">
-                        {/* Enhanced Logo - Clean & Proportional */}
-                        <motion.div style={{ scale }} className="flex items-center">
+                        {/* Enhanced Logo - Dynamic & Proportional */}
+                        <motion.div
+                            style={{ scale }}
+                            className="flex items-center"
+                            animate={{
+                                scale: isScrolled ? 0.9 : 1,
+                            }}
+                            transition={{ duration: 0.3 }}
+                        >
                             <Link href={route('b2c.home')} className="group relative inline-block">
                                 <div className="flex items-center justify-center">
                                     <img
                                         src="/cahayanbiyalogo.png"
                                         alt="Cahaya Anbiya Logo"
-                                        className="h-12 w-auto transition-all duration-300 group-hover:scale-105 sm:h-14 md:h-16 lg:h-18"
+                                        className={`w-auto transition-all duration-300 group-hover:scale-105 ${
+                                            isScrolled
+                                                ? 'h-10 sm:h-12 md:h-14'
+                                                : 'h-12 sm:h-14 md:h-16 lg:h-18'
+                                        }`}
                                     />
                                 </div>
 
-                                {/* Subtle hover glow effect */}
+                                {/* Dynamic hover glow effect */}
                                 <motion.div
                                     className={`absolute inset-0 rounded-full opacity-0 blur-sm transition-opacity duration-300 ${
                                         shouldUseLightTheme ? 'bg-secondary/20' : 'bg-accent/20'
@@ -246,10 +267,12 @@ export default function OptimizedHeader() {
                                 >
                                     <Link
                                         href={item.href}
-                                        className={`group flex items-center gap-2 rounded-xl px-4 py-2 font-medium transition-all duration-300 ${
+                                        className={`group flex items-center gap-2 rounded-xl px-3 py-2 font-medium transition-all duration-300 ${
                                             shouldUseLightTheme
                                                 ? 'text-gray-700 hover:bg-secondary/10 hover:text-secondary'
                                                 : 'text-white hover:bg-white/10 hover:text-accent'
+                                        } ${
+                                            isScrolled ? 'px-2 py-1.5' : 'px-4 py-2'
                                         }`}
                                     >
                                         {item.icon && <item.icon className="h-4 w-4 transition-transform group-hover:scale-110" />}
@@ -304,14 +327,14 @@ export default function OptimizedHeader() {
                             <div className="mx-3 h-6 w-px bg-gradient-to-b from-transparent via-white/30 to-transparent" />
 
                             {/* Enhanced Action Buttons */}
-                            <div className="flex items-center gap-3">
+                            <div className={`flex items-center transition-all duration-300 ${isScrolled ? 'gap-2' : 'gap-3'}`}>
                                 <Link
                                     href={route('home')}
-                                    className={`group relative overflow-hidden rounded-xl border px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                                    className={`group relative overflow-hidden rounded-xl border text-sm font-medium transition-all duration-300 ${
                                         shouldUseLightTheme
                                             ? 'border-secondary/30 bg-secondary/5 text-black hover:border-secondary/50 hover:bg-secondary/10'
                                             : 'border-white/20 bg-white/5 text-white hover:border-white/40 hover:bg-white/10'
-                                    }`}
+                                    } ${isScrolled ? 'px-3 py-1.5' : 'px-4 py-2'}`}
                                 >
                                     <span className="relative z-10">B2B/B2C</span>
                                     <motion.div
@@ -323,7 +346,9 @@ export default function OptimizedHeader() {
                                 </Link>
                                 <Link
                                     href={route('login')}
-                                    className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-accent to-accent/90 px-5 py-2 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-accent/90 hover:to-accent hover:shadow-xl"
+                                    className={`group relative overflow-hidden rounded-xl bg-gradient-to-r from-accent to-accent/90 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-accent/90 hover:to-accent hover:shadow-xl ${
+                                        isScrolled ? 'px-4 py-1.5' : 'px-5 py-2'
+                                    }`}
                                 >
                                     <span className="relative z-10 flex items-center gap-2">
                                         <LogIn className="h-4 w-4" />
@@ -342,9 +367,9 @@ export default function OptimizedHeader() {
                         {/* Enhanced Mobile Menu Button */}
                         <button
                             onClick={() => setIsMobileMenuOpen(true)}
-                            className={`rounded-xl p-3 transition-all duration-300 lg:hidden ${
+                            className={`rounded-xl transition-all duration-300 lg:hidden ${
                                 shouldUseLightTheme ? 'bg-secondary/10 text-black hover:bg-secondary/20' : 'bg-white/10 text-white hover:bg-white/20'
-                            }`}
+                            } ${isScrolled ? 'p-2' : 'p-3'}`}
                             aria-label="Open mobile menu"
                         >
                             <motion.div
@@ -386,21 +411,25 @@ export default function OptimizedHeader() {
                                 stiffness: 200,
                                 mass: 0.8,
                             }}
-                            className="absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-gradient-to-b from-white via-white to-gray-50 shadow-2xl"
+                            className="absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-gradient-to-b from-gray-900 via-black to-gray-900 shadow-2xl"
                             style={{ height: '100dvh' }}
                         >
                             <div className="flex h-full flex-col">
-                                {/* Enhanced Header - Clean Logo Only */}
-                                <div className="flex items-center justify-between border-b bg-gradient-to-r from-secondary/10 to-accent/10 p-6">
+                                {/* Enhanced Header - Dark Theme with Dynamic Colors */}
+                                <div className="flex items-center justify-between border-b border-secondary/20 bg-gradient-to-r from-secondary/20 via-accent/10 to-secondary/20 p-6">
                                     <div className="flex items-center space-x-3">
                                         <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Logo" className="h-12 w-auto" />
+                                        <div>
+                                            <h2 className="text-lg font-semibold text-white">Navigation</h2>
+                                            <p className="text-xs text-secondary">Choose your destination</p>
+                                        </div>
                                     </div>
                                     <button
                                         onClick={() => setIsMobileMenuOpen(false)}
-                                        className="rounded-xl bg-white/80 p-2 transition-colors hover:bg-white"
+                                        className="rounded-xl bg-white/10 p-2 transition-all duration-300 hover:bg-accent/20 hover:scale-105"
                                         aria-label="Close mobile menu"
                                     >
-                                        <X className="h-5 w-5 text-gray-700" />
+                                        <X className="h-5 w-5 text-white" />
                                     </button>
                                 </div>
 
@@ -417,14 +446,32 @@ export default function OptimizedHeader() {
                                                 <div>
                                                     <Link
                                                         href={item.href}
-                                                        className="group flex items-center justify-between rounded-xl px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-secondary/10 hover:text-secondary"
+                                                        className="group relative flex items-center justify-between rounded-xl px-4 py-3 text-white transition-all duration-300 hover:bg-gradient-to-r hover:from-secondary/20 hover:to-accent/20 hover:shadow-lg hover:shadow-secondary/10"
                                                         onClick={() => !item.hasDropdown && setIsMobileMenuOpen(false)}
                                                     >
                                                         <div className="flex items-center gap-3">
                                                             {item.icon && (
-                                                                <item.icon className="h-5 w-5 transition-transform group-hover:scale-110" />
+                                                                <item.icon className="h-5 w-5 text-secondary transition-all duration-300 group-hover:scale-110 group-hover:text-accent" />
                                                             )}
-                                                            <span className="font-medium">{item.name}</span>
+                                                            <div className="flex flex-col">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="font-medium text-white group-hover:text-accent transition-colors duration-300">{item.name}</span>
+                                                                    {item.name === 'Destinations' && (
+                                                                        <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">
+                                                                            New
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <span className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
+                                                                    {item.name === 'Home' && 'Discover our amazing destinations'}
+                                                                    {item.name === 'About' && 'Learn about our story and values'}
+                                                                    {item.name === 'Destinations' && 'Explore beautiful places around the world'}
+                                                                    {item.name === 'Packages' && 'Find the perfect travel package'}
+                                                                    {item.name === 'Highlights' && 'Featured travel experiences'}
+                                                                    {item.name === 'Blog' && 'Travel tips and stories'}
+                                                                    {item.name === 'Contact' && 'Get in touch with us'}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                         {item.hasDropdown && (
                                                             <button
@@ -440,7 +487,7 @@ export default function OptimizedHeader() {
                                                                     }}
                                                                     transition={{ duration: 0.2 }}
                                                                 >
-                                                                    <ChevronDown className="h-4 w-4" />
+                                                                    <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-accent transition-colors duration-300" />
                                                                 </motion.div>
                                                             </button>
                                                         )}
@@ -467,12 +514,12 @@ export default function OptimizedHeader() {
                                                                             >
                                                                                 <Link
                                                                                     href={subItem.href}
-                                                                                    className="block rounded-lg px-4 py-2 text-sm text-gray-600 transition-all duration-200 hover:bg-secondary/10 hover:text-secondary"
+                                                                                    className="block rounded-lg px-4 py-2 text-sm text-gray-300 transition-all duration-300 hover:bg-secondary/20 hover:text-secondary hover:shadow-md"
                                                                                     onClick={() => setIsMobileMenuOpen(false)}
                                                                                 >
                                                                                     <div className="font-medium">{subItem.name}</div>
                                                                                     {subItem.description && (
-                                                                                        <div className="mt-0.5 text-xs text-gray-500">
+                                                                                        <div className="mt-0.5 text-xs text-gray-400">
                                                                                             {subItem.description}
                                                                                         </div>
                                                                                     )}
@@ -490,22 +537,39 @@ export default function OptimizedHeader() {
                                     </div>
                                 </nav>
 
-                                {/* Enhanced Footer CTA */}
-                                <div className="border-t bg-gradient-to-r from-secondary/10 to-accent/10 p-6">
+                                {/* Enhanced Footer CTA - Dark Theme */}
+                                <div className="border-t border-secondary/20 bg-gradient-to-r from-gray-800/50 via-black/30 to-gray-800/50 p-6">
                                     <div className="space-y-3">
                                         <Link
                                             href={route('home')}
-                                            className="block w-full rounded-xl bg-secondary/20 py-3 text-center font-medium text-secondary transition-colors hover:bg-secondary/30"
+                                            className="group block w-full rounded-xl border border-secondary/30 bg-secondary/10 py-3 text-center font-medium text-secondary transition-all duration-300 hover:border-secondary/50 hover:bg-secondary/20 hover:shadow-lg hover:shadow-secondary/10"
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
-                                            Switch to B2B/B2C
+                                            <span className="flex items-center justify-center gap-2">
+                                                Switch to B2B/B2C
+                                                <motion.div
+                                                    className="text-secondary"
+                                                    animate={{ x: [0, 5, 0] }}
+                                                    transition={{ duration: 2, repeat: Infinity }}
+                                                >
+                                                    →
+                                                </motion.div>
+                                            </span>
                                         </Link>
                                         <Link
                                             href={route('login')}
-                                            className="block w-full rounded-xl bg-gradient-to-r from-accent to-accent/90 py-3 text-center font-semibold text-white shadow-lg transition-all duration-300 hover:from-accent/90 hover:to-accent"
+                                            className="group block w-full rounded-xl bg-gradient-to-r from-accent via-accent/90 to-accent py-3 text-center font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:from-accent/90 hover:to-accent hover:shadow-2xl hover:shadow-accent/20"
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
-                                            Login to Account
+                                            <span className="flex items-center justify-center gap-2">
+                                                Login to Account
+                                                <motion.div
+                                                    animate={{ rotate: [0, 10, -10, 0] }}
+                                                    transition={{ duration: 2, repeat: Infinity }}
+                                                >
+                                                    🔑
+                                                </motion.div>
+                                            </span>
                                         </Link>
                                     </div>
                                 </div>
