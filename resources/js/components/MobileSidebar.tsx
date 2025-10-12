@@ -1,19 +1,7 @@
-import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from '@inertiajs/react';
-import { 
-    Home, 
-    Info, 
-    MapPin, 
-    Package, 
-    Sparkles, 
-    Newspaper, 
-    Phone, 
-    X,
-    ChevronRight,
-    User,
-    Settings
-} from 'lucide-react';
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronRight, Home, Info, MapPin, Newspaper, Package, Phone, Settings, Sparkles, User, X } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface MobileSidebarProps {
     isOpen: boolean;
@@ -36,48 +24,48 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
 
     // Menu items with enhanced structure
     const menuItems: MenuItem[] = [
-        { 
-            href: route('b2c.home'), 
-            label: 'Home', 
+        {
+            href: route('b2c.home'),
+            label: 'Home',
             icon: Home,
-            description: 'Discover our amazing destinations'
+            description: 'Discover our amazing destinations',
         },
-        { 
-            href: route('b2c.about'), 
-            label: 'About', 
+        {
+            href: route('b2c.about'),
+            label: 'About',
             icon: Info,
-            description: 'Learn about our story and values'
+            description: 'Learn about our story and values',
         },
-        { 
-            href: route('b2c.destinations'), 
-            label: 'Destinations', 
+        {
+            href: route('b2c.destinations'),
+            label: 'Destinations',
             icon: MapPin,
             badge: 'New',
-            description: 'Explore beautiful places around the world'
+            description: 'Explore beautiful places around the world',
         },
-        { 
-            href: route('b2c.packages'), 
-            label: 'Packages', 
+        {
+            href: route('b2c.packages'),
+            label: 'Packages',
             icon: Package,
-            description: 'Find the perfect travel package'
+            description: 'Find the perfect travel package',
         },
-        { 
-            href: route('b2c.highlights'), 
-            label: 'Highlights', 
+        {
+            href: route('b2c.highlights'),
+            label: 'Highlights',
             icon: Sparkles,
-            description: 'Featured travel experiences'
+            description: 'Featured travel experiences',
         },
-        { 
-            href: route('b2c.blog'), 
-            label: 'Blog', 
+        {
+            href: route('b2c.blog'),
+            label: 'Blog',
             icon: Newspaper,
-            description: 'Travel tips and stories'
+            description: 'Travel tips and stories',
         },
-        { 
-            href: route('b2c.contact'), 
-            label: 'Contact', 
+        {
+            href: route('b2c.contact'),
+            label: 'Contact',
             icon: Phone,
-            description: 'Get in touch with us'
+            description: 'Get in touch with us',
         },
     ];
 
@@ -89,17 +77,20 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
         }
     }, []);
 
-    const handleTouchMove = useCallback((e: React.TouchEvent) => {
-        if (gestureStart === null || e.touches.length !== 1) return;
-        
-        const deltaX = e.touches[0].clientX - gestureStart;
-        const threshold = 50;
-        
-        if (Math.abs(deltaX) > threshold) {
-            const direction = deltaX > 0 ? 'right' : 'left';
-            setGestureDirection(direction);
-        }
-    }, [gestureStart]);
+    const handleTouchMove = useCallback(
+        (e: React.TouchEvent) => {
+            if (gestureStart === null || e.touches.length !== 1) return;
+
+            const deltaX = e.touches[0].clientX - gestureStart;
+            const threshold = 50;
+
+            if (Math.abs(deltaX) > threshold) {
+                const direction = deltaX > 0 ? 'right' : 'left';
+                setGestureDirection(direction);
+            }
+        },
+        [gestureStart],
+    );
 
     const handleTouchEnd = useCallback(() => {
         if (gestureDirection === 'left' && isOpen) {
@@ -123,21 +114,28 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
         }
     }, [isOpen, onClose]);
 
-    // Body scroll lock
+    // Enhanced body scroll lock - only lock when sidebar is fully open
     useEffect(() => {
         if (isOpen) {
             const scrollY = window.scrollY;
-            document.body.style.position = 'fixed';
-            document.body.style.top = `-${scrollY}px`;
-            document.body.style.width = '100%';
-            document.body.style.overflow = 'hidden';
-            document.body.classList.add('mobile-sidebar-open');
+            const originalOverflow = document.body.style.overflow;
+            const originalPosition = document.body.style.position;
             
+            // Only lock scroll when sidebar is completely open
+            setTimeout(() => {
+                document.body.style.position = 'fixed';
+                document.body.style.top = `-${scrollY}px`;
+                document.body.style.width = '100%';
+                document.body.style.overflow = 'hidden';
+                document.body.classList.add('mobile-sidebar-open');
+            }, 100); // Small delay to allow sidebar animation to start
+
             return () => {
-                document.body.style.position = '';
+                // Restore original styles immediately
+                document.body.style.position = originalPosition;
                 document.body.style.top = '';
                 document.body.style.width = '';
-                document.body.style.overflow = '';
+                document.body.style.overflow = originalOverflow;
                 document.body.classList.remove('mobile-sidebar-open');
                 window.scrollTo(0, scrollY);
             };
@@ -162,53 +160,58 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {/* Backdrop */}
+                    {/* Enhanced Backdrop with Better Z-Index */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm"
                         onClick={onClose}
+                        style={{
+                            touchAction: 'none',
+                            WebkitTouchCallout: 'none',
+                            WebkitUserSelect: 'none',
+                            userSelect: 'none',
+                        }}
                     />
 
-                    {/* Sidebar */}
+                    {/* Enhanced Sidebar with Maximum Z-Index */}
                     <motion.div
                         ref={sidebarRef}
                         initial={{ x: '-100%' }}
-                        animate={{ 
+                        animate={{
                             x: 0,
                             ...(gestureDirection === 'left' && { x: -20 }),
-                            ...(gestureDirection === 'right' && { x: 10 })
+                            ...(gestureDirection === 'right' && { x: 10 }),
                         }}
                         exit={{ x: '-100%' }}
-                        transition={{ 
+                        transition={{
                             duration: 0.4,
-                            ease: [0.25, 0.25, 0, 1]
+                            ease: [0.25, 0.25, 0, 1],
                         }}
-                        className="fixed left-0 top-0 z-[90] h-full w-80 max-w-[85vw] bg-gradient-to-b from-black/95 to-black/90 backdrop-blur-xl shadow-2xl"
+                        className="fixed top-0 left-0 z-[9999] h-full w-80 max-w-[85vw] bg-gradient-to-b from-black/95 to-black/90 shadow-2xl backdrop-blur-xl"
                         onTouchStart={handleTouchStart}
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
                         style={{
                             WebkitOverflowScrolling: 'touch',
                             overscrollBehavior: 'contain',
+                            isolation: 'isolate',
+                            pointerEvents: 'auto',
+                            touchAction: 'pan-y',
                         }}
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between border-b border-white/10 p-6">
                             <div className="flex items-center gap-3">
-                                <img 
-                                    src="/cahayanbiyalogo.png" 
-                                    alt="Cahaya Anbiya Logo" 
-                                    className="h-10 w-auto"
-                                />
+                                <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Logo" className="h-10 w-auto" />
                                 <div>
                                     <h2 className="text-lg font-semibold text-white">Navigation</h2>
                                     <p className="text-xs text-gray-400">Choose your destination</p>
                                 </div>
                             </div>
-                            
+
                             <button
                                 onClick={onClose}
                                 className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
@@ -218,17 +221,25 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                             </button>
                         </div>
 
-                        {/* Navigation Menu */}
-                        <div className="flex-1 overflow-y-auto px-4 py-6">
+                        {/* Enhanced Navigation Menu with Better Scrolling */}
+                        <div 
+                            className="flex-1 overflow-y-auto px-4 py-6"
+                            style={{
+                                WebkitOverflowScrolling: 'touch',
+                                scrollbarWidth: 'thin',
+                                scrollbarColor: 'rgba(212, 175, 55, 0.3) transparent',
+                                overscrollBehavior: 'contain',
+                            }}
+                        >
                             <nav className="space-y-2">
                                 {menuItems.map((item, index) => (
                                     <motion.div
                                         key={item.href}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ 
-                                            duration: 0.3, 
-                                            delay: index * 0.05 
+                                        transition={{
+                                            duration: 0.3,
+                                            delay: index * 0.05,
                                         }}
                                     >
                                         <Link
@@ -244,7 +255,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                                             </div>
 
                                             {/* Content */}
-                                            <div className="flex-1 min-w-0">
+                                            <div className="min-w-0 flex-1">
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-medium">{item.label}</span>
                                                     {item.badge && (
@@ -253,9 +264,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                                                         </span>
                                                     )}
                                                 </div>
-                                                <p className="text-sm text-gray-400 group-hover:text-gray-300">
-                                                    {item.description}
-                                                </p>
+                                                <p className="text-sm text-gray-400 group-hover:text-gray-300">{item.description}</p>
                                             </div>
 
                                             {/* Arrow */}
@@ -265,7 +274,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                                             {activeSection === item.label && (
                                                 <motion.div
                                                     layoutId="active-indicator"
-                                                    className="absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-secondary"
+                                                    className="absolute top-1/2 left-0 h-8 w-1 -translate-y-1/2 rounded-r-full bg-secondary"
                                                     initial={{ scaleY: 0 }}
                                                     animate={{ scaleY: 1 }}
                                                     exit={{ scaleY: 0 }}
@@ -282,11 +291,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
 
                             {/* Action Buttons */}
                             <div className="space-y-3">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, delay: 0.4 }}
-                                >
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.4 }}>
                                     <Link
                                         href={route('home')}
                                         onClick={onClose}
@@ -302,11 +307,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                                     </Link>
                                 </motion.div>
 
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, delay: 0.5 }}
-                                >
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.5 }}>
                                     <Link
                                         href={route('login')}
                                         onClick={onClose}
@@ -338,10 +339,8 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
-                                className={`absolute right-4 top-1/2 -translate-y-1/2 rounded-full px-3 py-1 text-sm font-medium ${
-                                    gestureDirection === 'left' 
-                                        ? 'bg-red-100 text-red-700' 
-                                        : 'bg-green-100 text-green-700'
+                                className={`absolute top-1/2 right-4 -translate-y-1/2 rounded-full px-3 py-1 text-sm font-medium ${
+                                    gestureDirection === 'left' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
                                 }`}
                             >
                                 {gestureDirection === 'left' ? '← Swipe to close' : '→ Swipe detected'}

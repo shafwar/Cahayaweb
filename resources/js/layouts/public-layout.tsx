@@ -1,8 +1,9 @@
+import MobileSidebar from '@/components/MobileSidebar';
+import FloatingSidebarTrigger from '@/components/FloatingSidebarTrigger';
 import { Link, usePage } from '@inertiajs/react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Home, Info, MapPin, Newspaper, Package, Phone, Sparkles } from 'lucide-react';
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
-import MobileSidebar from '@/components/MobileSidebar';
 
 // Google Fonts import untuk Playfair Display
 const fontLink = document.createElement('link');
@@ -66,17 +67,22 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         return () => window.removeEventListener('scroll', onScroll);
     }, [scrollDirection, lastScrollY, mobileOpen]);
 
-    // Body scroll lock for mobile menu
+    // Enhanced body scroll lock - only when sidebar is fully open
     useEffect(() => {
         if (mobileOpen) {
-            const scrollY = window.scrollY;
-            document.body.style.position = 'fixed';
-            document.body.style.top = `-${scrollY}px`;
-            document.body.style.width = '100%';
-            document.body.style.overflow = 'hidden';
-            document.body.classList.add('mobile-menu-open');
+            // Small delay to prevent scroll lock during sidebar animation
+            const timer = setTimeout(() => {
+                const scrollY = window.scrollY;
+                document.body.style.position = 'fixed';
+                document.body.style.top = `-${scrollY}px`;
+                document.body.style.width = '100%';
+                document.body.style.overflow = 'hidden';
+                document.body.classList.add('mobile-menu-open');
+            }, 200);
 
             return () => {
+                clearTimeout(timer);
+                const scrollY = parseInt(document.body.style.top || '0') * -1;
                 document.body.style.position = '';
                 document.body.style.top = '';
                 document.body.style.width = '';
@@ -178,15 +184,15 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                     >
                         <div className="flex items-center gap-2">
                             <span>{mobileOpen ? 'Close' : 'Menu'}</span>
-                            <motion.div 
-                                animate={{ 
+                            <motion.div
+                                animate={{
                                     rotate: mobileOpen ? 180 : 0,
-                                    scale: mobileOpen ? 1.1 : 1
-                                }} 
-                                transition={{ 
+                                    scale: mobileOpen ? 1.1 : 1,
+                                }}
+                                transition={{
                                     duration: 0.3,
-                                    ease: [0.25, 0.25, 0, 1]
-                                }} 
+                                    ease: [0.25, 0.25, 0, 1],
+                                }}
                                 className="h-4 w-4"
                             >
                                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -194,14 +200,14 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                                 </svg>
                             </motion.div>
                         </div>
-                        
+
                         {/* Ripple effect */}
                         <motion.div
                             className="absolute inset-0 rounded-lg bg-white/10"
                             initial={{ scale: 0, opacity: 0 }}
-                            animate={{ 
-                                scale: mobileOpen ? 1 : 0, 
-                                opacity: mobileOpen ? 0.3 : 0 
+                            animate={{
+                                scale: mobileOpen ? 1 : 0,
+                                opacity: mobileOpen ? 0.3 : 0,
                             }}
                             transition={{ duration: 0.3 }}
                         />
@@ -304,9 +310,15 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
             </motion.header>
             <BreadcrumbBar />
             <main className="flex-1">{children}</main>
-            
+
             {/* Enhanced Mobile Sidebar */}
             <MobileSidebar isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+            
+            {/* Floating Sidebar Trigger */}
+            <FloatingSidebarTrigger 
+                onToggle={() => setMobileOpen(!mobileOpen)} 
+                isOpen={mobileOpen} 
+            />
         </div>
     );
 }
