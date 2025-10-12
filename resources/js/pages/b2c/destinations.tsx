@@ -47,7 +47,7 @@ export default function Destinations() {
                     className="mb-12 text-center md:mb-16"
                 >
                     <h1 className="mb-4 text-4xl font-bold text-foreground md:text-6xl lg:text-7xl">
-                        <span className="bg-gradient-to-r from-primary via-blue-500 to-secondary bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
                             Discover Your Dream Destinations
                         </span>
                     </h1>
@@ -57,15 +57,15 @@ export default function Destinations() {
                     </p>
                     <div className="mt-6 flex items-center justify-center space-x-4 text-sm text-muted-foreground">
                         <div className="flex items-center space-x-2">
-                            <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                            <div className="h-2 w-2 rounded-full bg-primary"></div>
                             <span>9 Premium Destinations</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                            <div className="h-2 w-2 rounded-full bg-secondary"></div>
                             <span>Curated Experiences</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
+                            <div className="h-2 w-2 rounded-full bg-accent"></div>
                             <span>Professional Service</span>
                         </div>
                     </div>
@@ -94,7 +94,7 @@ export default function Destinations() {
                                 'Daily spiritual programs',
                             ],
                             badge: 'Premium',
-                            badgeColor: 'bg-gradient-to-r from-blue-500 to-orange-500',
+                            badgeColor: 'bg-gradient-to-r from-primary to-secondary',
                             category: 'Spiritual',
                         },
                         {
@@ -163,7 +163,7 @@ export default function Destinations() {
                                 'Dhow cruise dinner',
                             ],
                             badge: 'Luxury',
-                            badgeColor: 'bg-gradient-to-r from-blue-500 to-sky-400',
+                            badgeColor: 'bg-gradient-to-r from-primary to-secondary',
                             category: 'Modern',
                         },
                         {
@@ -209,7 +209,7 @@ export default function Destinations() {
                                 'Luxury resort accommodations',
                             ],
                             badge: 'Premium',
-                            badgeColor: 'bg-gradient-to-r from-orange-500 to-yellow-500',
+                            badgeColor: 'bg-gradient-to-r from-accent to-secondary',
                             category: 'Luxury',
                         },
                         {
@@ -255,7 +255,7 @@ export default function Destinations() {
                                 'Modern entertainment',
                             ],
                             badge: 'Culture',
-                            badgeColor: 'bg-gradient-to-r from-sky-400 to-blue-500',
+                            badgeColor: 'bg-gradient-to-r from-secondary to-primary',
                             category: 'Heritage',
                         },
                         {
@@ -294,7 +294,7 @@ export default function Destinations() {
                                             ease: 'easeOut',
                                         },
                                     }}
-                                    className="group cursor-pointer overflow-hidden rounded-xl border border-border bg-card shadow-md transition-all duration-500 ease-in-out hover:shadow-xl"
+                                    className="group cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-500 ease-in-out hover:shadow-2xl hover:shadow-secondary/10"
                                 >
                                     {/* Enhanced Image/Thumbnail */}
                                     <div className="relative aspect-video overflow-hidden">
@@ -390,14 +390,14 @@ export default function Destinations() {
                                     <div className="h-1 origin-left scale-x-0 transform bg-gradient-to-r from-primary to-secondary transition-transform duration-500 group-hover:scale-x-100" />
                                 </motion.article>
                             </DialogTrigger>
-                            <DialogContent className="max-h-[90vh] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:max-w-2xl">
+                            <DialogContent className="max-h-[90vh] overflow-y-auto rounded-xl border-secondary/20 bg-white shadow-2xl shadow-black/10 sm:max-w-2xl">
                                 <DialogHeader>
                                     <DialogTitle className="text-2xl font-bold">{destination.title}</DialogTitle>
                                     <DialogDescription className="text-base leading-relaxed">{destination.description}</DialogDescription>
                                 </DialogHeader>
                                 <div className="mt-6 grid gap-4">
                                     {/* Package Details */}
-                                    <div className="rounded-lg border border-white/20 bg-card/60 p-4 backdrop-blur-sm">
+                                    <div className="rounded-lg border border-secondary/20 bg-gradient-to-br from-white to-gray-50/30 p-4 shadow-sm">
                                         <h4 className="mb-3 font-semibold text-primary">Package Details</h4>
                                         <div className="grid grid-cols-2 gap-3 text-sm">
                                             <div>
@@ -416,13 +416,13 @@ export default function Destinations() {
                                     </div>
 
                                     {/* Highlights */}
-                                    <div className="rounded-lg border border-white/20 bg-card/60 p-4 backdrop-blur-sm">
+                                    <div className="rounded-lg border border-secondary/20 bg-gradient-to-br from-white to-gray-50/30 p-4 shadow-sm">
                                         <h4 className="mb-3 font-semibold text-primary">Highlights</h4>
                                         <p className="text-sm leading-relaxed">{destination.highlights}</p>
                                     </div>
 
                                     {/* Included Features */}
-                                    <div className="rounded-lg border border-white/20 bg-card/60 p-4 backdrop-blur-sm">
+                                    <div className="rounded-lg border border-secondary/20 bg-gradient-to-br from-white to-gray-50/30 p-4 shadow-sm">
                                         <h4 className="mb-3 font-semibold text-primary">What's Included</h4>
                                         <ul className="grid grid-cols-1 gap-2 text-sm">
                                             {destination.features.map((feature, index) => (

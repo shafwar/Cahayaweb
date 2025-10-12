@@ -352,8 +352,8 @@ export default function Home() {
                                     aria-label={`Slide ${i + 1}`}
                                     className={`rounded-full transition-all duration-300 ${
                                         i === index
-                                            ? 'h-2 w-6 bg-accent shadow-lg sm:h-3 sm:w-8'
-                                            : 'h-2 w-2 bg-white/60 hover:bg-white/80 sm:h-3 sm:w-3'
+                                            ? 'h-2 w-6 bg-secondary shadow-lg shadow-secondary/50 sm:h-3 sm:w-8'
+                                            : 'h-2 w-2 bg-white/70 hover:bg-white/90 border border-white/30 sm:h-3 sm:w-3'
                                     }`}
                                     onClick={() => handleSlideChange(i)}
                                     whileHover={{ scale: 1.1 }}
@@ -437,7 +437,7 @@ export default function Home() {
                                     initial="rest"
                                     whileHover="hover"
                                     whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-white/20 bg-card/60 backdrop-blur-xl transition-all duration-300 supports-[backdrop-filter]:bg-card/40"
+                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
                                     style={{
                                         background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
                                         backdropFilter: 'blur(16px)',
@@ -463,7 +463,7 @@ export default function Home() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                             {/* Badge */}
                                             <div className="absolute top-3 right-3">
-                                                <span className="rounded-full bg-orange-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
+                                                <span className="rounded-full bg-secondary px-2 py-1 text-xs font-bold text-black shadow-lg">
                                                     Best Seller
                                                 </span>
                                             </div>
@@ -571,7 +571,7 @@ export default function Home() {
                                     initial="rest"
                                     whileHover="hover"
                                     whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-white/20 bg-card/60 backdrop-blur-xl transition-all duration-300 supports-[backdrop-filter]:bg-card/40"
+                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
                                     style={{
                                         background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
                                         backdropFilter: 'blur(16px)',
@@ -596,7 +596,7 @@ export default function Home() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                             {/* New Badge */}
                                             <div className="absolute top-3 right-3">
-                                                <span className="rounded-full bg-blue-500 px-2 py-1 text-xs font-bold text-white shadow-lg">New</span>
+                                                <span className="rounded-full bg-primary px-2 py-1 text-xs font-bold text-white shadow-lg">New</span>
                                             </div>
                                         </div>
                                         <div className="xs:p-4 p-3 sm:p-5 md:p-6">
@@ -698,7 +698,7 @@ export default function Home() {
                                     initial="rest"
                                     whileHover="hover"
                                     whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-white/20 bg-card/60 backdrop-blur-xl transition-all duration-300 supports-[backdrop-filter]:bg-card/40"
+                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
                                     style={{
                                         background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
                                         backdropFilter: 'blur(16px)',
@@ -723,7 +723,7 @@ export default function Home() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                             {/* Featured Badge */}
                                             <div className="absolute top-3 right-3">
-                                                <span className="rounded-full bg-yellow-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
+                                                <span className="rounded-full bg-secondary px-2 py-1 text-xs font-bold text-black shadow-lg">
                                                     Featured
                                                 </span>
                                             </div>

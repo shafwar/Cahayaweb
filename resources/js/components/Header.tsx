@@ -139,9 +139,9 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
         if (sticky && transparent) {
             return `${baseClasses} fixed top-0 left-0 right-0 transition-all duration-300 ease-out`;
         } else if (sticky) {
-            return `${baseClasses} fixed top-0 left-0 right-0 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 shadow-lg transition-all duration-500 ease-out`;
+            return `${baseClasses} fixed top-0 left-0 right-0 bg-gradient-to-b from-primary via-primary to-black shadow-lg backdrop-blur-md transition-all duration-500 ease-out`;
         } else {
-            return `${baseClasses} bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 shadow-lg relative`;
+            return `${baseClasses} bg-gradient-to-b from-primary via-primary to-black shadow-lg backdrop-blur-md relative`;
         }
     };
 
@@ -286,7 +286,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                                 >
                                     <a
                                         href={item.href}
-                                        className="flex items-center gap-1 px-2 py-2 transition-all duration-300 ease-out hover:scale-105 hover:text-orange-400 lg:px-3"
+                                        className="flex items-center gap-1 px-2 py-2 transition-all duration-300 ease-out hover:scale-105 hover:text-secondary lg:px-3"
                                         onClick={(e) => e.preventDefault()}
                                     >
                                         {item.label}
@@ -300,7 +300,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                                     </a>
                                     {/* Desktop Dropdown Menu */}
                                     <div
-                                        className={`absolute top-full left-0 z-50 mt-1 w-64 transform rounded-lg border border-gray-600 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white shadow-2xl backdrop-blur-sm transition-all duration-300 ease-out xl:w-72 ${
+                                        className={`absolute top-full left-0 z-50 mt-1 w-64 transform rounded-lg border border-secondary/30 bg-white/95 text-primary shadow-2xl backdrop-blur-sm transition-all duration-300 ease-out xl:w-72 ${
                                             aboutDropdownOpen ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-2 opacity-0'
                                         }`}
                                         onMouseEnter={() => setAboutDropdownOpen(true)}
@@ -312,7 +312,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                                                     <a
                                                         key={dropdownIndex}
                                                         href={dropdownItem.href}
-                                                        className="hover:bg-opacity-10 block rounded px-3 py-2.5 text-xs transition-all duration-300 ease-out hover:translate-x-1 hover:scale-105 hover:bg-white hover:text-orange-300"
+                                                        className="hover:bg-opacity-10 block rounded px-3 py-2.5 text-xs transition-all duration-300 ease-out hover:translate-x-1 hover:scale-105 hover:bg-secondary/10 hover:text-secondary"
                                                     >
                                                         {dropdownItem.label}
                                                     </a>
@@ -324,7 +324,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                             ) : (
                                 <Link
                                     href={item.href}
-                                    className="px-2 py-2 transition-all duration-300 ease-out hover:scale-105 hover:text-orange-400 lg:px-3"
+                                    className="px-2 py-2 transition-all duration-300 ease-out hover:scale-105 hover:text-secondary lg:px-3"
                                 >
                                     {item.label}
                                 </Link>
@@ -337,7 +337,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
             {/* Mobile Navigation Toggle */}
             <div className="flex flex-1 items-center justify-end gap-2 lg:hidden">
                 <button
-                    className="p-2 text-white transition-all duration-300 ease-out hover:text-orange-400"
+                    className="p-2 text-white transition-all duration-300 ease-out hover:text-secondary"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
                     style={{ opacity: textOpacity }}
@@ -360,7 +360,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                 {/* Language Switcher */}
                 <div className="relative" ref={dropdownRef}>
                     <button
-                        className="flex h-10 min-w-[44px] items-center justify-center px-2 py-1 text-xs font-semibold tracking-wide text-white uppercase transition-all duration-300 ease-out hover:text-orange-400 focus:outline-none xl:text-sm"
+                        className="flex h-10 min-w-[44px] items-center justify-center px-2 py-1 text-xs font-semibold tracking-wide text-white uppercase transition-all duration-300 ease-out hover:text-secondary focus:outline-none xl:text-sm"
                         onClick={() => setDropdownOpen(!dropdownOpen)}
                         aria-haspopup="listbox"
                         aria-expanded={dropdownOpen}
@@ -381,7 +381,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                             role="listbox"
                         >
                             <button
-                                className="block w-full px-4 py-2 text-left text-sm font-semibold text-gray-800 uppercase transition-all duration-300 ease-out hover:scale-105 hover:bg-orange-100"
+                                className="block w-full px-4 py-2 text-left text-sm font-semibold text-gray-800 uppercase transition-all duration-300 ease-out hover:scale-105 hover:bg-secondary/10"
                                 onClick={() => {
                                     switchLanguage('id');
                                     setDropdownOpen(false);
@@ -391,7 +391,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                                 ID
                             </button>
                             <button
-                                className="block w-full px-4 py-2 text-left text-sm font-semibold text-orange-600 uppercase transition-all duration-300 ease-out hover:scale-105 hover:bg-orange-100"
+                                className="block w-full px-4 py-2 text-left text-sm font-semibold text-secondary uppercase transition-all duration-300 ease-out hover:scale-105 hover:bg-secondary/10"
                                 onClick={() => {
                                     switchLanguage('en');
                                     setDropdownOpen(false);
@@ -401,7 +401,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                                 EN
                             </button>
                             <button
-                                className="block w-full px-4 py-2 text-left text-sm font-semibold text-gray-800 uppercase transition-all duration-300 ease-out hover:scale-105 hover:bg-orange-100"
+                                className="block w-full px-4 py-2 text-left text-sm font-semibold text-gray-800 uppercase transition-all duration-300 ease-out hover:scale-105 hover:bg-secondary/10"
                                 onClick={() => {
                                     switchLanguage('zh');
                                     setDropdownOpen(false);
@@ -419,7 +419,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                     <button
                         type="button"
                         onClick={() => setSearchOpen((o) => !o)}
-                        className="flex h-10 items-center justify-center px-2 py-1 text-xs font-semibold tracking-wide text-white uppercase transition-all duration-300 ease-out hover:scale-105 hover:text-orange-400 focus:outline-none xl:text-sm"
+                        className="flex h-10 items-center justify-center px-2 py-1 text-xs font-semibold tracking-wide text-white uppercase transition-all duration-300 ease-out hover:scale-105 hover:text-secondary focus:outline-none xl:text-sm"
                         aria-label="Search"
                     >
                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
@@ -446,15 +446,15 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                             }}
                             className="group relative"
                         >
-                            <div className="absolute inset-0 animate-pulse rounded-full bg-gradient-to-r from-orange-400 to-orange-500 opacity-20 blur-sm transition-opacity duration-300 group-hover:opacity-30" />
-                            <div className="relative flex items-center gap-2 rounded-full border-2 border-gray-200 bg-white px-4 py-2 shadow-xl transition-all duration-300 focus-within:scale-[1.02] focus-within:border-yellow-400 hover:border-orange-300">
+                            <div className="absolute inset-0 animate-pulse rounded-full bg-gradient-to-r from-secondary to-secondary/80 opacity-20 blur-sm transition-opacity duration-300 group-hover:opacity-30" />
+                            <div className="relative flex items-center gap-2 rounded-full border-2 border-gray-200 bg-white px-4 py-2 shadow-xl transition-all duration-300 focus-within:scale-[1.02] focus-within:border-yellow-400 hover:border-secondary/50">
                                 <svg
                                     width="18"
                                     height="18"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     className={`transition-all duration-300 ${
-                                        isSearching ? 'animate-spin text-orange-500' : 'text-gray-400 group-focus-within:text-orange-500'
+                                        isSearching ? 'animate-spin text-secondary' : 'text-gray-400 group-focus-within:text-secondary'
                                     }`}
                                 >
                                     <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
@@ -468,7 +468,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                                 />
                                 <button
                                     type="submit"
-                                    className="relative inline-flex h-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-orange-600 hover:to-orange-700 hover:shadow-lg"
+                                    className="relative inline-flex h-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-secondary to-secondary/90 px-5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-secondary/90 hover:to-secondary/80 hover:shadow-lg"
                                 >
                                     <span className="absolute inset-0 -translate-x-full -skew-x-12 bg-white transition-transform duration-700 group-hover:translate-x-full" />
                                     <span className="relative">Search</span>
@@ -492,7 +492,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                 {/* Drawer */}
                 <div
                     ref={mobileMenuRef}
-                    className={`fixed top-16 right-0 bottom-0 z-50 w-80 overflow-y-auto bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 shadow-2xl transition-transform duration-300 ease-out sm:top-18 sm:w-96 lg:top-20 lg:hidden ${
+                    className={`fixed top-16 right-0 bottom-0 z-50 w-80 overflow-y-auto bg-gradient-to-b from-primary via-primary to-black shadow-2xl transition-transform duration-300 ease-out sm:top-18 sm:w-96 lg:top-20 lg:hidden ${
                         mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
                     }`}
                     style={{
@@ -511,7 +511,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
 
                     <div className="min-h-full space-y-4 px-4 py-4">
                         {/* Mobile Language Switcher */}
-                        <div className="flex items-center justify-between border-b border-blue-600 pb-4">
+                        <div className="flex items-center justify-between border-b border-secondary/30 pb-4">
                             <span className="text-sm font-semibold text-white">Language:</span>
                             <div className="flex gap-2">
                                 <button
@@ -521,7 +521,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                                     ID
                                 </button>
                                 <button
-                                    className="rounded bg-orange-600 px-3 py-1 text-sm font-semibold text-white transition-all duration-300"
+                                    className="rounded bg-secondary px-3 py-1 text-sm font-semibold text-white transition-all duration-300"
                                     onClick={() => switchLanguage('en')}
                                 >
                                     EN
@@ -547,8 +547,8 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                                 }}
                                 className="group relative"
                             >
-                                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-400 to-orange-500 opacity-15 blur-[6px] transition-opacity duration-300 group-hover:opacity-25" />
-                                <div className="relative flex items-center gap-2 rounded-xl border-2 border-gray-300 bg-white/90 px-3 py-2 shadow-md backdrop-blur-sm transition-all duration-300 focus-within:border-yellow-400 hover:border-orange-300">
+                                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-secondary to-secondary/80 opacity-15 blur-[6px] transition-opacity duration-300 group-hover:opacity-25" />
+                                <div className="relative flex items-center gap-2 rounded-xl border-2 border-gray-300 bg-white/90 px-3 py-2 shadow-md backdrop-blur-sm transition-all duration-300 focus-within:border-yellow-400 hover:border-secondary/50">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-gray-400">
                                         <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
                                         <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" />
@@ -561,7 +561,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                                     />
                                     <button
                                         type="submit"
-                                        className="relative inline-flex h-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 px-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-orange-600 hover:to-orange-700 hover:shadow-lg min-[380px]:px-5"
+                                        className="relative inline-flex h-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-r from-secondary to-secondary/90 px-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-secondary/90 hover:to-secondary/80 hover:shadow-lg min-[380px]:px-5"
                                     >
                                         <span className="absolute inset-0 -translate-x-full -skew-x-12 bg-white/20 transition-transform duration-700 group-hover:translate-x-full" />
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="mr-0 min-[380px]:mr-2">
@@ -576,10 +576,10 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
 
                         {/* Mobile Navigation Items */}
                         {navigationItems.map((item, index) => (
-                            <div key={index} className="border-b border-blue-600 pb-4 last:border-b-0">
+                            <div key={index} className="border-b border-secondary/30 pb-4 last:border-b-0">
                                 {item.hasDropdown ? (
                                     <div>
-                                        <button className="w-full py-2 text-left text-base font-semibold text-white transition-all duration-300 hover:text-orange-400">
+                                        <button className="w-full py-2 text-left text-base font-semibold text-white transition-all duration-300 hover:text-secondary">
                                             {item.label}
                                         </button>
                                         <div className="mt-2 space-y-2 pl-4">
@@ -587,7 +587,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                                                 <a
                                                     key={dropdownIndex}
                                                     href={dropdownItem.href}
-                                                    className="block py-1 text-sm text-gray-300 transition-all duration-300 hover:text-orange-300"
+                                                    className="block py-1 text-sm text-gray-300 transition-all duration-300 hover:text-secondary/80"
                                                     onClick={() => setMobileMenuOpen(false)}
                                                 >
                                                     {dropdownItem.label}
@@ -598,7 +598,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
                                 ) : (
                                     <Link
                                         href={item.href}
-                                        className="block py-2 text-base font-semibold text-white transition-all duration-300 hover:text-orange-400"
+                                        className="block py-2 text-base font-semibold text-white transition-all duration-300 hover:text-secondary"
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         {item.label}
