@@ -233,6 +233,7 @@ export default function SelectMode() {
                                     letterSpacing: '-0.02em',
                                     fontFamily: 'Playfair Display, serif',
                                     willChange: 'transform, opacity',
+                                    textShadow: '0 0 30px rgba(254, 201, 1, 0.3)',
                                 }}
                             >
                                 Welcome to
@@ -340,15 +341,16 @@ export default function SelectMode() {
                             boxShadow: '0 15px 30px rgba(0, 0, 0, 0.12)',
                             transition: { duration: 0.3, ease: 'easeOut' },
                         }}
-                        className="group relative overflow-hidden rounded-lg border border-white/20 bg-card/60 p-3 shadow-[0_10px_25px_rgba(0,0,0,0.08)] backdrop-blur-xl supports-[backdrop-filter]:bg-card/40 sm:rounded-xl sm:p-4 md:rounded-2xl md:p-5 lg:p-6"
+                        className="group relative overflow-hidden rounded-lg border p-3 shadow-[0_10px_25px_rgba(0,0,0,0.08)] backdrop-blur-xl sm:rounded-xl sm:p-4 md:rounded-2xl md:p-5 lg:p-6"
                         style={{
-                            background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+                            background: 'var(--luxury-gradient)',
+                            borderColor: 'var(--champagne-gold)',
                             backdropFilter: 'blur(20px)',
                             WebkitBackdropFilter: 'blur(20px)',
                         }}
                     >
                         {/* Subtle inner glow pada hover */}
-                        <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-xl md:rounded-2xl" />
+                        <div className="absolute inset-0 rounded-lg opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-xl md:rounded-2xl" style={{background: 'var(--pearl-gradient)'}} />
 
                         {/* Content */}
                         <div className="relative z-10">
@@ -389,15 +391,16 @@ export default function SelectMode() {
                             boxShadow: '0 15px 30px rgba(0, 0, 0, 0.12)',
                             transition: { duration: 0.3, ease: 'easeOut' },
                         }}
-                        className="group relative overflow-hidden rounded-lg border border-white/20 bg-card/60 p-3 shadow-[0_10px_25px_rgba(0,0,0,0.08)] backdrop-blur-xl supports-[backdrop-filter]:bg-card/40 sm:rounded-xl sm:p-4 md:rounded-2xl md:p-5 lg:p-6"
+                        className="group relative overflow-hidden rounded-lg border p-3 shadow-[0_10px_25px_rgba(0,0,0,0.08)] backdrop-blur-xl sm:rounded-xl sm:p-4 md:rounded-2xl md:p-5 lg:p-6"
                         style={{
-                            background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+                            background: 'var(--luxury-gradient)',
+                            borderColor: 'var(--champagne-gold)',
                             backdropFilter: 'blur(20px)',
                             WebkitBackdropFilter: 'blur(20px)',
                         }}
                     >
                         {/* Subtle inner glow pada hover */}
-                        <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-xl md:rounded-2xl" />
+                        <div className="absolute inset-0 rounded-lg opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-xl md:rounded-2xl" style={{background: 'var(--pearl-gradient)'}} />
 
                         {/* Content */}
                         <div className="relative z-10">
@@ -443,7 +446,8 @@ export default function SelectMode() {
                 {/* Social Media Links */}
                 <div className="mb-2 flex justify-center sm:mb-3">
                     <motion.div
-                        className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1.5 backdrop-blur-md sm:gap-2 sm:px-3 sm:py-2"
+                        className="flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 backdrop-blur-md sm:gap-2 sm:px-3 sm:py-2"
+                        style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--champagne-gold)'}}
                         whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.3 }}
                     >
