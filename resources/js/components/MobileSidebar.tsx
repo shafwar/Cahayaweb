@@ -22,7 +22,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
     const [gestureDirection, setGestureDirection] = useState<'left' | 'right' | null>(null);
     const sidebarRef = useRef<HTMLDivElement>(null);
 
-    // Menu items with enhanced structure
+    // Menu items with enhanced structure - More items for scrolling test
     const menuItems: MenuItem[] = [
         {
             href: route('b2c.home'),
@@ -67,9 +67,41 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
             icon: Phone,
             description: 'Get in touch with us',
         },
+        // Additional items for scrolling test
+        {
+            href: route('b2c.home'),
+            label: 'Special Offers',
+            icon: Sparkles,
+            badge: 'Hot',
+            description: 'Exclusive deals and discounts',
+        },
+        {
+            href: route('b2c.home'),
+            label: 'Travel Guide',
+            icon: MapPin,
+            description: 'Essential travel information',
+        },
+        {
+            href: route('b2c.home'),
+            label: 'Customer Support',
+            icon: Phone,
+            description: '24/7 assistance for your journey',
+        },
+        {
+            href: route('b2c.home'),
+            label: 'FAQ',
+            icon: Info,
+            description: 'Frequently asked questions',
+        },
+        {
+            href: route('b2c.home'),
+            label: 'Terms & Conditions',
+            icon: Newspaper,
+            description: 'Legal information and policies',
+        },
     ];
 
-    // Enhanced gesture handling
+    // Enhanced gesture handling for right-side sidebar
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
         if (e.touches.length === 1) {
             setGestureStart(e.touches[0].clientX);
@@ -82,7 +114,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
             if (gestureStart === null || e.touches.length !== 1) return;
 
             const deltaX = e.touches[0].clientX - gestureStart;
-            const threshold = 50;
+            const threshold = 30; // Reduced threshold for better sensitivity
 
             if (Math.abs(deltaX) > threshold) {
                 const direction = deltaX > 0 ? 'right' : 'left';
@@ -93,6 +125,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
     );
 
     const handleTouchEnd = useCallback(() => {
+        // For right-side sidebar: swipe left to close
         if (gestureDirection === 'left' && isOpen) {
             onClose();
         }
@@ -120,7 +153,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
             const scrollY = window.scrollY;
             const originalOverflow = document.body.style.overflow;
             const originalPosition = document.body.style.position;
-            
+
             // Only lock scroll when sidebar is completely open
             setTimeout(() => {
                 document.body.style.position = 'fixed';
@@ -140,6 +173,55 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                 window.scrollTo(0, scrollY);
             };
         }
+    }, [isOpen]);
+
+    // Global gesture detection for opening sidebar from anywhere on page
+    useEffect(() => {
+        let globalGestureStart: number | null = null;
+        let globalGestureDirection: 'left' | 'right' | null = null;
+
+        const handleGlobalTouchStart = (e: TouchEvent) => {
+            if (e.touches.length === 1 && !isOpen) {
+                globalGestureStart = e.touches[0].clientX;
+                globalGestureDirection = null;
+            }
+        };
+
+        const handleGlobalTouchMove = (e: TouchEvent) => {
+            if (globalGestureStart === null || e.touches.length !== 1 || isOpen) return;
+
+            const deltaX = e.touches[0].clientX - globalGestureStart;
+            const threshold = 50;
+
+            if (Math.abs(deltaX) > threshold) {
+                const direction = deltaX > 0 ? 'right' : 'left';
+                globalGestureDirection = direction;
+            }
+        };
+
+        const handleGlobalTouchEnd = () => {
+            // Swipe right from left edge to open sidebar
+            if (globalGestureDirection === 'right' && !isOpen) {
+                // Only open if gesture started from left edge (first 50px)
+                if (globalGestureStart !== null && globalGestureStart <= 50) {
+                    // Trigger sidebar open - we need to communicate with parent
+                    window.dispatchEvent(new CustomEvent('openMobileSidebar'));
+                }
+            }
+            globalGestureStart = null;
+            globalGestureDirection = null;
+        };
+
+        // Add global touch listeners
+        document.addEventListener('touchstart', handleGlobalTouchStart, { passive: true });
+        document.addEventListener('touchmove', handleGlobalTouchMove, { passive: true });
+        document.addEventListener('touchend', handleGlobalTouchEnd, { passive: true });
+
+        return () => {
+            document.removeEventListener('touchstart', handleGlobalTouchStart);
+            document.removeEventListener('touchmove', handleGlobalTouchMove);
+            document.removeEventListener('touchend', handleGlobalTouchEnd);
+        };
     }, [isOpen]);
 
     // Click outside to close
@@ -176,21 +258,21 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                         }}
                     />
 
-                    {/* Enhanced Sidebar with Maximum Z-Index */}
+                    {/* Enhanced Sidebar - Moved to RIGHT side */}
                     <motion.div
                         ref={sidebarRef}
-                        initial={{ x: '-100%' }}
+                        initial={{ x: '100%' }}
                         animate={{
                             x: 0,
-                            ...(gestureDirection === 'left' && { x: -20 }),
-                            ...(gestureDirection === 'right' && { x: 10 }),
+                            ...(gestureDirection === 'left' && { x: 10 }),
+                            ...(gestureDirection === 'right' && { x: 20 }),
                         }}
-                        exit={{ x: '-100%' }}
+                        exit={{ x: '100%' }}
                         transition={{
                             duration: 0.4,
                             ease: [0.25, 0.25, 0, 1],
                         }}
-                        className="fixed top-0 left-0 z-[9999] h-full w-80 max-w-[85vw] bg-gradient-to-b from-black/95 to-black/90 shadow-2xl backdrop-blur-xl"
+                        className="fixed top-0 right-0 z-[9999] h-full w-80 max-w-[85vw] bg-gradient-to-b from-black/95 to-black/90 shadow-2xl backdrop-blur-xl"
                         onTouchStart={handleTouchStart}
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
@@ -221,14 +303,16 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                             </button>
                         </div>
 
-                        {/* Enhanced Navigation Menu with Better Scrolling */}
-                        <div 
+                        {/* Enhanced Navigation Menu with FIXED Scrolling */}
+                        <div
                             className="flex-1 overflow-y-auto px-4 py-6"
                             style={{
                                 WebkitOverflowScrolling: 'touch',
                                 scrollbarWidth: 'thin',
                                 scrollbarColor: 'rgba(212, 175, 55, 0.3) transparent',
                                 overscrollBehavior: 'contain',
+                                maxHeight: 'calc(100vh - 200px)', // Ensure scrollable area
+                                minHeight: '400px', // Minimum height for scrolling
                             }}
                         >
                             <nav className="space-y-2">
@@ -333,17 +417,17 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                             </div>
                         </div>
 
-                        {/* Gesture Indicator */}
+                        {/* Gesture Indicator for Right-Side Sidebar */}
                         {gestureDirection && (
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
-                                className={`absolute top-1/2 right-4 -translate-y-1/2 rounded-full px-3 py-1 text-sm font-medium ${
-                                    gestureDirection === 'left' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                                className={`absolute top-1/2 left-4 -translate-y-1/2 rounded-full px-3 py-1 text-sm font-medium ${
+                                    gestureDirection === 'left' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
                                 }`}
                             >
-                                {gestureDirection === 'left' ? '← Swipe to close' : '→ Swipe detected'}
+                                {gestureDirection === 'left' ? '→ Swipe to close' : '← Swipe detected'}
                             </motion.div>
                         )}
                     </motion.div>

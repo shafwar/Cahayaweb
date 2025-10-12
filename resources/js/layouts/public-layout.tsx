@@ -1,5 +1,4 @@
 import MobileSidebar from '@/components/MobileSidebar';
-import FloatingSidebarTrigger from '@/components/FloatingSidebarTrigger';
 import { Link, usePage } from '@inertiajs/react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Home, Info, MapPin, Newspaper, Package, Phone, Sparkles } from 'lucide-react';
@@ -27,8 +26,15 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const onRoute = () => setMobileOpen(false);
+        const onOpenSidebar = () => setMobileOpen(true);
+        
         window.addEventListener('hashchange', onRoute);
-        return () => window.removeEventListener('hashchange', onRoute);
+        window.addEventListener('openMobileSidebar', onOpenSidebar);
+        
+        return () => {
+            window.removeEventListener('hashchange', onRoute);
+            window.removeEventListener('openMobileSidebar', onOpenSidebar);
+        };
     }, []);
 
     // Enhanced scroll behavior for mobile header
@@ -313,12 +319,6 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
             {/* Enhanced Mobile Sidebar */}
             <MobileSidebar isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
-            
-            {/* Floating Sidebar Trigger */}
-            <FloatingSidebarTrigger 
-                onToggle={() => setMobileOpen(!mobileOpen)} 
-                isOpen={mobileOpen} 
-            />
         </div>
     );
 }
