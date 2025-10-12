@@ -148,17 +148,17 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
     const getHeaderStyle = () => {
         if (!transparent || mobileMenuOpen) {
             return {
-                background: 'linear-gradient(to bottom, rgb(88, 28, 135), rgb(107, 33, 168), rgb(126, 34, 206))',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                background: 'linear-gradient(to bottom, rgb(0, 0, 0), rgb(0, 0, 0), rgb(0, 0, 0))',
+                boxShadow: '0 10px 25px rgba(212, 175, 55, 0.15)',
             };
         }
 
         return {
             background: `linear-gradient(to bottom,
-        rgba(88, 28, 135, ${backgroundOpacity * 0.95}),
-        rgba(107, 33, 168, ${backgroundOpacity * 0.95}),
-        rgba(126, 34, 206, ${backgroundOpacity * 0.95}))`,
-            boxShadow: shadowOpacity > 0 ? `0 10px 25px rgba(0, 0, 0, ${shadowOpacity * 0.15})` : 'none',
+        rgba(0, 0, 0, ${backgroundOpacity * 0.95}),
+        rgba(0, 0, 0, ${backgroundOpacity * 0.95}),
+        rgba(0, 0, 0, ${backgroundOpacity * 0.95}))`,
+            boxShadow: shadowOpacity > 0 ? `0 10px 25px rgba(212, 175, 55, ${shadowOpacity * 0.15})` : 'none',
             backdropFilter: blurIntensity > 0 ? `blur(${blurIntensity * 12}px)` : 'none',
             WebkitBackdropFilter: blurIntensity > 0 ? `blur(${blurIntensity * 12}px)` : 'none',
         };
