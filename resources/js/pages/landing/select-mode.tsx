@@ -187,7 +187,7 @@ export default function SelectMode() {
             <AnimatePresence mode="wait">
                 {showSplash && (
                     <motion.div
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900"
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900"
                         variants={splashVariants}
                         initial="hidden"
                         animate="visible"
@@ -227,7 +227,7 @@ export default function SelectMode() {
                                 variants={textVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="mb-6 bg-gradient-to-br from-amber-400 via-yellow-300 to-orange-400 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-6xl lg:text-7xl"
+                                className="mb-6 bg-gradient-to-br from-blue-400 via-orange-400 to-yellow-400 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-6xl lg:text-7xl"
                                 style={{
                                     lineHeight: '1.1',
                                     letterSpacing: '-0.02em',
@@ -242,7 +242,7 @@ export default function SelectMode() {
                                 variants={textVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="mb-8 bg-gradient-to-br from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-5xl lg:text-6xl"
+                                className="mb-8 bg-gradient-to-br from-orange-400 via-yellow-400 to-blue-400 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-5xl lg:text-6xl"
                                 style={{
                                     lineHeight: '1.1',
                                     letterSpacing: '-0.02em',
@@ -272,7 +272,7 @@ export default function SelectMode() {
                                 {[0, 1, 2].map((i) => (
                                     <motion.div
                                         key={i}
-                                        className="h-3 w-3 rounded-full bg-amber-400"
+                                        className="h-3 w-3 rounded-full bg-orange-400"
                                         animate={{
                                             scale: [1, 1.6, 1],
                                             opacity: [0.4, 1, 0.4],
@@ -452,7 +452,7 @@ export default function SelectMode() {
                             href="https://www.instagram.com/cahayaanbiya_id/"
                             target="_blank"
                             rel="noreferrer"
-                            className="group flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 via-purple-500 to-orange-500 p-1 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl sm:h-7 sm:w-7 sm:p-1.5"
+                            className="group flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 via-orange-500 to-yellow-500 p-1 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl sm:h-7 sm:w-7 sm:p-1.5"
                             whileHover={{
                                 scale: 1.1,
                                 boxShadow: '0 8px 20px rgba(236, 72, 153, 0.4)',

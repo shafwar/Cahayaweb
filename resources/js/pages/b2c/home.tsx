@@ -463,7 +463,7 @@ export default function Home() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                             {/* Badge */}
                                             <div className="absolute top-3 right-3">
-                                                <span className="rounded-full bg-amber-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
+                                                <span className="rounded-full bg-orange-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
                                                     Best Seller
                                                 </span>
                                             </div>
@@ -723,7 +723,7 @@ export default function Home() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                             {/* Featured Badge */}
                                             <div className="absolute top-3 right-3">
-                                                <span className="rounded-full bg-purple-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
+                                                <span className="rounded-full bg-yellow-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
                                                     Featured
                                                 </span>
                                             </div>
