@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeftIcon } from "lucide-react"
+import { PanelLeftIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -30,6 +30,23 @@ const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
+// Enhanced sidebar state interface
+interface SidebarState {
+  state: "expanded" | "collapsed"
+  open: boolean
+  openMobile: boolean
+  isMobile: boolean
+  isVisible: boolean
+  scrollY: number
+  isScrolling: boolean
+  direction: 'up' | 'down'
+  velocity: number
+  lastScrollY: number
+  isTransitioning: boolean
+  gestureStart: number | null
+  gestureDirection: 'left' | 'right' | null
+}
+
 type SidebarContext = {
   state: "expanded" | "collapsed"
   open: boolean
@@ -38,6 +55,13 @@ type SidebarContext = {
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
+  // Enhanced features
+  sidebarState: SidebarState
+  setSidebarState: React.Dispatch<React.SetStateAction<SidebarState>>
+  toggleMobileSidebar: () => void
+  handleGestureStart: (clientX: number) => void
+  handleGestureMove: (clientX: number) => void
+  handleGestureEnd: () => void
 }
 
 const SidebarContext = React.createContext<SidebarContext | null>(null)
@@ -67,6 +91,23 @@ function SidebarProvider({
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
 
+  // Enhanced sidebar state management
+  const [sidebarState, setSidebarState] = React.useState<SidebarState>({
+    state: "expanded",
+    open: defaultOpen,
+    openMobile: false,
+    isMobile,
+    isVisible: true,
+    scrollY: 0,
+    isScrolling: false,
+    direction: 'down',
+    velocity: 0,
+    lastScrollY: 0,
+    isTransitioning: false,
+    gestureStart: null,
+    gestureDirection: null,
+  })
+
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen)
@@ -80,16 +121,159 @@ function SidebarProvider({
         _setOpen(openState)
       }
 
+      // Update sidebar state
+      setSidebarState(prev => ({ ...prev, open: openState, state: openState ? "expanded" : "collapsed" }))
+
       // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
     [setOpenProp, open]
   )
 
+  // Enhanced mobile sidebar toggle with smooth transitions
+  const toggleMobileSidebar = React.useCallback(() => {
+    setSidebarState(prev => ({
+      ...prev,
+      isTransitioning: true,
+      openMobile: !prev.openMobile
+    }))
+
+    setOpenMobile(prev => {
+      const newState = !prev
+
+      // Apply body scroll lock for mobile
+      if (newState) {
+        const scrollY = window.scrollY
+        document.body.style.position = 'fixed'
+        document.body.style.top = `-${scrollY}px`
+        document.body.style.width = '100%'
+        document.body.style.overflow = 'hidden'
+        document.body.classList.add('mobile-sidebar-open')
+      } else {
+        const scrollY = parseInt(document.body.style.top || '0') * -1
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.width = ''
+        document.body.style.overflow = ''
+        document.body.classList.remove('mobile-sidebar-open')
+        window.scrollTo(0, scrollY)
+      }
+
+      return newState
+    })
+
+    // Reset transition state after animation
+    setTimeout(() => {
+      setSidebarState(prev => ({ ...prev, isTransitioning: false }))
+    }, 300)
+  }, [])
+
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
-  }, [isMobile, setOpen, setOpenMobile])
+    return isMobile ? toggleMobileSidebar() : setOpen((open) => !open)
+  }, [isMobile, setOpen, toggleMobileSidebar])
+
+  // Enhanced gesture handling for mobile sidebar
+  const handleGestureStart = React.useCallback((clientX: number) => {
+    if (!isMobile) return
+
+    setSidebarState(prev => ({
+      ...prev,
+      gestureStart: clientX,
+      gestureDirection: null
+    }))
+  }, [isMobile])
+
+  const handleGestureMove = React.useCallback((clientX: number) => {
+    if (!isMobile || sidebarState.gestureStart === null) return
+
+    const deltaX = clientX - sidebarState.gestureStart
+    const threshold = 50
+
+    if (Math.abs(deltaX) > threshold) {
+      const direction = deltaX > 0 ? 'right' : 'left'
+      setSidebarState(prev => ({
+        ...prev,
+        gestureDirection: direction
+      }))
+    }
+  }, [isMobile, sidebarState.gestureStart])
+
+  const handleGestureEnd = React.useCallback(() => {
+    if (!isMobile || sidebarState.gestureDirection === null) {
+      setSidebarState(prev => ({
+        ...prev,
+        gestureStart: null,
+        gestureDirection: null
+      }))
+      return
+    }
+
+    // Handle swipe gestures
+    if (sidebarState.gestureDirection === 'right' && !openMobile) {
+      toggleMobileSidebar()
+    } else if (sidebarState.gestureDirection === 'left' && openMobile) {
+      toggleMobileSidebar()
+    }
+
+    setSidebarState(prev => ({
+      ...prev,
+      gestureStart: null,
+      gestureDirection: null
+    }))
+  }, [isMobile, sidebarState.gestureDirection, openMobile, toggleMobileSidebar])
+
+  // Enhanced scroll behavior for mobile sidebar
+  React.useEffect(() => {
+    if (!isMobile) return
+
+    let animationFrameId: number
+    let scrollTimeoutId: NodeJS.Timeout
+
+    const handleScroll = () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+      }
+
+      animationFrameId = requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY
+        const deltaY = currentScrollY - sidebarState.scrollY
+        const velocity = Math.abs(deltaY)
+        const direction = deltaY > 0 ? 'down' : 'up'
+
+        setSidebarState(prev => ({
+          ...prev,
+          scrollY: currentScrollY,
+          isScrolling: true,
+          direction,
+          velocity,
+          lastScrollY: prev.scrollY,
+        }))
+
+        // Clear scroll timeout
+        if (scrollTimeoutId) {
+          clearTimeout(scrollTimeoutId)
+        }
+
+        // Set scrolling to false after scroll ends
+        scrollTimeoutId = setTimeout(() => {
+          setSidebarState(prev => ({ ...prev, isScrolling: false }))
+        }, 150)
+      })
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+      }
+      if (scrollTimeoutId) {
+        clearTimeout(scrollTimeoutId)
+      }
+    }
+  }, [isMobile, sidebarState.scrollY])
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -101,15 +285,26 @@ function SidebarProvider({
         event.preventDefault()
         toggleSidebar()
       }
+
+      // Enhanced keyboard shortcuts for mobile
+      if (isMobile && event.key === 'Escape' && openMobile) {
+        event.preventDefault()
+        toggleMobileSidebar()
+      }
     }
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [toggleSidebar])
+  }, [toggleSidebar, isMobile, openMobile, toggleMobileSidebar])
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed"
+
+  // Update sidebar state when mobile state changes
+  React.useEffect(() => {
+    setSidebarState(prev => ({ ...prev, isMobile, openMobile }))
+  }, [isMobile, openMobile])
 
   const contextValue = React.useMemo<SidebarContext>(
     () => ({
@@ -120,8 +315,29 @@ function SidebarProvider({
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      // Enhanced features
+      sidebarState,
+      setSidebarState,
+      toggleMobileSidebar,
+      handleGestureStart,
+      handleGestureMove,
+      handleGestureEnd,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+    [
+      state,
+      open,
+      setOpen,
+      isMobile,
+      openMobile,
+      setOpenMobile,
+      toggleSidebar,
+      sidebarState,
+      setSidebarState,
+      toggleMobileSidebar,
+      handleGestureStart,
+      handleGestureMove,
+      handleGestureEnd,
+    ]
   )
 
   return (
@@ -161,7 +377,49 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset"
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+  const {
+    isMobile,
+    state,
+    openMobile,
+    setOpenMobile,
+    sidebarState,
+    handleGestureStart,
+    handleGestureMove,
+    handleGestureEnd
+  } = useSidebar()
+
+  // Enhanced gesture event handlers
+  const handleTouchStart = React.useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      handleGestureStart(e.touches[0].clientX)
+    }
+  }, [handleGestureStart])
+
+  const handleTouchMove = React.useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      handleGestureMove(e.touches[0].clientX)
+    }
+  }, [handleGestureMove])
+
+  const handleTouchEnd = React.useCallback(() => {
+    handleGestureEnd()
+  }, [handleGestureEnd])
+
+  const handleMouseDown = React.useCallback((e: React.MouseEvent) => {
+    if (e.button === 0) { // Left mouse button
+      handleGestureStart(e.clientX)
+    }
+  }, [handleGestureStart])
+
+  const handleMouseMove = React.useCallback((e: React.MouseEvent) => {
+    if (sidebarState.gestureStart !== null) {
+      handleGestureMove(e.clientX)
+    }
+  }, [handleGestureMove, sidebarState.gestureStart])
+
+  const handleMouseUp = React.useCallback(() => {
+    handleGestureEnd()
+  }, [handleGestureEnd])
 
   if (collapsible === "none") {
     return (
@@ -189,15 +447,59 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+          className={cn(
+            "bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden",
+            "transition-all duration-300 ease-out",
+            sidebarState.isTransitioning && "transform-gpu",
+            sidebarState.gestureDirection === 'left' && "translate-x-[-10px]",
+            sidebarState.gestureDirection === 'right' && "translate-x-[10px]"
+          )}
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
             } as React.CSSProperties
           }
           side={side}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
         >
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <div className="flex h-full w-full flex-col overflow-hidden">
+            {/* Enhanced mobile sidebar header with gesture indicator */}
+            <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-sidebar-primary"></div>
+                <span className="text-sm font-medium text-sidebar-foreground">Navigation</span>
+              </div>
+              {sidebarState.gestureDirection && (
+                <div className={cn(
+                  "text-xs px-2 py-1 rounded-full transition-all duration-200",
+                  sidebarState.gestureDirection === 'right'
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                )}>
+                  {sidebarState.gestureDirection === 'right' ? 'Opening...' : 'Closing...'}
+                </div>
+              )}
+            </div>
+
+            {/* Scrollable content with enhanced scroll behavior */}
+            <div
+              className="flex-1 overflow-y-auto overscroll-contain"
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'thin',
+                scrollbarColor: 'rgba(0,0,0,0.2) transparent',
+              }}
+            >
+              {children}
+            </div>
+          </div>
         </SheetContent>
       </Sheet>
     )
@@ -253,7 +555,7 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, sidebarState, isMobile } = useSidebar()
 
   return (
     <Button
@@ -261,21 +563,111 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn(
+        "h-7 w-7 transition-all duration-200",
+        sidebarState.isTransitioning && "scale-95 opacity-75",
+        className
+      )}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
       }}
+      disabled={sidebarState.isTransitioning}
       {...props}
     >
-      <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
+      <PanelLeftIcon className={cn(
+        "h-4 w-4 transition-transform duration-200",
+        sidebarState.isTransitioning && "rotate-90"
+      )} />
+      <span className="sr-only">
+        {isMobile ? 'Toggle Mobile Sidebar' : 'Toggle Sidebar'}
+      </span>
     </Button>
   )
 }
 
+// Enhanced Mobile Sidebar Trigger with gesture support
+function SidebarMobileTrigger({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"div">) {
+  const {
+    sidebarState,
+    toggleMobileSidebar,
+    handleGestureStart,
+    handleGestureMove,
+    handleGestureEnd
+  } = useSidebar()
+
+  const handleTouchStart = React.useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      handleGestureStart(e.touches[0].clientX)
+    }
+  }, [handleGestureStart])
+
+  const handleTouchMove = React.useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      handleGestureMove(e.touches[0].clientX)
+    }
+  }, [handleGestureMove])
+
+  const handleTouchEnd = React.useCallback(() => {
+    handleGestureEnd()
+  }, [handleGestureEnd])
+
+  return (
+    <div
+      className={cn(
+        "fixed left-0 top-1/2 z-[70] -translate-y-1/2",
+        "w-8 h-16 bg-sidebar border border-sidebar-border rounded-r-lg",
+        "flex items-center justify-center cursor-pointer",
+        "transition-all duration-200 hover:bg-sidebar-accent",
+        "shadow-lg backdrop-blur-sm",
+        sidebarState.isTransitioning && "scale-95 opacity-75",
+        className
+      )}
+      onClick={toggleMobileSidebar}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      {...props}
+    >
+      {children || (
+        <div className="flex flex-col items-center gap-1">
+          <div className={cn(
+            "w-4 h-0.5 bg-sidebar-foreground transition-transform duration-200",
+            sidebarState.isTransitioning && "rotate-45 translate-y-1"
+          )} />
+          <div className={cn(
+            "w-4 h-0.5 bg-sidebar-foreground transition-opacity duration-200",
+            sidebarState.isTransitioning && "opacity-0"
+          )} />
+          <div className={cn(
+            "w-4 h-0.5 bg-sidebar-foreground transition-transform duration-200",
+            sidebarState.isTransitioning && "-rotate-45 -translate-y-1"
+          )} />
+        </div>
+      )}
+
+      {/* Gesture indicator */}
+      {sidebarState.gestureDirection && (
+        <div className={cn(
+          "absolute -right-12 top-1/2 -translate-y-1/2",
+          "text-xs px-2 py-1 rounded-full transition-all duration-200",
+          sidebarState.gestureDirection === 'right'
+            ? "bg-green-100 text-green-700"
+            : "bg-red-100 text-red-700"
+        )}>
+          {sidebarState.gestureDirection === 'right' ? '←' : '→'}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, sidebarState } = useSidebar()
 
   return (
     <button
@@ -292,8 +684,10 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
         "hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full",
         "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2",
         "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
+        sidebarState.isTransitioning && "opacity-50",
         className
       )}
+      disabled={sidebarState.isTransitioning}
       {...props}
     />
   )
@@ -717,5 +1111,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  SidebarMobileTrigger,
   useSidebar,
 }

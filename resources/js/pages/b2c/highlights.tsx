@@ -56,7 +56,7 @@ export default function Highlights() {
                 experience: '15+ years',
             },
             badge: 'Featured',
-            badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500',
+            badgeColor: 'bg-gradient-to-r from-secondary to-accent',
         },
         {
             id: 2,
@@ -176,7 +176,7 @@ export default function Highlights() {
                 experience: '9+ years',
             },
             badge: 'Premium',
-            badgeColor: 'bg-gradient-to-r from-purple-500 to-indigo-500',
+            badgeColor: 'bg-gradient-to-r from-secondary to-primary',
         },
     ];
 
@@ -193,7 +193,7 @@ export default function Highlights() {
                     className="mb-12 text-center md:mb-16"
                 >
                     <h1 className="mb-4 text-4xl font-bold text-foreground md:text-6xl lg:text-7xl">
-                        <span className="bg-gradient-to-r from-primary via-purple-500 to-secondary bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
                             Travel Highlights & Experiences
                         </span>
                     </h1>
@@ -207,7 +207,7 @@ export default function Highlights() {
                             <span>Premium Experiences</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <div className="h-2 w-2 rounded-full bg-purple-500"></div>
+                            <div className="h-2 w-2 rounded-full bg-secondary"></div>
                             <span>Expert Guidance</span>
                         </div>
                         <div className="flex items-center space-x-2">

@@ -170,7 +170,7 @@ export default function BlogIndex() {
                     className="mb-12 text-center md:mb-16"
                 >
                     <h1 className="mb-4 text-4xl font-bold text-foreground md:text-6xl lg:text-7xl">
-                        <span className="bg-gradient-to-r from-primary via-purple-500 to-secondary bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
                             Travel Insights & Stories
                         </span>
                     </h1>
@@ -184,7 +184,7 @@ export default function BlogIndex() {
                             <span>Expert Travel Guides</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <div className="h-2 w-2 rounded-full bg-purple-500"></div>
+                            <div className="h-2 w-2 rounded-full bg-secondary"></div>
                             <span>Destination Insights</span>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -234,7 +234,7 @@ export default function BlogIndex() {
 
                                         {/* Featured Badge */}
                                         <div className="absolute top-3 right-3">
-                                            <span className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-1 text-xs font-bold text-white shadow-lg">
+                                            <span className="rounded-full bg-gradient-to-r from-secondary to-accent px-3 py-1 text-xs font-bold text-white shadow-lg">
                                                 Featured
                                             </span>
                                         </div>
@@ -501,7 +501,7 @@ export default function BlogIndex() {
                                         </div>
                                         <div className="flex items-center gap-1">
                                             <svg
-                                                className="h-3 w-3 text-purple-400 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4"
+                                                className="h-3 w-3 text-secondary sm:h-3.5 sm:w-3.5 md:h-4 md:w-4"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
@@ -543,7 +543,7 @@ export default function BlogIndex() {
                                             </ul>
                                         </div>
 
-                                        <div className="rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-2.5 sm:p-3 md:p-4">
+                                        <div className="rounded-lg bg-gradient-to-r from-secondary/10 to-accent/10 p-2.5 sm:p-3 md:p-4">
                                             <h3 className="mb-1.5 text-xs font-semibold text-blue-300 sm:mb-2 sm:text-sm md:mb-2.5 md:text-base lg:text-lg">
                                                 What You'll Learn
                                             </h3>
@@ -583,7 +583,7 @@ export default function BlogIndex() {
                                         </h3>
                                         <button
                                             onClick={() => window.open('https://www.instagram.com/cahayaanbiya_id/', '_blank')}
-                                            className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500 px-3 py-2 text-xs font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm md:px-6 md:py-3 md:text-base"
+                                            className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-secondary via-accent to-secondary px-3 py-2 text-xs font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm md:px-6 md:py-3 md:text-base"
                                         >
                                             <svg
                                                 className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 lg:h-5 lg:w-5"
