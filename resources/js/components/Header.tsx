@@ -205,7 +205,7 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
             const scrollY = window.scrollY;
             const originalOverflow = document.body.style.overflow;
             const originalPosition = document.body.style.position;
-            
+
             // Apply scroll lock
             document.body.style.position = 'fixed';
             document.body.style.top = `-${scrollY}px`;
@@ -229,13 +229,13 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
 
     // Memoized calculations for better performance
     const { backgroundOpacity, shadowOpacity, blurIntensity, textOpacity } = useMemo(() => {
-        const bgOpacity = !transparent ? 1 : 
-                         headerState.headerState.mobileMenuOpen ? 1 : 
+        const bgOpacity = !transparent ? 1 :
+                         headerState.headerState.mobileMenuOpen ? 1 :
                          Math.min(scrollState.scrollY / 100, 1);
-        
+
         const shOpacity = Math.min(scrollState.scrollY / 50, 1);
         const blurInt = Math.min(scrollState.scrollY / 80, 1);
-        const txtOpacity = transparent && !headerState.headerState.mobileMenuOpen ? 
+        const txtOpacity = transparent && !headerState.headerState.mobileMenuOpen ?
                           Math.max(0.8, 1 - bgOpacity * 0.2) : 1;
 
         return {
@@ -249,15 +249,15 @@ export default function Header({ sticky = false, transparent = false }: HeaderPr
     // Memoized header classes with optimized z-index and visibility
     const headerClasses = useMemo(() => {
         const baseClasses = 'flex items-center h-16 sm:h-18 lg:h-20 w-full px-3 sm:px-4 md:px-6 lg:px-8';
-        
+
         // Enhanced z-index to avoid conflicts with other components
         const zIndex = 'z-[60]';
-        
+
         // Visibility classes for auto-hide behavior
-        const visibilityClasses = sticky && !headerState.isVisible ? 
-            'transform -translate-y-full' : 
+        const visibilityClasses = sticky && !headerState.isVisible ?
+            'transform -translate-y-full' :
             'transform translate-y-0';
-        
+
         // Transition classes
         const transitionClasses = 'transition-all duration-300 ease-out';
 
