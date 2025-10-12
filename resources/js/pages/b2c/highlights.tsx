@@ -38,7 +38,8 @@ export default function Highlights() {
             id: 1,
             title: 'Spiritual Journey to the Holy Land',
             subtitle: 'Umrah & Hajj Experiences',
-            description: 'Experience the profound spiritual journey to Makkah and Madinah. Our Umrah and Hajj packages provide complete guidance, luxury accommodations, and authentic spiritual experiences that connect you with the sacred traditions of Islam.',
+            description:
+                'Experience the profound spiritual journey to Makkah and Madinah. Our Umrah and Hajj packages provide complete guidance, luxury accommodations, and authentic spiritual experiences that connect you with the sacred traditions of Islam.',
             image: '/umrah.jpeg',
             category: 'Spiritual',
             features: [
@@ -47,12 +48,12 @@ export default function Highlights() {
                 'Direct flights from Indonesia',
                 'VIP access to holy sites',
                 'Comprehensive travel insurance',
-                'Daily spiritual programs'
+                'Daily spiritual programs',
             ],
             stats: {
                 travelers: '5000+',
                 satisfaction: '98%',
-                experience: '15+ years'
+                experience: '15+ years',
             },
             badge: 'Featured',
             badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500',
@@ -61,7 +62,8 @@ export default function Highlights() {
             id: 2,
             title: 'Cultural Heritage of Turkey',
             subtitle: 'Istanbul to Cappadocia Adventure',
-            description: 'Discover the perfect blend of East and West in Turkey. From the magnificent Hagia Sophia and Blue Mosque in Istanbul to the magical hot air balloon rides over Cappadocia\'s fairy chimneys.',
+            description:
+                "Discover the perfect blend of East and West in Turkey. From the magnificent Hagia Sophia and Blue Mosque in Istanbul to the magical hot air balloon rides over Cappadocia's fairy chimneys.",
             image: '/TURKEY.jpeg',
             category: 'Cultural',
             features: [
@@ -70,12 +72,12 @@ export default function Highlights() {
                 'Traditional Turkish bath',
                 'Bosphorus cruise',
                 'Local cuisine tasting',
-                'Cultural workshops'
+                'Cultural workshops',
             ],
             stats: {
                 travelers: '3200+',
                 satisfaction: '96%',
-                experience: '12+ years'
+                experience: '12+ years',
             },
             badge: 'Popular',
             badgeColor: 'bg-gradient-to-r from-orange-500 to-red-500',
@@ -84,7 +86,8 @@ export default function Highlights() {
             id: 3,
             title: 'Ancient Wonders of Egypt',
             subtitle: 'Pyramids & Nile River Expedition',
-            description: 'Journey through the cradle of civilization and explore the magnificent wonders of ancient Egypt. From the Great Pyramids of Giza to the majestic Nile River cruises, experience the magic of pharaonic history.',
+            description:
+                'Journey through the cradle of civilization and explore the magnificent wonders of ancient Egypt. From the Great Pyramids of Giza to the majestic Nile River cruises, experience the magic of pharaonic history.',
             image: '/egypt.jpeg',
             category: 'Historical',
             features: [
@@ -93,12 +96,12 @@ export default function Highlights() {
                 'Valley of the Kings tour',
                 'Abu Simbel temple visit',
                 'Egyptian Museum tour',
-                'Traditional felucca sailing'
+                'Traditional felucca sailing',
             ],
             stats: {
                 travelers: '2800+',
                 satisfaction: '95%',
-                experience: '10+ years'
+                experience: '10+ years',
             },
             badge: 'Heritage',
             badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
@@ -107,7 +110,8 @@ export default function Highlights() {
             id: 4,
             title: 'Luxury Dubai Experience',
             subtitle: 'Modern Wonders & Desert Adventures',
-            description: 'Experience the epitome of luxury and innovation in Dubai. From the iconic Burj Khalifa to thrilling desert safaris, discover why Dubai is the ultimate destination for luxury travelers seeking modern Arabian hospitality.',
+            description:
+                'Experience the epitome of luxury and innovation in Dubai. From the iconic Burj Khalifa to thrilling desert safaris, discover why Dubai is the ultimate destination for luxury travelers seeking modern Arabian hospitality.',
             image: '/dubai1.jpeg',
             category: 'Luxury',
             features: [
@@ -116,12 +120,12 @@ export default function Highlights() {
                 'Luxury shopping experience',
                 'Sheikh Zayed Mosque tour',
                 'Ferrari World theme park',
-                'Dhow cruise dinner'
+                'Dhow cruise dinner',
             ],
             stats: {
                 travelers: '4500+',
                 satisfaction: '97%',
-                experience: '14+ years'
+                experience: '14+ years',
             },
             badge: 'Premium',
             badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500',
@@ -130,7 +134,8 @@ export default function Highlights() {
             id: 5,
             title: 'Oman Adventure Discovery',
             subtitle: 'Hidden Gems of the Arabian Peninsula',
-            description: 'Explore the hidden gem of the Arabian Peninsula. From the stunning fjords of Musandam to the ancient forts of Nizwa, discover authentic Arabian experiences away from the crowds in this pristine destination.',
+            description:
+                'Explore the hidden gem of the Arabian Peninsula. From the stunning fjords of Musandam to the ancient forts of Nizwa, discover authentic Arabian experiences away from the crowds in this pristine destination.',
             image: '/oman.jpg',
             category: 'Adventure',
             features: [
@@ -139,12 +144,12 @@ export default function Highlights() {
                 'Wadi hiking adventures',
                 'Traditional souk visits',
                 'Dolphin watching cruise',
-                'Mountain village tours'
+                'Mountain village tours',
             ],
             stats: {
                 travelers: '1800+',
                 satisfaction: '99%',
-                experience: '8+ years'
+                experience: '8+ years',
             },
             badge: 'Explorer',
             badgeColor: 'bg-gradient-to-r from-green-500 to-emerald-500',
@@ -153,7 +158,8 @@ export default function Highlights() {
             id: 6,
             title: 'Qatar Luxury & Culture',
             subtitle: 'Tradition Meets Modernity',
-            description: 'Experience the perfect blend of tradition and modernity in Qatar. From the stunning Museum of Islamic Art to luxury at The Pearl, discover why Qatar is becoming a premier travel destination in the Gulf region.',
+            description:
+                'Experience the perfect blend of tradition and modernity in Qatar. From the stunning Museum of Islamic Art to luxury at The Pearl, discover why Qatar is becoming a premier travel destination in the Gulf region.',
             image: '/qatar.jpg',
             category: 'Luxury',
             features: [
@@ -162,12 +168,12 @@ export default function Highlights() {
                 'Desert safari adventure',
                 'The Pearl luxury experience',
                 'Katara Cultural Village',
-                'Luxury resort accommodations'
+                'Luxury resort accommodations',
             ],
             stats: {
                 travelers: '2200+',
                 satisfaction: '94%',
-                experience: '9+ years'
+                experience: '9+ years',
             },
             badge: 'Premium',
             badgeColor: 'bg-gradient-to-r from-purple-500 to-indigo-500',
@@ -192,8 +198,8 @@ export default function Highlights() {
                         </span>
                     </h1>
                     <p className="mx-auto max-w-3xl text-lg text-muted-foreground md:text-xl">
-                        Discover our most popular and unforgettable travel experiences. From spiritual journeys to luxury adventures,
-                        each highlight represents the best of what we offer to create lasting memories for our travelers.
+                        Discover our most popular and unforgettable travel experiences. From spiritual journeys to luxury adventures, each highlight
+                        represents the best of what we offer to create lasting memories for our travelers.
                     </p>
                     <div className="mt-6 flex items-center justify-center space-x-4 text-sm text-muted-foreground">
                         <div className="flex items-center space-x-2">
@@ -260,9 +266,7 @@ export default function Highlights() {
                                 </h3>
                                 <p className="mb-3 text-sm font-medium text-primary">{highlight.subtitle}</p>
 
-                                <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-                                    {highlight.description}
-                                </p>
+                                <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{highlight.description}</p>
 
                                 {/* Statistics */}
                                 <div className="mb-4 grid grid-cols-3 gap-3 rounded-lg bg-muted/50 p-3">
@@ -304,9 +308,7 @@ export default function Highlights() {
                                     >
                                         Learn More
                                     </motion.button>
-                                    <div className="text-xs text-muted-foreground">
-                                        {highlight.features.length} features included
-                                    </div>
+                                    <div className="text-xs text-muted-foreground">{highlight.features.length} features included</div>
                                 </div>
                             </div>
 
@@ -325,12 +327,10 @@ export default function Highlights() {
                     className="mt-16 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-8 text-center backdrop-blur-sm sm:p-12"
                 >
                     <div className="mx-auto max-w-3xl">
-                        <h3 className="mb-4 text-2xl font-bold text-foreground sm:text-3xl">
-                            Ready to Experience These Highlights?
-                        </h3>
+                        <h3 className="mb-4 text-2xl font-bold text-foreground sm:text-3xl">Ready to Experience These Highlights?</h3>
                         <p className="mb-6 text-muted-foreground">
-                            Join thousands of satisfied travelers who have experienced the magic of our carefully curated destinations.
-                            Let us help you create unforgettable memories with our expert guidance and premium travel experiences.
+                            Join thousands of satisfied travelers who have experienced the magic of our carefully curated destinations. Let us help
+                            you create unforgettable memories with our expert guidance and premium travel experiences.
                         </p>
                         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
                             <motion.a
@@ -369,32 +369,33 @@ export default function Highlights() {
                     transition={{ duration: 0.8, delay: 0.4 }}
                     className="mt-16"
                 >
-                    <h3 className="mb-8 text-center text-2xl font-bold text-foreground sm:text-3xl">
-                        What Our Travelers Say
-                    </h3>
+                    <h3 className="mb-8 text-center text-2xl font-bold text-foreground sm:text-3xl">What Our Travelers Say</h3>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                         {[
                             {
                                 name: 'Ahmad Rizki',
                                 location: 'Jakarta',
-                                testimonial: 'The Umrah experience with Cahaya Anbiya was truly spiritual and well-organized. Every detail was taken care of perfectly.',
+                                testimonial:
+                                    'The Umrah experience with Cahaya Anbiya was truly spiritual and well-organized. Every detail was taken care of perfectly.',
                                 rating: 5,
-                                trip: 'Umrah Package'
+                                trip: 'Umrah Package',
                             },
                             {
                                 name: 'Sarah Putri',
                                 location: 'Bandung',
-                                testimonial: 'Our Turkey adventure was beyond expectations. The hot air balloon ride in Cappadocia was absolutely magical!',
+                                testimonial:
+                                    'Our Turkey adventure was beyond expectations. The hot air balloon ride in Cappadocia was absolutely magical!',
                                 rating: 5,
-                                trip: 'Turkey Heritage'
+                                trip: 'Turkey Heritage',
                             },
                             {
                                 name: 'Budi Santoso',
                                 location: 'Surabaya',
-                                testimonial: 'Dubai luxury experience was incredible. The desert safari and Burj Khalifa visit were highlights of our trip.',
+                                testimonial:
+                                    'Dubai luxury experience was incredible. The desert safari and Burj Khalifa visit were highlights of our trip.',
                                 rating: 5,
-                                trip: 'Dubai Luxury'
-                            }
+                                trip: 'Dubai Luxury',
+                            },
                         ].map((testimonial, index) => (
                             <motion.div
                                 key={index}

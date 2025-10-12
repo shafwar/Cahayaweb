@@ -323,7 +323,7 @@ export default function Destinations() {
 
                                         {/* Category Badge */}
                                         <div className="absolute top-3 left-3">
-                                            <span className="rounded-full px-2 py-1 text-xs font-medium text-gray-800 backdrop-blur-sm" style={{backgroundColor: 'var(--luxury-white-gold)', border: '1px solid var(--champagne-gold)'}}>
+                                            <span className="rounded-full bg-black/50 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
                                                 {destination.category}
                                             </span>
                                         </div>
@@ -390,14 +390,14 @@ export default function Destinations() {
                                     <div className="h-1 origin-left scale-x-0 transform bg-gradient-to-r from-primary to-secondary transition-transform duration-500 group-hover:scale-x-100" />
                                 </motion.article>
                             </DialogTrigger>
-                            <DialogContent className="max-h-[90vh] overflow-y-auto rounded-xl border-white/20 backdrop-blur-xl sm:max-w-2xl" style={{background: 'var(--luxury-gradient)', borderColor: 'var(--champagne-gold)'}}>
+                            <DialogContent className="max-h-[90vh] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:max-w-2xl">
                                 <DialogHeader>
                                     <DialogTitle className="text-2xl font-bold">{destination.title}</DialogTitle>
                                     <DialogDescription className="text-base leading-relaxed">{destination.description}</DialogDescription>
                                 </DialogHeader>
                                 <div className="mt-6 grid gap-4">
                                     {/* Package Details */}
-                                    <div className="rounded-lg border p-4 backdrop-blur-sm" style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--soft-white-gold)'}}>
+                                    <div className="rounded-lg border border-white/20 bg-card/60 p-4 backdrop-blur-sm">
                                         <h4 className="mb-3 font-semibold text-primary">Package Details</h4>
                                         <div className="grid grid-cols-2 gap-3 text-sm">
                                             <div>
@@ -416,13 +416,13 @@ export default function Destinations() {
                                     </div>
 
                                     {/* Highlights */}
-                                    <div className="rounded-lg border p-4 backdrop-blur-sm" style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--soft-white-gold)'}}>
+                                    <div className="rounded-lg border border-white/20 bg-card/60 p-4 backdrop-blur-sm">
                                         <h4 className="mb-3 font-semibold text-primary">Highlights</h4>
                                         <p className="text-sm leading-relaxed">{destination.highlights}</p>
                                     </div>
 
                                     {/* Included Features */}
-                                    <div className="rounded-lg border p-4 backdrop-blur-sm" style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--soft-white-gold)'}}>
+                                    <div className="rounded-lg border border-white/20 bg-card/60 p-4 backdrop-blur-sm">
                                         <h4 className="mb-3 font-semibold text-primary">What's Included</h4>
                                         <ul className="grid grid-cols-1 gap-2 text-sm">
                                             {destination.features.map((feature, index) => (
@@ -515,7 +515,7 @@ export default function Destinations() {
             </section>
 
             {/* Enhanced Footer */}
-            <footer className="border-t backdrop-blur-xl" style={{background: 'var(--pearl-gradient)', borderColor: 'var(--champagne-gold)'}}>
+            <footer className="border-t border-white/20 bg-card/60 backdrop-blur-xl">
                 <motion.div
                     className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:flex md:items-center md:justify-between md:px-6 md:py-12 lg:px-8 xl:px-10"
                     initial={{ opacity: 0, y: 15 }}

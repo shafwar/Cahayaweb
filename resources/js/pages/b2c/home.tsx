@@ -437,10 +437,9 @@ export default function Home() {
                                     initial="rest"
                                     whileHover="hover"
                                     whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border backdrop-blur-xl transition-all duration-300"
+                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-white/20 bg-card/60 backdrop-blur-xl transition-all duration-300 supports-[backdrop-filter]:bg-card/40"
                                     style={{
-                                        background: 'var(--luxury-gradient)',
-                                        borderColor: 'var(--champagne-gold)',
+                                        background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
                                         backdropFilter: 'blur(16px)',
                                         WebkitBackdropFilter: 'blur(16px)',
                                     }}
@@ -480,7 +479,7 @@ export default function Home() {
                                     </motion.div>
                                 </motion.article>
                             </DialogTrigger>
-                            <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg" style={{background: 'var(--luxury-gradient)', borderColor: 'var(--champagne-gold)'}}>
+                            <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg">
                                 <DialogHeader>
                                     <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">{pkg.title}</DialogTitle>
                                     <DialogDescription className="xs:text-sm text-xs leading-relaxed sm:text-base">
@@ -488,13 +487,13 @@ export default function Home() {
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="xs:mt-4 xs:gap-3 xs:text-sm mt-3 grid gap-2.5 text-xs sm:gap-4">
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border p-2.5 backdrop-blur-sm sm:p-4" style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--soft-white-gold)'}}>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
                                         <strong>Location:</strong> {pkg.location} · <strong>Duration:</strong> {pkg.duration}
                                     </div>
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border p-2.5 backdrop-blur-sm sm:p-4" style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--soft-white-gold)'}}>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
                                         <strong>Price:</strong> {pkg.price} per person
                                     </div>
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border p-2.5 backdrop-blur-sm sm:p-4" style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--soft-white-gold)'}}>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
                                         <strong>Highlights:</strong> {pkg.highlights}
                                     </div>
                                 </div>
@@ -572,10 +571,9 @@ export default function Home() {
                                     initial="rest"
                                     whileHover="hover"
                                     whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border backdrop-blur-xl transition-all duration-300"
+                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-white/20 bg-card/60 backdrop-blur-xl transition-all duration-300 supports-[backdrop-filter]:bg-card/40"
                                     style={{
-                                        background: 'var(--luxury-gradient)',
-                                        borderColor: 'var(--champagne-gold)',
+                                        background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
                                         backdropFilter: 'blur(16px)',
                                         WebkitBackdropFilter: 'blur(16px)',
                                     }}
@@ -612,7 +610,7 @@ export default function Home() {
                                     </motion.div>
                                 </motion.article>
                             </DialogTrigger>
-                            <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg" style={{background: 'var(--luxury-gradient)', borderColor: 'var(--champagne-gold)'}}>
+                            <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg">
                                 <DialogHeader>
                                     <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">{destination.title}</DialogTitle>
                                     <DialogDescription className="xs:text-sm text-xs leading-relaxed sm:text-base">
@@ -620,13 +618,13 @@ export default function Home() {
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="xs:mt-4 xs:gap-3 xs:text-sm mt-3 grid gap-2.5 text-xs sm:gap-4">
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border p-2.5 backdrop-blur-sm sm:p-4" style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--soft-white-gold)'}}>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
                                         <strong>Location:</strong> {destination.location} · <strong>Duration:</strong> {destination.duration}
                                     </div>
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border p-2.5 backdrop-blur-sm sm:p-4" style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--soft-white-gold)'}}>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
                                         <strong>Price:</strong> {destination.price} per person
                                     </div>
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border p-2.5 backdrop-blur-sm sm:p-4" style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--soft-white-gold)'}}>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
                                         <strong>Highlights:</strong> {destination.highlights}
                                     </div>
                                 </div>
@@ -700,10 +698,9 @@ export default function Home() {
                                     initial="rest"
                                     whileHover="hover"
                                     whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border backdrop-blur-xl transition-all duration-300"
+                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-white/20 bg-card/60 backdrop-blur-xl transition-all duration-300 supports-[backdrop-filter]:bg-card/40"
                                     style={{
-                                        background: 'var(--luxury-gradient)',
-                                        borderColor: 'var(--champagne-gold)',
+                                        background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
                                         backdropFilter: 'blur(16px)',
                                         WebkitBackdropFilter: 'blur(16px)',
                                     }}
@@ -742,7 +739,7 @@ export default function Home() {
                                     </motion.div>
                                 </motion.article>
                             </DialogTrigger>
-                            <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg" style={{background: 'var(--luxury-gradient)', borderColor: 'var(--champagne-gold)'}}>
+                            <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg">
                                 <DialogHeader>
                                     <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">{highlight.title}</DialogTitle>
                                     <DialogDescription className="xs:text-sm text-xs leading-relaxed sm:text-base">
@@ -750,10 +747,10 @@ export default function Home() {
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="xs:mt-4 xs:gap-3 xs:text-sm mt-3 space-y-4 text-xs sm:gap-4">
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border p-2.5 backdrop-blur-sm sm:p-4" style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--soft-white-gold)'}}>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
                                         <p className="text-sm leading-relaxed text-gray-300">{highlight.description}</p>
                                     </div>
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border p-2.5 backdrop-blur-sm sm:p-4" style={{background: 'var(--white-gold-gradient)', borderColor: 'var(--soft-white-gold)'}}>
+                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
                                         <h4 className="mb-2 text-sm font-semibold text-white">What's Included:</h4>
                                         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                             {highlight.features.map((feature, index) => (
@@ -772,7 +769,7 @@ export default function Home() {
             </motion.section>
 
             {/* Mobile-First Enhanced Footer */}
-            <footer className="border-t backdrop-blur-xl" style={{background: 'var(--pearl-gradient)', borderColor: 'var(--champagne-gold)'}}>
+            <footer className="border-t border-white/20 bg-card/60 backdrop-blur-xl">
                 <motion.div
                     className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:flex md:items-center md:justify-between md:px-6 md:py-12 lg:px-8 xl:px-10"
                     initial={{ opacity: 0, y: 15 }}

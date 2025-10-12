@@ -115,21 +115,7 @@
     --sky-blue: #3fb4ff;
     --bright-orange: #ff5200;
     --bright-yellow: #fec901;
-    
-    /* Sophisticated White Gold Colors */
-    --white-gold: #faf8f3;
-    --soft-white-gold: #f7f5f0;
-    --warm-white-gold: #fefcf7;
-    --luxury-white-gold: #fdfbf5;
-    --pearl-white: #f8f6f1;
-    --champagne-gold: #f5f3ee;
-    
-    /* Dynamic White Gold Gradients */
     --gold-gradient: linear-gradient(135deg, #fec901 0%, #f39c12 50%, #e67e22 100%);
-    --white-gold-gradient: linear-gradient(135deg, #fefcf7 0%, #faf8f3 50%, #f7f5f0 100%);
-    --luxury-gradient: linear-gradient(135deg, #fdfbf5 0%, #faf8f3 30%, #f5f3ee 70%, #f8f6f1 100%);
-    --pearl-gradient: linear-gradient(135deg, #f8f6f1 0%, #faf8f3 50%, #fefcf7 100%);
-    --champagne-gradient: linear-gradient(135deg, #f5f3ee 0%, #f7f5f0 50%, #faf8f3 100%);
 }
 
 .dark {
@@ -165,20 +151,6 @@
     --sidebar-accent-foreground: #f8fafc;
     --sidebar-border: #334155;
     --sidebar-ring: #3fb4ff;
-
-    /* Dark Mode White Gold Colors */
-    --white-gold: #f8f6f1;
-    --soft-white-gold: #f5f3ee;
-    --warm-white-gold: #faf8f3;
-    --luxury-white-gold: #fdfbf5;
-    --pearl-white: #f7f5f0;
-    --champagne-gold: #f3f1ec;
-    
-    /* Dark Mode White Gold Gradients */
-    --white-gold-gradient: linear-gradient(135deg, #faf8f3 0%, #f8f6f1 50%, #f5f3ee 100%);
-    --luxury-gradient: linear-gradient(135deg, #fdfbf5 0%, #f8f6f1 30%, #f3f1ec 70%, #f7f5f0 100%);
-    --pearl-gradient: linear-gradient(135deg, #f7f5f0 0%, #f8f6f1 50%, #faf8f3 100%);
-    --champagne-gradient: linear-gradient(135deg, #f3f1ec 0%, #f5f3ee 50%, #f8f6f1 100%);
 }
 
 @layer base {
