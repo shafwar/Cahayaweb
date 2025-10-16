@@ -63,11 +63,11 @@ export default function OptimizedHeader() {
     const page = usePage();
     const { scrollY } = useScroll();
 
-    // Enhanced scroll-based transforms
-    const bgOpacity = useTransform(scrollY, [0, 100], [0, 0.95]);
-    const blur = useTransform(scrollY, [0, 100], [0, 12]);
-    const scale = useTransform(scrollY, [0, 100], [1, 0.95]);
-    const headerHeight = useTransform(scrollY, [0, 100], [80, 64]);
+    // Enhanced scroll-based transforms with immediate response
+    const bgOpacity = useTransform(scrollY, [0, 50], [0, 0.95]);
+    const blur = useTransform(scrollY, [0, 50], [0, 12]);
+    const scale = useTransform(scrollY, [0, 50], [1, 0.95]);
+    const headerHeight = useTransform(scrollY, [0, 50], [80, 64]);
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -80,7 +80,7 @@ export default function OptimizedHeader() {
     const mobileMenuRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Enhanced scroll detection with direction
+    // Enhanced scroll detection with immediate response
     useEffect(() => {
         let ticking = false;
 
@@ -88,22 +88,23 @@ export default function OptimizedHeader() {
             const currentScrollY = window.scrollY;
             const direction = currentScrollY > lastScrollY ? 'down' : 'up';
 
-            setIsScrolled(currentScrollY > 100);
+            // Immediate scroll state update
+            setIsScrolled(currentScrollY > 50); // Reduced threshold for faster response
 
-            if (direction !== scrollDirection && Math.abs(currentScrollY - lastScrollY) > 10) {
+            if (direction !== scrollDirection && Math.abs(currentScrollY - lastScrollY) > 5) {
                 setScrollDirection(direction);
                 setIsScrolling(true);
 
                 // Auto-hide header when scrolling down fast
-                if (direction === 'down' && currentScrollY > 200 && isMobileMenuOpen) {
+                if (direction === 'down' && currentScrollY > 100 && isMobileMenuOpen) {
                     setIsMobileMenuOpen(false);
                 }
             }
 
             setLastScrollY(currentScrollY);
 
-            // Reset scrolling state
-            setTimeout(() => setIsScrolling(false), 150);
+            // Reset scrolling state faster
+            setTimeout(() => setIsScrolling(false), 100);
             ticking = false;
         };
 
@@ -114,8 +115,16 @@ export default function OptimizedHeader() {
             }
         };
 
+        // Add immediate scroll listener for instant response
         window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
+
+        // Also add wheel event for better responsiveness
+        window.addEventListener('wheel', handleScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('wheel', handleScroll);
+        };
     }, [scrollDirection, lastScrollY, isMobileMenuOpen]);
 
     // Enhanced body scroll lock with proper cleanup
@@ -193,33 +202,43 @@ export default function OptimizedHeader() {
     }, []);
 
     const shouldUseLightTheme = isScrolled;
+    
+    // Real-time scroll state for immediate response
+    const [realTimeScrollY, setRealTimeScrollY] = useState(0);
+    
+    // Immediate scroll listener for real-time updates
+    useEffect(() => {
+        const handleRealTimeScroll = () => {
+            setRealTimeScrollY(window.scrollY);
+        };
+        
+        window.addEventListener('scroll', handleRealTimeScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleRealTimeScroll);
+    }, []);
 
     return (
         <>
-            {/* Enhanced Dynamic Header with Scroll Behavior */}
+            {/* Enhanced Dynamic Header with Immediate Scroll Response */}
             <motion.header
                 initial={{ y: -100, opacity: 0 }}
                 animate={{
                     y: 0,
                     opacity: 1,
-                    backgroundColor: shouldUseLightTheme
-                        ? `rgba(255, 255, 255, ${bgOpacity.get()})`
-                        : `rgba(0, 0, 0, ${Math.max(bgOpacity.get(), 0.1)})`
                 }}
                 transition={{ duration: 0.6, ease: [0.25, 0.25, 0, 1] }}
-                className={`fixed top-0 right-0 left-0 z-[9999] transition-all duration-700 ${
+                className={`fixed top-0 right-0 left-0 z-[9999] transition-all duration-300 ${
                     shouldUseLightTheme
                         ? 'border-b border-secondary/20 shadow-xl backdrop-blur-xl'
                         : 'backdrop-blur-xl'
                 }`}
                 style={{
-                    backgroundColor: shouldUseLightTheme
-                        ? `rgba(255, 255, 255, ${bgOpacity.get()})`
-                        : `rgba(0, 0, 0, ${Math.max(bgOpacity.get(), 0.1)})`,
-                    backdropFilter: `saturate(180%) blur(${blur.get()}px)`,
-                    boxShadow: shouldUseLightTheme
-                        ? `0 4px 20px rgba(0, 0, 0, ${Math.min(bgOpacity.get() * 0.5, 0.15)})`
-                        : `0 4px 20px rgba(0, 0, 0, ${Math.min(bgOpacity.get() * 0.8, 0.3)})`,
+                    backgroundColor: shouldUseLightTheme 
+                        ? `rgba(255, 255, 255, ${bgOpacity.get()})` 
+                        : `rgba(0, 0, 0, ${Math.max(realTimeScrollY / 200, 0.05)})`,
+                    backdropFilter: `saturate(180%) blur(${Math.min(realTimeScrollY / 10, 12)}px)`,
+                    boxShadow: shouldUseLightTheme 
+                        ? `0 4px 20px rgba(0, 0, 0, ${Math.min(bgOpacity.get() * 0.5, 0.15)})` 
+                        : `0 4px 20px rgba(0, 0, 0, ${Math.min(realTimeScrollY / 300, 0.3)})`,
                 }}
             >
                 <motion.div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" style={{ height: headerHeight }}>
@@ -270,7 +289,7 @@ export default function OptimizedHeader() {
                                         className={`group flex items-center gap-2 rounded-xl px-3 py-2 font-medium transition-all duration-300 ${
                                             shouldUseLightTheme
                                                 ? 'text-gray-700 hover:bg-secondary/10 hover:text-secondary'
-                                                : 'text-white hover:bg-white/10 hover:text-accent'
+                                                : 'text-secondary hover:bg-secondary/10 hover:text-accent'
                                         } ${
                                             isScrolled ? 'px-2 py-1.5' : 'px-4 py-2'
                                         }`}
@@ -324,7 +343,7 @@ export default function OptimizedHeader() {
                             ))}
 
                             {/* Separator */}
-                            <div className="mx-3 h-6 w-px bg-gradient-to-b from-transparent via-white/30 to-transparent" />
+                            <div className="mx-3 h-6 w-px bg-gradient-to-b from-transparent via-secondary/30 to-transparent" />
 
                             {/* Enhanced Action Buttons */}
                             <div className={`flex items-center transition-all duration-300 ${isScrolled ? 'gap-2' : 'gap-3'}`}>
@@ -333,7 +352,7 @@ export default function OptimizedHeader() {
                                     className={`group relative overflow-hidden rounded-xl border text-sm font-medium transition-all duration-300 ${
                                         shouldUseLightTheme
                                             ? 'border-secondary/30 bg-secondary/5 text-black hover:border-secondary/50 hover:bg-secondary/10'
-                                            : 'border-white/20 bg-white/5 text-white hover:border-white/40 hover:bg-white/10'
+                                            : 'border-secondary/30 bg-secondary/5 text-secondary hover:border-secondary/50 hover:bg-secondary/10'
                                     } ${isScrolled ? 'px-3 py-1.5' : 'px-4 py-2'}`}
                                 >
                                     <span className="relative z-10">B2B/B2C</span>
@@ -368,7 +387,7 @@ export default function OptimizedHeader() {
                         <button
                             onClick={() => setIsMobileMenuOpen(true)}
                             className={`rounded-xl transition-all duration-300 lg:hidden ${
-                                shouldUseLightTheme ? 'bg-secondary/10 text-black hover:bg-secondary/20' : 'bg-white/10 text-white hover:bg-white/20'
+                                shouldUseLightTheme ? 'bg-secondary/10 text-black hover:bg-secondary/20' : 'bg-secondary/10 text-secondary hover:bg-secondary/20'
                             } ${isScrolled ? 'p-2' : 'p-3'}`}
                             aria-label="Open mobile menu"
                         >
