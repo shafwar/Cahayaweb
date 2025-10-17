@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
-import { ChevronDown, Home, Info, LogIn, MapPin, Menu, Newspaper, Package, Phone, Sparkles, X } from 'lucide-react';
+import { ChevronDown, Home, Info, LogIn, MapPin, Menu, Package, Phone, Sparkles, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface NavigationItem {
@@ -22,35 +22,38 @@ const navigationItems: NavigationItem[] = [
         icon: Home,
     },
     {
-        name: 'About',
+        name: 'About Us',
         href: route('b2c.about'),
         icon: Info,
-        hasDropdown: true,
-        dropdownItems: [
-            { name: 'Our Story', href: route('b2c.about'), description: 'Learn about our journey' },
-            { name: 'Vision & Mission', href: route('b2c.about'), description: 'Our goals and values' },
-            { name: 'Team', href: route('b2c.about'), description: 'Meet our team' },
-        ],
+        hasDropdown: false,
     },
     {
         name: 'Destinations',
         href: route('b2c.destinations'),
         icon: MapPin,
+        hasDropdown: true,
+        dropdownItems: [
+            { name: 'Saudi Arabia', href: route('b2c.destinations'), description: 'Holy Land destinations' },
+            { name: 'Turkey', href: route('b2c.destinations'), description: 'Historical and cultural sites' },
+            { name: 'Jordan', href: route('b2c.destinations'), description: 'Ancient wonders' },
+            { name: 'Egypt', href: route('b2c.destinations'), description: 'Pyramids and more' },
+        ],
     },
     {
         name: 'Packages',
         href: route('b2c.packages'),
         icon: Package,
+        hasDropdown: true,
+        dropdownItems: [
+            { name: 'Umrah Packages', href: route('b2c.packages'), description: 'Complete Umrah journeys' },
+            { name: 'Hajj Packages', href: route('b2c.packages'), description: 'Full Hajj experiences' },
+            { name: 'Custom Tours', href: route('b2c.packages'), description: 'Tailored travel plans' },
+        ],
     },
     {
         name: 'Highlights',
         href: route('b2c.highlights'),
         icon: Sparkles,
-    },
-    {
-        name: 'Blog',
-        href: route('b2c.blog'),
-        icon: Newspaper,
     },
     {
         name: 'Contact',
@@ -63,77 +66,89 @@ export default function OptimizedHeader() {
     const page = usePage();
     const { scrollY } = useScroll();
 
-    // Enhanced scroll-based transforms with immediate response
-    const bgOpacity = useTransform(scrollY, [0, 50], [0, 0.95]);
-    const blur = useTransform(scrollY, [0, 50], [0, 12]);
-    const scale = useTransform(scrollY, [0, 50], [1, 0.95]);
-    const headerHeight = useTransform(scrollY, [0, 50], [80, 64]);
+    // OPTIMIZED scroll-based transforms - SMOOTH & PERFORMANT
+    const headerOpacity = useTransform(scrollY, [0, 50], [0.98, 1]);
+    const headerBlur = useTransform(scrollY, [0, 50], [8, 12]);
+    const headerScale = useTransform(scrollY, [0, 50], [1, 0.995]);
+    const headerHeight = useTransform(scrollY, [0, 50], [80, 70]);
 
+    // SIMPLIFIED: Minimal parallax for smooth performance
+    const headerY = useTransform(scrollY, [0, 100], [0, -5]);
+
+    // ADVANCED STATE MANAGEMENT - Inspired by Kristalin
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const [expandedMobileItems, setExpandedMobileItems] = useState<string[]>([]);
+
+    // KRISTALIN-STYLE MOBILE STATE MANAGEMENT
+    const [mobilePackagesDropdownOpen, setMobilePackagesDropdownOpen] = useState(false);
+    const [mobileDestinationsDropdownOpen, setMobileDestinationsDropdownOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const [isScrolling, setIsScrolling] = useState(false);
     const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('down');
     const [lastScrollY, setLastScrollY] = useState(0);
 
-    const mobileMenuRef = useRef<HTMLDivElement>(null);
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    // B2B/B2C SWITCH STATE MANAGEMENT
+    const [currentMode, setCurrentMode] = useState<'b2c' | 'b2b'>('b2c');
 
-    // Enhanced scroll detection with immediate response
+    const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+    // OPTIMIZED scroll detection - SMOOTH & PERFORMANT
     useEffect(() => {
         let ticking = false;
+        let scrollTimeout: NodeJS.Timeout;
 
         const updateScrollState = () => {
             const currentScrollY = window.scrollY;
+
+            // Simplified scroll detection with higher threshold to prevent micro-movements
+            if (Math.abs(currentScrollY - lastScrollY) > 10) {
             const direction = currentScrollY > lastScrollY ? 'down' : 'up';
 
-            // Immediate scroll state update
-            setIsScrolled(currentScrollY > 50); // Reduced threshold for faster response
+                setIsScrolled(currentScrollY > 20);
 
-            if (direction !== scrollDirection && Math.abs(currentScrollY - lastScrollY) > 5) {
+                if (direction !== scrollDirection) {
                 setScrollDirection(direction);
                 setIsScrolling(true);
 
-                // Auto-hide header when scrolling down fast
-                if (direction === 'down' && currentScrollY > 100 && isMobileMenuOpen) {
+                    // Auto-hide mobile menu when scrolling down
+                    if (direction === 'down' && currentScrollY > 100 && isMobileMenuOpen) {
                     setIsMobileMenuOpen(false);
                 }
             }
 
             setLastScrollY(currentScrollY);
 
-            // Reset scrolling state faster
-            setTimeout(() => setIsScrolling(false), 100);
+                // Debounce scrolling state
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    setIsScrolling(false);
+                }, 100);
+            }
+
             ticking = false;
         };
 
-        const handleScroll = () => {
+        const requestTick = () => {
             if (!ticking) {
                 requestAnimationFrame(updateScrollState);
                 ticking = true;
             }
         };
 
-        // Add immediate scroll listener for instant response
-        window.addEventListener('scroll', handleScroll, { passive: true });
-
-        // Also add wheel event for better responsiveness
-        window.addEventListener('wheel', handleScroll, { passive: true });
+        window.addEventListener('scroll', requestTick, { passive: true });
 
         return () => {
-            window.removeEventListener('scroll', handleScroll);
-            window.removeEventListener('wheel', handleScroll);
+            window.removeEventListener('scroll', requestTick);
+            clearTimeout(scrollTimeout);
         };
     }, [scrollDirection, lastScrollY, isMobileMenuOpen]);
 
-    // Enhanced body scroll lock with proper cleanup
+    // KRISTALIN-STYLE SOPHISTICATED SCROLL LOCK
     useEffect(() => {
         if (isMobileMenuOpen) {
             const scrollY = window.scrollY;
-            const originalOverflow = document.body.style.overflow;
-            const originalPosition = document.body.style.position;
-
             document.body.style.position = 'fixed';
             document.body.style.top = `-${scrollY}px`;
             document.body.style.width = '100%';
@@ -141,10 +156,10 @@ export default function OptimizedHeader() {
             document.body.classList.add('mobile-menu-open');
 
             return () => {
-                document.body.style.position = originalPosition;
+                document.body.style.position = '';
                 document.body.style.top = '';
                 document.body.style.width = '';
-                document.body.style.overflow = originalOverflow;
+                document.body.style.overflow = '';
                 document.body.classList.remove('mobile-menu-open');
                 window.scrollTo(0, scrollY);
             };
@@ -169,6 +184,25 @@ export default function OptimizedHeader() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isMobileMenuOpen]);
 
+    // KRISTALIN-STYLE AUTO-CLOSE ON RESIZE
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 1024) {
+                setIsMobileMenuOpen(false);
+                setMobileAboutDropdownOpen(false);
+                setMobilePackagesDropdownOpen(false);
+                setMobileDestinationsDropdownOpen(false);
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.width = '';
+                document.body.style.overflow = '';
+                document.body.classList.remove('mobile-menu-open');
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     // ESC key to close
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
@@ -190,92 +224,98 @@ export default function OptimizedHeader() {
         const handleRouteChange = () => {
             setIsMobileMenuOpen(false);
             setActiveDropdown(null);
-            setExpandedMobileItems([]);
         };
 
-        window.addEventListener('hashchange', handleRouteChange);
-        return () => window.removeEventListener('hashchange', handleRouteChange);
-    }, []);
+        return () => {
+            handleRouteChange();
+        };
+    }, [page.url]);
 
     const toggleMobileItem = useCallback((itemName: string) => {
         setExpandedMobileItems((prev) => (prev.includes(itemName) ? prev.filter((name) => name !== itemName) : [...prev, itemName]));
     }, []);
 
-    const shouldUseLightTheme = isScrolled;
-    
-    // Real-time scroll state for immediate response
-    const [realTimeScrollY, setRealTimeScrollY] = useState(0);
-    
-    // Immediate scroll listener for real-time updates
+    // Detect current mode based on URL
     useEffect(() => {
-        const handleRealTimeScroll = () => {
-            setRealTimeScrollY(window.scrollY);
-        };
-        
-        window.addEventListener('scroll', handleRealTimeScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleRealTimeScroll);
-    }, []);
+        const path = window.location.pathname;
+        if (path.includes('/b2b')) {
+            setCurrentMode('b2b');
+        } else {
+            setCurrentMode('b2c');
+        }
+    }, [page.url]);
+
+    // B2B/B2C SWITCH FUNCTIONALITY
+    const handleModeSwitch = useCallback(() => {
+        const newMode = currentMode === 'b2c' ? 'b2b' : 'b2c';
+        setCurrentMode(newMode);
+
+        // Close mobile menu after switch
+        setIsMobileMenuOpen(false);
+
+        // Navigate to appropriate route
+        if (newMode === 'b2b') {
+            window.location.href = route('b2b.index');
+        } else {
+            window.location.href = route('b2c.home');
+        }
+    }, [currentMode]);
+
+    // Consistent black theme - NO COLOR CHANGES
+    const headerTheme = {
+        background: 'rgba(0, 0, 0, 0.95)',
+        textColor: 'text-white',
+        hoverColor: 'hover:text-secondary',
+        borderColor: 'border-secondary/20',
+        shadowColor: 'rgba(0, 0, 0, 0.4)',
+        enhancedBackground: 'rgba(0, 0, 0, 0.98)',
+        enhancedShadow: 'rgba(0, 0, 0, 0.6)',
+    };
 
     return (
         <>
-            {/* Enhanced Dynamic Header with Immediate Scroll Response */}
+            {/* CREATIVE SCROLLING HEADER - Follows scroll with smooth parallax */}
             <motion.header
                 initial={{ y: -100, opacity: 0 }}
-                animate={{
-                    y: 0,
-                    opacity: 1,
-                }}
+                animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.6, ease: [0.25, 0.25, 0, 1] }}
-                className={`fixed top-0 right-0 left-0 z-[9999] transition-all duration-300 ${
-                    shouldUseLightTheme
-                        ? 'border-b border-secondary/20 shadow-xl backdrop-blur-xl'
-                        : 'backdrop-blur-xl'
-                }`}
+                className={`header-consistent sticky top-0 z-[9999] transition-all duration-700 ${isScrolled ? 'scrolled' : ''}`}
                 style={{
-                    backgroundColor: shouldUseLightTheme 
-                        ? `rgba(255, 255, 255, ${bgOpacity.get()})` 
-                        : `rgba(0, 0, 0, ${Math.max(realTimeScrollY / 200, 0.05)})`,
-                    backdropFilter: `saturate(180%) blur(${Math.min(realTimeScrollY / 10, 12)}px)`,
-                    boxShadow: shouldUseLightTheme 
-                        ? `0 4px 20px rgba(0, 0, 0, ${Math.min(bgOpacity.get() * 0.5, 0.15)})` 
-                        : `0 4px 20px rgba(0, 0, 0, ${Math.min(realTimeScrollY / 300, 0.3)})`,
+                    backgroundColor: headerTheme.enhancedBackground,
+                    backdropFilter: `saturate(180%) blur(${headerBlur.get()}px)`,
+                    boxShadow: `0 4px 20px rgba(0, 0, 0, 0.4)`,
+                    opacity: headerOpacity.get(),
+                    transform: `translateY(${headerY.get()}px) scale(${headerScale.get()})`,
+                    borderBottom: `1px solid rgba(212, 175, 55, 0.15)`,
                 }}
             >
                 <motion.div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" style={{ height: headerHeight }}>
                     <div className="flex h-full items-center justify-between">
-                        {/* Enhanced Logo - Dynamic & Proportional */}
+                        {/* OPTIMIZED Logo - Smooth performance */}
                         <motion.div
-                            style={{ scale }}
-                            className="flex items-center"
-                            animate={{
-                                scale: isScrolled ? 0.9 : 1,
+                            style={{
+                                scale: headerScale,
                             }}
-                            transition={{ duration: 0.3 }}
+                            className="flex items-center"
                         >
                             <Link href={route('b2c.home')} className="group relative inline-block">
                                 <div className="flex items-center justify-center">
                                     <img
                                         src="/cahayanbiyalogo.png"
                                         alt="Cahaya Anbiya Logo"
-                                        className={`w-auto transition-all duration-300 group-hover:scale-105 ${
-                                            isScrolled
-                                                ? 'h-10 sm:h-12 md:h-14'
-                                                : 'h-12 sm:h-14 md:h-16 lg:h-18'
-                                        }`}
+                                        className="h-16 w-auto transition-all duration-300 group-hover:scale-105 sm:h-20 md:h-24"
                                     />
                                 </div>
 
-                                {/* Dynamic hover glow effect */}
+                                {/* Subtle hover glow effect */}
                                 <motion.div
-                                    className={`absolute inset-0 rounded-full opacity-0 blur-sm transition-opacity duration-300 ${
-                                        shouldUseLightTheme ? 'bg-secondary/20' : 'bg-accent/20'
-                                    }`}
+                                    className="absolute inset-0 rounded-full bg-secondary/20 opacity-0 blur-sm transition-opacity duration-300"
                                     whileHover={{ opacity: 1 }}
                                 />
                             </Link>
                         </motion.div>
 
-                        {/* Enhanced Desktop Navigation */}
+                        {/* OPTIMIZED Desktop Navigation - Responsive & Smooth */}
                         <nav className="hidden items-center space-x-1 lg:flex">
                             {navigationItems.map((item) => (
                                 <div
@@ -286,12 +326,8 @@ export default function OptimizedHeader() {
                                 >
                                     <Link
                                         href={item.href}
-                                        className={`group flex items-center gap-2 rounded-xl px-3 py-2 font-medium transition-all duration-300 ${
-                                            shouldUseLightTheme
-                                                ? 'text-gray-700 hover:bg-secondary/10 hover:text-secondary'
-                                                : 'text-secondary hover:bg-secondary/10 hover:text-accent'
-                                        } ${
-                                            isScrolled ? 'px-2 py-1.5' : 'px-4 py-2'
+                                        className={`group flex items-center gap-2 rounded-xl px-4 py-2 font-medium transition-all duration-300 ${
+                                            headerTheme.textColor + ' ' + headerTheme.hoverColor + ' hover:bg-white/10'
                                         }`}
                                     >
                                         {item.icon && <item.icon className="h-4 w-4 transition-transform group-hover:scale-110" />}
@@ -303,38 +339,31 @@ export default function OptimizedHeader() {
                                         )}
                                     </Link>
 
-                                    {/* Enhanced Dropdown */}
+                                    {/* Enhanced Dropdown Menu */}
                                     {item.hasDropdown && (
                                         <AnimatePresence>
                                             {activeDropdown === item.name && (
                                                 <motion.div
-                                                    ref={dropdownRef}
                                                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                    transition={{ duration: 0.2 }}
-                                                    className="absolute top-full left-0 mt-2 min-w-[240px] overflow-hidden rounded-2xl border border-secondary/20 bg-white/95 shadow-2xl backdrop-blur-xl"
+                                                    transition={{ duration: 0.2, ease: [0.25, 0.25, 0, 1] }}
+                                                    className="absolute top-full left-0 z-50 mt-2 w-64 rounded-xl border border-white/10 bg-black/95 p-2 shadow-2xl backdrop-blur-xl"
                                                 >
-                                                    <div className="py-2">
-                                                        {item.dropdownItems?.map((subItem, index) => (
-                                                            <motion.div
-                                                                key={subItem.name}
-                                                                initial={{ opacity: 0, x: -10 }}
-                                                                animate={{ opacity: 1, x: 0 }}
-                                                                transition={{ delay: index * 0.05 }}
-                                                            >
+                                                    {item.dropdownItems?.map((dropdownItem) => (
                                                                 <Link
-                                                                    href={subItem.href}
-                                                                    className="block px-4 py-3 text-sm text-gray-700 transition-all duration-200 hover:bg-secondary/10 hover:text-secondary"
-                                                                >
-                                                                    <div className="font-medium">{subItem.name}</div>
-                                                                    {subItem.description && (
-                                                                        <div className="mt-0.5 text-xs text-gray-500">{subItem.description}</div>
+                                                            key={dropdownItem.name}
+                                                            href={dropdownItem.href}
+                                                            className="group block rounded-lg px-3 py-2 text-sm text-white transition-all duration-200 hover:bg-white/10 hover:text-secondary"
+                                                        >
+                                                            <div className="font-medium">{dropdownItem.name}</div>
+                                                            {dropdownItem.description && (
+                                                                <div className="text-xs text-gray-400 group-hover:text-gray-300">
+                                                                    {dropdownItem.description}
+                                                                </div>
                                                                     )}
                                                                 </Link>
-                                                            </motion.div>
                                                         ))}
-                                                    </div>
                                                 </motion.div>
                                             )}
                                         </AnimatePresence>
@@ -343,38 +372,36 @@ export default function OptimizedHeader() {
                             ))}
 
                             {/* Separator */}
-                            <div className="mx-3 h-6 w-px bg-gradient-to-b from-transparent via-secondary/30 to-transparent" />
+                            <div className="mx-3 h-6 w-px bg-gradient-to-b from-transparent via-white/30 to-transparent" />
 
                             {/* Enhanced Action Buttons */}
-                            <div className={`flex items-center transition-all duration-300 ${isScrolled ? 'gap-2' : 'gap-3'}`}>
-                                <Link
-                                    href={route('home')}
-                                    className={`group relative overflow-hidden rounded-xl border text-sm font-medium transition-all duration-300 ${
-                                        shouldUseLightTheme
-                                            ? 'border-secondary/30 bg-secondary/5 text-black hover:border-secondary/50 hover:bg-secondary/10'
-                                            : 'border-secondary/30 bg-secondary/5 text-secondary hover:border-secondary/50 hover:bg-secondary/10'
-                                    } ${isScrolled ? 'px-3 py-1.5' : 'px-4 py-2'}`}
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={handleModeSwitch}
+                                    className={`group relative overflow-hidden rounded-xl border px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                                        currentMode === 'b2c'
+                                            ? 'border-white/20 bg-white/5 text-white hover:border-white/40 hover:bg-white/10'
+                                            : 'border-yellow-500/30 bg-yellow-500/10 text-yellow-400 hover:border-yellow-500/50 hover:bg-yellow-500/20'
+                                    }`}
                                 >
-                                    <span className="relative z-10">B2B/B2C</span>
+                                    <span className="relative z-10">{currentMode === 'b2c' ? 'B2C → B2B' : 'B2B → B2C'}</span>
                                     <motion.div
                                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
                                         initial={{ x: '-100%' }}
                                         whileHover={{ x: '100%' }}
                                         transition={{ duration: 0.6 }}
                                     />
-                                </Link>
+                                </button>
                                 <Link
                                     href={route('login')}
-                                    className={`group relative overflow-hidden rounded-xl bg-gradient-to-r from-accent to-accent/90 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-accent/90 hover:to-accent hover:shadow-xl ${
-                                        isScrolled ? 'px-4 py-1.5' : 'px-5 py-2'
-                                    }`}
+                                    className={`group relative overflow-hidden rounded-xl border px-4 py-2 text-sm font-medium transition-all duration-300 ${'border-secondary bg-secondary/10 text-secondary hover:border-secondary/80 hover:bg-secondary/20'}`}
                                 >
                                     <span className="relative z-10 flex items-center gap-2">
                                         <LogIn className="h-4 w-4" />
                                         Login
                                     </span>
                                     <motion.div
-                                        className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/20 to-white/10"
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-secondary/10 to-transparent"
                                         initial={{ x: '-100%' }}
                                         whileHover={{ x: '100%' }}
                                         transition={{ duration: 0.6 }}
@@ -383,13 +410,14 @@ export default function OptimizedHeader() {
                             </div>
                         </nav>
 
-                        {/* Enhanced Mobile Menu Button */}
+                        {/* ENHANCED Mobile Menu Button - Responsive & Functional */}
                         <button
-                            onClick={() => setIsMobileMenuOpen(true)}
-                            className={`rounded-xl transition-all duration-300 lg:hidden ${
-                                shouldUseLightTheme ? 'bg-secondary/10 text-black hover:bg-secondary/20' : 'bg-secondary/10 text-secondary hover:bg-secondary/20'
-                            } ${isScrolled ? 'p-2' : 'p-3'}`}
-                            aria-label="Open mobile menu"
+                            onClick={() => {
+                                console.log('Mobile menu button clicked!', isMobileMenuOpen);
+                                setIsMobileMenuOpen(!isMobileMenuOpen);
+                            }}
+                            className={`mobile-menu-button rounded-xl p-3 transition-all duration-300 lg:hidden ${'bg-white/10 text-white hover:bg-white/20'}`}
+                            aria-label={isMobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'}
                         >
                             <motion.div
                                 animate={{
@@ -398,199 +426,258 @@ export default function OptimizedHeader() {
                                 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                <Menu className="h-5 w-5" />
+                                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                             </motion.div>
                         </button>
                     </div>
                 </motion.div>
             </motion.header>
 
-            {/* Enhanced Mobile Sidebar */}
-            <AnimatePresence>
+            {/* ENHANCED MOBILE SIDEBAR - RESPONSIVE & FUNCTIONAL */}
+            <AnimatePresence mode="wait">
                 {isMobileMenuOpen && (
-                    <div className="fixed inset-0 z-[9999] lg:hidden" ref={mobileMenuRef}>
-                        {/* Enhanced Backdrop */}
+                    <div className="mobile-menu-container fixed inset-0 z-[9999] lg:hidden" ref={mobileMenuRef}>
+                        {/* CONSISTENT BACKDROP - Same as header desktop */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="mobile-menu-backdrop absolute inset-0 backdrop-blur-sm"
+                            onClick={() => {
+                                console.log('Backdrop clicked, closing menu');
+                                setIsMobileMenuOpen(false);
+                            }}
+                            style={{
+                                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                                backdropFilter: 'saturate(180%) blur(12px)',
+                                WebkitBackdropFilter: 'saturate(180%) blur(12px)',
+                            }}
                         />
 
-                        {/* Enhanced Sidebar Panel */}
+                        {/* CONSISTENT DRAWER CONTAINER - Same theme as header desktop */}
                         <motion.div
                             initial={{ x: '100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
-                            transition={{
-                                type: 'spring',
-                                damping: 25,
-                                stiffness: 200,
-                                mass: 0.8,
+                            transition={{ duration: 0.3, ease: 'easeOut' }}
+                            className="mobile-drawer absolute top-0 right-0 bottom-0 z-[10000] w-80 overflow-y-auto shadow-2xl sm:w-96"
+                            style={{
+                                backgroundColor: headerTheme.enhancedBackground,
+                                backdropFilter: 'saturate(180%) blur(12px)',
+                                WebkitBackdropFilter: 'saturate(180%) blur(12px)',
+                                borderLeft: '1px solid rgba(212, 175, 55, 0.15)',
+                                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
+                                overscrollBehavior: 'contain',
+                                WebkitOverflowScrolling: 'touch',
                             }}
-                            className="absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-gradient-to-b from-gray-900 via-black to-gray-900 shadow-2xl"
-                            style={{ height: '100dvh' }}
                         >
-                            <div className="flex h-full flex-col">
-                                {/* Enhanced Header - Dark Theme with Dynamic Colors */}
-                                <div className="flex items-center justify-between border-b border-secondary/20 bg-gradient-to-r from-secondary/20 via-accent/10 to-secondary/20 p-6">
-                                    <div className="flex items-center space-x-3">
-                                        <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Logo" className="h-12 w-auto" />
-                                        <div>
-                                            <h2 className="text-lg font-semibold text-white">Navigation</h2>
-                                            <p className="text-xs text-secondary">Choose your destination</p>
+                            {/* CONSISTENT MENU HEADER - Same theme as header desktop */}
+                            <div className="flex items-center justify-between px-4 pt-4 pb-2">
+                                <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Logo" className="h-14 w-auto object-contain" />
+                                <button
+                                    className="p-2 text-white transition-all duration-300 ease-out hover:text-yellow-400"
+                                    onClick={() => {
+                                        console.log('Close button clicked');
+                                        setIsMobileMenuOpen(false);
+                                    }}
+                                    aria-label="Close menu"
+                                >
+                                    <X className="h-6 w-6" />
+                                </button>
                                         </div>
-                                    </div>
+
+                            {/* B2B/B2C SWITCH BUTTON - Same functionality as header desktop */}
+                            <div className="flex items-center justify-center px-4 pb-4">
                                     <button
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="rounded-xl bg-white/10 p-2 transition-all duration-300 hover:bg-accent/20 hover:scale-105"
-                                        aria-label="Close mobile menu"
-                                    >
-                                        <X className="h-5 w-5 text-white" />
+                                    className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+                                        currentMode === 'b2c'
+                                            ? 'bg-white/10 text-white hover:bg-white/20 hover:text-yellow-400'
+                                            : 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 hover:text-yellow-300'
+                                    }`}
+                                    onClick={handleModeSwitch}
+                                >
+                                    {currentMode === 'b2c' ? 'B2C → B2B' : 'B2B → B2C'}
                                     </button>
                                 </div>
 
-                                {/* Enhanced Navigation */}
-                                <nav className="flex-1 overflow-y-auto px-4 py-6">
-                                    <div className="space-y-2">
-                                        {navigationItems.map((item, index) => (
-                                            <motion.div
-                                                key={item.name}
-                                                initial={{ opacity: 0, x: 20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: index * 0.05 }}
-                                            >
-                                                <div>
-                                                    <Link
-                                                        href={item.href}
-                                                        className="group relative flex items-center justify-between rounded-xl px-4 py-3 text-white transition-all duration-300 hover:bg-gradient-to-r hover:from-secondary/20 hover:to-accent/20 hover:shadow-lg hover:shadow-secondary/10"
-                                                        onClick={() => !item.hasDropdown && setIsMobileMenuOpen(false)}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            {item.icon && (
-                                                                <item.icon className="h-5 w-5 text-secondary transition-all duration-300 group-hover:scale-110 group-hover:text-accent" />
-                                                            )}
-                                                            <div className="flex flex-col">
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="font-medium text-white group-hover:text-accent transition-colors duration-300">{item.name}</span>
-                                                                    {item.name === 'Destinations' && (
-                                                                        <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">
-                                                                            New
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                                <span className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
-                                                                    {item.name === 'Home' && 'Discover our amazing destinations'}
-                                                                    {item.name === 'About' && 'Learn about our story and values'}
-                                                                    {item.name === 'Destinations' && 'Explore beautiful places around the world'}
-                                                                    {item.name === 'Packages' && 'Find the perfect travel package'}
-                                                                    {item.name === 'Highlights' && 'Featured travel experiences'}
-                                                                    {item.name === 'Blog' && 'Travel tips and stories'}
-                                                                    {item.name === 'Contact' && 'Get in touch with us'}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        {item.hasDropdown && (
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.preventDefault();
-                                                                    toggleMobileItem(item.name);
-                                                                }}
-                                                                className="p-1"
-                                                            >
-                                                                <motion.div
-                                                                    animate={{
-                                                                        rotate: expandedMobileItems.includes(item.name) ? 180 : 0,
-                                                                    }}
-                                                                    transition={{ duration: 0.2 }}
-                                                                >
-                                                                    <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-accent transition-colors duration-300" />
-                                                                </motion.div>
-                                                            </button>
-                                                        )}
-                                                    </Link>
+                            {/* CONSISTENT SEARCH BAR - Same theme as header desktop */}
+                            <div className="px-4 pb-4">
+                                <form
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        if (searchQuery.trim() !== '') {
+                                            // Handle search
+                                            setIsMobileMenuOpen(false);
+                                        }
+                                    }}
+                                >
+                                    <div className="relative flex items-center gap-2 rounded-xl border-2 border-yellow-500/30 bg-black/20 px-3 py-2">
+                                        <svg className="h-5 w-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                            />
+                                        </svg>
+                                        <input
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            placeholder="Search destinations..."
+                                            className="min-w-0 flex-1 border-none bg-transparent text-base text-white placeholder-gray-400 outline-none"
+                                        />
+                                        <button
+                                            type="submit"
+                                            className="rounded-lg bg-gradient-to-r from-yellow-500 to-yellow-600 px-3 py-1 text-sm font-semibold text-white transition-all duration-300 hover:from-yellow-400 hover:to-yellow-500"
+                                        >
+                                            Search
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
 
-                                                    {/* Enhanced Dropdown Items */}
-                                                    {item.hasDropdown && (
-                                                        <AnimatePresence>
-                                                            {expandedMobileItems.includes(item.name) && (
-                                                                <motion.div
-                                                                    initial={{ height: 0, opacity: 0 }}
-                                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                                    exit={{ height: 0, opacity: 0 }}
-                                                                    transition={{ duration: 0.3 }}
-                                                                    className="overflow-hidden"
+                            {/* CONSISTENT NAVIGATION - Same theme as header desktop */}
+                            <nav className="flex-1 overflow-y-auto px-4 pb-4">
+                                <div className="space-y-1">
+                                        {navigationItems.map((item, index) => (
+                                        <div key={index} className="mb-2">
+                                            {item.hasDropdown ? (
+                                                <div>
+                                                    <button
+                                                        className="group flex w-full items-center justify-between rounded-lg px-4 py-3 text-left transition-all duration-300 hover:bg-yellow-500/10"
+                                                        onClick={() => {
+                                                            if (item.name === 'Packages') {
+                                                                setMobilePackagesDropdownOpen(!mobilePackagesDropdownOpen);
+                                                            } else if (item.name === 'Destinations') {
+                                                                setMobileDestinationsDropdownOpen(!mobileDestinationsDropdownOpen);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <div className="flex items-center">
+                                                            <div className="mr-3 h-2 w-2 rounded-full bg-yellow-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                                                            <span className="font-medium text-white">{item.name}</span>
+                                                        </div>
+                                                        <svg
+                                                            className={`h-5 w-5 transition-transform duration-300 ${
+                                                                (item.name === 'Packages' && mobilePackagesDropdownOpen) ||
+                                                                (item.name === 'Destinations' && mobileDestinationsDropdownOpen)
+                                                                    ? 'rotate-180'
+                                                                    : ''
+                                                            }`}
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                        </svg>
+                                                    </button>
+                                                    <div
+                                                        className={`mt-2 space-y-1 overflow-hidden transition-all duration-300 ${
+                                                            (item.name === 'Packages' && mobilePackagesDropdownOpen) ||
+                                                            (item.name === 'Destinations' && mobileDestinationsDropdownOpen)
+                                                                ? 'max-h-96 opacity-100'
+                                                                : 'max-h-0 opacity-0'
+                                                        }`}
+                                                    >
+                                                        {item.name === 'Packages' && (
+                                                            <>
+                                                                <Link
+                                                                    href={route('b2c.packages')}
+                                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                                    className="block rounded-lg px-4 py-2 text-sm text-gray-300 transition-colors duration-300 hover:bg-yellow-500/10 hover:text-yellow-400"
                                                                 >
-                                                                    <div className="mt-1 ml-4 space-y-1 border-l-2 border-secondary/30 pl-4">
-                                                                        {item.dropdownItems?.map((subItem, subIndex) => (
-                                                                            <motion.div
-                                                                                key={subItem.name}
-                                                                                initial={{ opacity: 0, x: -10 }}
-                                                                                animate={{ opacity: 1, x: 0 }}
-                                                                                transition={{ delay: subIndex * 0.1 }}
-                                                                            >
+                                                                    Umrah Packages
+                                                                </Link>
+                                                                <Link
+                                                                    href={route('b2c.packages')}
+                                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                                    className="block rounded-lg px-4 py-2 text-sm text-gray-300 transition-colors duration-300 hover:bg-yellow-500/10 hover:text-yellow-400"
+                                                                >
+                                                                    Hajj Packages
+                                                                </Link>
+                                                                <Link
+                                                                    href={route('b2c.packages')}
+                                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                                    className="block rounded-lg px-4 py-2 text-sm text-gray-300 transition-colors duration-300 hover:bg-yellow-500/10 hover:text-yellow-400"
+                                                                >
+                                                                    Custom Tours
+                                                                </Link>
+                                                            </>
+                                                        )}
+                                                        {item.name === 'Destinations' && (
+                                                            <>
+                                                                <Link
+                                                                    href={route('b2c.destinations')}
+                                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                                    className="block rounded-lg px-4 py-2 text-sm text-gray-300 transition-colors duration-300 hover:bg-yellow-500/10 hover:text-yellow-400"
+                                                                >
+                                                                    Saudi Arabia
+                                                    </Link>
+                                                                <Link
+                                                                    href={route('b2c.destinations')}
+                                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                                    className="block rounded-lg px-4 py-2 text-sm text-gray-300 transition-colors duration-300 hover:bg-yellow-500/10 hover:text-yellow-400"
+                                                                >
+                                                                    Turkey
+                                                                </Link>
+                                                                <Link
+                                                                    href={route('b2c.destinations')}
+                                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                                    className="block rounded-lg px-4 py-2 text-sm text-gray-300 transition-colors duration-300 hover:bg-yellow-500/10 hover:text-yellow-400"
+                                                                >
+                                                                    Jordan
+                                                                </Link>
                                                                                 <Link
-                                                                                    href={subItem.href}
-                                                                                    className="block rounded-lg px-4 py-2 text-sm text-gray-300 transition-all duration-300 hover:bg-secondary/20 hover:text-secondary hover:shadow-md"
+                                                                    href={route('b2c.destinations')}
                                                                                     onClick={() => setIsMobileMenuOpen(false)}
-                                                                                >
-                                                                                    <div className="font-medium">{subItem.name}</div>
-                                                                                    {subItem.description && (
-                                                                                        <div className="mt-0.5 text-xs text-gray-400">
-                                                                                            {subItem.description}
-                                                                                        </div>
-                                                                                    )}
-                                                                                </Link>
-                                                                            </motion.div>
-                                                                        ))}
+                                                                    className="block rounded-lg px-4 py-2 text-sm text-gray-300 transition-colors duration-300 hover:bg-yellow-500/10 hover:text-yellow-400"
+                                                                >
+                                                                    Egypt
+                                                                </Link>
+                                                            </>
+                                                        )}
                                                                     </div>
-                                                                </motion.div>
-                                                            )}
-                                                        </AnimatePresence>
-                                                    )}
                                                 </div>
-                                            </motion.div>
+                                            ) : (
+                                                <Link
+                                                    href={item.href}
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                    className="group flex w-full items-center rounded-lg px-4 py-3 transition-all duration-300 hover:bg-yellow-500/10"
+                                                >
+                                                    <div className="mr-3 h-2 w-2 rounded-full bg-yellow-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                                                    <span className="font-medium text-white">{item.name}</span>
+                                                </Link>
+                                            )}
+                                        </div>
                                         ))}
                                     </div>
                                 </nav>
 
-                                {/* Enhanced Footer CTA - Dark Theme */}
-                                <div className="border-t border-secondary/20 bg-gradient-to-r from-gray-800/50 via-black/30 to-gray-800/50 p-6">
-                                    <div className="space-y-3">
-                                        <Link
-                                            href={route('home')}
-                                            className="group block w-full rounded-xl border border-secondary/30 bg-secondary/10 py-3 text-center font-medium text-secondary transition-all duration-300 hover:border-secondary/50 hover:bg-secondary/20 hover:shadow-lg hover:shadow-secondary/10"
-                                            onClick={() => setIsMobileMenuOpen(false)}
-                                        >
-                                            <span className="flex items-center justify-center gap-2">
-                                                Switch to B2B/B2C
-                                                <motion.div
-                                                    className="text-secondary"
-                                                    animate={{ x: [0, 5, 0] }}
-                                                    transition={{ duration: 2, repeat: Infinity }}
-                                                >
-                                                    →
-                                                </motion.div>
-                                            </span>
-                                        </Link>
+                            {/* LOGIN FEATURE - Same as header desktop */}
+                            <div className="px-4 pb-4">
                                         <Link
                                             href={route('login')}
-                                            className="group block w-full rounded-xl bg-gradient-to-r from-accent via-accent/90 to-accent py-3 text-center font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:from-accent/90 hover:to-accent hover:shadow-2xl hover:shadow-accent/20"
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                        >
-                                            <span className="flex items-center justify-center gap-2">
-                                                Login to Account
-                                                <motion.div
-                                                    animate={{ rotate: [0, 10, -10, 0] }}
-                                                    transition={{ duration: 2, repeat: Infinity }}
-                                                >
-                                                    🔑
-                                                </motion.div>
-                                            </span>
+                                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3 text-sm font-semibold text-white transition-all duration-300 hover:from-yellow-400 hover:to-yellow-500"
+                                >
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                                        />
+                                    </svg>
+                                    Login
                                         </Link>
                                     </div>
+
+                            {/* CONSISTENT FOOTER - Same theme as header desktop */}
+                            <div className="border-t border-yellow-500/20 p-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs text-gray-400">Cahaya Anbiya Travel</span>
+                                    <span className="text-xs text-gray-400">© 2024 All Rights Reserved</span>
                                 </div>
                             </div>
                         </motion.div>

@@ -260,7 +260,7 @@ export default function B2BHeader() {
                         >
                             <Link href={route('b2b.index')} className="group relative inline-block">
                                 <div className="flex items-center justify-center">
-                                    <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya B2B Logo" className="h-10 w-auto object-contain sm:h-12" />
+                                    <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya B2B Logo" className="h-16 w-auto object-contain sm:h-20 md:h-24" />
                                     <span className="ml-2 text-sm font-semibold text-white">/ B2B</span>
                                 </div>
                                 <motion.div
@@ -436,7 +436,7 @@ export default function B2BHeader() {
                             {/* ENHANCED MENU HEADER - Better spacing */}
                             <div className="flex items-center justify-between px-5 pt-5 pb-3">
                                 <div className="flex items-center">
-                                    <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya B2B Logo" className="h-10 object-contain" />
+                                    <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya B2B Logo" className="h-14 w-auto object-contain" />
                                     <span className="ml-2 text-sm font-semibold text-white">/ B2B</span>
                                 </div>
                                 <button
