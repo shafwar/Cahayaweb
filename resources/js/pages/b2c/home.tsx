@@ -5,32 +5,18 @@ import { Head } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 
-// Enhanced smooth scroll function - Optimized for mobile
+// Optimized smooth scroll function - better performance
 const smoothScrollTo = (elementId: string) => {
     const element = document.getElementById(elementId);
     if (element) {
-        // Enhanced smooth scrolling with better mobile support
-        element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
-            inline: 'nearest',
+        // Use requestAnimationFrame for better performance
+        requestAnimationFrame(() => {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+                inline: 'nearest',
+            });
         });
-        
-        // Additional mobile optimization
-        if (window.innerWidth <= 768) {
-            // Add slight delay for mobile to ensure smooth scrolling
-            setTimeout(() => {
-                const rect = element.getBoundingClientRect();
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                const elementTop = rect.top + scrollTop;
-                
-                // Smooth scroll to element with offset for header
-                window.scrollTo({
-                    top: elementTop - 80, // Offset for header
-                    behavior: 'smooth'
-                });
-            }, 100);
-        }
     }
 };
 
@@ -53,73 +39,38 @@ export default function Home() {
     const [index, setIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
 
-    // Enhanced scrolling optimization for mobile devices
-    useEffect(() => {
-        // Prevent iOS bounce effect
-        document.body.style.overscrollBehavior = 'none';
-        document.body.style.webkitOverscrollBehavior = 'none';
-        
-        // Enhanced smooth scrolling for mobile
-        if (window.innerWidth <= 768) {
-            document.documentElement.style.scrollBehavior = 'smooth';
-            document.body.style.scrollBehavior = 'smooth';
-            
-            // Prevent zoom on input focus
-            document.body.style.touchAction = 'manipulation';
-            
-            // Prevent pull-to-refresh
-            document.body.style.overscrollBehaviorY = 'none';
-            document.body.style.webkitOverscrollBehaviorY = 'none';
-        }
-
-        // Cleanup function
-        return () => {
-            document.body.style.overscrollBehavior = '';
-            document.body.style.webkitOverscrollBehavior = '';
-            document.body.style.touchAction = '';
-            document.body.style.overscrollBehaviorY = '';
-            document.body.style.webkitOverscrollBehaviorY = '';
-        };
-    }, []);
-
-    // Ultra-smooth auto-slide dengan transition handling
+    // Optimized auto-slide - longer interval for better scroll performance
     useEffect(() => {
         const interval = setInterval(() => {
             if (!isTransitioning) {
                 setIsTransitioning(true);
                 setIndex((i) => (i + 1) % slidesSeed.length);
-                setTimeout(() => setIsTransitioning(false), 1000);
+                setTimeout(() => setIsTransitioning(false), 800);
             }
-        }, 5000);
+        }, 8000); // Increased from 5000ms to 8000ms for better performance
 
         return () => clearInterval(interval);
     }, [isTransitioning]);
 
     const slide = slidesSeed[index];
 
-    // Ultra-smooth animation variants - Mobile optimized dengan hardware acceleration
+    // Optimized animation variants - simplified for better performance
     const heroImageVariants = {
         initial: {
             opacity: 0,
-            scale: 1.02,
-            filter: 'brightness(0.9)',
         },
         animate: {
             opacity: 1,
-            scale: 1,
-            filter: 'brightness(1)',
             transition: {
-                duration: 0.8,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.6,
+                ease: 'easeOut',
             },
         },
         exit: {
             opacity: 0,
-            scale: 0.98,
-            filter: 'brightness(0.95)',
             transition: {
-                duration: 0.6,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.4,
+                ease: 'easeIn',
             },
         },
     };
@@ -127,92 +78,86 @@ export default function Home() {
     const heroContentVariants = {
         initial: {
             opacity: 0,
-            y: 20,
+            y: 15,
         },
         animate: {
             opacity: 1,
             y: 0,
             transition: {
-                duration: 0.6,
-                delay: 0.2,
-                ease: [0.25, 0.46, 0.45, 0.94],
-            },
-        },
-        exit: {
-            opacity: 0,
-            y: -15,
-            transition: {
-                duration: 0.4,
-                ease: [0.25, 0.46, 0.45, 0.94],
-            },
-        },
-    };
-
-    const titleVariants = {
-        initial: { opacity: 0, y: 15, scale: 0.98 },
-        animate: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: {
-                duration: 0.6,
-                delay: 0.3,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.5,
+                delay: 0.1,
+                ease: 'easeOut',
             },
         },
         exit: {
             opacity: 0,
             y: -10,
-            scale: 0.99,
             transition: {
-                duration: 0.4,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.3,
+                ease: 'easeIn',
+            },
+        },
+    };
+
+    const titleVariants = {
+        initial: { opacity: 0, y: 10 },
+        animate: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.5,
+                delay: 0.2,
+                ease: 'easeOut',
+            },
+        },
+        exit: {
+            opacity: 0,
+            y: -5,
+            transition: {
+                duration: 0.3,
+                ease: 'easeIn',
             },
         },
     };
 
     const subtitleVariants = {
-        initial: { opacity: 0, y: 10, scale: 0.99 },
+        initial: { opacity: 0, y: 8 },
         animate: {
             opacity: 1,
             y: 0,
-            scale: 1,
             transition: {
-                duration: 0.6,
-                delay: 0.5,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.5,
+                delay: 0.3,
+                ease: 'easeOut',
             },
         },
         exit: {
             opacity: 0,
-            y: -8,
-            scale: 0.995,
+            y: -5,
             transition: {
-                duration: 0.4,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.3,
+                ease: 'easeIn',
             },
         },
     };
 
     const buttonVariants = {
-        initial: { opacity: 0, y: 15, scale: 0.95 },
+        initial: { opacity: 0, y: 10 },
         animate: {
             opacity: 1,
             y: 0,
-            scale: 1,
             transition: {
-                duration: 0.6,
-                delay: 0.7,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.5,
+                delay: 0.4,
+                ease: 'easeOut',
             },
         },
         exit: {
             opacity: 0,
-            y: -12,
-            scale: 0.97,
+            y: -5,
             transition: {
-                duration: 0.4,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.3,
+                ease: 'easeIn',
             },
         },
     };
@@ -293,18 +238,10 @@ export default function Home() {
         <PublicLayout>
             <Head title="Home" />
 
-            {/* Ultra-Smooth Hero Section dengan mobile-first optimization - Fixed Scrolling */}
-            <section className="hero-section relative overflow-hidden" style={{
-                minHeight: '100vh',
-                scrollBehavior: 'smooth',
-                WebkitOverflowScrolling: 'touch'
-            }}>
-                {/* Optimized aspect ratios untuk semua device - Simplified for better scrolling */}
-                <div className="w-full overflow-hidden bg-muted" style={{
-                    height: '100vh',
-                    minHeight: '600px',
-                    maxHeight: '100vh'
-                }}>
+            {/* Optimized Hero Section - Simplified for better scroll performance */}
+            <section className="hero-section b2c-hero-section relative h-screen overflow-hidden">
+                {/* Simplified aspect ratio - stable layout */}
+                <div className="h-full w-full overflow-hidden bg-muted">
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                             key={slide.id}
@@ -314,20 +251,7 @@ export default function Home() {
                             exit="exit"
                             variants={heroImageVariants}
                         >
-                            <img
-                                src={slide.image}
-                                alt={slide.title}
-                                loading="lazy"
-                                className="h-full w-full object-cover object-center"
-                                style={{
-                                    willChange: 'transform, opacity, filter',
-                                    transform: 'translateZ(0)', // Hardware acceleration
-                                    backfaceVisibility: 'hidden',
-                                    perspective: '1000px',
-                                    WebkitTransform: 'translateZ(0)',
-                                    WebkitBackfaceVisibility: 'hidden'
-                                }}
-                            />
+                            <img src={slide.image} alt={slide.title} loading="lazy" className="h-full w-full object-cover object-center" />
                         </motion.div>
                     </AnimatePresence>
 
@@ -335,7 +259,7 @@ export default function Home() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 sm:from-black/80 sm:via-black/40 md:from-black/75 md:via-black/35" />
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 sm:bg-gradient-to-r sm:from-black/40 sm:to-transparent md:from-black/45" />
 
-                    {/* Smooth hero content dengan staggered animations - Enhanced for mobile scrolling */}
+                    {/* Smooth hero content dengan staggered animations */}
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                             key={`content-${slide.id}`}
@@ -344,13 +268,6 @@ export default function Home() {
                             initial="initial"
                             animate="animate"
                             exit="exit"
-                            style={{
-                                willChange: 'transform, opacity',
-                                transform: 'translateZ(0)',
-                                WebkitTransform: 'translateZ(0)',
-                                backfaceVisibility: 'hidden',
-                                WebkitBackfaceVisibility: 'hidden'
-                            }}
                         >
                             <div className="text-center text-white">
                                 <motion.h1
@@ -358,7 +275,6 @@ export default function Home() {
                                     style={{
                                         letterSpacing: '-0.02em',
                                         textShadow: '0 4px 20px rgba(0, 0, 0, 0.9)',
-                                        willChange: 'transform, opacity',
                                     }}
                                     variants={titleVariants}
                                 >
@@ -371,7 +287,6 @@ export default function Home() {
                                         lineHeight: '1.4',
                                         letterSpacing: '0.01em',
                                         textShadow: '0 3px 12px rgba(0, 0, 0, 0.8)',
-                                        willChange: 'transform, opacity',
                                     }}
                                     variants={subtitleVariants}
                                 >
@@ -386,9 +301,6 @@ export default function Home() {
                                         whileTap="tap"
                                         onClick={() => smoothScrollTo('packages')}
                                         className="inline-flex items-center justify-center rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-xl backdrop-blur-sm transition-all duration-300 hover:brightness-110 sm:px-10 sm:py-5 sm:text-lg md:px-12 md:py-6 md:text-xl"
-                                        style={{
-                                            willChange: 'transform, box-shadow',
-                                        }}
                                     >
                                         Explore Packages
                                         <motion.svg
@@ -423,9 +335,6 @@ export default function Home() {
                                     onClick={() => handleSlideChange(i)}
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
-                                    style={{
-                                        willChange: 'transform, background-color',
-                                    }}
                                 />
                             ))}
                         </div>
@@ -505,8 +414,6 @@ export default function Home() {
                                     className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
                                     style={{
                                         background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-                                        backdropFilter: 'blur(16px)',
-                                        WebkitBackdropFilter: 'blur(16px)',
                                     }}
                                 >
                                     <motion.div variants={cardHover}>
@@ -639,8 +546,6 @@ export default function Home() {
                                     className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
                                     style={{
                                         background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-                                        backdropFilter: 'blur(16px)',
-                                        WebkitBackdropFilter: 'blur(16px)',
                                     }}
                                 >
                                     <motion.div variants={cardHover}>
@@ -766,8 +671,6 @@ export default function Home() {
                                     className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
                                     style={{
                                         background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-                                        backdropFilter: 'blur(16px)',
-                                        WebkitBackdropFilter: 'blur(16px)',
                                     }}
                                 >
                                     <motion.div variants={cardHover}>

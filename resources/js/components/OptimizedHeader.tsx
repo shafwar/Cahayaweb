@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Home, Info, LogIn, MapPin, Menu, Package, Phone, Sparkles, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -64,16 +64,6 @@ const navigationItems: NavigationItem[] = [
 
 export default function OptimizedHeader() {
     const page = usePage();
-    const { scrollY } = useScroll();
-
-    // OPTIMIZED scroll-based transforms - SMOOTH & PERFORMANT
-    const headerOpacity = useTransform(scrollY, [0, 50], [0.98, 1]);
-    const headerBlur = useTransform(scrollY, [0, 50], [8, 12]);
-    const headerScale = useTransform(scrollY, [0, 50], [1, 0.995]);
-    const headerHeight = useTransform(scrollY, [0, 50], [80, 70]);
-
-    // SIMPLIFIED: Minimal parallax for smooth performance
-    const headerY = useTransform(scrollY, [0, 100], [0, -5]);
 
     // ADVANCED STATE MANAGEMENT - Inspired by Kristalin
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -94,37 +84,38 @@ export default function OptimizedHeader() {
 
     const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-    // OPTIMIZED scroll detection - SMOOTH & PERFORMANT
+    // CIDATA-STYLE SMOOTH SCROLL FOLLOWING HEADER
     useEffect(() => {
         let ticking = false;
         let scrollTimeout: NodeJS.Timeout;
+        let lastScrollTop = 0;
 
         const updateScrollState = () => {
             const currentScrollY = window.scrollY;
+            const scrollDelta = Math.abs(currentScrollY - lastScrollTop);
 
-            // Simplified scroll detection with higher threshold to prevent micro-movements
-            if (Math.abs(currentScrollY - lastScrollY) > 10) {
-            const direction = currentScrollY > lastScrollY ? 'down' : 'up';
+            // Smooth scroll following - header moves naturally with page content
+            if (scrollDelta > 1) {
+                const direction = currentScrollY > lastScrollTop ? 'down' : 'up';
 
-                setIsScrolled(currentScrollY > 20);
-
-                if (direction !== scrollDirection) {
+                // Header follows scroll smoothly - no abrupt changes
+                setIsScrolled(currentScrollY > 30);
                 setScrollDirection(direction);
                 setIsScrolling(true);
 
-                    // Auto-hide mobile menu when scrolling down
-                    if (direction === 'down' && currentScrollY > 100 && isMobileMenuOpen) {
+                // Auto-hide mobile menu when scrolling down
+                if (direction === 'down' && currentScrollY > 100 && isMobileMenuOpen) {
                     setIsMobileMenuOpen(false);
                 }
-            }
 
-            setLastScrollY(currentScrollY);
+                lastScrollTop = currentScrollY;
+                setLastScrollY(currentScrollY);
 
-                // Debounce scrolling state
+                // Smooth debounce for natural feel
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
                     setIsScrolling(false);
-                }, 100);
+                }, 120);
             }
 
             ticking = false;
@@ -143,7 +134,7 @@ export default function OptimizedHeader() {
             window.removeEventListener('scroll', requestTick);
             clearTimeout(scrollTimeout);
         };
-    }, [scrollDirection, lastScrollY, isMobileMenuOpen]);
+    }, [isMobileMenuOpen]);
 
     // KRISTALIN-STYLE SOPHISTICATED SCROLL LOCK
     useEffect(() => {
@@ -274,46 +265,34 @@ export default function OptimizedHeader() {
 
     return (
         <>
-            {/* CREATIVE SCROLLING HEADER - Follows scroll with smooth parallax */}
-            <motion.header
-                initial={{ y: -100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6, ease: [0.25, 0.25, 0, 1] }}
-                className={`header-consistent sticky top-0 z-[9999] transition-all duration-700 ${isScrolled ? 'scrolled' : ''}`}
+            {/* CIDATA-STYLE NATURAL SCROLL FOLLOWING HEADER */}
+            <header
+                className={`header-consistent relative z-[100] transition-all duration-300 ${isScrolled ? 'scrolled' : ''}`}
                 style={{
                     backgroundColor: headerTheme.enhancedBackground,
-                    backdropFilter: `saturate(180%) blur(${headerBlur.get()}px)`,
-                    boxShadow: `0 4px 20px rgba(0, 0, 0, 0.4)`,
-                    opacity: headerOpacity.get(),
-                    transform: `translateY(${headerY.get()}px) scale(${headerScale.get()})`,
-                    borderBottom: `1px solid rgba(212, 175, 55, 0.15)`,
+                    backdropFilter: 'saturate(180%) blur(12px)',
+                    WebkitBackdropFilter: 'saturate(180%) blur(12px)',
+                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
+                    borderBottom: '1px solid rgba(212, 175, 55, 0.15)',
                 }}
             >
-                <motion.div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" style={{ height: headerHeight }}>
-                    <div className="flex h-full items-center justify-between">
-                        {/* OPTIMIZED Logo - Smooth performance */}
-                        <motion.div
-                            style={{
-                                scale: headerScale,
-                            }}
-                            className="flex items-center"
-                        >
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="flex h-16 items-center justify-between sm:h-20">
+                        {/* NATURAL Logo - No motion transforms */}
+                        <div className="flex items-center">
                             <Link href={route('b2c.home')} className="group relative inline-block">
                                 <div className="flex items-center justify-center">
                                     <img
                                         src="/cahayanbiyalogo.png"
                                         alt="Cahaya Anbiya Logo"
-                                        className="h-16 w-auto transition-all duration-300 group-hover:scale-105 sm:h-20 md:h-24"
+                                        className="h-12 w-auto transition-all duration-300 group-hover:scale-105 sm:h-14"
                                     />
                                 </div>
 
                                 {/* Subtle hover glow effect */}
-                                <motion.div
-                                    className="absolute inset-0 rounded-full bg-secondary/20 opacity-0 blur-sm transition-opacity duration-300"
-                                    whileHover={{ opacity: 1 }}
-                                />
+                                <div className="absolute inset-0 rounded-full bg-secondary/20 opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100" />
                             </Link>
-                        </motion.div>
+                        </div>
 
                         {/* OPTIMIZED Desktop Navigation - Responsive & Smooth */}
                         <nav className="hidden items-center space-x-1 lg:flex">
@@ -351,7 +330,7 @@ export default function OptimizedHeader() {
                                                     className="absolute top-full left-0 z-50 mt-2 w-64 rounded-xl border border-white/10 bg-black/95 p-2 shadow-2xl backdrop-blur-xl"
                                                 >
                                                     {item.dropdownItems?.map((dropdownItem) => (
-                                                                <Link
+                                                        <Link
                                                             key={dropdownItem.name}
                                                             href={dropdownItem.href}
                                                             className="group block rounded-lg px-3 py-2 text-sm text-white transition-all duration-200 hover:bg-white/10 hover:text-secondary"
@@ -361,9 +340,9 @@ export default function OptimizedHeader() {
                                                                 <div className="text-xs text-gray-400 group-hover:text-gray-300">
                                                                     {dropdownItem.description}
                                                                 </div>
-                                                                    )}
-                                                                </Link>
-                                                        ))}
+                                                            )}
+                                                        </Link>
+                                                    ))}
                                                 </motion.div>
                                             )}
                                         </AnimatePresence>
@@ -410,7 +389,7 @@ export default function OptimizedHeader() {
                             </div>
                         </nav>
 
-                        {/* ENHANCED Mobile Menu Button - Responsive & Functional */}
+                        {/* NATURAL Mobile Menu Button - No motion transforms */}
                         <button
                             onClick={() => {
                                 console.log('Mobile menu button clicked!', isMobileMenuOpen);
@@ -419,19 +398,13 @@ export default function OptimizedHeader() {
                             className={`mobile-menu-button rounded-xl p-3 transition-all duration-300 lg:hidden ${'bg-white/10 text-white hover:bg-white/20'}`}
                             aria-label={isMobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'}
                         >
-                            <motion.div
-                                animate={{
-                                    rotate: isMobileMenuOpen ? 90 : 0,
-                                    scale: isMobileMenuOpen ? 1.1 : 1,
-                                }}
-                                transition={{ duration: 0.3 }}
-                            >
+                            <div className={`transition-all duration-300 ${isMobileMenuOpen ? 'scale-110 rotate-90' : 'scale-100 rotate-0'}`}>
                                 {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                            </motion.div>
+                            </div>
                         </button>
                     </div>
-                </motion.div>
-            </motion.header>
+                </div>
+            </header>
 
             {/* ENHANCED MOBILE SIDEBAR - RESPONSIVE & FUNCTIONAL */}
             <AnimatePresence mode="wait">
@@ -474,7 +447,7 @@ export default function OptimizedHeader() {
                         >
                             {/* CONSISTENT MENU HEADER - Same theme as header desktop */}
                             <div className="flex items-center justify-between px-4 pt-4 pb-2">
-                                <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Logo" className="h-14 w-auto object-contain" />
+                                <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya Logo" className="h-10 object-contain" />
                                 <button
                                     className="p-2 text-white transition-all duration-300 ease-out hover:text-yellow-400"
                                     onClick={() => {
@@ -485,11 +458,11 @@ export default function OptimizedHeader() {
                                 >
                                     <X className="h-6 w-6" />
                                 </button>
-                                        </div>
+                            </div>
 
                             {/* B2B/B2C SWITCH BUTTON - Same functionality as header desktop */}
                             <div className="flex items-center justify-center px-4 pb-4">
-                                    <button
+                                <button
                                     className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-300 ${
                                         currentMode === 'b2c'
                                             ? 'bg-white/10 text-white hover:bg-white/20 hover:text-yellow-400'
@@ -498,8 +471,8 @@ export default function OptimizedHeader() {
                                     onClick={handleModeSwitch}
                                 >
                                     {currentMode === 'b2c' ? 'B2C → B2B' : 'B2B → B2C'}
-                                    </button>
-                                </div>
+                                </button>
+                            </div>
 
                             {/* CONSISTENT SEARCH BAR - Same theme as header desktop */}
                             <div className="px-4 pb-4">
@@ -540,7 +513,7 @@ export default function OptimizedHeader() {
                             {/* CONSISTENT NAVIGATION - Same theme as header desktop */}
                             <nav className="flex-1 overflow-y-auto px-4 pb-4">
                                 <div className="space-y-1">
-                                        {navigationItems.map((item, index) => (
+                                    {navigationItems.map((item, index) => (
                                         <div key={index} className="mb-2">
                                             {item.hasDropdown ? (
                                                 <div>
@@ -613,7 +586,7 @@ export default function OptimizedHeader() {
                                                                     className="block rounded-lg px-4 py-2 text-sm text-gray-300 transition-colors duration-300 hover:bg-yellow-500/10 hover:text-yellow-400"
                                                                 >
                                                                     Saudi Arabia
-                                                    </Link>
+                                                                </Link>
                                                                 <Link
                                                                     href={route('b2c.destinations')}
                                                                     onClick={() => setIsMobileMenuOpen(false)}
@@ -628,16 +601,16 @@ export default function OptimizedHeader() {
                                                                 >
                                                                     Jordan
                                                                 </Link>
-                                                                                <Link
+                                                                <Link
                                                                     href={route('b2c.destinations')}
-                                                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                                    onClick={() => setIsMobileMenuOpen(false)}
                                                                     className="block rounded-lg px-4 py-2 text-sm text-gray-300 transition-colors duration-300 hover:bg-yellow-500/10 hover:text-yellow-400"
                                                                 >
                                                                     Egypt
                                                                 </Link>
                                                             </>
                                                         )}
-                                                                    </div>
+                                                    </div>
                                                 </div>
                                             ) : (
                                                 <Link
@@ -650,15 +623,15 @@ export default function OptimizedHeader() {
                                                 </Link>
                                             )}
                                         </div>
-                                        ))}
-                                    </div>
-                                </nav>
+                                    ))}
+                                </div>
+                            </nav>
 
                             {/* LOGIN FEATURE - Same as header desktop */}
                             <div className="px-4 pb-4">
-                                        <Link
-                                            href={route('login')}
-                                            onClick={() => setIsMobileMenuOpen(false)}
+                                <Link
+                                    href={route('login')}
+                                    onClick={() => setIsMobileMenuOpen(false)}
                                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3 text-sm font-semibold text-white transition-all duration-300 hover:from-yellow-400 hover:to-yellow-500"
                                 >
                                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -670,8 +643,8 @@ export default function OptimizedHeader() {
                                         />
                                     </svg>
                                     Login
-                                        </Link>
-                                    </div>
+                                </Link>
+                            </div>
 
                             {/* CONSISTENT FOOTER - Same theme as header desktop */}
                             <div className="border-t border-yellow-500/20 p-4">

@@ -9,12 +9,12 @@ document.head.appendChild(fontLink);
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
     return (
-        <div className="flex min-h-dvh flex-col bg-background text-foreground">
+        <div className="flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground">
             {/* Optimized Header Component */}
             <OptimizedHeader />
 
-            {/* Main Content with proper padding */}
-            <main className="flex-1 pt-16 lg:pt-20">{children}</main>
+            {/* Main Content with proper padding - Adjusted for consistent header */}
+            <main className="flex-1">{children}</main>
         </div>
     );
 }
