@@ -225,30 +225,365 @@
     width: 100% !important;
 }
 
-/* Ensure main content can scroll properly */
-main {
-    overflow-x: hidden;
-    overflow-y: auto;
+/* Header Consistency Optimizations */
+.header-consistent {
+    background-color: rgba(0, 0, 0, 0.95) !important;
+    backdrop-filter: saturate(180%) blur(12px) !important;
+    -webkit-backdrop-filter: saturate(180%) blur(12px) !important;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.header-consistent:hover {
+    background-color: rgba(0, 0, 0, 1) !important;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Smooth scroll behavior for header */
+html {
+    scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
 }
 
-/* Fix for mobile scrolling issues */
+/* Prevent header color conflicts */
+header {
+    isolation: isolate;
+    z-index: 9999;
+    will-change: transform, opacity;
+}
+
+/* Ensure header is always visible over hero sections */
+header.header-consistent {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background-color: rgba(0, 0, 0, 0.98) !important;
+    backdrop-filter: saturate(180%) blur(12px) !important;
+    -webkit-backdrop-filter: saturate(180%) blur(12px) !important;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15) !important;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6) !important;
+    /* Prevent flicker and ensure smooth transitions */
+    will-change: transform, opacity, box-shadow !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    /* Ensure consistent rendering */
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Ensure proper spacing for sticky header */
+main {
+    /* No padding-top needed for sticky header */
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Prevent layout shift */
+    min-height: calc(100vh);
+}
+
+@media (min-width: 1024px) {
+    main {
+        /* No padding-top needed for sticky header */
+        min-height: calc(100vh);
+    }
+}
+
+/* Prevent content from jumping under header */
+.hero-section {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    /* Ensure hero section starts below header */
+    position: relative;
+    z-index: 1;
+    /* Prevent color bleeding */
+    isolation: isolate;
+}
+
+/* Ensure all content sections have proper z-index */
+section {
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+}
+
+/* Prevent any content from interfering with header */
+.content-section {
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+}
+
+/* Ensure footer doesn't interfere with header */
+footer {
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+}
+
+/* Prevent any background colors from bleeding through */
+.content-section,
+section,
+footer {
+    background-color: inherit;
+    background-clip: padding-box;
+}
+
+/* Ensure header is always on top */
+header.header-consistent {
+    z-index: 9999 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    /* Prevent any content from bleeding through */
+    contain: layout style paint;
+}
+
+/* Prevent any element from going above header */
+* {
+    z-index: auto;
+}
+
+/* Ensure header stays above everything */
+header.header-consistent * {
+    z-index: auto;
+}
+
+/* Prevent any content from interfering with header */
+.content-section,
+section,
+footer,
+.hero-section {
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+    /* Prevent background bleeding */
+    background-clip: padding-box;
+    background-origin: padding-box;
+}
+
+/* OPTIMIZED STICKY HEADER - Smooth & Performant */
+header.header-consistent {
+    /* Sticky positioning - follows scroll */
+    position: sticky !important;
+    top: 0 !important;
+    /* Force consistent black background */
+    background-color: rgba(0, 0, 0, 0.98) !important;
+    /* Optimized backdrop blur */
+    backdrop-filter: saturate(180%) blur(12px) !important;
+    -webkit-backdrop-filter: saturate(180%) blur(12px) !important;
+    /* Enhanced border */
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15) !important;
+    /* Optimized shadow */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    /* GPU acceleration for smooth performance */
+    will-change: transform, opacity !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    /* Optimized transitions */
+    transition:
+        transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    /* Prevent layout shifts */
+    contain: layout style paint !important;
+    /* Ensure consistent rendering */
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* OPTIMIZED hover effects for header */
+header.header-consistent:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5) !important;
+    transition:
+        transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ENHANCED MOBILE SCROLLING - Fixed for B2C */
+html {
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-x: hidden !important;
+}
+
+body {
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-x: hidden !important;
+    /* Prevent iOS bounce effect */
+    overscroll-behavior: none !important;
+    -webkit-overscroll-behavior: none !important;
+}
+
+/* Hero section scrolling optimization */
+.hero-section {
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* Hardware acceleration */
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    perspective: 1000px !important;
+    /* Prevent scroll issues */
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+/* Content sections scrolling optimization */
+.content-section {
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* Hardware acceleration */
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    /* Prevent scroll lag */
+    contain: layout style paint !important;
+}
+
+/* OPTIMIZED mobile performance */
+@media (max-width: 768px) {
+    html, body {
+        /* Enhanced mobile scrolling */
+        -webkit-overflow-scrolling: touch !important;
+        scroll-behavior: smooth !important;
+        /* Prevent zoom on input focus */
+        touch-action: manipulation !important;
+        /* Prevent pull-to-refresh */
+        overscroll-behavior-y: none !important;
+        -webkit-overscroll-behavior-y: none !important;
+    }
+    
+    .hero-section {
+        /* Mobile-specific optimizations */
+        min-height: 100vh !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        /* Prevent scroll issues on mobile */
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    
+    /* Fix for mobile viewport units */
+    .hero-section > div {
+        height: 100vh !important;
+        min-height: 100vh !important;
+        max-height: 100vh !important;
+    }
+    
+    header.header-consistent {
+        /* Reduced effects on mobile for better performance */
+        backdrop-filter: saturate(150%) blur(8px) !important;
+        -webkit-backdrop-filter: saturate(150%) blur(8px) !important;
+        /* Simplified transforms for mobile */
+        transform: translateZ(0) !important;
+        /* Faster transitions on mobile */
+        transition:
+            transform 0.15s ease-out,
+            opacity 0.15s ease-out !important;
+    }
+
+    header.header-consistent:hover {
+        /* Minimal hover effects on mobile */
+        transform: translateY(-0.5px) !important;
+    }
+}
+
+/* KRISTALIN-STYLE MOBILE MENU OPTIMIZATIONS */
+.mobile-menu-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+}
+
+/* Enhanced mobile sidebar drawer */
+.mobile-drawer {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.3) transparent;
+    /* Ensure proper z-index stacking */
+    z-index: 10000 !important;
+    isolation: isolate;
+}
+
+.mobile-drawer::-webkit-scrollbar {
+    width: 4px;
+}
+
+.mobile-drawer::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.mobile-drawer::-webkit-scrollbar-thumb {
+    background-color: rgba(212, 175, 55, 0.3);
+    border-radius: 2px;
+}
+
+.mobile-drawer::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(212, 175, 55, 0.5);
+}
+
+/* Accordion animation optimizations */
+.accordion-content {
+    transition:
+        max-height 0.3s ease-in-out,
+        opacity 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+/* Enhanced mobile responsiveness */
 @media (max-width: 768px) {
     body {
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
     }
 
-    /* Ensure sidebar has highest z-index */
-    .mobile-sidebar {
+    /* Ensure mobile menu has highest priority */
+    .mobile-menu-container {
         z-index: 9999 !important;
         isolation: isolate;
     }
 
-    /* Prevent content from interfering with sidebar */
+    /* Mobile menu backdrop */
+    .mobile-menu-backdrop {
+        z-index: 9998 !important;
+    }
+
+    /* Mobile menu drawer - ensure visibility */
+    .mobile-drawer {
+        z-index: 10000 !important;
+        /* Ensure drawer is always visible on mobile */
+        position: fixed !important;
+        top: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 320px !important;
+    }
+
+    /* Prevent content interference */
     main {
         position: relative;
         z-index: 1;
+    }
+
+    /* Enhanced mobile performance */
+    .mobile-menu-open * {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+
+    /* Ensure mobile menu button is always clickable */
+    .mobile-menu-button {
+        z-index: 10001 !important;
+        position: relative;
     }
 }
 

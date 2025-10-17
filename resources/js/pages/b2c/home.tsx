@@ -5,15 +5,32 @@ import { Head } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 
-// Smooth scroll function
+// Enhanced smooth scroll function - Optimized for mobile
 const smoothScrollTo = (elementId: string) => {
     const element = document.getElementById(elementId);
     if (element) {
+        // Enhanced smooth scrolling with better mobile support
         element.scrollIntoView({
             behavior: 'smooth',
             block: 'start',
             inline: 'nearest',
         });
+        
+        // Additional mobile optimization
+        if (window.innerWidth <= 768) {
+            // Add slight delay for mobile to ensure smooth scrolling
+            setTimeout(() => {
+                const rect = element.getBoundingClientRect();
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const elementTop = rect.top + scrollTop;
+                
+                // Smooth scroll to element with offset for header
+                window.scrollTo({
+                    top: elementTop - 80, // Offset for header
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
     }
 };
 
@@ -35,6 +52,35 @@ const slidesSeed: Slide[] = [
 export default function Home() {
     const [index, setIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
+
+    // Enhanced scrolling optimization for mobile devices
+    useEffect(() => {
+        // Prevent iOS bounce effect
+        document.body.style.overscrollBehavior = 'none';
+        document.body.style.webkitOverscrollBehavior = 'none';
+        
+        // Enhanced smooth scrolling for mobile
+        if (window.innerWidth <= 768) {
+            document.documentElement.style.scrollBehavior = 'smooth';
+            document.body.style.scrollBehavior = 'smooth';
+            
+            // Prevent zoom on input focus
+            document.body.style.touchAction = 'manipulation';
+            
+            // Prevent pull-to-refresh
+            document.body.style.overscrollBehaviorY = 'none';
+            document.body.style.webkitOverscrollBehaviorY = 'none';
+        }
+
+        // Cleanup function
+        return () => {
+            document.body.style.overscrollBehavior = '';
+            document.body.style.webkitOverscrollBehavior = '';
+            document.body.style.touchAction = '';
+            document.body.style.overscrollBehaviorY = '';
+            document.body.style.webkitOverscrollBehaviorY = '';
+        };
+    }, []);
 
     // Ultra-smooth auto-slide dengan transition handling
     useEffect(() => {
@@ -247,10 +293,18 @@ export default function Home() {
         <PublicLayout>
             <Head title="Home" />
 
-            {/* Ultra-Smooth Hero Section dengan mobile-first optimization */}
-            <section className="relative overflow-hidden">
-                {/* Optimized aspect ratios untuk semua device */}
-                <div className="aspect-[4/5] w-full overflow-hidden bg-muted sm:aspect-[16/10] md:aspect-[16/9] lg:aspect-[16/8] xl:aspect-[16/7] 2xl:aspect-[16/6]">
+            {/* Ultra-Smooth Hero Section dengan mobile-first optimization - Fixed Scrolling */}
+            <section className="hero-section relative overflow-hidden" style={{
+                minHeight: '100vh',
+                scrollBehavior: 'smooth',
+                WebkitOverflowScrolling: 'touch'
+            }}>
+                {/* Optimized aspect ratios untuk semua device - Simplified for better scrolling */}
+                <div className="w-full overflow-hidden bg-muted" style={{
+                    height: '100vh',
+                    minHeight: '600px',
+                    maxHeight: '100vh'
+                }}>
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                             key={slide.id}
@@ -268,6 +322,10 @@ export default function Home() {
                                 style={{
                                     willChange: 'transform, opacity, filter',
                                     transform: 'translateZ(0)', // Hardware acceleration
+                                    backfaceVisibility: 'hidden',
+                                    perspective: '1000px',
+                                    WebkitTransform: 'translateZ(0)',
+                                    WebkitBackfaceVisibility: 'hidden'
                                 }}
                             />
                         </motion.div>
@@ -277,7 +335,7 @@ export default function Home() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 sm:from-black/80 sm:via-black/40 md:from-black/75 md:via-black/35" />
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 sm:bg-gradient-to-r sm:from-black/40 sm:to-transparent md:from-black/45" />
 
-                    {/* Smooth hero content dengan staggered animations */}
+                    {/* Smooth hero content dengan staggered animations - Enhanced for mobile scrolling */}
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                             key={`content-${slide.id}`}
@@ -286,6 +344,13 @@ export default function Home() {
                             initial="initial"
                             animate="animate"
                             exit="exit"
+                            style={{
+                                willChange: 'transform, opacity',
+                                transform: 'translateZ(0)',
+                                WebkitTransform: 'translateZ(0)',
+                                backfaceVisibility: 'hidden',
+                                WebkitBackfaceVisibility: 'hidden'
+                            }}
                         >
                             <div className="text-center text-white">
                                 <motion.h1
@@ -353,7 +418,7 @@ export default function Home() {
                                     className={`rounded-full transition-all duration-300 ${
                                         i === index
                                             ? 'h-2 w-6 bg-secondary shadow-lg shadow-secondary/50 sm:h-3 sm:w-8'
-                                            : 'h-2 w-2 bg-white/70 hover:bg-white/90 border border-white/30 sm:h-3 sm:w-3'
+                                            : 'h-2 w-2 border border-white/30 bg-white/70 hover:bg-white/90 sm:h-3 sm:w-3'
                                     }`}
                                     onClick={() => handleSlideChange(i)}
                                     whileHover={{ scale: 1.1 }}
@@ -371,7 +436,7 @@ export default function Home() {
             {/* Mobile-First Best Sellers Section dengan enhanced spacing */}
             <motion.section
                 id="packages"
-                className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
+                className="xs:px-4 xs:py-10 content-section mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-30px' }}
@@ -505,7 +570,7 @@ export default function Home() {
 
             {/* Mobile-First New Destinations Section */}
             <motion.section
-                className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
+                className="xs:px-4 xs:py-10 content-section mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-30px' }}
@@ -636,7 +701,7 @@ export default function Home() {
 
             {/* Mobile-First Highlights Section */}
             <motion.section
-                className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
+                className="xs:px-4 xs:py-10 content-section mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-30px' }}
@@ -769,7 +834,7 @@ export default function Home() {
             </motion.section>
 
             {/* Mobile-First Enhanced Footer */}
-            <footer className="border-t border-white/20 bg-card/60 backdrop-blur-xl">
+            <footer className="content-section border-t border-white/20 bg-card/60 backdrop-blur-xl">
                 <motion.div
                     className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:flex md:items-center md:justify-between md:px-6 md:py-12 lg:px-8 xl:px-10"
                     initial={{ opacity: 0, y: 15 }}
