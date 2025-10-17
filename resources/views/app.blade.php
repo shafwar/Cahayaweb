@@ -6,6 +6,11 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        <!-- Favicon - Cahaya Anbiya Logo -->
+        <link rel="icon" type="image/png" href="/cahayanbiyalogo.png">
+        <link rel="shortcut icon" type="image/png" href="/cahayanbiyalogo.png">
+        <link rel="apple-touch-icon" href="/cahayanbiyalogo.png">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
