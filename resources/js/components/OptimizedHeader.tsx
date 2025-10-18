@@ -84,10 +84,10 @@ export default function OptimizedHeader() {
 
     const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-    // CIDATA-STYLE SCROLL FOLLOWING LOGIC - Header follows scroll naturally
+    // CIDATA-STYLE TRUE SCROLL FOLLOWING - Header moves with scroll
     useEffect(() => {
         const handleScroll = () => {
-            // Simple scroll detection - header follows scroll naturally
+            // Header follows scroll naturally - not sticky
             setIsScrolled(window.scrollY > 100);
         };
 
@@ -227,15 +227,12 @@ export default function OptimizedHeader() {
 
     return (
         <>
-            {/* CIDATA-STYLE FIXED HEADER - Always visible and follows scroll */}
+            {/* CIDATA-STYLE SCROLL FOLLOWING HEADER - Moves with scroll */}
             <header
-                className="fixed top-0 left-0 right-0 z-[9999] bg-black/98 backdrop-blur-xl border-b border-yellow-400/15 shadow-lg transition-all duration-700"
+                className="relative w-full border-b border-yellow-400/15 bg-black/98 shadow-lg backdrop-blur-xl transition-all duration-700"
                 style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    zIndex: 9999,
+                    position: 'relative',
+                    width: '100%',
                     backgroundColor: 'rgba(0, 0, 0, 0.98)',
                     backdropFilter: 'saturate(180%) blur(12px)',
                     WebkitBackdropFilter: 'saturate(180%) blur(12px)',

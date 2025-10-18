@@ -271,10 +271,10 @@ header {
 
 /* NATURAL SCROLL FOLLOWING HEADER - No fixed positioning */
 
-/* FIXED HEADER LAYOUT - Add padding for header space like Cidata */
+/* NATURAL SCROLL FOLLOWING LAYOUT - No padding needed */
 main {
-    /* Add padding-top to account for fixed header */
-    padding-top: 80px; /* Header height compensation */
+    /* Natural flow - no padding needed for relative header */
+    padding-top: 0 !important;
     overflow-x: hidden;
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
@@ -284,8 +284,8 @@ main {
 
 @media (min-width: 1024px) {
     main {
-        /* Consistent padding on desktop */
-        padding-top: 80px;
+        /* Natural flow on desktop */
+        padding-top: 0 !important;
         min-height: auto;
         overflow-y: visible;
     }
@@ -293,15 +293,15 @@ main {
 
 @media (max-width: 640px) {
     main {
-        /* Smaller padding on mobile */
-        padding-top: 64px; /* Mobile header height */
+        /* Natural flow on mobile */
+        padding-top: 0 !important;
     }
 }
 
-/* FIXED HEADER HERO SECTION - Remove top spacing like Cidata */
+/* NATURAL HERO SECTION - No spacing adjustments needed */
 .hero-section {
-    margin-top: -80px !important; /* Negative margin to pull up under header */
-    padding-top: 80px !important; /* Add padding to compensate */
+    margin-top: 0 !important;
+    padding-top: 0 !important;
     /* Natural flow with header */
     position: relative;
     z-index: 1;
@@ -313,8 +313,8 @@ main {
 
 @media (max-width: 640px) {
     .hero-section {
-        margin-top: -64px !important; /* Mobile negative margin */
-        padding-top: 64px !important; /* Mobile padding */
+        margin-top: 0 !important;
+        padding-top: 0 !important;
     }
 }
 
@@ -372,14 +372,11 @@ footer,
     background-origin: padding-box;
 }
 
-/* CIDATA-STYLE FIXED HEADER - Always visible, follows scroll */
+/* CIDATA-STYLE SCROLL FOLLOWING HEADER - Moves with scroll naturally */
 header {
-    /* Force fixed positioning */
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 9999 !important;
+    /* Natural positioning - follows scroll naturally */
+    position: relative !important;
+    width: 100% !important;
     /* Force consistent black background - no transparency */
     background-color: rgba(0, 0, 0, 0.98) !important;
     /* Optimized backdrop blur */
@@ -406,28 +403,22 @@ header:hover {
 }
 
 /* FORCE HEADER VISIBILITY - Override any conflicting styles */
-header[class*="fixed"] {
+header {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 9999 !important;
+    position: relative !important;
+    width: 100% !important;
 }
 
 /* NATURAL mobile performance */
 @media (max-width: 768px) {
     header {
-        /* Natural mobile behavior */
+        /* Natural mobile behavior - follows scroll */
         backdrop-filter: saturate(150%) blur(8px) !important;
         -webkit-backdrop-filter: saturate(150%) blur(8px) !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        z-index: 9999 !important;
+        position: relative !important;
+        width: 100% !important;
     }
 }
 
