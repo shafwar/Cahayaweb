@@ -12,9 +12,6 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         <div className="flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground">
             {/* Optimized Header Component */}
             <OptimizedHeader />
-            
-            {/* Spacer for fixed header - height matches header h-16 sm:h-20 */}
-            <div className="h-16 sm:h-20" />
 
             {/* Main Content with proper padding - Adjusted for consistent header */}
             <main className="flex-1">{children}</main>

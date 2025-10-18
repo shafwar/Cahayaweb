@@ -238,22 +238,17 @@ export default function B2BHeader() {
 
     return (
         <>
-            {/* STICKY B2B HEADER - Stays on top when scrolling */}
+            {/* CIDATA-STYLE SCROLL FOLLOWING B2B HEADER - Moves with scroll */}
             <header
-                className="fixed left-0 right-0 top-0 z-50 w-full border-b border-yellow-400/15 bg-black/98 shadow-lg backdrop-blur-xl transition-all duration-300"
+                className="relative w-full border-b border-yellow-400/15 bg-black/98 shadow-lg backdrop-blur-xl transition-all duration-700"
                 style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
+                    position: 'relative',
                     width: '100%',
-                    zIndex: 50,
-                    backgroundColor: isScrolled ? 'rgba(0, 0, 0, 0.98)' : 'rgba(0, 0, 0, 0.95)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.98)',
                     backdropFilter: 'saturate(180%) blur(12px)',
                     WebkitBackdropFilter: 'saturate(180%) blur(12px)',
-                    boxShadow: isScrolled ? '0 4px 20px rgba(0, 0, 0, 0.5)' : '0 2px 10px rgba(0, 0, 0, 0.3)',
+                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
                     borderBottom: '1px solid rgba(212, 175, 55, 0.15)',
-                    transform: isScrolled ? 'translateY(0)' : 'translateY(0)',
                 }}
             >
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -367,7 +362,7 @@ export default function B2BHeader() {
                             className={`mobile-menu-button rounded-xl p-3 transition-all duration-300 lg:hidden ${'bg-white/10 text-white hover:bg-white/20'}`}
                             aria-label={isMobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'}
                         >
-                            <div className={`transition-all duration-300 ${isMobileMenuOpen ? 'rotate-90 scale-110' : 'rotate-0 scale-100'}`}>
+                            <div className={`transition-all duration-300 ${isMobileMenuOpen ? 'scale-110 rotate-90' : 'scale-100 rotate-0'}`}>
                                 {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                             </div>
                         </button>
@@ -394,7 +389,8 @@ export default function B2BHeader() {
                         />
 
                         {/* ENHANCED DRAWER CONTAINER - Better spacing and complete layout */}
-                        <div className="mobile-drawer absolute top-0 right-0 bottom-0 z-[10000] flex w-80 flex-col shadow-2xl transition-transform duration-300 ease-out sm:w-96"
+                        <div
+                            className="mobile-drawer absolute top-0 right-0 bottom-0 z-[10000] flex w-80 flex-col shadow-2xl transition-transform duration-300 ease-out sm:w-96"
                             style={{
                                 backgroundColor: 'rgba(0, 0, 0, 0.98)',
                                 backdropFilter: 'saturate(180%) blur(12px)',
@@ -608,4 +604,3 @@ export default function B2BHeader() {
         </>
     );
 }
-

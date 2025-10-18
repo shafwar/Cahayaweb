@@ -16,8 +16,6 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
         <div className="flex min-h-dvh flex-col bg-background text-foreground">
             {/* Optimized B2B Header Component */}
             <B2BHeader />
-            {/* Spacer for fixed header - height matches header h-16 sm:h-20 */}
-            <div className="h-16 sm:h-20" />
             <B2BBreadcrumbBar />
             <main className="flex-1">{children}</main>
 
