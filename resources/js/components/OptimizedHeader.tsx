@@ -84,7 +84,7 @@ export default function OptimizedHeader() {
 
     const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-    // CIDATA-STYLE SMOOTH SCROLL FOLLOWING HEADER
+    // SIMPLE SCROLL DETECTION FOR MOBILE MENU
     useEffect(() => {
         let ticking = false;
         let scrollTimeout: NodeJS.Timeout;
@@ -94,11 +94,10 @@ export default function OptimizedHeader() {
             const currentScrollY = window.scrollY;
             const scrollDelta = Math.abs(currentScrollY - lastScrollTop);
 
-            // Smooth scroll following - header moves naturally with page content
+            // Simple scroll detection for mobile menu auto-close
             if (scrollDelta > 1) {
                 const direction = currentScrollY > lastScrollTop ? 'down' : 'up';
-
-                // Header follows scroll smoothly - no abrupt changes
+                
                 setIsScrolled(currentScrollY > 30);
                 setScrollDirection(direction);
                 setIsScrolling(true);
@@ -111,7 +110,7 @@ export default function OptimizedHeader() {
                 lastScrollTop = currentScrollY;
                 setLastScrollY(currentScrollY);
 
-                // Smooth debounce for natural feel
+                // Smooth debounce
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
                     setIsScrolling(false);
@@ -265,7 +264,7 @@ export default function OptimizedHeader() {
 
     return (
         <>
-            {/* CIDATA-STYLE NATURAL SCROLL FOLLOWING HEADER */}
+            {/* CIDATA-STYLE TRUE SCROLL FOLLOWING HEADER */}
             <header
                 className={`header-consistent relative z-[100] transition-all duration-300 ${isScrolled ? 'scrolled' : ''}`}
                 style={{

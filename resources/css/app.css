@@ -271,7 +271,7 @@ header {
 
 /* NATURAL SCROLL FOLLOWING HEADER - No fixed positioning */
 
-/* NATURAL SCROLL FOLLOWING HEADER - No gaps */
+/* NATURAL SCROLL FOLLOWING HEADER - No padding needed */
 main {
     /* Natural flow - no padding-top needed */
     overflow-x: hidden;
@@ -356,7 +356,7 @@ footer,
     background-origin: padding-box;
 }
 
-/* CIDATA-STYLE NATURAL SCROLL FOLLOWING HEADER */
+/* CIDATA-STYLE TRUE SCROLL FOLLOWING HEADER */
 header.header-consistent {
     /* Natural positioning - follows scroll naturally */
     position: relative !important;
