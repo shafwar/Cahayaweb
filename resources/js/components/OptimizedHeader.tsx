@@ -84,56 +84,19 @@ export default function OptimizedHeader() {
 
     const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-    // SIMPLE SCROLL DETECTION FOR MOBILE MENU
+    // CIDATA-STYLE SCROLL FOLLOWING LOGIC - Header follows scroll naturally
     useEffect(() => {
-        let ticking = false;
-        let scrollTimeout: NodeJS.Timeout;
-        let lastScrollTop = 0;
-
-        const updateScrollState = () => {
-            const currentScrollY = window.scrollY;
-            const scrollDelta = Math.abs(currentScrollY - lastScrollTop);
-
-            // Simple scroll detection for mobile menu auto-close
-            if (scrollDelta > 1) {
-                const direction = currentScrollY > lastScrollTop ? 'down' : 'up';
-                
-                setIsScrolled(currentScrollY > 30);
-                setScrollDirection(direction);
-                setIsScrolling(true);
-
-                // Auto-hide mobile menu when scrolling down
-                if (direction === 'down' && currentScrollY > 100 && isMobileMenuOpen) {
-                    setIsMobileMenuOpen(false);
-                }
-
-                lastScrollTop = currentScrollY;
-                setLastScrollY(currentScrollY);
-
-                // Smooth debounce
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    setIsScrolling(false);
-                }, 120);
-            }
-
-            ticking = false;
+        const handleScroll = () => {
+            // Simple scroll detection - header follows scroll naturally
+            setIsScrolled(window.scrollY > 100);
         };
 
-        const requestTick = () => {
-            if (!ticking) {
-                requestAnimationFrame(updateScrollState);
-                ticking = true;
-            }
-        };
-
-        window.addEventListener('scroll', requestTick, { passive: true });
-
-        return () => {
-            window.removeEventListener('scroll', requestTick);
-            clearTimeout(scrollTimeout);
-        };
-    }, [isMobileMenuOpen]);
+        // Add scroll listener
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        
+        // Cleanup
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // KRISTALIN-STYLE SOPHISTICATED SCROLL LOCK
     useEffect(() => {
@@ -264,9 +227,9 @@ export default function OptimizedHeader() {
 
     return (
         <>
-            {/* CIDATA-STYLE TRUE SCROLL FOLLOWING HEADER */}
+            {/* CIDATA-STYLE SCROLL FOLLOWING HEADER - Always visible, follows scroll */}
             <header
-                className={`header-consistent relative z-[100] transition-all duration-300 ${isScrolled ? 'scrolled' : ''}`}
+                className={`header-consistent fixed top-0 left-0 right-0 z-[9999] transition-all duration-700 ${isScrolled ? 'scrolled' : ''}`}
                 style={{
                     backgroundColor: headerTheme.enhancedBackground,
                     backdropFilter: 'saturate(180%) blur(12px)',

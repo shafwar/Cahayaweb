@@ -271,9 +271,10 @@ header {
 
 /* NATURAL SCROLL FOLLOWING HEADER - No fixed positioning */
 
-/* NATURAL SCROLL FOLLOWING HEADER - No padding needed */
+/* FIXED HEADER LAYOUT - Add padding for header space like Cidata */
 main {
-    /* Natural flow - no padding-top needed */
+    /* Add padding-top to account for fixed header */
+    padding-top: 80px; /* Header height compensation */
     overflow-x: hidden;
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
@@ -283,16 +284,24 @@ main {
 
 @media (min-width: 1024px) {
     main {
-        /* Consistent natural flow on desktop */
+        /* Consistent padding on desktop */
+        padding-top: 80px;
         min-height: auto;
         overflow-y: visible;
     }
 }
 
-/* NATURAL HERO SECTION FLOW - No gaps with header */
+@media (max-width: 640px) {
+    main {
+        /* Smaller padding on mobile */
+        padding-top: 64px; /* Mobile header height */
+    }
+}
+
+/* FIXED HEADER HERO SECTION - Remove top spacing like Cidata */
 .hero-section {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
+    margin-top: -80px !important; /* Negative margin to pull up under header */
+    padding-top: 80px !important; /* Add padding to compensate */
     /* Natural flow with header */
     position: relative;
     z-index: 1;
@@ -300,6 +309,13 @@ main {
     isolation: isolate;
     /* Ensure smooth connection with header */
     background-clip: padding-box;
+}
+
+@media (max-width: 640px) {
+    .hero-section {
+        margin-top: -64px !important; /* Mobile negative margin */
+        padding-top: 64px !important; /* Mobile padding */
+    }
 }
 
 /* Ensure all content sections have proper z-index */
@@ -356,14 +372,14 @@ footer,
     background-origin: padding-box;
 }
 
-/* CIDATA-STYLE TRUE SCROLL FOLLOWING HEADER */
+/* CIDATA-STYLE FIXED HEADER - Always visible, follows scroll */
 header.header-consistent {
-    /* Natural positioning - follows scroll naturally */
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    /* Force consistent black background */
+    /* Fixed positioning - always visible like Cidata */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    /* Force consistent black background - no transparency */
     background-color: rgba(0, 0, 0, 0.98) !important;
     /* Optimized backdrop blur */
     backdrop-filter: saturate(180%) blur(12px) !important;
@@ -372,10 +388,10 @@ header.header-consistent {
     border-bottom: 1px solid rgba(212, 175, 55, 0.15) !important;
     /* Subtle shadow for depth */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
-    /* Natural transitions */
+    /* Smooth transitions like Cidata */
     transition:
-        background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        background-color 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.7s cubic-bezier(0.4, 0, 0.2, 1) !important;
     /* Prevent layout shifts */
     contain: layout style paint !important;
     /* Ensure consistent rendering */
