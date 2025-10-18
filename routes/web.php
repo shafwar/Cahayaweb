@@ -79,6 +79,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/about', fn () => Inertia::render('b2c/about'))->name('b2c.about');
 Route::get('/destinations', fn () => Inertia::render('b2c/destinations'))->name('b2c.destinations');
+Route::get('/packages', fn () => Inertia::render('b2c/packages/index'))->name('b2c.packages');
 Route::get('/highlights', fn () => Inertia::render('b2c/highlights'))->name('b2c.highlights');
 Route::get('/blog', fn () => Inertia::render('b2c/blog/index'))->name('b2c.blog');
 Route::get('/blog/{id}', fn ($id) => Inertia::render('b2c/blog/[id]', ['id' => $id]))->name('b2c.blog.show');
