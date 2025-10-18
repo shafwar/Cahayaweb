@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { Briefcase, Building2, LogIn, Menu, MessageCircle, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -28,16 +28,6 @@ const b2bNavigationItems = [
 
 export default function B2BHeader() {
     const page = usePage();
-    const { scrollY } = useScroll();
-
-    // OPTIMIZED scroll-based transforms - SMOOTH & PERFORMANT
-    const headerOpacity = useTransform(scrollY, [0, 50], [0.98, 1]);
-    const headerBlur = useTransform(scrollY, [0, 50], [8, 12]);
-    const headerScale = useTransform(scrollY, [0, 50], [1, 0.995]);
-    const headerHeight = useTransform(scrollY, [0, 50], [80, 70]);
-
-    // SIMPLIFIED: Minimal parallax for smooth performance
-    const headerY = useTransform(scrollY, [0, 100], [0, -5]);
 
     // ADVANCED STATE MANAGEMENT - Inspired by Kristalin
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -56,6 +46,20 @@ export default function B2BHeader() {
     const [currentMode, setCurrentMode] = useState<'b2c' | 'b2b'>('b2b');
 
     const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+    // CIDATA-STYLE TRUE SCROLL FOLLOWING - Header moves with scroll
+    useEffect(() => {
+        const handleScroll = () => {
+            // Header follows scroll naturally - not sticky
+            setIsScrolled(window.scrollY > 100);
+        };
+
+        // Add scroll listener
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        // Cleanup
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // OPTIMIZED scroll detection - SMOOTH & PERFORMANT
     useEffect(() => {
@@ -234,43 +238,31 @@ export default function B2BHeader() {
 
     return (
         <>
-            {/* OPTIMIZED B2B HEADER - Same functionality as B2C */}
-            <motion.header
-                initial={{ y: -100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6, ease: [0.25, 0.25, 0, 1] }}
-                className={`header-consistent sticky top-0 z-[9999] transition-all duration-700 ${isScrolled ? 'scrolled' : ''}`}
+            {/* CIDATA-STYLE SCROLL FOLLOWING B2B HEADER - Moves with scroll */}
+            <header
+                className="relative w-full border-b border-yellow-400/15 bg-black/98 shadow-lg backdrop-blur-xl transition-all duration-700"
                 style={{
-                    backgroundColor: headerTheme.enhancedBackground,
-                    backdropFilter: `saturate(180%) blur(${headerBlur.get()}px)`,
-                    boxShadow: `0 4px 20px rgba(0, 0, 0, 0.4)`,
-                    opacity: headerOpacity.get(),
-                    transform: `translateY(${headerY.get()}px) scale(${headerScale.get()})`,
-                    borderBottom: `1px solid rgba(212, 175, 55, 0.15)`,
+                    position: 'relative',
+                    width: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.98)',
+                    backdropFilter: 'saturate(180%) blur(12px)',
+                    WebkitBackdropFilter: 'saturate(180%) blur(12px)',
+                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
+                    borderBottom: '1px solid rgba(212, 175, 55, 0.15)',
                 }}
             >
-                <motion.div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" style={{ height: headerHeight }}>
-                    <div className="flex h-full items-center justify-between">
-                        {/* OPTIMIZED Logo - B2B Version */}
-                        <motion.div
-                            style={{
-                                scale: headerScale,
-                            }}
-                            className="flex items-center"
-                        >
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="flex h-16 items-center justify-between sm:h-20">
+                        {/* NATURAL Logo - B2B Version */}
+                        <div className="flex items-center">
                             <Link href={route('b2b.index')} className="group relative inline-block">
                                 <div className="flex items-center justify-center">
                                     <img src="/cahayanbiyalogo.png" alt="Cahaya Anbiya B2B Logo" className="h-10 w-auto object-contain sm:h-12" />
                                     <span className="ml-2 text-sm font-semibold text-white">/ B2B</span>
                                 </div>
-                                <motion.div
-                                    className="absolute -bottom-1 left-0 h-0.5 bg-yellow-500"
-                                    initial={{ scaleX: 0 }}
-                                    whileHover={{ scaleX: 1 }}
-                                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                                />
+                                <div className="absolute -bottom-1 left-0 h-0.5 w-0 bg-yellow-500 transition-all duration-300 group-hover:w-full" />
                             </Link>
-                        </motion.div>
+                        </div>
 
                         {/* OPTIMIZED Desktop Navigation - B2B Content */}
                         <nav className="hidden items-center space-x-1 lg:flex">
@@ -303,12 +295,7 @@ export default function B2BHeader() {
 
                                     {/* Dropdown for Packages */}
                                     {item.hasDropdown && activeDropdown === item.name && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: 10 }}
-                                            className="absolute top-full left-0 z-50 mt-2 w-48 rounded-lg bg-black/90 py-2 shadow-xl backdrop-blur-sm"
-                                        >
+                                        <div className="absolute top-full left-0 z-50 mt-2 w-48 rounded-lg bg-black/90 py-2 shadow-xl backdrop-blur-sm transition-all duration-300">
                                             <Link
                                                 href="#umrah-packages"
                                                 className="block px-4 py-2 text-sm text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
@@ -327,7 +314,7 @@ export default function B2BHeader() {
                                             >
                                                 Corporate Packages
                                             </Link>
-                                        </motion.div>
+                                        </div>
                                     )}
                                 </div>
                             ))}
@@ -361,12 +348,7 @@ export default function B2BHeader() {
                                         <LogIn className="h-4 w-4" />
                                         Login
                                     </span>
-                                    <motion.div
-                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-secondary/10 to-transparent"
-                                        initial={{ x: '-100%' }}
-                                        whileHover={{ x: '100%' }}
-                                        transition={{ duration: 0.6 }}
-                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-secondary/10 to-transparent opacity-0 transition-all duration-300 group-hover:opacity-100" />
                                 </Link>
                             </div>
                         </nav>
@@ -380,31 +362,21 @@ export default function B2BHeader() {
                             className={`mobile-menu-button rounded-xl p-3 transition-all duration-300 lg:hidden ${'bg-white/10 text-white hover:bg-white/20'}`}
                             aria-label={isMobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'}
                         >
-                            <motion.div
-                                animate={{
-                                    rotate: isMobileMenuOpen ? 90 : 0,
-                                    scale: isMobileMenuOpen ? 1.1 : 1,
-                                }}
-                                transition={{ duration: 0.3 }}
-                            >
+                            <div className={`transition-all duration-300 ${isMobileMenuOpen ? 'rotate-90 scale-110' : 'rotate-0 scale-100'}`}>
                                 {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                            </motion.div>
+                            </div>
                         </button>
                     </div>
-                </motion.div>
-            </motion.header>
+                </div>
+            </header>
 
             {/* ENHANCED MOBILE SIDEBAR - B2B Content */}
             <AnimatePresence mode="wait">
                 {isMobileMenuOpen && (
                     <div className="mobile-menu-container fixed inset-0 z-[9999] lg:hidden" ref={mobileMenuRef}>
                         {/* CONSISTENT BACKDROP - Same as header desktop */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="mobile-menu-backdrop absolute inset-0 backdrop-blur-sm"
+                        <div
+                            className="mobile-menu-backdrop absolute inset-0 backdrop-blur-sm transition-opacity duration-300"
                             onClick={() => {
                                 console.log('Backdrop clicked, closing menu');
                                 setIsMobileMenuOpen(false);
@@ -417,14 +389,9 @@ export default function B2BHeader() {
                         />
 
                         {/* ENHANCED DRAWER CONTAINER - Better spacing and complete layout */}
-                        <motion.div
-                            initial={{ x: '100%' }}
-                            animate={{ x: 0 }}
-                            exit={{ x: '100%' }}
-                            transition={{ duration: 0.3, ease: 'easeOut' }}
-                            className="mobile-drawer absolute top-0 right-0 bottom-0 z-[10000] flex w-80 flex-col shadow-2xl sm:w-96"
+                        <div className="mobile-drawer absolute top-0 right-0 bottom-0 z-[10000] flex w-80 flex-col shadow-2xl transition-transform duration-300 ease-out sm:w-96"
                             style={{
-                                backgroundColor: headerTheme.enhancedBackground,
+                                backgroundColor: 'rgba(0, 0, 0, 0.98)',
                                 backdropFilter: 'saturate(180%) blur(12px)',
                                 WebkitBackdropFilter: 'saturate(180%) blur(12px)',
                                 borderLeft: '1px solid rgba(212, 175, 55, 0.15)',
@@ -629,10 +596,11 @@ export default function B2BHeader() {
                                     </div>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
                     </div>
                 )}
             </AnimatePresence>
         </>
     );
 }
+
