@@ -46,8 +46,8 @@ export default function About() {
             <Head title="About" />
 
             {/* Dark theme background */}
-            <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/50 to-black">
-                <section className="mx-auto max-w-6xl px-6 pt-32 pb-16">
+            <div className="min-h-screen bg-gradient-to-br from-black via-black/50 to-black">
+                <section className="mx-auto max-w-6xl px-4 pt-4 pb-16 sm:px-6 sm:pt-6">
                     {/* Clean Header */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
@@ -55,22 +55,22 @@ export default function About() {
                         transition={{ duration: 0.6, ease: 'easeOut' }}
                         className="mb-16 text-center"
                     >
-                        <div className="mb-6 inline-block rounded-full border border-purple-500/30 bg-gradient-to-r from-purple-500/20 to-purple-600/20 px-4 py-2">
-                            <span className="text-sm font-medium text-purple-300">✨ Cahaya Anbiya Travel</span>
+                        <div className="mb-6 inline-block rounded-full border border-secondary/30 bg-gradient-to-r from-secondary/20 to-secondary/30 px-4 py-2">
+                            <span className="text-sm font-medium text-secondary">✨ Cahaya Anbiya Travel</span>
                         </div>
                         <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl lg:text-6xl">About Us</h1>
                         <p className="mx-auto max-w-2xl text-lg text-gray-300">Creating memorable travel experiences with the best service</p>
                     </motion.div>
 
-                    {/* Simple 2 Column Layout */}
-                    <div className="grid items-start gap-12 lg:grid-cols-2">
-                        {/* Left - Content */}
+                    {/* Mobile-First Responsive Layout */}
+                    <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
+                        {/* Left - Content with Better Mobile Spacing */}
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
-                            className="space-y-8"
+                            className="space-y-6 lg:space-y-8"
                         >
                             {/* Company Profile */}
                             <div className="space-y-4">
@@ -82,17 +82,17 @@ export default function About() {
                                 </p>
                             </div>
 
-                            {/* Vision & Mission - Simple Cards */}
-                            <div className="space-y-6">
+                            {/* Vision & Mission - Mobile-Optimized Cards */}
+                            <div className="space-y-4 lg:space-y-6">
                                 <motion.div
                                     variants={cardVariants}
                                     initial="hidden"
                                     whileInView="visible"
                                     viewport={{ once: true }}
-                                    className="rounded-2xl border border-purple-500/30 bg-black/40 p-6 shadow-lg backdrop-blur-sm"
+                                    className="rounded-2xl border border-secondary/30 bg-black/40 p-4 shadow-lg backdrop-blur-sm lg:p-6"
                                 >
-                                    <h3 className="mb-3 text-lg font-semibold text-purple-400">Vision</h3>
-                                    <p className="text-gray-300">
+                                    <h3 className="mb-3 text-lg font-semibold text-secondary">Vision</h3>
+                                    <p className="text-sm leading-relaxed text-gray-300 lg:text-base">
                                         To become a leading travel company in inspiring halal travel packages that connect people with their faith and
                                         culture.
                                     </p>
@@ -104,28 +104,28 @@ export default function About() {
                                     whileInView="visible"
                                     viewport={{ once: true }}
                                     transition={{ delay: 0.1 }}
-                                    className="rounded-2xl border border-purple-500/30 bg-black/40 p-6 shadow-lg backdrop-blur-sm"
+                                    className="rounded-2xl border border-secondary/30 bg-black/40 p-4 shadow-lg backdrop-blur-sm lg:p-6"
                                 >
-                                    <h3 className="mb-3 text-lg font-semibold text-purple-400">Mission</h3>
-                                    <ul className="space-y-2 text-gray-300">
-                                        <li className="flex items-start">
-                                            <span className="mt-1 mr-2 text-purple-400">•</span>
-                                            Provide inspiring halal travel experiences that enrich spiritual journeys
+                                    <h3 className="mb-3 text-lg font-semibold text-secondary">Mission</h3>
+                                    <ul className="space-y-2 text-sm text-gray-300 lg:text-base">
+                                        <li className="flex items-start gap-2">
+                                            <span className="mt-1 flex-shrink-0 text-secondary">•</span>
+                                            <span>Provide inspiring halal travel experiences that enrich spiritual journeys</span>
                                         </li>
-                                        <li className="flex items-start">
-                                            <span className="mt-1 mr-2 text-purple-400">•</span>
-                                            Prioritize safety, comfort, and authenticity in every service
+                                        <li className="flex items-start gap-2">
+                                            <span className="mt-1 flex-shrink-0 text-secondary">•</span>
+                                            <span>Prioritize safety, comfort, and authenticity in every service</span>
                                         </li>
-                                        <li className="flex items-start">
-                                            <span className="mt-1 mr-2 text-purple-400">•</span>
-                                            Deliver exceptional customer service with cultural sensitivity
+                                        <li className="flex items-start gap-2">
+                                            <span className="mt-1 flex-shrink-0 text-secondary">•</span>
+                                            <span>Deliver exceptional customer service with cultural sensitivity</span>
                                         </li>
                                     </ul>
                                 </motion.div>
                             </div>
 
-                            {/* Simple Stats */}
-                            <div className="grid grid-cols-3 gap-6 py-6">
+                            {/* Mobile-Optimized Stats */}
+                            <div className="grid grid-cols-3 gap-3 py-4 lg:gap-6 lg:py-6">
                                 {stats.map((stat, index) => (
                                     <motion.div
                                         key={index}
@@ -135,8 +135,8 @@ export default function About() {
                                         transition={{ duration: 0.4, delay: index * 0.1 }}
                                         className="text-center"
                                     >
-                                        <div className="mb-1 text-2xl font-bold text-purple-400">{stat.number}</div>
-                                        <div className="text-sm text-gray-400">{stat.label}</div>
+                                        <div className="mb-1 text-lg font-bold text-secondary lg:text-2xl">{stat.number}</div>
+                                        <div className="text-xs leading-tight text-gray-400 lg:text-sm">{stat.label}</div>
                                     </motion.div>
                                 ))}
                             </div>
@@ -150,9 +150,9 @@ export default function About() {
                             transition={{ duration: 0.6, delay: 0.2 }}
                             className="space-y-4"
                         >
-                            <h2 className="mb-6 text-2xl font-semibold text-white">Our Core Values</h2>
+                            <h2 className="mb-4 text-xl font-semibold text-white lg:mb-6 lg:text-2xl">Our Core Values</h2>
 
-                            <div className="space-y-4">
+                            <div className="space-y-3 lg:space-y-4">
                                 {coreValues.map((value, index) => (
                                     <motion.div
                                         key={index}
@@ -164,17 +164,19 @@ export default function About() {
                                             scale: 1.02,
                                             transition: { duration: 0.2 },
                                         }}
-                                        className="group rounded-2xl border border-white/20 bg-black/40 p-6 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-purple-500/50 hover:shadow-xl"
+                                        className="group rounded-2xl border border-white/20 bg-black/40 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-secondary/50 hover:shadow-xl lg:p-6"
                                     >
-                                        <div className="flex items-start space-x-4">
-                                            <div className="flex-shrink-0 rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-500/20 to-purple-600/20 p-3 transition-transform duration-300 group-hover:scale-110">
-                                                <div className="text-purple-400 transition-colors group-hover:text-purple-300">{value.icon}</div>
+                                        <div className="flex items-start space-x-3 lg:space-x-4">
+                                            <div className="flex-shrink-0 rounded-xl border border-secondary/30 bg-gradient-to-br from-secondary/20 to-secondary/30 p-2 transition-transform duration-300 group-hover:scale-110 lg:p-3">
+                                                <div className="h-5 w-5 text-secondary transition-colors group-hover:text-secondary lg:h-6 lg:w-6">
+                                                    {value.icon}
+                                                </div>
                                             </div>
-                                            <div className="flex-1">
-                                                <h3 className="mb-2 text-lg font-semibold text-white transition-colors group-hover:text-purple-300">
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="mb-2 text-base font-semibold text-white transition-colors group-hover:text-secondary lg:text-lg">
                                                     {value.title}
                                                 </h3>
-                                                <p className="text-sm leading-relaxed text-gray-300 transition-colors group-hover:text-gray-200">
+                                                <p className="text-xs leading-relaxed text-gray-300 transition-colors group-hover:text-gray-200 lg:text-sm">
                                                     {value.description}
                                                 </p>
                                             </div>
@@ -189,17 +191,17 @@ export default function About() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.6, delay: 0.5 }}
-                                className="mt-8 rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-500 to-purple-600 p-6 text-center"
+                                className="mt-8 rounded-2xl border border-secondary/30 bg-gradient-to-r from-secondary to-accent p-6 text-center"
                             >
                                 <h3 className="mb-2 text-xl font-semibold text-white">Ready to Start Your Journey?</h3>
-                                <p className="mb-4 text-sm text-purple-100">Contact us for a free consultation</p>
+                                <p className="mb-4 text-sm text-white">Contact us for a free consultation</p>
                                 <motion.a
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
                                     rel="noreferrer"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="rounded-full bg-white px-6 py-3 font-medium text-purple-700 shadow-lg transition-colors duration-300 hover:bg-purple-50"
+                                    className="rounded-full bg-white px-6 py-3 font-medium text-black shadow-lg transition-colors duration-300 hover:bg-gray-50"
                                 >
                                     Free Consultation
                                 </motion.a>

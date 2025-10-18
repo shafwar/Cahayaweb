@@ -5,14 +5,17 @@ import { Head } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 
-// Smooth scroll function
+// Optimized smooth scroll function - better performance
 const smoothScrollTo = (elementId: string) => {
     const element = document.getElementById(elementId);
     if (element) {
-        element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
-            inline: 'nearest',
+        // Use requestAnimationFrame for better performance
+        requestAnimationFrame(() => {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+                inline: 'nearest',
+            });
         });
     }
 };
@@ -36,44 +39,38 @@ export default function Home() {
     const [index, setIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
 
-    // Ultra-smooth auto-slide dengan transition handling
+    // Optimized auto-slide - longer interval for better scroll performance
     useEffect(() => {
         const interval = setInterval(() => {
             if (!isTransitioning) {
                 setIsTransitioning(true);
                 setIndex((i) => (i + 1) % slidesSeed.length);
-                setTimeout(() => setIsTransitioning(false), 1000);
+                setTimeout(() => setIsTransitioning(false), 800);
             }
-        }, 5000);
+        }, 8000); // Increased from 5000ms to 8000ms for better performance
 
         return () => clearInterval(interval);
     }, [isTransitioning]);
 
     const slide = slidesSeed[index];
 
-    // Ultra-smooth animation variants - Mobile optimized dengan hardware acceleration
+    // Optimized animation variants - simplified for better performance
     const heroImageVariants = {
         initial: {
             opacity: 0,
-            scale: 1.02,
-            filter: 'brightness(0.9)',
         },
         animate: {
             opacity: 1,
-            scale: 1,
-            filter: 'brightness(1)',
             transition: {
-                duration: 0.8,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.6,
+                ease: 'easeOut',
             },
         },
         exit: {
             opacity: 0,
-            scale: 0.98,
-            filter: 'brightness(0.95)',
             transition: {
-                duration: 0.6,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.4,
+                ease: 'easeIn',
             },
         },
     };
@@ -81,92 +78,86 @@ export default function Home() {
     const heroContentVariants = {
         initial: {
             opacity: 0,
-            y: 20,
+            y: 15,
         },
         animate: {
             opacity: 1,
             y: 0,
             transition: {
-                duration: 0.6,
-                delay: 0.2,
-                ease: [0.25, 0.46, 0.45, 0.94],
-            },
-        },
-        exit: {
-            opacity: 0,
-            y: -15,
-            transition: {
-                duration: 0.4,
-                ease: [0.25, 0.46, 0.45, 0.94],
-            },
-        },
-    };
-
-    const titleVariants = {
-        initial: { opacity: 0, y: 15, scale: 0.98 },
-        animate: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: {
-                duration: 0.6,
-                delay: 0.3,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.5,
+                delay: 0.1,
+                ease: 'easeOut',
             },
         },
         exit: {
             opacity: 0,
             y: -10,
-            scale: 0.99,
             transition: {
-                duration: 0.4,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.3,
+                ease: 'easeIn',
+            },
+        },
+    };
+
+    const titleVariants = {
+        initial: { opacity: 0, y: 10 },
+        animate: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.5,
+                delay: 0.2,
+                ease: 'easeOut',
+            },
+        },
+        exit: {
+            opacity: 0,
+            y: -5,
+            transition: {
+                duration: 0.3,
+                ease: 'easeIn',
             },
         },
     };
 
     const subtitleVariants = {
-        initial: { opacity: 0, y: 10, scale: 0.99 },
+        initial: { opacity: 0, y: 8 },
         animate: {
             opacity: 1,
             y: 0,
-            scale: 1,
             transition: {
-                duration: 0.6,
-                delay: 0.5,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.5,
+                delay: 0.3,
+                ease: 'easeOut',
             },
         },
         exit: {
             opacity: 0,
-            y: -8,
-            scale: 0.995,
+            y: -5,
             transition: {
-                duration: 0.4,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.3,
+                ease: 'easeIn',
             },
         },
     };
 
     const buttonVariants = {
-        initial: { opacity: 0, y: 15, scale: 0.95 },
+        initial: { opacity: 0, y: 10 },
         animate: {
             opacity: 1,
             y: 0,
-            scale: 1,
             transition: {
-                duration: 0.6,
-                delay: 0.7,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.5,
+                delay: 0.4,
+                ease: 'easeOut',
             },
         },
         exit: {
             opacity: 0,
-            y: -12,
-            scale: 0.97,
+            y: -5,
             transition: {
-                duration: 0.4,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                duration: 0.3,
+                ease: 'easeIn',
             },
         },
     };
@@ -247,10 +238,10 @@ export default function Home() {
         <PublicLayout>
             <Head title="Home" />
 
-            {/* Ultra-Smooth Hero Section dengan mobile-first optimization */}
-            <section className="relative overflow-hidden">
-                {/* Optimized aspect ratios untuk semua device */}
-                <div className="aspect-[4/5] w-full overflow-hidden bg-muted sm:aspect-[16/10] md:aspect-[16/9] lg:aspect-[16/8] xl:aspect-[16/7] 2xl:aspect-[16/6]">
+            {/* Optimized Hero Section - Simplified for better scroll performance */}
+            <section className="hero-section b2c-hero-section relative h-screen overflow-hidden">
+                {/* Simplified aspect ratio - stable layout */}
+                <div className="h-full w-full overflow-hidden bg-muted">
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                             key={slide.id}
@@ -260,16 +251,7 @@ export default function Home() {
                             exit="exit"
                             variants={heroImageVariants}
                         >
-                            <img
-                                src={slide.image}
-                                alt={slide.title}
-                                loading="lazy"
-                                className="h-full w-full object-cover object-center"
-                                style={{
-                                    willChange: 'transform, opacity, filter',
-                                    transform: 'translateZ(0)', // Hardware acceleration
-                                }}
-                            />
+                            <img src={slide.image} alt={slide.title} loading="lazy" className="h-full w-full object-cover object-center" />
                         </motion.div>
                     </AnimatePresence>
 
@@ -293,7 +275,6 @@ export default function Home() {
                                     style={{
                                         letterSpacing: '-0.02em',
                                         textShadow: '0 4px 20px rgba(0, 0, 0, 0.9)',
-                                        willChange: 'transform, opacity',
                                     }}
                                     variants={titleVariants}
                                 >
@@ -306,7 +287,6 @@ export default function Home() {
                                         lineHeight: '1.4',
                                         letterSpacing: '0.01em',
                                         textShadow: '0 3px 12px rgba(0, 0, 0, 0.8)',
-                                        willChange: 'transform, opacity',
                                     }}
                                     variants={subtitleVariants}
                                 >
@@ -321,9 +301,6 @@ export default function Home() {
                                         whileTap="tap"
                                         onClick={() => smoothScrollTo('packages')}
                                         className="inline-flex items-center justify-center rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-xl backdrop-blur-sm transition-all duration-300 hover:brightness-110 sm:px-10 sm:py-5 sm:text-lg md:px-12 md:py-6 md:text-xl"
-                                        style={{
-                                            willChange: 'transform, box-shadow',
-                                        }}
                                     >
                                         Explore Packages
                                         <motion.svg
@@ -352,15 +329,12 @@ export default function Home() {
                                     aria-label={`Slide ${i + 1}`}
                                     className={`rounded-full transition-all duration-300 ${
                                         i === index
-                                            ? 'h-2 w-6 bg-accent shadow-lg sm:h-3 sm:w-8'
-                                            : 'h-2 w-2 bg-white/60 hover:bg-white/80 sm:h-3 sm:w-3'
+                                            ? 'h-2 w-6 bg-secondary shadow-lg shadow-secondary/50 sm:h-3 sm:w-8'
+                                            : 'h-2 w-2 border border-white/30 bg-white/70 hover:bg-white/90 sm:h-3 sm:w-3'
                                     }`}
                                     onClick={() => handleSlideChange(i)}
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
-                                    style={{
-                                        willChange: 'transform, background-color',
-                                    }}
                                 />
                             ))}
                         </div>
@@ -371,7 +345,7 @@ export default function Home() {
             {/* Mobile-First Best Sellers Section dengan enhanced spacing */}
             <motion.section
                 id="packages"
-                className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
+                className="xs:px-4 xs:py-10 content-section mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-30px' }}
@@ -437,11 +411,9 @@ export default function Home() {
                                     initial="rest"
                                     whileHover="hover"
                                     whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-white/20 bg-card/60 backdrop-blur-xl transition-all duration-300 supports-[backdrop-filter]:bg-card/40"
+                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
                                     style={{
                                         background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-                                        backdropFilter: 'blur(16px)',
-                                        WebkitBackdropFilter: 'blur(16px)',
                                     }}
                                 >
                                     <motion.div variants={cardHover}>
@@ -463,7 +435,7 @@ export default function Home() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                             {/* Badge */}
                                             <div className="absolute top-3 right-3">
-                                                <span className="rounded-full bg-amber-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
+                                                <span className="rounded-full bg-secondary px-2 py-1 text-xs font-bold text-black shadow-lg">
                                                     Best Seller
                                                 </span>
                                             </div>
@@ -505,7 +477,7 @@ export default function Home() {
 
             {/* Mobile-First New Destinations Section */}
             <motion.section
-                className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
+                className="xs:px-4 xs:py-10 content-section mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-30px' }}
@@ -571,11 +543,9 @@ export default function Home() {
                                     initial="rest"
                                     whileHover="hover"
                                     whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-white/20 bg-card/60 backdrop-blur-xl transition-all duration-300 supports-[backdrop-filter]:bg-card/40"
+                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
                                     style={{
                                         background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-                                        backdropFilter: 'blur(16px)',
-                                        WebkitBackdropFilter: 'blur(16px)',
                                     }}
                                 >
                                     <motion.div variants={cardHover}>
@@ -596,7 +566,7 @@ export default function Home() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                             {/* New Badge */}
                                             <div className="absolute top-3 right-3">
-                                                <span className="rounded-full bg-blue-500 px-2 py-1 text-xs font-bold text-white shadow-lg">New</span>
+                                                <span className="rounded-full bg-primary px-2 py-1 text-xs font-bold text-white shadow-lg">New</span>
                                             </div>
                                         </div>
                                         <div className="xs:p-4 p-3 sm:p-5 md:p-6">
@@ -636,7 +606,7 @@ export default function Home() {
 
             {/* Mobile-First Highlights Section */}
             <motion.section
-                className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
+                className="xs:px-4 xs:py-10 content-section mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-30px' }}
@@ -698,11 +668,9 @@ export default function Home() {
                                     initial="rest"
                                     whileHover="hover"
                                     whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-white/20 bg-card/60 backdrop-blur-xl transition-all duration-300 supports-[backdrop-filter]:bg-card/40"
+                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
                                     style={{
                                         background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-                                        backdropFilter: 'blur(16px)',
-                                        WebkitBackdropFilter: 'blur(16px)',
                                     }}
                                 >
                                     <motion.div variants={cardHover}>
@@ -723,7 +691,7 @@ export default function Home() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                             {/* Featured Badge */}
                                             <div className="absolute top-3 right-3">
-                                                <span className="rounded-full bg-purple-500 px-2 py-1 text-xs font-bold text-white shadow-lg">
+                                                <span className="rounded-full bg-secondary px-2 py-1 text-xs font-bold text-black shadow-lg">
                                                     Featured
                                                 </span>
                                             </div>
@@ -769,7 +737,7 @@ export default function Home() {
             </motion.section>
 
             {/* Mobile-First Enhanced Footer */}
-            <footer className="border-t border-white/20 bg-card/60 backdrop-blur-xl">
+            <footer className="content-section border-t border-white/20 bg-card/60 backdrop-blur-xl">
                 <motion.div
                     className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:flex md:items-center md:justify-between md:px-6 md:py-12 lg:px-8 xl:px-10"
                     initial={{ opacity: 0, y: 15 }}

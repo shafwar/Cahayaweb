@@ -6,6 +6,29 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        <!-- Favicon - Cahaya Anbiya Logo (Force Update) -->
+        <link rel="icon" type="image/png" sizes="192x192" href="/cahayanbiyalogo.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="/cahayanbiyalogo.png">
+        <link rel="icon" type="image/png" sizes="64x64" href="/cahayanbiyalogo.png">
+        <link rel="icon" type="image/png" sizes="48x48" href="/cahayanbiyalogo.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/cahayanbiyalogo.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/cahayanbiyalogo.png">
+        <link rel="shortcut icon" type="image/png" href="/cahayanbiyalogo.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/cahayanbiyalogo.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/cahayanbiyalogo.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="/cahayanbiyalogo.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="/cahayanbiyalogo.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="/cahayanbiyalogo.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="/cahayanbiyalogo.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/cahayanbiyalogo.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="/cahayanbiyalogo.png">
+        <link rel="apple-touch-icon" sizes="57x57" href="/cahayanbiyalogo.png">
+        <meta name="msapplication-TileImage" content="/cahayanbiyalogo.png">
+        <meta name="msapplication-TileColor" content="#d4af37">
+        <meta name="theme-color" content="#d4af37">
+        <meta name="application-name" content="Cahaya Anbiya">
+        <meta name="apple-mobile-web-app-title" content="Cahaya Anbiya">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />

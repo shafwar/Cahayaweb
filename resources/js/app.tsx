@@ -6,13 +6,13 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
 
 // Force HTTPS for all requests to prevent Mixed Content errors
 if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
     // Override fetch to force HTTPS
     const originalFetch = window.fetch;
-    window.fetch = function(url, options) {
+    window.fetch = function (url, options) {
         if (typeof url === 'string' && url.startsWith('http://')) {
             url = url.replace('http://', 'https://');
         }
@@ -21,7 +21,7 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
 
     // Override XMLHttpRequest to force HTTPS
     const originalXHROpen = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function(method, url, ...args) {
+    XMLHttpRequest.prototype.open = function (method, url, ...args) {
         if (typeof url === 'string' && url.startsWith('http://')) {
             url = url.replace('http://', 'https://');
         }

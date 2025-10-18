@@ -47,13 +47,13 @@ export default function Destinations() {
                     className="mb-12 text-center md:mb-16"
                 >
                     <h1 className="mb-4 text-4xl font-bold text-foreground md:text-6xl lg:text-7xl">
-                        <span className="bg-gradient-to-r from-primary via-purple-500 to-secondary bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
                             Discover Your Dream Destinations
                         </span>
                     </h1>
                     <p className="mx-auto max-w-3xl text-lg text-muted-foreground md:text-xl">
-                        Embark on extraordinary journeys across the Middle East and beyond. From spiritual pilgrimages to luxury adventures,
-                        we curate unforgettable experiences that connect you with the world's most captivating destinations.
+                        Embark on extraordinary journeys across the Middle East and beyond. From spiritual pilgrimages to luxury adventures, we curate
+                        unforgettable experiences that connect you with the world's most captivating destinations.
                     </p>
                     <div className="mt-6 flex items-center justify-center space-x-4 text-sm text-muted-foreground">
                         <div className="flex items-center space-x-2">
@@ -61,11 +61,11 @@ export default function Destinations() {
                             <span>9 Premium Destinations</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <div className="h-2 w-2 rounded-full bg-purple-500"></div>
+                            <div className="h-2 w-2 rounded-full bg-secondary"></div>
                             <span>Curated Experiences</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <div className="h-2 w-2 rounded-full bg-secondary"></div>
+                            <div className="h-2 w-2 rounded-full bg-accent"></div>
                             <span>Professional Service</span>
                         </div>
                     </div>
@@ -83,17 +83,18 @@ export default function Destinations() {
                             price: 'Rp 28.5M',
                             location: 'Makkah & Madinah',
                             highlights: '5-star hotels, direct flights, professional guide, spiritual guidance',
-                            description: 'Embark on a profound spiritual journey to the holiest sites in Islam. Experience the sacred atmosphere of Makkah and Madinah with our premium Umrah packages. Visit the Grand Mosque, perform Tawaf around the Kaaba, and pray at the Prophet\'s Mosque. Our packages include luxury accommodations, direct flights, and expert spiritual guidance.',
+                            description:
+                                "Embark on a profound spiritual journey to the holiest sites in Islam. Experience the sacred atmosphere of Makkah and Madinah with our premium Umrah packages. Visit the Grand Mosque, perform Tawaf around the Kaaba, and pray at the Prophet's Mosque. Our packages include luxury accommodations, direct flights, and expert spiritual guidance.",
                             features: [
                                 'Luxury 5-star hotel accommodations',
                                 'Direct flights from Indonesia',
                                 'Professional spiritual guide',
                                 'VIP access to holy sites',
                                 'Comprehensive travel insurance',
-                                'Daily spiritual programs'
+                                'Daily spiritual programs',
                             ],
                             badge: 'Premium',
-                            badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500',
+                            badgeColor: 'bg-gradient-to-r from-primary to-secondary',
                             category: 'Spiritual',
                         },
                         {
@@ -105,14 +106,15 @@ export default function Destinations() {
                             price: 'Rp 15.8M',
                             location: 'Istanbul, Cappadocia, Pamukkale',
                             highlights: 'Historical sites, hot air balloon, cultural experience, thermal springs',
-                            description: 'Discover the perfect blend of East and West in Turkey. Explore the magnificent Hagia Sophia and Blue Mosque in Istanbul, soar above the fairy chimneys of Cappadocia in a hot air balloon, and relax in the thermal springs of Pamukkale. Experience rich history, vibrant culture, and breathtaking landscapes.',
+                            description:
+                                'Discover the perfect blend of East and West in Turkey. Explore the magnificent Hagia Sophia and Blue Mosque in Istanbul, soar above the fairy chimneys of Cappadocia in a hot air balloon, and relax in the thermal springs of Pamukkale. Experience rich history, vibrant culture, and breathtaking landscapes.',
                             features: [
                                 'Hot air balloon ride in Cappadocia',
                                 'Guided tours of historical sites',
                                 'Luxury hotel accommodations',
                                 'Traditional Turkish bath experience',
                                 'Bosphorus cruise in Istanbul',
-                                'Local cuisine tasting tours'
+                                'Local cuisine tasting tours',
                             ],
                             badge: 'Adventure',
                             badgeColor: 'bg-gradient-to-r from-orange-500 to-red-500',
@@ -127,14 +129,15 @@ export default function Destinations() {
                             price: 'Rp 16.5M',
                             location: 'Cairo, Luxor, Aswan, Abu Simbel',
                             highlights: 'Pyramids of Giza, Nile cruise, ancient temples, Valley of the Kings',
-                            description: 'Journey through the cradle of civilization and explore the mysteries of ancient Egypt. Marvel at the Great Pyramids of Giza, cruise the majestic Nile River, discover the Valley of the Kings, and visit the magnificent temples of Luxor and Abu Simbel. Experience the magic of pharaonic history.',
+                            description:
+                                'Journey through the cradle of civilization and explore the mysteries of ancient Egypt. Marvel at the Great Pyramids of Giza, cruise the majestic Nile River, discover the Valley of the Kings, and visit the magnificent temples of Luxor and Abu Simbel. Experience the magic of pharaonic history.',
                             features: [
                                 'Nile River luxury cruise',
                                 'Pyramids of Giza guided tour',
                                 'Valley of the Kings exploration',
                                 'Abu Simbel temple visit',
                                 'Egyptian Museum tour',
-                                'Traditional felucca sailing'
+                                'Traditional felucca sailing',
                             ],
                             badge: 'Heritage',
                             badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
@@ -149,17 +152,18 @@ export default function Destinations() {
                             price: 'Rp 14.2M',
                             location: 'Dubai, Abu Dhabi, Desert Safari',
                             highlights: 'Burj Khalifa, desert safari, luxury shopping, Ferrari World',
-                            description: 'Experience the epitome of luxury and innovation in Dubai. Ascend the iconic Burj Khalifa, shop in world-class malls, enjoy thrilling desert safaris, and visit the stunning Sheikh Zayed Mosque in Abu Dhabi. Discover the perfect blend of modern luxury and traditional Arabian hospitality.',
+                            description:
+                                'Experience the epitome of luxury and innovation in Dubai. Ascend the iconic Burj Khalifa, shop in world-class malls, enjoy thrilling desert safaris, and visit the stunning Sheikh Zayed Mosque in Abu Dhabi. Discover the perfect blend of modern luxury and traditional Arabian hospitality.',
                             features: [
                                 'Burj Khalifa observation deck access',
                                 'Desert safari with dinner',
                                 'Luxury shopping experience',
                                 'Sheikh Zayed Mosque tour',
                                 'Ferrari World theme park',
-                                'Dhow cruise dinner'
+                                'Dhow cruise dinner',
                             ],
                             badge: 'Luxury',
-                            badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500',
+                            badgeColor: 'bg-gradient-to-r from-primary to-secondary',
                             category: 'Modern',
                         },
                         {
@@ -171,14 +175,15 @@ export default function Destinations() {
                             price: 'Rp 18.9M',
                             location: 'Muscat, Nizwa, Wahiba Sands, Salalah',
                             highlights: 'Desert camping, ancient forts, wadis, traditional souks',
-                            description: 'Explore the hidden gem of the Arabian Peninsula. Discover the stunning fjords of Musandam, explore ancient forts in Nizwa, camp under the stars in Wahiba Sands, and experience the monsoon season in Salalah. Oman offers authentic Arabian experiences away from the crowds.',
+                            description:
+                                'Explore the hidden gem of the Arabian Peninsula. Discover the stunning fjords of Musandam, explore ancient forts in Nizwa, camp under the stars in Wahiba Sands, and experience the monsoon season in Salalah. Oman offers authentic Arabian experiences away from the crowds.',
                             features: [
                                 'Desert camping in Wahiba Sands',
                                 'Ancient fort exploration',
                                 'Wadi hiking adventures',
                                 'Traditional souk visits',
                                 'Dolphin watching cruise',
-                                'Mountain village tours'
+                                'Mountain village tours',
                             ],
                             badge: 'Explorer',
                             badgeColor: 'bg-gradient-to-r from-green-500 to-emerald-500',
@@ -193,17 +198,18 @@ export default function Destinations() {
                             price: 'Rp 16.2M',
                             location: 'Doha, The Pearl, Inland Sea, Al Wakrah',
                             highlights: 'Museum of Islamic Art, Souq Waqif, desert safari, luxury resorts',
-                            description: 'Experience the perfect blend of tradition and modernity in Qatar. Visit the stunning Museum of Islamic Art, explore the vibrant Souq Waqif, enjoy luxury at The Pearl, and experience thrilling desert adventures. Discover why Qatar is becoming a premier travel destination.',
+                            description:
+                                'Experience the perfect blend of tradition and modernity in Qatar. Visit the stunning Museum of Islamic Art, explore the vibrant Souq Waqif, enjoy luxury at The Pearl, and experience thrilling desert adventures. Discover why Qatar is becoming a premier travel destination.',
                             features: [
                                 'Museum of Islamic Art tour',
                                 'Souq Waqif cultural experience',
                                 'Desert safari adventure',
                                 'The Pearl luxury experience',
                                 'Katara Cultural Village',
-                                'Luxury resort accommodations'
+                                'Luxury resort accommodations',
                             ],
                             badge: 'Premium',
-                            badgeColor: 'bg-gradient-to-r from-purple-500 to-indigo-500',
+                            badgeColor: 'bg-gradient-to-r from-accent to-secondary',
                             category: 'Luxury',
                         },
                         {
@@ -215,14 +221,15 @@ export default function Destinations() {
                             price: 'Rp 12.8M',
                             location: 'Kuwait City, Failaka Island, Al Jahra',
                             highlights: 'Kuwait Towers, Grand Mosque, island visit, cultural heritage',
-                            description: 'Discover the rich heritage and modern charm of Kuwait. Visit the iconic Kuwait Towers, explore the magnificent Grand Mosque, take a boat trip to historic Failaka Island, and experience the vibrant culture of this unique Gulf nation. Perfect for a short but enriching getaway.',
+                            description:
+                                'Discover the rich heritage and modern charm of Kuwait. Visit the iconic Kuwait Towers, explore the magnificent Grand Mosque, take a boat trip to historic Failaka Island, and experience the vibrant culture of this unique Gulf nation. Perfect for a short but enriching getaway.',
                             features: [
                                 'Kuwait Towers visit',
                                 'Grand Mosque tour',
                                 'Failaka Island exploration',
                                 'Traditional dhow boat ride',
                                 'Cultural heritage tours',
-                                'Modern city exploration'
+                                'Modern city exploration',
                             ],
                             badge: 'Heritage',
                             badgeColor: 'bg-gradient-to-r from-red-500 to-pink-500',
@@ -237,17 +244,18 @@ export default function Destinations() {
                             price: 'Rp 11.5M',
                             location: "Manama, Qal'at al-Bahrain, Al Muharraq",
                             highlights: 'Pearl diving, ancient forts, Formula 1 circuit, traditional culture',
-                            description: 'Experience the pearl of the Gulf with its rich history and modern attractions. Explore ancient forts, learn about traditional pearl diving, visit the Formula 1 circuit, and discover the vibrant culture of Bahrain. A perfect blend of history, culture, and modern entertainment.',
+                            description:
+                                'Experience the pearl of the Gulf with its rich history and modern attractions. Explore ancient forts, learn about traditional pearl diving, visit the Formula 1 circuit, and discover the vibrant culture of Bahrain. A perfect blend of history, culture, and modern entertainment.',
                             features: [
                                 'Ancient fort exploration',
                                 'Pearl diving experience',
                                 'Formula 1 circuit tour',
                                 'Traditional souk visits',
                                 'Cultural heritage tours',
-                                'Modern entertainment'
+                                'Modern entertainment',
                             ],
                             badge: 'Culture',
-                            badgeColor: 'bg-gradient-to-r from-teal-500 to-blue-500',
+                            badgeColor: 'bg-gradient-to-r from-secondary to-primary',
                             category: 'Heritage',
                         },
                         {
@@ -259,14 +267,15 @@ export default function Destinations() {
                             price: 'Rp 17.2M',
                             location: 'Amman, Petra, Wadi Rum, Dead Sea',
                             highlights: 'Petra ancient city, desert camping, Dead Sea, biblical sites',
-                            description: 'Journey through the ancient wonders of Jordan. Explore the magnificent rock-cut city of Petra, camp under the stars in Wadi Rum desert, float in the mineral-rich Dead Sea, and visit biblical sites. Experience the perfect blend of history, adventure, and natural wonders.',
+                            description:
+                                'Journey through the ancient wonders of Jordan. Explore the magnificent rock-cut city of Petra, camp under the stars in Wadi Rum desert, float in the mineral-rich Dead Sea, and visit biblical sites. Experience the perfect blend of history, adventure, and natural wonders.',
                             features: [
                                 'Petra ancient city exploration',
                                 'Wadi Rum desert camping',
                                 'Dead Sea floating experience',
                                 'Biblical site visits',
                                 'Traditional Bedouin experience',
-                                'Luxury desert accommodations'
+                                'Luxury desert accommodations',
                             ],
                             badge: 'Adventure',
                             badgeColor: 'bg-gradient-to-r from-amber-500 to-orange-500',
@@ -285,7 +294,7 @@ export default function Destinations() {
                                             ease: 'easeOut',
                                         },
                                     }}
-                                    className="group cursor-pointer overflow-hidden rounded-xl border border-border bg-card shadow-md transition-all duration-500 ease-in-out hover:shadow-xl"
+                                    className="group cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-500 ease-in-out hover:shadow-2xl hover:shadow-secondary/10"
                                 >
                                     {/* Enhanced Image/Thumbnail */}
                                     <div className="relative aspect-video overflow-hidden">
@@ -366,16 +375,14 @@ export default function Destinations() {
                                         </div>
 
                                         {/* Highlights */}
-                                        <p className="mb-4 text-xs text-muted-foreground line-clamp-2">{destination.highlights}</p>
+                                        <p className="mb-4 line-clamp-2 text-xs text-muted-foreground">{destination.highlights}</p>
 
                                         {/* CTA */}
                                         <div className="flex items-center justify-between">
                                             <div className="text-xs font-medium text-primary transition-transform duration-300 group-hover:scale-105">
                                                 View Details →
                                             </div>
-                                            <div className="text-xs text-muted-foreground">
-                                                {destination.features.length} features included
-                                            </div>
+                                            <div className="text-xs text-muted-foreground">{destination.features.length} features included</div>
                                         </div>
                                     </div>
 
@@ -383,33 +390,39 @@ export default function Destinations() {
                                     <div className="h-1 origin-left scale-x-0 transform bg-gradient-to-r from-primary to-secondary transition-transform duration-500 group-hover:scale-x-100" />
                                 </motion.article>
                             </DialogTrigger>
-                            <DialogContent className="max-h-[90vh] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:max-w-2xl">
+                            <DialogContent className="max-h-[90vh] overflow-y-auto rounded-xl border-secondary/20 bg-white shadow-2xl shadow-black/10 sm:max-w-2xl">
                                 <DialogHeader>
                                     <DialogTitle className="text-2xl font-bold">{destination.title}</DialogTitle>
-                                    <DialogDescription className="leading-relaxed text-base">
-                                        {destination.description}
-                                    </DialogDescription>
+                                    <DialogDescription className="text-base leading-relaxed">{destination.description}</DialogDescription>
                                 </DialogHeader>
                                 <div className="mt-6 grid gap-4">
                                     {/* Package Details */}
-                                    <div className="rounded-lg border border-white/20 bg-card/60 p-4 backdrop-blur-sm">
+                                    <div className="rounded-lg border border-secondary/20 bg-gradient-to-br from-white to-gray-50/30 p-4 shadow-sm">
                                         <h4 className="mb-3 font-semibold text-primary">Package Details</h4>
                                         <div className="grid grid-cols-2 gap-3 text-sm">
-                                            <div><strong>Location:</strong> {destination.location}</div>
-                                            <div><strong>Duration:</strong> {destination.duration}</div>
-                                            <div><strong>Price:</strong> {destination.price} per person</div>
-                                            <div><strong>Category:</strong> {destination.category}</div>
+                                            <div>
+                                                <strong>Location:</strong> {destination.location}
+                                            </div>
+                                            <div>
+                                                <strong>Duration:</strong> {destination.duration}
+                                            </div>
+                                            <div>
+                                                <strong>Price:</strong> {destination.price} per person
+                                            </div>
+                                            <div>
+                                                <strong>Category:</strong> {destination.category}
+                                            </div>
                                         </div>
                                     </div>
 
                                     {/* Highlights */}
-                                    <div className="rounded-lg border border-white/20 bg-card/60 p-4 backdrop-blur-sm">
+                                    <div className="rounded-lg border border-secondary/20 bg-gradient-to-br from-white to-gray-50/30 p-4 shadow-sm">
                                         <h4 className="mb-3 font-semibold text-primary">Highlights</h4>
                                         <p className="text-sm leading-relaxed">{destination.highlights}</p>
                                     </div>
 
                                     {/* Included Features */}
-                                    <div className="rounded-lg border border-white/20 bg-card/60 p-4 backdrop-blur-sm">
+                                    <div className="rounded-lg border border-secondary/20 bg-gradient-to-br from-white to-gray-50/30 p-4 shadow-sm">
                                         <h4 className="mb-3 font-semibold text-primary">What's Included</h4>
                                         <ul className="grid grid-cols-1 gap-2 text-sm">
                                             {destination.features.map((feature, index) => (
@@ -467,9 +480,8 @@ export default function Destinations() {
                         Can't Find the Perfect Destination?
                     </h3>
                     <p className="mx-auto mb-6 max-w-2xl text-sm text-muted-foreground sm:mb-8 sm:text-base">
-                        Our travel experts are here to create the perfect custom itinerary just for you. 
-                        Whether you're looking for a spiritual journey, cultural adventure, or luxury escape, 
-                        we'll design an experience that matches your dreams and preferences.
+                        Our travel experts are here to create the perfect custom itinerary just for you. Whether you're looking for a spiritual
+                        journey, cultural adventure, or luxury escape, we'll design an experience that matches your dreams and preferences.
                     </p>
                     <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
                         <motion.a

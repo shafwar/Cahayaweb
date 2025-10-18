@@ -42,7 +42,7 @@ function LiveCounter({ end, label, delay = 0 }: { end: number; label: string; de
     }, [started, end]);
 
     return (
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 text-xs sm:text-sm">
             <div className="h-2 w-2 rounded-full bg-amber-400"></div>
             <span>
                 <motion.span
@@ -314,8 +314,8 @@ export default function CahayaAnbiyaHero() {
         <B2BLayout>
             <Head title="Cahaya Anbiya - Premium Hajj & Umrah Services" />
 
-            {/* Hero Section */}
-            <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
+            {/* Hero Section - Improved Spacing & Proportions */}
+            <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8">
                 {/* Floating Elements Animation */}
                 <div className="pointer-events-none absolute inset-0">
                     <motion.div
@@ -325,7 +325,7 @@ export default function CahayaAnbiyaHero() {
                             rotate: [0, 5, 0],
                         }}
                         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-                        className="absolute top-20 left-10 h-16 w-16 rounded-full bg-amber-400/10 blur-xl"
+                        className="absolute top-16 left-8 h-12 w-12 rounded-full bg-amber-400/10 blur-xl sm:top-20 sm:left-10 sm:h-16 sm:w-16"
                     />
                     <motion.div
                         animate={{
@@ -334,7 +334,7 @@ export default function CahayaAnbiyaHero() {
                             rotate: [0, -3, 0],
                         }}
                         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                        className="absolute top-40 right-20 h-24 w-24 rounded-full bg-amber-300/8 blur-xl"
+                        className="absolute top-32 right-16 h-20 w-20 rounded-full bg-amber-300/8 blur-xl sm:top-40 sm:right-20 sm:h-24 sm:w-24"
                     />
                     <motion.div
                         animate={{
@@ -342,7 +342,7 @@ export default function CahayaAnbiyaHero() {
                             y: [0, -10, 0],
                         }}
                         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-                        className="absolute bottom-32 left-1/4 h-20 w-20 rounded-full bg-white/5 blur-xl"
+                        className="absolute bottom-24 left-1/4 h-16 w-16 rounded-full bg-white/5 blur-xl sm:bottom-32 sm:h-20 sm:w-20"
                     />
                 </div>
 
@@ -358,13 +358,13 @@ export default function CahayaAnbiyaHero() {
 
                     {/* Animated Particles */}
                     <div className="absolute inset-0 overflow-hidden">
-                        {[...Array(15)].map((_, i) => (
+                        {[...Array(12)].map((_, i) => (
                             <motion.div
                                 key={i}
                                 className="absolute h-1 w-1 rounded-full bg-amber-300/30"
                                 initial={{
-                                    x: Math.random() * 1200,
-                                    y: Math.random() * 800,
+                                    x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
+                                    y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
                                     opacity: 0,
                                 }}
                                 animate={{
@@ -382,20 +382,20 @@ export default function CahayaAnbiyaHero() {
                     </div>
                 </div>
 
-                {/* Content Container */}
-                <div className="relative z-10 mx-auto max-w-7xl px-6 text-center">
+                {/* Content Container - Better Proportions */}
+                <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
                     <motion.div
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, ease: 'easeOut' }}
-                        className="space-y-8"
+                        className="space-y-6 sm:space-y-8"
                     >
                         {/* Main Title */}
                         <motion.h1
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1, delay: 0.3 }}
-                            className="text-5xl leading-tight font-bold tracking-wide text-white sm:text-6xl md:text-7xl lg:text-8xl"
+                            className="text-4xl leading-tight font-bold tracking-wide text-white sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl"
                             style={{
                                 fontFamily: 'Playfair Display, serif',
                                 textShadow: '3px 6px 12px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.3)',
@@ -410,7 +410,7 @@ export default function CahayaAnbiyaHero() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1, delay: 0.6 }}
-                            className="mx-auto max-w-4xl px-4 text-lg leading-relaxed font-light text-white sm:text-xl md:text-2xl"
+                            className="mx-auto max-w-3xl px-4 text-base leading-relaxed font-light text-white sm:text-lg md:text-xl lg:text-2xl"
                             style={{
                                 fontFamily: 'Poppins, sans-serif',
                                 textShadow: '2px 4px 8px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.2)',
@@ -425,7 +425,7 @@ export default function CahayaAnbiyaHero() {
                             initial={{ opacity: 0, scaleX: 0 }}
                             animate={{ opacity: 1, scaleX: 1 }}
                             transition={{ duration: 0.8, delay: 0.9 }}
-                            className="mx-auto h-1 w-24 rounded-full bg-gradient-to-r from-amber-400 to-amber-600"
+                            className="mx-auto h-1 w-20 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 sm:w-24"
                         />
 
                         {/* CTA Buttons */}
@@ -433,12 +433,12 @@ export default function CahayaAnbiyaHero() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1, delay: 1.2 }}
-                            className="flex flex-col items-center justify-center gap-4 pt-4 sm:flex-row"
+                            className="flex flex-col items-center justify-center gap-3 pt-6 sm:flex-row sm:gap-4 sm:pt-4"
                         >
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <RippleButton
-                                        className="transform rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:from-amber-600 hover:to-amber-700 hover:shadow-xl"
+                                        className="transform rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:from-amber-600 hover:to-amber-700 hover:shadow-xl sm:px-8 sm:py-4 sm:text-lg"
                                         style={{ fontFamily: 'Poppins, sans-serif' }}
                                     >
                                         Free Consultation
@@ -460,7 +460,7 @@ export default function CahayaAnbiyaHero() {
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        className="rounded-full border border-white/20 bg-white/10 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20"
+                                        className="rounded-full border border-white/20 bg-white/10 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 sm:px-8 sm:py-4 sm:text-lg"
                                         style={{ fontFamily: 'Poppins, sans-serif' }}
                                     >
                                         View Packages
@@ -625,15 +625,15 @@ export default function CahayaAnbiyaHero() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ duration: 1, delay: 1.5 }}
-                            className="flex flex-wrap items-center justify-center gap-8 pt-8 text-white/80"
+                            className="flex flex-wrap items-center justify-center gap-4 pt-6 text-white/80 sm:gap-6 sm:pt-8"
                             style={{ fontFamily: 'Poppins, sans-serif' }}
                         >
                             <LiveCounter end={1247} label="Pilgrims Served" delay={1.8} />
-                            <div className="flex items-center gap-2 text-sm">
+                            <div className="flex items-center gap-2 text-xs sm:text-sm">
                                 <div className="h-2 w-2 rounded-full bg-amber-400"></div>
                                 <span>Licensed Tour & Travel</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm">
+                            <div className="flex items-center gap-2 text-xs sm:text-sm">
                                 <div className="h-2 w-2 rounded-full bg-amber-400"></div>
                                 <span>15+ Years Experience</span>
                             </div>
@@ -647,14 +647,14 @@ export default function CahayaAnbiyaHero() {
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 0.5, delay: 2.5 }}
-                    className="fixed right-6 bottom-6 z-50"
+                    className="fixed right-4 bottom-4 z-50 sm:right-6 sm:bottom-6"
                 >
                     <Dialog>
                         <DialogTrigger asChild>
                             <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                className="relative rounded-full bg-gradient-to-r from-green-500 to-green-600 p-4 text-white shadow-lg transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl"
+                                className="relative rounded-full bg-gradient-to-r from-green-500 to-green-600 p-3 text-white shadow-lg transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl sm:p-4"
                             >
                                 {/* Pulse animation */}
                                 <motion.div
@@ -662,7 +662,7 @@ export default function CahayaAnbiyaHero() {
                                     transition={{ duration: 2, repeat: Infinity }}
                                     className="absolute inset-0 rounded-full bg-green-400 opacity-30"
                                 />
-                                <svg className="relative z-10 h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                                <svg className="relative z-10 h-5 w-5 sm:h-6 sm:w-6" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4v3c0 .6.4 1 1 1 .2 0 .5-.1.7-.3L16.4 18H20c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H16l-4 3v-3H4V4h16v12z" />
                                 </svg>
                                 {/* Online indicator */}
