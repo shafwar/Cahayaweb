@@ -373,12 +373,13 @@ footer,
 }
 
 /* CIDATA-STYLE FIXED HEADER - Always visible, follows scroll */
-header.header-consistent {
-    /* Fixed positioning - always visible like Cidata */
+header {
+    /* Force fixed positioning */
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
+    z-index: 9999 !important;
     /* Force consistent black background - no transparency */
     background-color: rgba(0, 0, 0, 0.98) !important;
     /* Optimized backdrop blur */
@@ -400,16 +401,33 @@ header.header-consistent {
 }
 
 /* NATURAL hover effects for header */
-header.header-consistent:hover {
+header:hover {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* FORCE HEADER VISIBILITY - Override any conflicting styles */
+header[class*="fixed"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
 }
 
 /* NATURAL mobile performance */
 @media (max-width: 768px) {
-    header.header-consistent {
+    header {
         /* Natural mobile behavior */
         backdrop-filter: saturate(150%) blur(8px) !important;
         -webkit-backdrop-filter: saturate(150%) blur(8px) !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 9999 !important;
     }
 }
 

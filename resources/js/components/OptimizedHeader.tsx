@@ -93,7 +93,7 @@ export default function OptimizedHeader() {
 
         // Add scroll listener
         window.addEventListener('scroll', handleScroll, { passive: true });
-        
+
         // Cleanup
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
@@ -227,11 +227,16 @@ export default function OptimizedHeader() {
 
     return (
         <>
-            {/* CIDATA-STYLE SCROLL FOLLOWING HEADER - Always visible, follows scroll */}
+            {/* CIDATA-STYLE FIXED HEADER - Always visible and follows scroll */}
             <header
-                className={`header-consistent fixed top-0 left-0 right-0 z-[9999] transition-all duration-700 ${isScrolled ? 'scrolled' : ''}`}
+                className="fixed top-0 left-0 right-0 z-[9999] bg-black/98 backdrop-blur-xl border-b border-yellow-400/15 shadow-lg transition-all duration-700"
                 style={{
-                    backgroundColor: headerTheme.enhancedBackground,
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 9999,
+                    backgroundColor: 'rgba(0, 0, 0, 0.98)',
                     backdropFilter: 'saturate(180%) blur(12px)',
                     WebkitBackdropFilter: 'saturate(180%) blur(12px)',
                     boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
