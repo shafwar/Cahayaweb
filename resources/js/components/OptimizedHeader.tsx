@@ -69,15 +69,11 @@ export default function OptimizedHeader() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-    const [expandedMobileItems, setExpandedMobileItems] = useState<string[]>([]);
 
     // KRISTALIN-STYLE MOBILE STATE MANAGEMENT
     const [mobilePackagesDropdownOpen, setMobilePackagesDropdownOpen] = useState(false);
     const [mobileDestinationsDropdownOpen, setMobileDestinationsDropdownOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [isScrolling, setIsScrolling] = useState(false);
-    const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('down');
-    const [lastScrollY, setLastScrollY] = useState(0);
 
     // B2B/B2C SWITCH STATE MANAGEMENT
     const [currentMode, setCurrentMode] = useState<'b2c' | 'b2b'>('b2c');
@@ -142,7 +138,6 @@ export default function OptimizedHeader() {
         const handleResize = () => {
             if (window.innerWidth >= 1024) {
                 setIsMobileMenuOpen(false);
-                setMobileAboutDropdownOpen(false);
                 setMobilePackagesDropdownOpen(false);
                 setMobileDestinationsDropdownOpen(false);
                 document.body.style.position = '';
@@ -184,10 +179,6 @@ export default function OptimizedHeader() {
         };
     }, [page.url]);
 
-    const toggleMobileItem = useCallback((itemName: string) => {
-        setExpandedMobileItems((prev) => (prev.includes(itemName) ? prev.filter((name) => name !== itemName) : [...prev, itemName]));
-    }, []);
-
     // Detect current mode based on URL
     useEffect(() => {
         const path = window.location.pathname;
@@ -227,17 +218,22 @@ export default function OptimizedHeader() {
 
     return (
         <>
-            {/* CIDATA-STYLE SCROLL FOLLOWING HEADER - Moves with scroll */}
+            {/* STICKY B2C HEADER - Stays on top when scrolling */}
             <header
-                className="relative w-full border-b border-yellow-400/15 bg-black/98 shadow-lg backdrop-blur-xl transition-all duration-700"
+                className="fixed left-0 right-0 top-0 z-50 w-full border-b border-yellow-400/15 bg-black/98 shadow-lg backdrop-blur-xl transition-all duration-300"
                 style={{
-                    position: 'relative',
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
                     width: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.98)',
+                    zIndex: 50,
+                    backgroundColor: isScrolled ? 'rgba(0, 0, 0, 0.98)' : 'rgba(0, 0, 0, 0.95)',
                     backdropFilter: 'saturate(180%) blur(12px)',
                     WebkitBackdropFilter: 'saturate(180%) blur(12px)',
-                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
+                    boxShadow: isScrolled ? '0 4px 20px rgba(0, 0, 0, 0.5)' : '0 2px 10px rgba(0, 0, 0, 0.3)',
                     borderBottom: '1px solid rgba(212, 175, 55, 0.15)',
+                    transform: isScrolled ? 'translateY(0)' : 'translateY(0)',
                 }}
             >
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

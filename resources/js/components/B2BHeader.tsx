@@ -238,17 +238,22 @@ export default function B2BHeader() {
 
     return (
         <>
-            {/* CIDATA-STYLE SCROLL FOLLOWING B2B HEADER - Moves with scroll */}
+            {/* STICKY B2B HEADER - Stays on top when scrolling */}
             <header
-                className="relative w-full border-b border-yellow-400/15 bg-black/98 shadow-lg backdrop-blur-xl transition-all duration-700"
+                className="fixed left-0 right-0 top-0 z-50 w-full border-b border-yellow-400/15 bg-black/98 shadow-lg backdrop-blur-xl transition-all duration-300"
                 style={{
-                    position: 'relative',
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
                     width: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.98)',
+                    zIndex: 50,
+                    backgroundColor: isScrolled ? 'rgba(0, 0, 0, 0.98)' : 'rgba(0, 0, 0, 0.95)',
                     backdropFilter: 'saturate(180%) blur(12px)',
                     WebkitBackdropFilter: 'saturate(180%) blur(12px)',
-                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
+                    boxShadow: isScrolled ? '0 4px 20px rgba(0, 0, 0, 0.5)' : '0 2px 10px rgba(0, 0, 0, 0.3)',
                     borderBottom: '1px solid rgba(212, 175, 55, 0.15)',
+                    transform: isScrolled ? 'translateY(0)' : 'translateY(0)',
                 }}
             >
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
