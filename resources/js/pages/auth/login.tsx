@@ -14,18 +14,24 @@ type LoginForm = {
     email: string;
     password: string;
     remember: boolean;
+    mode?: 'b2b' | 'b2c';
+    redirect?: string;
 };
 
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
+    mode?: 'b2b' | 'b2c';
+    redirect?: string;
 }
 
-export default function Login({ status, canResetPassword }: LoginProps) {
+export default function Login({ status, canResetPassword, mode, redirect }: LoginProps) {
     const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
         email: '',
         password: '',
         remember: false,
+        mode: (mode as any) ?? undefined,
+        redirect: redirect ?? undefined,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -40,6 +46,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             <Head title="Log in" />
 
             <form method="POST" className="flex flex-col gap-6" onSubmit={submit}>
+                {data.mode && <input type="hidden" name="mode" value={data.mode} />}
+                {data.redirect && <input type="hidden" name="redirect" value={data.redirect} />}
                 <div className="grid gap-6">
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email address</Label>
