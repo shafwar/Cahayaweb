@@ -1,8 +1,11 @@
+import { EditableText } from '@/components/cms';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { RippleButton } from '@/components/ui/ripple-button';
 import B2BLayout from '@/layouts/b2b-layout';
-import { Head } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
+import axios from 'axios';
 import { motion } from 'framer-motion';
+import { Camera } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 // Live Counter Component
@@ -62,9 +65,51 @@ function LiveCounter({ end, label, delay = 0 }: { end: number; label: string; de
 }
 
 export default function CahayaAnbiyaHero() {
+    // Get sections data from Inertia props (shared globally from HandleInertiaRequests)
+    const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
+
     const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
     const [consultationStep, setConsultationStep] = useState<'start' | 'whatsapp' | 'phone' | 'office'>('start');
     const [showPackagesDialog, setShowPackagesDialog] = useState(false);
+
+    // Edit mode state - listen to global edit mode flag via event (no hook dependency)
+    const [editMode, setEditMode] = useState<boolean>(false);
+    // ALWAYS start with default image, then sync with database if exists
+    const [heroImage, setHeroImage] = useState('/b2b.jpeg');
+    const [imageTargetKey, setImageTargetKey] = useState<string | null>(null);
+    const hiddenImageInputId = 'b2b-image-replacer';
+
+    // Sync heroImage with database (props.sections) - load from DB if exists
+    useEffect(() => {
+        // Only update if database has a valid image path
+        const dbImage = props.sections?.['b2b.hero.image']?.image;
+        if (dbImage && typeof dbImage === 'string' && dbImage.trim()) {
+            setHeroImage(dbImage);
+        } else {
+            // Ensure default image is always set
+            setHeroImage('/b2b.jpeg');
+        }
+    }, [props.sections]);
+
+    // Sync edit mode with global state (via document class and events)
+    useEffect(() => {
+        const check = () => setEditMode(document.documentElement.classList.contains('cms-edit'));
+        check();
+        const handler = () => check();
+        window.addEventListener('cms:mode', handler as EventListener);
+        return () => window.removeEventListener('cms:mode', handler as EventListener);
+    }, []);
+
+    // Helper functions to mark dirty state (dispatch events to EditModeProvider)
+    const markDirty = () => {
+        // Dispatch event to mark dirty via global mechanism
+        window.dispatchEvent(new CustomEvent('cms:mark-dirty'));
+    };
+
+    const clearDirty = () => {
+        // Dispatch event to clear dirty via global mechanism
+        window.dispatchEvent(new CustomEvent('cms:clear-dirty'));
+    };
 
     const packages = [
         {
@@ -315,7 +360,7 @@ export default function CahayaAnbiyaHero() {
             <Head title="Cahaya Anbiya - Premium Hajj & Umrah Services" />
 
             {/* Hero Section - Improved Spacing & Proportions */}
-            <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8">
+            <section className="relative z-[1] flex min-h-screen items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8">
                 {/* Floating Elements Animation */}
                 <div className="pointer-events-none absolute inset-0">
                     <motion.div
@@ -348,7 +393,23 @@ export default function CahayaAnbiyaHero() {
 
                 {/* Background Image with Overlay */}
                 <div className="absolute inset-0">
-                    <img src="/b2b.jpeg" alt="Beautiful view of Kaaba and Masjid al-Haram" className="h-full w-full object-cover" />
+                    <img src={heroImage} alt="Beautiful view of Kaaba and Masjid al-Haram" className="h-full w-full object-cover" />
+
+                    {/* Replace Image Button (NEW CONSISTENT STYLE!) */}
+                    {editMode && (
+                        <button
+                            onClick={() => {
+                                setImageTargetKey('b2b.hero.image');
+                                const el = document.getElementById(hiddenImageInputId) as HTMLInputElement | null;
+                                el?.click();
+                            }}
+                            className="absolute top-4 right-4 z-[30] flex h-10 w-10 items-center justify-center rounded-lg bg-white/90 text-gray-800 shadow-lg ring-2 ring-white/20 backdrop-blur-sm transition-all hover:scale-110 hover:bg-white hover:shadow-xl"
+                            title="Replace hero image"
+                            type="button"
+                        >
+                            <Camera className="h-5 w-5" />
+                        </button>
+                    )}
                     {/* Enhanced dark overlay for better text readability */}
                     <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60"></div>
                     {/* Warm golden overlay for premium feel */}
@@ -383,7 +444,7 @@ export default function CahayaAnbiyaHero() {
                 </div>
 
                 {/* Content Container - Better Proportions */}
-                <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
+                <div className="relative z-[2] mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
                     <motion.div
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -402,7 +463,7 @@ export default function CahayaAnbiyaHero() {
                                 filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))',
                             }}
                         >
-                            Cahaya Anbiya
+                            <EditableText sectionKey="b2b.hero.title" value="Cahaya Anbiya" tag="span" />
                         </motion.h1>
 
                         {/* Subtitle */}
@@ -417,7 +478,11 @@ export default function CahayaAnbiyaHero() {
                                 filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))',
                             }}
                         >
-                            Embark on an unforgettable spiritual journey to the Holy Land with premium services and over 15 years of experience
+                            <EditableText
+                                sectionKey="b2b.hero.subtitle"
+                                value="Embark on an unforgettable spiritual journey to the Holy Land with premium services and over 15 years of experience"
+                                tag="span"
+                            />
                         </motion.p>
 
                         {/* Decorative Line */}
@@ -619,11 +684,15 @@ export default function CahayaAnbiyaHero() {
                             <LiveCounter end={1247} label="Pilgrims Served" delay={1.8} />
                             <div className="flex items-center gap-2 text-xs sm:text-sm">
                                 <div className="h-2 w-2 rounded-full bg-amber-400"></div>
-                                <span>Licensed Tour & Travel</span>
+                                <span>
+                                    <EditableText sectionKey="b2b.hero.badge1" value="Licensed Tour & Travel" tag="span" />
+                                </span>
                             </div>
                             <div className="flex items-center gap-2 text-xs sm:text-sm">
                                 <div className="h-2 w-2 rounded-full bg-amber-400"></div>
-                                <span>15+ Years Experience</span>
+                                <span>
+                                    <EditableText sectionKey="b2b.hero.badge2" value="15+ Years Experience" tag="span" />
+                                </span>
                             </div>
                             <LiveCounter end={98} label="% Customer Satisfaction" delay={2.2} />
                         </motion.div>
@@ -998,6 +1067,78 @@ export default function CahayaAnbiyaHero() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {/* Hidden file input for image replace */}
+            {editMode && (
+                <input
+                    id={hiddenImageInputId}
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    className="hidden"
+                    onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file || !imageTargetKey) return;
+
+                        // Create preview URL immediately
+                        const previewUrl = URL.createObjectURL(file);
+                        setHeroImage(previewUrl);
+
+                        // 🔴 CRITICAL: Mark as dirty to trigger save button!
+                        markDirty();
+                        console.log('🖼️ Image changed - marked as dirty:', imageTargetKey);
+
+                        try {
+                            const form = new FormData();
+                            form.append('key', imageTargetKey);
+                            form.append('image', file);
+                            const response = await axios.post('/admin/upload-image', form, {
+                                headers: { 'Content-Type': 'multipart/form-data' },
+                            });
+
+                            // Update with server URL after upload
+                            if (response.data?.success && response.data?.imageUrl) {
+                                URL.revokeObjectURL(previewUrl);
+                                setHeroImage(response.data.imageUrl);
+
+                                // Show success notification (mobile responsive)
+                                const notification = document.createElement('div');
+                                notification.className =
+                                    'fixed top-20 left-1/2 -translate-x-1/2 z-[99999] rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-3 text-white shadow-2xl max-w-[90vw] sm:left-auto sm:right-4 sm:translate-x-0 sm:px-6 sm:py-4 sm:max-w-md';
+                                notification.innerHTML = `
+                                    <div class="flex items-center gap-2 sm:gap-3">
+                                        <svg class="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <div class="flex-1">
+                                            <div class="text-sm font-bold sm:text-base">📸 Image Updated!</div>
+                                            <div class="text-xs opacity-90 sm:text-sm">Hero image saved successfully</div>
+                                        </div>
+                                    </div>
+                                `;
+                                document.body.appendChild(notification);
+                                setTimeout(() => notification.remove(), 3000);
+
+                                // Clear dirty flag after successful upload
+                                clearDirty();
+                                console.log('✅ Image saved - cleared dirty flag');
+
+                                // Reload to sync with database
+                                router.reload({ only: ['sections'] });
+                            }
+                        } catch (error) {
+                            console.error('Image upload failed:', error);
+                            // On error, revert to original image
+                            URL.revokeObjectURL(previewUrl);
+                            const originalImage = props.sections?.['b2b.hero.image']?.image || '/b2b.jpeg';
+                            setHeroImage(originalImage);
+                            alert('Failed to upload image. Please try again.');
+                        } finally {
+                            setImageTargetKey(null);
+                            (e.target as HTMLInputElement).value = '';
+                        }
+                    }}
+                />
+            )}
         </B2BLayout>
     );
 }

@@ -1,7 +1,24 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 use Inertia\Inertia;
+
+Route::middleware(['auth', 'is_admin'])->group(function () {
+    Route::post('/admin/update-section', [AdminController::class, 'updateSection']);
+    Route::post('/admin/upload-image', [AdminController::class, 'uploadImage']);
+    Route::get('/admin/revisions', [AdminController::class, 'getRevisions']);
+    Route::post('/admin/restore-revision', [AdminController::class, 'restoreRevision']);
+    Route::post('/admin/reset-to-default', [AdminController::class, 'resetToDefault']);
+    Route::post('/admin/reset-all-heroes', [AdminController::class, 'resetAllHeroes']);
+    
+    // Comprehensive Restore Center
+    Route::get('/admin/restore-center', fn () => Inertia::render('admin/restore-center'))->name('admin.restore-center');
+    Route::get('/admin/get-all-changes', [AdminController::class, 'getAllChanges']);
+    Route::post('/admin/reset-all-changes', [AdminController::class, 'resetAllChanges']);
+    Route::post('/admin/reset-by-page', [AdminController::class, 'resetByPage']);
+    Route::post('/admin/reset-by-type', [AdminController::class, 'resetByType']);
+});
 
 // Add this at the very top, before existing routes
 Route::get('/debug', function () {
@@ -31,6 +48,7 @@ Route::get('/health', function () {
 Route::get('/', function () {
     return Inertia::render('landing/select-mode');
 })->name('home');
+
 
 // Public B2C pages (Term 1 UI only)
 Route::get('/home', function () {

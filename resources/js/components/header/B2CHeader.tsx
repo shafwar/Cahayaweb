@@ -1,47 +1,35 @@
 import { Link } from '@inertiajs/react';
-import { ArrowRight, ArrowLeftRight, Grid3x3 } from 'lucide-react';
 import { Logo } from './components/Logo';
 import { MobileMenu } from './components/MobileMenu';
 import { Navigation } from './components/Navigation';
-import { B2C_NAVIGATION_ITEMS, HEADER_CONFIG, HEADER_COLORS } from './constants';
+import { B2C_NAVIGATION_ITEMS, HEADER_CONFIG } from './constants';
 import { useMobileMenu } from './hooks/useMobileMenu';
 import { useSmoothScroll } from './hooks/useSmoothScroll';
 import { HeaderProps } from './types';
 
 export function B2CHeader({ className = '' }: HeaderProps) {
     const { isOpen, toggleMenu, closeMenu } = useMobileMenu();
-    const { isScrolled } = useSmoothScroll({ threshold: 10, hideOnScrollDown: false });
+    const { isScrolled, opacity, blurIntensity, scrollY } = useSmoothScroll({ threshold: 10, hideOnScrollDown: false });
+
+    // Parallax shift: small translateY based on scroll, capped for stability
+    const parallaxShift = Math.min(12, Math.max(0, scrollY * 0.08));
 
     return (
         <>
-            {/* Top Bar - Abu-abu gelap */}
-            <div
-                className="fixed top-0 left-0 right-0 z-[10000] hidden items-center justify-between px-4 lg:flex"
-                style={{
-                    height: HEADER_CONFIG.topBarHeight,
-                    backgroundColor: HEADER_COLORS.topBarBg,
-                    color: HEADER_COLORS.white,
-                }}
-            >
-                <div className="flex items-center">
-                    <Grid3x3 className="h-4 w-4 text-white" />
-                </div>
-                <div className="flex items-center gap-2 text-sm font-medium text-white">
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                    </svg>
-                    <span>All Bookmarks</span>
-                </div>
-            </div>
-
-            {/* Main Navigation Bar - Hitam */}
             <header
-                className={`fixed left-0 right-0 z-[9999] ${className}`}
+                className={`fixed top-0 right-0 left-0 z-50 ${className}`}
                 style={{
-                    top: HEADER_CONFIG.topBarHeight,
                     height: HEADER_CONFIG.height,
-                    backgroundColor: HEADER_COLORS.mainNavBg,
-                    borderBottom: 'none',
+                    zIndex: HEADER_CONFIG.zIndex,
+                    backgroundColor: `rgba(255, 255, 255, ${0.85 + opacity * 0.15})`,
+                    backdropFilter: `blur(${blurIntensity}px)`,
+                    WebkitBackdropFilter: `blur(${blurIntensity}px)`,
+                    borderBottom: isScrolled ? '1px solid rgba(229, 231, 235, 1)' : '1px solid transparent',
+                    boxShadow: isScrolled ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' : 'none',
+                    transition: 'transform 0.18s ease-out, opacity 0.24s ease, backdrop-filter 0.24s ease, box-shadow 0.24s ease',
+                    willChange: 'transform, opacity, backdrop-filter',
+                    transform: `translateY(${parallaxShift}px) translateZ(0)`,
+                    WebkitTransform: 'translateZ(0)',
                 }}
             >
                 <div className="mx-auto h-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -53,34 +41,22 @@ export function B2CHeader({ className = '' }: HeaderProps) {
                         <Navigation items={B2C_NAVIGATION_ITEMS} />
 
                         {/* Right Side Actions */}
-                        <div className="hidden items-center gap-4 lg:flex">
-                            {/* B2C → B2B Button */}
-                            <Link
-                                href="/home"
-                                className="flex items-center gap-2 rounded-md border border-white px-4 py-2 font-medium text-white transition-colors hover:bg-gray-900"
-                            >
-                                <ArrowLeftRight className="h-[18px] w-[18px]" />
-                                B2C → B2B
+                        <div className="hidden items-center space-x-4 md:flex">
+                            <Link href="/auth/login" className="font-medium text-gray-700 transition-colors duration-200 hover:text-gray-900">
+                                Login
                             </Link>
-
-                            {/* Login Button */}
                             <Link
-                                href="/auth/login"
-                                className="flex items-center gap-2 rounded-md border px-4 py-2 font-medium text-white transition-colors hover:opacity-90"
-                                style={{
-                                    backgroundColor: HEADER_COLORS.orange,
-                                    borderColor: HEADER_COLORS.orange,
-                                }}
+                                href="/auth/register"
+                                className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700"
                             >
-                                <span>Login</span>
-                                <ArrowRight className="h-[18px] w-[18px]" />
+                                Register
                             </Link>
                         </div>
 
                         {/* Mobile Menu Button */}
                         <button
                             onClick={toggleMenu}
-                            className="rounded-md p-2 text-white transition-colors hover:bg-gray-900 lg:hidden"
+                            className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 md:hidden"
                         >
                             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -93,8 +69,8 @@ export function B2CHeader({ className = '' }: HeaderProps) {
             {/* Mobile Menu */}
             <MobileMenu isOpen={isOpen} onClose={closeMenu} navigationItems={B2C_NAVIGATION_ITEMS} />
 
-            {/* Spacer untuk kompensasi fixed header */}
-            <div style={{ height: `calc(${HEADER_CONFIG.topBarHeight} + ${HEADER_CONFIG.height})` }} />
+            {/* Spacer untuk mengkompensasi fixed header */}
+            <div style={{ height: HEADER_CONFIG.height }} />
         </>
     );
 }

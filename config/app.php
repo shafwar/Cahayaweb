@@ -123,4 +123,10 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    // Admin allowlist for inline CMS editing (IsAdmin middleware fallback)
+    'admin_emails' => [
+        // Add your admin emails here
+        'test@example.com',
+    ],
+
 ];

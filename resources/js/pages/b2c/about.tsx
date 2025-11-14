@@ -1,3 +1,4 @@
+import { EditableText } from '@/components/cms';
 import PublicLayout from '@/layouts/public-layout';
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
@@ -45,8 +46,8 @@ export default function About() {
         <PublicLayout>
             <Head title="About" />
 
-            {/* Dark theme background */}
-            <div className="min-h-screen bg-gradient-to-br from-black via-black/50 to-black">
+            {/* Dark theme background - solid black */}
+            <div className="min-h-screen bg-black">
                 <section className="mx-auto max-w-6xl px-4 pt-4 pb-16 sm:px-6 sm:pt-6">
                     {/* Clean Header */}
                     <motion.div
@@ -56,10 +57,20 @@ export default function About() {
                         className="mb-16 text-center"
                     >
                         <div className="mb-6 inline-block rounded-full border border-secondary/30 bg-gradient-to-r from-secondary/20 to-secondary/30 px-4 py-2">
-                            <span className="text-sm font-medium text-secondary">✨ Cahaya Anbiya Travel</span>
+                            <span className="text-sm font-medium text-secondary">
+                                <EditableText sectionKey="about.header.badge" value="✨ Cahaya Anbiya Travel" tag="span" />
+                            </span>
                         </div>
-                        <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl lg:text-6xl">About Us</h1>
-                        <p className="mx-auto max-w-2xl text-lg text-gray-300">Creating memorable travel experiences with the best service</p>
+                        <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+                            <EditableText sectionKey="about.header.title" value="About Us" tag="span" />
+                        </h1>
+                        <p className="mx-auto max-w-2xl text-lg text-gray-300">
+                            <EditableText
+                                sectionKey="about.header.subtitle"
+                                value="Creating memorable travel experiences with the best service"
+                                tag="span"
+                            />
+                        </p>
                     </motion.div>
 
                     {/* Mobile-First Responsive Layout */}
@@ -74,11 +85,15 @@ export default function About() {
                         >
                             {/* Company Profile */}
                             <div className="space-y-4">
-                                <h2 className="text-2xl font-semibold text-white">Company Profile</h2>
+                                <h2 className="text-2xl font-semibold text-white">
+                                    <EditableText sectionKey="about.company.heading" value="Company Profile" tag="span" />
+                                </h2>
                                 <p className="leading-relaxed text-gray-300">
-                                    PT Cahaya Anbiya Travel is a travel company committed to providing memorable and comfortable halal travel
-                                    experiences. We prioritize service quality with a friendly and professional approach, ensuring every journey is
-                                    both spiritually fulfilling and culturally enriching.
+                                    <EditableText
+                                        sectionKey="about.company.description"
+                                        value="PT Cahaya Anbiya Travel is a travel company committed to providing memorable and comfortable halal travel experiences. We prioritize service quality with a friendly and professional approach, ensuring every journey is both spiritually fulfilling and culturally enriching."
+                                        tag="span"
+                                    />
                                 </p>
                             </div>
 
@@ -91,10 +106,15 @@ export default function About() {
                                     viewport={{ once: true }}
                                     className="rounded-2xl border border-secondary/30 bg-black/40 p-4 shadow-lg backdrop-blur-sm lg:p-6"
                                 >
-                                    <h3 className="mb-3 text-lg font-semibold text-secondary">Vision</h3>
+                                    <h3 className="mb-3 text-lg font-semibold text-secondary">
+                                        <EditableText sectionKey="about.vision.heading" value="Vision" tag="span" />
+                                    </h3>
                                     <p className="text-sm leading-relaxed text-gray-300 lg:text-base">
-                                        To become a leading travel company in inspiring halal travel packages that connect people with their faith and
-                                        culture.
+                                        <EditableText
+                                            sectionKey="about.vision.description"
+                                            value="To become a leading travel company in inspiring halal travel packages that connect people with their faith and culture."
+                                            tag="span"
+                                        />
                                     </p>
                                 </motion.div>
 
@@ -106,19 +126,39 @@ export default function About() {
                                     transition={{ delay: 0.1 }}
                                     className="rounded-2xl border border-secondary/30 bg-black/40 p-4 shadow-lg backdrop-blur-sm lg:p-6"
                                 >
-                                    <h3 className="mb-3 text-lg font-semibold text-secondary">Mission</h3>
+                                    <h3 className="mb-3 text-lg font-semibold text-secondary">
+                                        <EditableText sectionKey="about.mission.heading" value="Mission" tag="span" />
+                                    </h3>
                                     <ul className="space-y-2 text-sm text-gray-300 lg:text-base">
                                         <li className="flex items-start gap-2">
                                             <span className="mt-1 flex-shrink-0 text-secondary">•</span>
-                                            <span>Provide inspiring halal travel experiences that enrich spiritual journeys</span>
+                                            <span>
+                                                <EditableText
+                                                    sectionKey="about.mission.item1"
+                                                    value="Provide inspiring halal travel experiences that enrich spiritual journeys"
+                                                    tag="span"
+                                                />
+                                            </span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="mt-1 flex-shrink-0 text-secondary">•</span>
-                                            <span>Prioritize safety, comfort, and authenticity in every service</span>
+                                            <span>
+                                                <EditableText
+                                                    sectionKey="about.mission.item2"
+                                                    value="Prioritize safety, comfort, and authenticity in every service"
+                                                    tag="span"
+                                                />
+                                            </span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="mt-1 flex-shrink-0 text-secondary">•</span>
-                                            <span>Deliver exceptional customer service with cultural sensitivity</span>
+                                            <span>
+                                                <EditableText
+                                                    sectionKey="about.mission.item3"
+                                                    value="Deliver exceptional customer service with cultural sensitivity"
+                                                    tag="span"
+                                                />
+                                            </span>
                                         </li>
                                     </ul>
                                 </motion.div>
@@ -135,8 +175,12 @@ export default function About() {
                                         transition={{ duration: 0.4, delay: index * 0.1 }}
                                         className="text-center"
                                     >
-                                        <div className="mb-1 text-lg font-bold text-secondary lg:text-2xl">{stat.number}</div>
-                                        <div className="text-xs leading-tight text-gray-400 lg:text-sm">{stat.label}</div>
+                                        <div className="mb-1 text-lg font-bold text-secondary lg:text-2xl">
+                                            <EditableText sectionKey={`about.stats.${index}.number`} value={stat.number} tag="span" />
+                                        </div>
+                                        <div className="text-xs leading-tight text-gray-400 lg:text-sm">
+                                            <EditableText sectionKey={`about.stats.${index}.label`} value={stat.label} tag="span" />
+                                        </div>
                                     </motion.div>
                                 ))}
                             </div>
@@ -150,7 +194,9 @@ export default function About() {
                             transition={{ duration: 0.6, delay: 0.2 }}
                             className="space-y-4"
                         >
-                            <h2 className="mb-4 text-xl font-semibold text-white lg:mb-6 lg:text-2xl">Our Core Values</h2>
+                            <h2 className="mb-4 text-xl font-semibold text-white lg:mb-6 lg:text-2xl">
+                                <EditableText sectionKey="about.corevalues.heading" value="Our Core Values" tag="span" />
+                            </h2>
 
                             <div className="space-y-3 lg:space-y-4">
                                 {coreValues.map((value, index) => (
@@ -174,10 +220,14 @@ export default function About() {
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <h3 className="mb-2 text-base font-semibold text-white transition-colors group-hover:text-secondary lg:text-lg">
-                                                    {value.title}
+                                                    <EditableText sectionKey={`about.corevalues.${index}.title`} value={value.title} tag="span" />
                                                 </h3>
                                                 <p className="text-xs leading-relaxed text-gray-300 transition-colors group-hover:text-gray-200 lg:text-sm">
-                                                    {value.description}
+                                                    <EditableText
+                                                        sectionKey={`about.corevalues.${index}.description`}
+                                                        value={value.description}
+                                                        tag="span"
+                                                    />
                                                 </p>
                                             </div>
                                         </div>
@@ -193,8 +243,12 @@ export default function About() {
                                 transition={{ duration: 0.6, delay: 0.5 }}
                                 className="mt-8 rounded-2xl border border-secondary/30 bg-gradient-to-r from-secondary to-accent p-6 text-center"
                             >
-                                <h3 className="mb-2 text-xl font-semibold text-white">Ready to Start Your Journey?</h3>
-                                <p className="mb-4 text-sm text-white">Contact us for a free consultation</p>
+                                <h3 className="mb-2 text-xl font-semibold text-white">
+                                    <EditableText sectionKey="about.cta.title" value="Ready to Start Your Journey?" tag="span" />
+                                </h3>
+                                <p className="mb-4 text-sm text-white">
+                                    <EditableText sectionKey="about.cta.description" value="Contact us for a free consultation" tag="span" />
+                                </p>
                                 <motion.a
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
@@ -210,8 +264,8 @@ export default function About() {
                     </div>
                 </section>
 
-                {/* Footer from home.tsx */}
-                <footer className="border-t border-white/20 bg-card/60 backdrop-blur-xl">
+                {/* Footer - solid black to match page background */}
+                <footer className="border-t border-white/10 bg-black">
                     <motion.div
                         className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:flex md:items-center md:justify-between md:px-6 md:py-12 lg:px-8 xl:px-10"
                         initial={{ opacity: 0, y: 15 }}

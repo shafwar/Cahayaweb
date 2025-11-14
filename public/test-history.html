@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>History Button Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { background: #111; color: white; font-family: sans-serif; padding: 20px; }
+        button { padding: 12px 24px; margin: 10px; cursor: pointer; border: none; border-radius: 8px; font-weight: bold; }
+        .blue { background: #3b82f6; color: white; }
+        .green { background: #10b981; color: white; }
+        #result { margin-top: 20px; padding: 20px; background: #222; border-radius: 8px; white-space: pre-wrap; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: #1f2937; padding: 30px; border-radius: 12px; max-width: 600px; width: 90%; }
+    </style>
+</head>
+<body>
+    <h1>🔧 History Button Debug Test</h1>
+    <p>Test langsung tanpa React/Inertia complexity</p>
+    
+    <button class="blue" onclick="testHistoryAPI()">1. Test History API</button>
+    <button class="blue" onclick="testRestoreAPI()">2. Test Restore API</button>
+    <button class="green" onclick="openTestModal()">3. Test Modal</button>
+    
+    <div id="result">Click button untuk test...</div>
+    
+    <div id="testModal" class="modal">
+        <div class="modal-content">
+            <h2>✅ Modal Test Success!</h2>
+            <p>Modal bisa muncul tanpa masalah.</p>
+            <button class="green" onclick="closeTestModal()">Close Modal</button>
+        </div>
+    </div>
+
+    <script>
+        function log(msg) {
+            document.getElementById('result').textContent += msg + '\n';
+            console.log(msg);
+        }
+        
+        async function testHistoryAPI() {
+            log('🔍 Testing GET /admin/revisions...');
+            try {
+                const response = await axios.get('/admin/revisions', {
+                    params: { key: 'home.hero.1.image', limit: 10 }
+                });
+                log('✅ API Response: ' + JSON.stringify(response.data, null, 2));
+            } catch (error) {
+                log('❌ Error: ' + error.message);
+                log('   Response: ' + JSON.stringify(error.response?.data, null, 2));
+            }
+        }
+        
+        async function testRestoreAPI() {
+            const revId = prompt('Enter revision ID to restore (check database):');
+            if (!revId) return;
+            
+            log('🔄 Testing POST /admin/restore-revision...');
+            try {
+                const response = await axios.post('/admin/restore-revision', {
+                    key: 'home.hero.1.image',
+                    revision_id: parseInt(revId)
+                });
+                log('✅ Restore Response: ' + JSON.stringify(response.data, null, 2));
+            } catch (error) {
+                log('❌ Error: ' + error.message);
+                log('   Response: ' + JSON.stringify(error.response?.data, null, 2));
+            }
+        }
+        
+        function openTestModal() {
+            log('📖 Opening test modal...');
+            document.getElementById('testModal').classList.add('active');
+            log('✅ Modal opened successfully!');
+        }
+        
+        function closeTestModal() {
+            log('❌ Closing test modal...');
+            document.getElementById('testModal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

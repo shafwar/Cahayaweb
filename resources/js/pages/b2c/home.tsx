@@ -1,779 +1,913 @@
-import PlaceholderImage from '@/components/media/placeholder-image';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { EditableText } from '@/components/cms';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { HeroImage } from '@/components/HeroImage';
 import PublicLayout from '@/layouts/public-layout';
-import { Head } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
+import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCallback, useEffect, useState } from 'react';
+import { Camera, Edit3, History } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-// Optimized smooth scroll function - better performance
-const smoothScrollTo = (elementId: string) => {
-    const element = document.getElementById(elementId);
-    if (element) {
-        // Use requestAnimationFrame for better performance
-        requestAnimationFrame(() => {
-            element.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start',
-                inline: 'nearest',
-            });
-        });
-    }
+// Hero slides data
+const slides = [
+    {
+        id: 1,
+        title: 'Umrah Premium',
+        subtitle: 'Comfort-first journeys',
+        image: '/umrah.jpeg',
+    },
+    {
+        id: 2,
+        title: 'Hajj Packages',
+        subtitle: 'Spiritual journey of a lifetime',
+        image: '/arabsaudi.jpg',
+    },
+    {
+        id: 3,
+        title: 'Turkey Tours',
+        subtitle: "Discover Istanbul's beauty",
+        image: '/TURKEY.jpeg',
+    },
+    {
+        id: 4,
+        title: 'Egypt Adventures',
+        subtitle: 'Ancient wonders await',
+        image: '/egypt.jpeg',
+    },
+    {
+        id: 5,
+        title: 'Jordan Explorer',
+        subtitle: 'Petra and beyond',
+        image: '/jordan.jpeg',
+    },
+];
+
+// Best Sellers destinations
+const bestSellers = [
+    {
+        id: 1,
+        title: 'Arab Saudi',
+        subtitle: 'Spiritual journey to Holy Land',
+        image: '/arabsaudi.jpg',
+        tag: 'Best Seller',
+    },
+    {
+        id: 2,
+        title: 'Turkey Heritage',
+        subtitle: 'Istanbul to Cappadocia',
+        image: '/TURKEY.jpeg',
+        tag: 'Best Seller',
+    },
+    {
+        id: 3,
+        title: 'Egypt Wonders',
+        subtitle: 'Pyramids & Nile River',
+        image: '/egypt.jpeg',
+        tag: 'Best Seller',
+    },
+    {
+        id: 4,
+        title: 'Dubai Luxury',
+        subtitle: 'Modern wonders',
+        image: '/dubai1.jpeg',
+        tag: 'Best Seller',
+    },
+];
+
+// New Destinations
+const newDestinations = [
+    {
+        id: 1,
+        title: 'Oman Adventure',
+        subtitle: 'Muscat + Nizwa + Wahiba Sands',
+        image: '/oman.jpg',
+        tag: 'New',
+    },
+    {
+        id: 2,
+        title: 'Qatar Luxury',
+        subtitle: 'Doha + The Pearl + Desert',
+        image: '/qatar.jpg',
+        tag: 'New',
+    },
+    {
+        id: 3,
+        title: 'Kuwait Heritage',
+        subtitle: 'Kuwait City + Failaka Island',
+        image: '/kuwait.jpg',
+        tag: 'New',
+    },
+    {
+        id: 4,
+        title: 'Bahrain Pearl',
+        subtitle: "Manama + Qal'at al-Bahrain",
+        image: '/bahrain.jpg',
+        tag: 'New',
+    },
+];
+
+// Highlights destinations
+const highlights = [
+    {
+        id: 1,
+        title: 'Kaaba Experience',
+        subtitle: 'Spiritual journey to the heart of Islam',
+        image: '/arabsaudi.jpg',
+        tag: 'Featured',
+    },
+    {
+        id: 2,
+        title: 'Cappadocia Magic',
+        subtitle: 'Hot air balloon adventure',
+        image: '/TURKEY.jpeg',
+        tag: 'Featured',
+    },
+    {
+        id: 3,
+        title: 'Pyramids Wonder',
+        subtitle: 'Ancient Egyptian marvels',
+        image: '/egypt.jpeg',
+        tag: 'Featured',
+    },
+    {
+        id: 4,
+        title: 'Dubai Desert',
+        subtitle: 'Luxury desert safari',
+        image: '/dubai1.jpeg',
+        tag: 'Featured',
+    },
+];
+
+const heroImageVariants = {
+    initial: { opacity: 0, scale: 1.1 },
+    animate: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.9 },
 };
 
-interface Slide {
-    id: number;
-    title: string;
-    subtitle: string;
-    image: string;
-}
+const heroContentVariants = {
+    initial: { opacity: 0, y: 30 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -30 },
+};
 
-const slidesSeed: Slide[] = [
-    { id: 1, title: 'Umrah Premium', subtitle: 'Comfort-first journeys', image: '/umrah.jpeg' },
-    { id: 2, title: 'Turkey Highlights', subtitle: 'Istanbul to Cappadocia', image: '/TURKEY.jpeg' },
-    { id: 3, title: 'Bali Serenity', subtitle: 'Island escapes', image: '/bali.jpeg' },
-    { id: 4, title: 'Jordan Discovery', subtitle: 'Wadi Rum & Petra', image: '/jordan.jpeg' },
-    { id: 5, title: 'Egypt Wonders', subtitle: 'Pyramids & Nile River', image: '/egypt.jpeg' },
-];
+const titleVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 },
+};
+
+const subtitleVariants = {
+    initial: { opacity: 0, y: 15 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -15 },
+};
+
+const buttonVariants = {
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -10 },
+};
+
+const buttonHover = {
+    rest: { scale: 1 },
+    hover: { scale: 1.05 },
+    tap: { scale: 0.95 },
+};
 
 export default function Home() {
     const [index, setIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
-
-    // Optimized auto-slide - longer interval for better scroll performance
+    // Listen to global edit mode flag from provider without using the hook to avoid context order issues
+    const [editMode, setEditModeUI] = useState<boolean>(false);
     useEffect(() => {
+        const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
+        check();
+        const handler = () => check();
+        window.addEventListener('cms:mode', handler as EventListener);
+        return () => window.removeEventListener('cms:mode', handler as EventListener);
+    }, []);
+    
+    // Helper functions to mark dirty state (dispatch events to EditModeProvider)
+    const markDirty = () => {
+        // Dispatch event to mark dirty via global mechanism
+        window.dispatchEvent(new CustomEvent('cms:mark-dirty'));
+    };
+    
+    const clearDirty = () => {
+        // Dispatch event to clear dirty via global mechanism
+        window.dispatchEvent(new CustomEvent('cms:clear-dirty'));
+    };
+    
+    const [editorOpen, setEditorOpen] = useState<null | { section: 'bestsellers' | 'new' | 'hl'; id: number; title: string; subtitle: string }>(null);
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [imageTargetKey, setImageTargetKey] = useState<string | null>(null);
+    const hiddenImageInputId = 'home-image-replacer';
+    const [saving, setSaving] = useState(false);
+    
+    // NEW: Store pending image uploads (key -> file mapping)
+    const [pendingImageUploads, setPendingImageUploads] = useState<Map<string, File>>(new Map());
+    const [imagePreviewUrls, setImagePreviewUrls] = useState<Map<string, string>>(new Map());
+
+    // Get sections data from Inertia props (database)
+    const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
+
+    // State for hero slides - ALWAYS prioritize database
+    const [heroSlides, setHeroSlides] = useState(() => {
+        // Initialize with database data if available
+        console.log('🔧 Initializing hero slides...');
+        return slides.map((slide) => {
+            const dbImage = props.sections?.[`home.hero.${slide.id}.image`]?.image;
+            if (dbImage) {
+                console.log(`  ✓ Init Hero ${slide.id} with DB:`, dbImage.split('/').pop()?.split('?')[0]);
+                return { ...slide, image: dbImage };
+            }
+            return slide;
+        });
+    });
+
+    // Sync hero slides with database - CRITICAL: Always use DB data
+    useEffect(() => {
+        console.log('🔄 Syncing hero slides with database...');
+        console.log('📦 Sections data:', props.sections ? Object.keys(props.sections).length + ' keys' : 'undefined');
+        
+        const updatedSlides = slides.map((slide) => {
+            const dbImage = props.sections?.[`home.hero.${slide.id}.image`]?.image;
+            const dbTitle = props.sections?.[`home.hero.${slide.id}.title`]?.content;
+            const dbSubtitle = props.sections?.[`home.hero.${slide.id}.subtitle`]?.content;
+            
+            if (dbImage) {
+                const filename = dbImage.split('/').pop()?.split('?')[0] || 'unknown';
+                console.log(`  ✓ Hero ${slide.id}: Using DB image:`, filename);
+            } else {
+                console.log(`  ○ Hero ${slide.id}: No DB image, using default:`, slide.image);
+            }
+            
+            // ALWAYS use DB data if available - DB wins over static!
+            return {
+                id: slide.id,
+                title: dbTitle || slide.title,
+                subtitle: dbSubtitle || slide.subtitle,
+                image: dbImage || slide.image, // DB FIRST!
+            };
+        });
+        
+        // Force state update - clear any preview/upload state
+        setHeroSlides(updatedSlides);
+        console.log('✅ Hero slides synced! DB data applied.');
+    }, [props.sections]);
+
+    // Listen for global save event to upload all pending images
+    useEffect(() => {
+        const handleGlobalSave = async () => {
+            if (pendingImageUploads.size === 0) {
+                console.log('💡 No pending image uploads');
+                return;
+            }
+
+            console.log(`📤 Uploading ${pendingImageUploads.size} pending image(s)...`);
+            setSaving(true);
+
+            try {
+                // Upload all pending images in parallel
+                const uploadPromises = Array.from(pendingImageUploads.entries()).map(async ([key, file]) => {
+                    const form = new FormData();
+                    form.append('key', key);
+                    form.append('image', file);
+                    
+                    console.log('⏳ Uploading:', key);
+                    const response = await axios.post('/admin/upload-image', form, {
+                        headers: { 'Content-Type': 'multipart/form-data' },
+                    });
+                    console.log('✅ Uploaded:', key);
+                    return response;
+                });
+
+                await Promise.all(uploadPromises);
+
+                // Clear all pending uploads
+                setPendingImageUploads(new Map());
+                
+                // Cleanup all preview URLs
+                imagePreviewUrls.forEach(url => URL.revokeObjectURL(url));
+                setImagePreviewUrls(new Map());
+
+                console.log('✅ All images uploaded successfully!');
+
+                // Reload to get fresh data from database
+                router.reload({ 
+                    only: ['sections'],
+                    onSuccess: () => {
+                        console.log('✅ Data reloaded from database');
+                    }
+                });
+                
+            } catch (error) {
+                console.error('❌ Image upload failed:', error);
+                alert('Failed to upload images: ' + (error as any).message);
+            } finally {
+                setSaving(false);
+            }
+        };
+
+        window.addEventListener('cms:flush-save', handleGlobalSave);
+        return () => window.removeEventListener('cms:flush-save', handleGlobalSave);
+    }, [pendingImageUploads, imagePreviewUrls]);
+
+    useEffect(() => {
+        // Disable auto-transition when in edit mode
+        if (editMode) {
+            return;
+        }
+
         const interval = setInterval(() => {
             if (!isTransitioning) {
-                setIsTransitioning(true);
-                setIndex((i) => (i + 1) % slidesSeed.length);
-                setTimeout(() => setIsTransitioning(false), 800);
+                setIndex((prev) => (prev + 1) % heroSlides.length);
             }
-        }, 8000); // Increased from 5000ms to 8000ms for better performance
+        }, 5000);
 
         return () => clearInterval(interval);
-    }, [isTransitioning]);
+    }, [isTransitioning, editMode, heroSlides.length]);
+    
+    // Cleanup preview URLs on unmount
+    useEffect(() => {
+        return () => {
+            // Cleanup all preview URLs when component unmounts
+            imagePreviewUrls.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [imagePreviewUrls]);
 
-    const slide = slidesSeed[index];
+    const handleSlideChange = (newIndex: number) => {
+        if (isTransitioning) return;
 
-    // Optimized animation variants - simplified for better performance
-    const heroImageVariants = {
-        initial: {
-            opacity: 0,
-        },
-        animate: {
-            opacity: 1,
-            transition: {
-                duration: 0.6,
-                ease: 'easeOut',
-            },
-        },
-        exit: {
-            opacity: 0,
-            transition: {
-                duration: 0.4,
-                ease: 'easeIn',
-            },
-        },
+        setIsTransitioning(true);
+        setIndex(newIndex);
+
+        setTimeout(() => {
+            setIsTransitioning(false);
+        }, 500);
     };
 
-    const heroContentVariants = {
-        initial: {
-            opacity: 0,
-            y: 15,
-        },
-        animate: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.5,
-                delay: 0.1,
-                ease: 'easeOut',
-            },
-        },
-        exit: {
-            opacity: 0,
-            y: -10,
-            transition: {
-                duration: 0.3,
-                ease: 'easeIn',
-            },
-        },
+    const handlePrevSlide = () => {
+        const newIndex = index === 0 ? heroSlides.length - 1 : index - 1;
+        handleSlideChange(newIndex);
     };
 
-    const titleVariants = {
-        initial: { opacity: 0, y: 10 },
-        animate: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.5,
-                delay: 0.2,
-                ease: 'easeOut',
-            },
-        },
-        exit: {
-            opacity: 0,
-            y: -5,
-            transition: {
-                duration: 0.3,
-                ease: 'easeIn',
-            },
-        },
+    const handleNextSlide = () => {
+        const newIndex = (index + 1) % heroSlides.length;
+        handleSlideChange(newIndex);
     };
 
-    const subtitleVariants = {
-        initial: { opacity: 0, y: 8 },
-        animate: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.5,
-                delay: 0.3,
-                ease: 'easeOut',
-            },
-        },
-        exit: {
-            opacity: 0,
-            y: -5,
-            transition: {
-                duration: 0.3,
-                ease: 'easeIn',
-            },
-        },
+    const smoothScrollTo = (elementId: string) => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
     };
 
-    const buttonVariants = {
-        initial: { opacity: 0, y: 10 },
-        animate: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.5,
-                delay: 0.4,
-                ease: 'easeOut',
-            },
-        },
-        exit: {
-            opacity: 0,
-            y: -5,
-            transition: {
-                duration: 0.3,
-                ease: 'easeIn',
-            },
-        },
-    };
-
-    // Optimized hover effects untuk mobile
-    const buttonHover = {
-        rest: {
-            scale: 1,
-            boxShadow: '0 4px 12px rgba(188, 142, 46, 0.25)',
-            transition: { duration: 0.2, ease: 'easeOut' },
-        },
-        hover: {
-            scale: 1.02,
-            boxShadow: '0 8px 25px rgba(188, 142, 46, 0.35)',
-            transition: { duration: 0.2, ease: 'easeOut' },
-        },
-        tap: {
-            scale: 0.98,
-            transition: { duration: 0.1 },
-        },
-    };
-
-    // Animation variants untuk section lainnya
-    const fadeInUp = {
-        hidden: {
-            opacity: 0,
-            y: 20,
-        },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.6,
-                ease: [0.25, 0.46, 0.45, 0.94],
-            },
-        },
-    };
-
-    const staggerContainer = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.08,
-                delayChildren: 0.1,
-            },
-        },
-    };
-
-    const cardHover = {
-        rest: {
-            scale: 1,
-            y: 0,
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-            transition: { duration: 0.2, ease: 'easeOut' },
-        },
-        hover: {
-            scale: 1.02,
-            y: -4,
-            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.12)',
-            transition: { duration: 0.2, ease: 'easeOut' },
-        },
-    };
-
-    // Smooth slide change handler
-    const handleSlideChange = useCallback(
-        (newIndex: number) => {
-            if (!isTransitioning && newIndex !== index) {
-                setIsTransitioning(true);
-                setIndex(newIndex);
-                setTimeout(() => setIsTransitioning(false), 1000);
-            }
-        },
-        [index, isTransitioning],
-    );
+    const currentSlide = heroSlides[index];
 
     return (
-        <PublicLayout>
-            <Head title="Home" />
+        <ErrorBoundary>
+            <PublicLayout>
+                <Head title="Home" />
 
-            {/* Optimized Hero Section - Simplified for better scroll performance */}
-            <section className="hero-section b2c-hero-section relative h-screen overflow-hidden">
-                {/* Simplified aspect ratio - stable layout */}
-                <div className="h-full w-full overflow-hidden bg-muted">
-                    <AnimatePresence mode="wait" initial={false}>
-                        <motion.div
-                            key={slide.id}
-                            className="relative h-full w-full"
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            variants={heroImageVariants}
-                        >
-                            <img src={slide.image} alt={slide.title} loading="lazy" className="h-full w-full object-cover object-center" />
-                        </motion.div>
-                    </AnimatePresence>
+                {/* Hero Section */}
+                <section
+                    className="relative z-[1] h-screen w-full"
+                    style={{ height: '100vh', maxHeight: '100vh', overflow: 'hidden', position: 'relative', zIndex: 1 }}
+                >
+                    <div className="absolute inset-0">
+                        <AnimatePresence mode="wait">
+                            <HeroImage
+                                key={currentSlide.id}
+                                src={currentSlide.image}
+                                alt={currentSlide.title}
+                                className="h-full w-full"
+                                variants={heroImageVariants}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                            />
+                        </AnimatePresence>
+                    </div>
 
-                    {/* Enhanced gradient overlays untuk better readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 sm:from-black/80 sm:via-black/40 md:from-black/75 md:via-black/35" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 sm:bg-gradient-to-r sm:from-black/40 sm:to-transparent md:from-black/45" />
+                    <div className="absolute inset-0 z-[5] bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-                    {/* Smooth hero content dengan staggered animations */}
-                    <AnimatePresence mode="wait" initial={false}>
-                        <motion.div
-                            key={`content-${slide.id}`}
-                            className="absolute inset-0 flex items-center justify-center p-4 sm:p-8 md:p-10 lg:p-12"
-                            variants={heroContentVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                        >
-                            <div className="text-center text-white">
-                                <motion.h1
-                                    className="text-2xl leading-tight font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
-                                    style={{
-                                        letterSpacing: '-0.02em',
-                                        textShadow: '0 4px 20px rgba(0, 0, 0, 0.9)',
-                                    }}
-                                    variants={titleVariants}
+                    {/* Edit Controls (only visible in edit mode) */}
+                    {editMode && (
+                        <div className="absolute top-3 right-3 z-[999] flex items-start gap-2">
+                            {/* Replace Image Button - Compact & Refined */}
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log('🖼️ Replace image clicked for slide:', currentSlide.id);
+                                    setImageTargetKey(`home.hero.${currentSlide.id}.image`);
+                                    const el = document.getElementById(hiddenImageInputId) as HTMLInputElement | null;
+                                    el?.click();
+                                }}
+                                className={`relative inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg backdrop-blur-sm shadow-lg ring-2 transition-all duration-300 hover:scale-110 hover:shadow-xl active:scale-95 ${
+                                    pendingImageUploads.has(`home.hero.${currentSlide.id}.image`)
+                                        ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white ring-amber-300/50'
+                                        : 'bg-white/95 text-gray-800 ring-white/40 hover:bg-white'
+                                }`}
+                                title={pendingImageUploads.has(`home.hero.${currentSlide.id}.image`) 
+                                    ? '⏳ Image selected - Click "Save" to upload' 
+                                    : 'Replace hero image - Click to upload new photo'}
+                                type="button"
+                            >
+                                <Camera className="h-5 w-5" strokeWidth={2.5} />
+                                
+                                {/* Pending Badge - Small & Subtle */}
+                                {pendingImageUploads.has(`home.hero.${currentSlide.id}.image`) && (
+                                    <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-md ring-1 ring-white"
+                                    >
+                                        1
+                                    </motion.div>
+                                )}
+                            </button>
+                            
+                            {/* Total Pending Counter - Compact Badge */}
+                            {pendingImageUploads.size > 1 && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 10 }}
+                                    className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 backdrop-blur-sm px-2.5 py-1.5 text-[11px] font-bold text-white shadow-lg ring-1 ring-amber-300/50"
                                 >
-                                    {slide.title}
+                                    <div className="flex h-4 w-4 items-center justify-center rounded-full bg-white/30 text-[10px]">
+                                        {pendingImageUploads.size}
+                                    </div>
+                                    <span>pending</span>
+                                </motion.div>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="relative z-10 flex h-full items-center justify-center px-4">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={`content-${currentSlide.id}`}
+                                className="max-w-4xl text-center text-white"
+                                variants={heroContentVariants}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                            >
+                                <motion.h1 className="mb-4 text-4xl font-bold md:text-6xl" variants={titleVariants}>
+                                    <EditableText sectionKey={`home.hero.${currentSlide.id}.title`} value={currentSlide.title} tag="span" />
                                 </motion.h1>
 
-                                <motion.p
-                                    className="mt-3 text-base leading-relaxed opacity-95 sm:mt-4 sm:text-xl md:mt-5 md:text-2xl lg:text-3xl xl:text-4xl"
-                                    style={{
-                                        lineHeight: '1.4',
-                                        letterSpacing: '0.01em',
-                                        textShadow: '0 3px 12px rgba(0, 0, 0, 0.8)',
-                                    }}
-                                    variants={subtitleVariants}
-                                >
-                                    {slide.subtitle}
+                                <motion.p className="mb-8 text-lg opacity-90 md:text-xl" variants={subtitleVariants}>
+                                    <EditableText sectionKey={`home.hero.${currentSlide.id}.subtitle`} value={currentSlide.subtitle} tag="span" />
                                 </motion.p>
 
-                                <motion.div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12" variants={buttonVariants}>
+                                <motion.div variants={buttonVariants}>
                                     <motion.button
+                                        className="inline-flex items-center gap-2 rounded-lg bg-[#FF8C00] px-8 py-3 font-semibold text-white transition-colors duration-300 hover:bg-[#FF7F00]"
                                         variants={buttonHover}
                                         initial="rest"
                                         whileHover="hover"
                                         whileTap="tap"
-                                        onClick={() => smoothScrollTo('packages')}
-                                        className="inline-flex items-center justify-center rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-xl backdrop-blur-sm transition-all duration-300 hover:brightness-110 sm:px-10 sm:py-5 sm:text-lg md:px-12 md:py-6 md:text-xl"
+                                        onClick={() => smoothScrollTo('best-sellers')}
                                     >
-                                        Explore Packages
-                                        <motion.svg
-                                            className="ml-2 h-4 w-4 sm:ml-3 sm:h-6 sm:w-6"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            initial={{ x: 0 }}
-                                            whileHover={{ x: 4 }}
-                                            transition={{ duration: 0.3 }}
-                                        >
+                                        Explore Destinations
+                                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                        </motion.svg>
+                                        </svg>
                                     </motion.button>
                                 </motion.div>
-                            </div>
-                        </motion.div>
-                    </AnimatePresence>
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
 
-                    {/* Smooth slide indicators */}
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 sm:bottom-10 md:bottom-12">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                            {slidesSeed.map((s, i) => (
-                                <motion.button
-                                    key={s.id}
-                                    aria-label={`Slide ${i + 1}`}
-                                    className={`rounded-full transition-all duration-300 ${
-                                        i === index
-                                            ? 'h-2 w-6 bg-secondary shadow-lg shadow-secondary/50 sm:h-3 sm:w-8'
-                                            : 'h-2 w-2 border border-white/30 bg-white/70 hover:bg-white/90 sm:h-3 sm:w-3'
-                                    }`}
+                    {/* Navigation Arrows (only visible in edit mode) */}
+                    {editMode && (
+                        <>
+                            {/* Left Arrow */}
+                            <button
+                                onClick={handlePrevSlide}
+                                className="absolute top-1/2 left-4 z-[25] -translate-y-1/2 cursor-pointer rounded-full bg-black/50 p-3 text-white backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-black/70"
+                                aria-label="Previous slide"
+                                type="button"
+                            >
+                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+
+                            {/* Right Arrow */}
+                            <button
+                                onClick={handleNextSlide}
+                                className="absolute top-1/2 right-4 z-[25] -translate-y-1/2 cursor-pointer rounded-full bg-black/50 p-3 text-white backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-black/70"
+                                aria-label="Next slide"
+                                type="button"
+                            >
+                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </>
+                    )}
+
+                    <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 transform">
+                        <div className="flex space-x-2">
+                            {heroSlides.map((_, i) => (
+                                <button
+                                    key={i}
+                                    className={`h-3 w-3 rounded-full transition-all duration-300 ${i === index ? 'bg-[#FF8C00]' : 'bg-white/50 hover:bg-white/80'}`}
                                     onClick={() => handleSlideChange(i)}
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
                                 />
                             ))}
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            {/* Mobile-First Best Sellers Section dengan enhanced spacing */}
-            <motion.section
-                id="packages"
-                className="xs:px-4 xs:py-10 content-section mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-30px' }}
-                variants={staggerContainer}
-            >
-                <motion.div variants={fadeInUp} className="text-center sm:text-left">
-                    <h2 className="xs:text-2xl text-xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">Best Sellers</h2>
-                    <p className="xs:mt-2 xs:text-base mt-1.5 text-sm text-muted-foreground sm:mt-3 sm:text-lg md:text-xl lg:text-2xl">
-                        Discover our most loved travel experiences
-                    </p>
-                </motion.div>
+                {/* Best Sellers Section */}
+                <section id="best-sellers" className="bg-black py-20">
+                    <div className="mx-auto max-w-7xl px-4">
+                        <div className="mb-16 text-left">
+                            <h2 className="mb-4 text-4xl font-bold text-white">Best Sellers</h2>
+                            <p className="max-w-2xl text-xl text-[#A0A0A0]">Discover our most loved travel experiences</p>
+                        </div>
 
-                <motion.div
-                    className="xs:mt-7 xs:gap-4 mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-5 md:mt-10 md:gap-6 lg:grid-cols-4 lg:gap-8"
-                    variants={staggerContainer}
-                >
-                    {[
-                        {
-                            id: 1,
-                            title: 'Arab Saudi',
-                            subtitle: 'Spiritual journey to Holy Land',
-                            image: '/arabsaudi.jpg',
-                            duration: '9D8N',
-                            price: 'Rp 28.5M',
-                            location: 'Makkah & Madinah',
-                            highlights: '5-star hotels, direct flights, professional guide',
-                        },
-                        {
-                            id: 2,
-                            title: 'Turkey Heritage',
-                            subtitle: 'Istanbul to Cappadocia',
-                            image: '/TURKEY.jpeg',
-                            duration: '8D7N',
-                            price: 'Rp 15.8M',
-                            location: 'Istanbul, Cappadocia',
-                            highlights: 'Historical sites, hot air balloon, cultural experience',
-                        },
-                        {
-                            id: 3,
-                            title: 'Egypt Wonders',
-                            subtitle: 'Pyramids & Nile River',
-                            image: '/egypt.jpeg',
-                            duration: '8D7N',
-                            price: 'Rp 16.5M',
-                            location: 'Cairo, Luxor, Aswan',
-                            highlights: 'Pyramids of Giza, Nile cruise, ancient temples',
-                        },
-                        {
-                            id: 4,
-                            title: 'Dubai Luxury',
-                            subtitle: 'Modern wonders',
-                            image: '/dubai1.jpeg',
-                            duration: '5D4N',
-                            price: 'Rp 14.2M',
-                            location: 'Dubai, UAE',
-                            highlights: 'Burj Khalifa, desert safari, luxury shopping',
-                        },
-                    ].map((pkg) => (
-                        <Dialog key={pkg.id}>
-                            <DialogTrigger asChild>
-                                <motion.article
-                                    variants={fadeInUp}
-                                    initial="rest"
-                                    whileHover="hover"
-                                    whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
-                                    style={{
-                                        background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-                                    }}
+                        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+                            {bestSellers.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="group cursor-pointer overflow-hidden rounded-xl bg-[#1A1A1A] transition-all duration-300 hover:scale-105 hover:shadow-lg"
                                 >
-                                    <motion.div variants={cardHover}>
-                                        <div className="relative overflow-hidden">
-                                            <img
-                                                src={pkg.image}
-                                                alt={pkg.title}
-                                                className="xs:aspect-[4/3] aspect-[5/4] w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:aspect-video"
-                                                onError={(e) => {
-                                                    e.currentTarget.style.display = 'none';
-                                                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                                    if (nextElement) {
-                                                        nextElement.style.display = 'block';
-                                                    }
-                                                }}
-                                            />
-                                            <PlaceholderImage className="xs:aspect-[4/3] hidden aspect-[5/4] w-full transition-transform duration-500 group-hover:scale-105 sm:aspect-video" />
-                                            {/* Mobile-optimized overlay */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                                            {/* Badge */}
-                                            <div className="absolute top-3 right-3">
-                                                <span className="rounded-full bg-secondary px-2 py-1 text-xs font-bold text-black shadow-lg">
-                                                    Best Seller
-                                                </span>
+                                    <div className="relative aspect-[4/3] overflow-hidden">
+                                        <img
+                                            src={item.image}
+                                            alt={item.title}
+                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                        />
+                                        <div className="absolute top-2 right-2">
+                                            <span className="rounded-md bg-[#FF8C00] px-3 py-1 text-xs font-semibold text-white">{item.tag}</span>
+                                        </div>
+                                        {editMode && (
+                                            <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+                                                {/* Replace Image Button - Camera Icon */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setImageTargetKey(`home.bestsellers.${item.id}.image`);
+                                                        const el = document.getElementById(hiddenImageInputId) as HTMLInputElement | null;
+                                                        el?.click();
+                                                    }}
+                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 backdrop-blur-sm text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:bg-white hover:scale-105 hover:shadow-2xl"
+                                                    title="Replace image - Click to upload new photo"
+                                                >
+                                                    <Camera className="h-5 w-5" strokeWidth={2.5} />
+                                                </button>
+                                                
+                                                {/* Edit Details Button - Comprehensive Editor */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setEditorOpen({
+                                                            section: 'bestsellers',
+                                                            id: item.id,
+                                                            title: item.title,
+                                                            subtitle: item.subtitle,
+                                                        });
+                                                    }}
+                                                    className="group/edit inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 backdrop-blur-sm text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:from-blue-600 hover:to-indigo-700 hover:scale-110 hover:shadow-2xl hover:ring-blue-300"
+                                                    title="Edit all details - Title and subtitle"
+                                                >
+                                                    <Edit3 className="h-5 w-5 transition-transform group-hover/edit:rotate-12" strokeWidth={2.5} />
+                                                </button>
                                             </div>
-                                        </div>
-                                        <div className="xs:p-4 p-3 sm:p-5 md:p-6">
-                                            <h3 className="xs:text-base text-sm leading-tight font-semibold tracking-tight sm:text-lg md:text-lg">
-                                                {pkg.title}
-                                            </h3>
-                                            <p className="xs:mt-1.5 xs:text-sm mt-1 text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:text-sm">
-                                                {pkg.subtitle}
-                                            </p>
-                                        </div>
-                                    </motion.div>
-                                </motion.article>
-                            </DialogTrigger>
-                            <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg">
-                                <DialogHeader>
-                                    <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">{pkg.title}</DialogTitle>
-                                    <DialogDescription className="xs:text-sm text-xs leading-relaxed sm:text-base">
-                                        {pkg.subtitle} - Experience the best of {pkg.location} with our carefully curated package.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="xs:mt-4 xs:gap-3 xs:text-sm mt-3 grid gap-2.5 text-xs sm:gap-4">
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
-                                        <strong>Location:</strong> {pkg.location} · <strong>Duration:</strong> {pkg.duration}
+                                        )}
                                     </div>
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
-                                        <strong>Price:</strong> {pkg.price} per person
-                                    </div>
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
-                                        <strong>Highlights:</strong> {pkg.highlights}
+                                    <div className="p-6">
+                                        <h3 className="mb-2 text-xl font-bold text-white">
+                                            <EditableText sectionKey={`home.bestsellers.${item.id}.title`} value={item.title} tag="span" />
+                                        </h3>
+                                        <p className="text-[#A0A0A0]">
+                                            <EditableText sectionKey={`home.bestsellers.${item.id}.subtitle`} value={item.subtitle} tag="span" />
+                                        </p>
                                     </div>
                                 </div>
-                            </DialogContent>
-                        </Dialog>
-                    ))}
-                </motion.div>
-            </motion.section>
-
-            {/* Mobile-First New Destinations Section */}
-            <motion.section
-                className="xs:px-4 xs:py-10 content-section mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-30px' }}
-                variants={staggerContainer}
-            >
-                <motion.div variants={fadeInUp} className="text-center sm:text-left">
-                    <h2 className="xs:text-2xl text-xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">New Destinations</h2>
-                    <p className="xs:mt-2 xs:text-base mt-1.5 text-sm text-muted-foreground sm:mt-3 sm:text-lg md:text-xl lg:text-2xl">
-                        Fresh adventures and undiscovered gems
-                    </p>
-                </motion.div>
-
-                <motion.div
-                    className="xs:mt-7 xs:gap-4 mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-5 md:mt-10 md:gap-6 lg:grid-cols-4 lg:gap-8"
-                    variants={staggerContainer}
-                >
-                    {[
-                        {
-                            id: 1,
-                            title: 'Oman Adventure',
-                            subtitle: 'Muscat + Nizwa + Wahiba Sands',
-                            image: '/oman.jpg',
-                            duration: '6D5N',
-                            price: 'Rp 18.9M',
-                            location: 'Muscat, Nizwa, Wahiba Sands',
-                            highlights: 'Desert camping, forts, wadis',
-                        },
-                        {
-                            id: 2,
-                            title: 'Qatar Luxury',
-                            subtitle: 'Doha + The Pearl + Desert',
-                            image: '/qatar.jpg',
-                            duration: '5D4N',
-                            price: 'Rp 16.2M',
-                            location: 'Doha, The Pearl, Desert',
-                            highlights: 'Museum of Islamic Art, Souq Waqif, desert safari',
-                        },
-                        {
-                            id: 3,
-                            title: 'Kuwait Heritage',
-                            subtitle: 'Kuwait City + Failaka Island',
-                            image: '/kuwait.jpg',
-                            duration: '4D3N',
-                            price: 'Rp 12.8M',
-                            location: 'Kuwait City, Failaka Island',
-                            highlights: 'Kuwait Towers, Grand Mosque, island visit',
-                        },
-                        {
-                            id: 4,
-                            title: 'Bahrain Pearl',
-                            subtitle: "Manama + Qal'at al-Bahrain",
-                            image: '/bahrain.jpg',
-                            duration: '4D3N',
-                            price: 'Rp 11.5M',
-                            location: "Manama, Qal'at al-Bahrain",
-                            highlights: 'Pearl diving, ancient forts, Formula 1 circuit',
-                        },
-                    ].map((destination) => (
-                        <Dialog key={destination.id}>
-                            <DialogTrigger asChild>
-                                <motion.article
-                                    variants={fadeInUp}
-                                    initial="rest"
-                                    whileHover="hover"
-                                    whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
-                                    style={{
-                                        background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-                                    }}
-                                >
-                                    <motion.div variants={cardHover}>
-                                        <div className="relative overflow-hidden">
-                                            <img
-                                                src={destination.image}
-                                                alt={destination.title}
-                                                className="xs:aspect-[4/3] aspect-[5/4] w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:aspect-video"
-                                                onError={(e) => {
-                                                    e.currentTarget.style.display = 'none';
-                                                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                                    if (nextElement) {
-                                                        nextElement.style.display = 'block';
-                                                    }
-                                                }}
-                                            />
-                                            <PlaceholderImage className="xs:aspect-[4/3] hidden aspect-[5/4] w-full transition-transform duration-500 group-hover:scale-105 sm:aspect-video" />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                                            {/* New Badge */}
-                                            <div className="absolute top-3 right-3">
-                                                <span className="rounded-full bg-primary px-2 py-1 text-xs font-bold text-white shadow-lg">New</span>
-                                            </div>
-                                        </div>
-                                        <div className="xs:p-4 p-3 sm:p-5 md:p-6">
-                                            <h3 className="xs:text-base text-sm leading-tight font-semibold tracking-tight sm:text-lg md:text-lg">
-                                                {destination.title}
-                                            </h3>
-                                            <p className="xs:mt-1.5 xs:text-sm mt-1 text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:text-sm">
-                                                {destination.subtitle}
-                                            </p>
-                                        </div>
-                                    </motion.div>
-                                </motion.article>
-                            </DialogTrigger>
-                            <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg">
-                                <DialogHeader>
-                                    <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">{destination.title}</DialogTitle>
-                                    <DialogDescription className="xs:text-sm text-xs leading-relaxed sm:text-base">
-                                        {destination.subtitle} - Discover the hidden gems of {destination.location} with our exclusive new package.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="xs:mt-4 xs:gap-3 xs:text-sm mt-3 grid gap-2.5 text-xs sm:gap-4">
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
-                                        <strong>Location:</strong> {destination.location} · <strong>Duration:</strong> {destination.duration}
-                                    </div>
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
-                                        <strong>Price:</strong> {destination.price} per person
-                                    </div>
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
-                                        <strong>Highlights:</strong> {destination.highlights}
-                                    </div>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                    ))}
-                </motion.div>
-            </motion.section>
-
-            {/* Mobile-First Highlights Section */}
-            <motion.section
-                className="xs:px-4 xs:py-10 content-section mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:px-6 md:py-16 lg:px-8 lg:py-20 xl:px-10"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-30px' }}
-                variants={staggerContainer}
-            >
-                <motion.div variants={fadeInUp} className="text-center sm:text-left">
-                    <h2 className="xs:text-2xl text-xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">Highlights</h2>
-                    <p className="xs:mt-2 xs:text-base mt-1.5 text-sm text-muted-foreground sm:mt-3 sm:text-lg md:text-xl lg:text-2xl">
-                        Moments that make every journey unforgettable
-                    </p>
-                </motion.div>
-
-                <motion.div
-                    className="xs:mt-7 xs:gap-4 mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-5 md:mt-10 md:gap-6 lg:grid-cols-4 lg:gap-8"
-                    variants={staggerContainer}
-                >
-                    {[
-                        {
-                            id: 1,
-                            title: 'Kaaba Experience',
-                            subtitle: 'Spiritual journey to the heart of Islam',
-                            image: '/umrah.jpeg',
-                            description:
-                                'Experience the divine atmosphere of Masjid al-Haram, where millions of pilgrims gather to perform their spiritual journey. Feel the sacred energy as you stand before the Kaaba, the holiest site in Islam.',
-                            features: ['Masjid al-Haram visit', 'Kaaba tawaf experience', 'Spiritual guidance', 'Halal accommodation'],
-                        },
-                        {
-                            id: 2,
-                            title: 'Cappadocia Magic',
-                            subtitle: 'Hot air balloon adventure',
-                            image: '/turkey2.jpg',
-                            description:
-                                'Float above the fairy chimneys of Cappadocia at sunrise, witnessing one of the most breathtaking landscapes on earth. This magical experience combines adventure with natural wonder.',
-                            features: ['Hot air balloon ride', 'Fairy chimney views', 'Sunrise experience', 'Professional pilots'],
-                        },
-                        {
-                            id: 3,
-                            title: 'Pyramids Wonder',
-                            subtitle: 'Ancient Egyptian marvels',
-                            image: '/egypt.jpeg',
-                            description:
-                                'Stand in awe of the Great Pyramids of Giza, one of the Seven Wonders of the Ancient World. Explore the mysteries of ancient Egypt and discover the secrets of the pharaohs.',
-                            features: ['Pyramids of Giza', 'Sphinx visit', 'Ancient temples', 'Egyptian history'],
-                        },
-                        {
-                            id: 4,
-                            title: 'Dubai Desert',
-                            subtitle: 'Luxury desert safari',
-                            image: '/dubai1.jpeg',
-                            description:
-                                'Experience Arabian nights in the golden dunes of Dubai. From thrilling dune bashing to serene sunset views, discover the beauty of the desert landscape.',
-                            features: ['Desert safari', 'Dune bashing', 'Sunset views', 'Traditional camp'],
-                        },
-                    ].map((highlight) => (
-                        <Dialog key={highlight.id}>
-                            <DialogTrigger asChild>
-                                <motion.article
-                                    variants={fadeInUp}
-                                    initial="rest"
-                                    whileHover="hover"
-                                    whileTap={{ scale: 0.98 }}
-                                    className="group xs:rounded-2xl cursor-pointer overflow-hidden rounded-xl border border-secondary/20 bg-white shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-2xl hover:shadow-secondary/10"
-                                    style={{
-                                        background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-                                    }}
-                                >
-                                    <motion.div variants={cardHover}>
-                                        <div className="relative overflow-hidden">
-                                            <img
-                                                src={highlight.image}
-                                                alt={highlight.title}
-                                                className="xs:aspect-[4/3] aspect-[5/4] w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:aspect-video"
-                                                onError={(e) => {
-                                                    e.currentTarget.style.display = 'none';
-                                                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                                    if (nextElement) {
-                                                        nextElement.style.display = 'block';
-                                                    }
-                                                }}
-                                            />
-                                            <PlaceholderImage className="xs:aspect-[4/3] hidden aspect-[5/4] w-full transition-transform duration-500 group-hover:scale-105 sm:aspect-video" />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                                            {/* Featured Badge */}
-                                            <div className="absolute top-3 right-3">
-                                                <span className="rounded-full bg-secondary px-2 py-1 text-xs font-bold text-black shadow-lg">
-                                                    Featured
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="xs:p-4 p-3 sm:p-5 md:p-6">
-                                            <h3 className="xs:text-base text-sm leading-tight font-semibold tracking-tight sm:text-lg md:text-lg">
-                                                {highlight.title}
-                                            </h3>
-                                            <p className="xs:mt-1.5 xs:text-sm mt-1 text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:text-sm">
-                                                {highlight.subtitle}
-                                            </p>
-                                        </div>
-                                    </motion.div>
-                                </motion.article>
-                            </DialogTrigger>
-                            <DialogContent className="xs:mx-4 xs:w-[calc(100vw-32px)] xs:rounded-2xl mx-3 max-h-[90vh] w-[calc(100vw-24px)] overflow-y-auto rounded-xl border-white/20 bg-card/90 backdrop-blur-xl sm:mx-auto sm:w-full sm:max-w-lg">
-                                <DialogHeader>
-                                    <DialogTitle className="xs:text-lg text-base font-bold sm:text-xl">{highlight.title}</DialogTitle>
-                                    <DialogDescription className="xs:text-sm text-xs leading-relaxed sm:text-base">
-                                        {highlight.subtitle} - Discover what makes this experience truly special.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="xs:mt-4 xs:gap-3 xs:text-sm mt-3 space-y-4 text-xs sm:gap-4">
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
-                                        <p className="text-sm leading-relaxed text-gray-300">{highlight.description}</p>
-                                    </div>
-                                    <div className="xs:rounded-xl xs:p-3 rounded-lg border border-white/20 bg-card/60 p-2.5 backdrop-blur-sm sm:p-4">
-                                        <h4 className="mb-2 text-sm font-semibold text-white">What's Included:</h4>
-                                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                                            {highlight.features.map((feature, index) => (
-                                                <div key={index} className="flex items-center gap-2">
-                                                    <div className="h-1.5 w-1.5 rounded-full bg-green-400"></div>
-                                                    <span className="text-xs text-gray-300">{feature}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                    ))}
-                </motion.div>
-            </motion.section>
-
-            {/* Mobile-First Enhanced Footer */}
-            <footer className="content-section border-t border-white/20 bg-card/60 backdrop-blur-xl">
-                <motion.div
-                    className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:flex md:items-center md:justify-between md:px-6 md:py-12 lg:px-8 xl:px-10"
-                    initial={{ opacity: 0, y: 15 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                >
-                    {/* Contact Info */}
-                    <div className="xs:text-sm text-center text-xs leading-relaxed text-muted-foreground sm:text-left md:text-sm">
-                        <div className="font-medium">Email: hello@cahaya-anbiya.com</div>
-                        <div className="xs:mt-1 mt-0.5 font-medium">WhatsApp: +62 812-3456-7890</div>
+                            ))}
+                        </div>
                     </div>
+                </section>
 
-                    {/* Social Links */}
-                    <div className="xs:gap-5 xs:text-sm mt-4 flex items-center justify-center gap-4 text-xs sm:mt-6 sm:gap-6 md:mt-0 md:text-sm">
-                        {[
-                            { name: 'Instagram', url: 'https://instagram.com' },
-                            { name: 'TikTok', url: 'https://tiktok.com' },
-                            { name: 'YouTube', url: 'https://youtube.com' },
-                        ].map((social) => (
-                            <motion.a
-                                key={social.name}
-                                href={social.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="font-medium transition-colors duration-200 hover:text-accent"
-                                whileHover={{ scale: 1.05, y: -1 }}
-                                whileTap={{ scale: 0.95 }}
-                                style={{ minHeight: '44px', minWidth: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} // Touch-friendly
+                {/* New Destinations Section */}
+                <section className="bg-black py-20">
+                    <div className="mx-auto max-w-7xl px-4">
+                        <div className="mb-16 text-left">
+                            <h2 className="mb-4 text-4xl font-bold text-white">New Destinations</h2>
+                            <p className="max-w-2xl text-xl text-[#A0A0A0]">Fresh adventures and undiscovered gems</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+                            {newDestinations.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="group cursor-pointer overflow-hidden rounded-xl bg-[#1A1A1A] transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                                >
+                                    <div className="relative aspect-[4/3] overflow-hidden">
+                                        <img
+                                            src={item.image}
+                                            alt={item.title}
+                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                        />
+                                        <div className="absolute top-2 right-2">
+                                            <span className="rounded-full bg-[#FF8C00] px-3 py-1 text-xs font-semibold text-white">{item.tag}</span>
+                                        </div>
+                                        {editMode && (
+                                            <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+                                                {/* Replace Image Button - Camera Icon */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setImageTargetKey(`home.new.${item.id}.image`);
+                                                        const el = document.getElementById(hiddenImageInputId) as HTMLInputElement | null;
+                                                        el?.click();
+                                                    }}
+                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 backdrop-blur-sm text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:bg-white hover:scale-105 hover:shadow-2xl"
+                                                    title="Replace image - Click to upload new photo"
+                                                >
+                                                    <Camera className="h-5 w-5" strokeWidth={2.5} />
+                                                </button>
+                                                
+                                                {/* Edit Details Button - Comprehensive Editor */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setEditorOpen({ section: 'new', id: item.id, title: item.title, subtitle: item.subtitle });
+                                                    }}
+                                                    className="group/edit inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 backdrop-blur-sm text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:from-blue-600 hover:to-indigo-700 hover:scale-110 hover:shadow-2xl hover:ring-blue-300"
+                                                    title="Edit all details - Title and subtitle"
+                                                >
+                                                    <Edit3 className="h-5 w-5 transition-transform group-hover/edit:rotate-12" strokeWidth={2.5} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-6">
+                                        <h3 className="mb-2 text-xl font-bold text-white">
+                                            <EditableText sectionKey={`home.new.${item.id}.title`} value={item.title} tag="span" />
+                                        </h3>
+                                        <p className="text-[#A0A0A0]">
+                                            <EditableText sectionKey={`home.new.${item.id}.subtitle`} value={item.subtitle} tag="span" />
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Highlights Section */}
+                <section className="bg-black py-20">
+                    <div className="mx-auto max-w-7xl px-4">
+                        <div className="mb-16 text-left">
+                            <h2 className="mb-4 text-4xl font-bold text-white">Highlights</h2>
+                            <p className="max-w-2xl text-xl text-[#A0A0A0]">Moments that make every journey unforgettable</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+                            {highlights.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="group cursor-pointer overflow-hidden rounded-xl bg-[#1A1A1A] transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                                >
+                                    <div className="relative aspect-[4/3] overflow-hidden">
+                                        <img
+                                            src={item.image}
+                                            alt={item.title}
+                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                        />
+                                        <div className="absolute top-2 right-2">
+                                            <span className="rounded-md bg-[#FF8C00] px-3 py-1 text-xs font-semibold text-white">{item.tag}</span>
+                                        </div>
+                                        {editMode && (
+                                            <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+                                                {/* Replace Image Button - Camera Icon */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setImageTargetKey(`home.hl.${item.id}.image`);
+                                                        const el = document.getElementById(hiddenImageInputId) as HTMLInputElement | null;
+                                                        el?.click();
+                                                    }}
+                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 backdrop-blur-sm text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:bg-white hover:scale-105 hover:shadow-2xl"
+                                                    title="Replace image - Click to upload new photo"
+                                                >
+                                                    <Camera className="h-5 w-5" strokeWidth={2.5} />
+                                                </button>
+                                                
+                                                {/* Edit Details Button - Comprehensive Editor */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setEditorOpen({ section: 'hl', id: item.id, title: item.title, subtitle: item.subtitle });
+                                                    }}
+                                                    className="group/edit inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 backdrop-blur-sm text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:from-blue-600 hover:to-indigo-700 hover:scale-110 hover:shadow-2xl hover:ring-blue-300"
+                                                    title="Edit all details - Title and subtitle"
+                                                >
+                                                    <Edit3 className="h-5 w-5 transition-transform group-hover/edit:rotate-12" strokeWidth={2.5} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-6">
+                                        <h3 className="mb-2 text-xl font-bold text-white">
+                                            <EditableText sectionKey={`home.hl.${item.id}.title`} value={item.title} tag="span" />
+                                        </h3>
+                                        <p className="text-[#A0A0A0]">
+                                            <EditableText sectionKey={`home.hl.${item.id}.subtitle`} value={item.subtitle} tag="span" />
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {editMode && editorOpen && (
+                    <div className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/80 p-4 backdrop-blur">
+                        <div className="mb-3 text-sm font-semibold text-white">
+                            Edit Content — {editorOpen.section} #{editorOpen.id}
+                        </div>
+                        <div className="grid gap-3">
+                            <label className="text-xs text-gray-300">Title</label>
+                            <input
+                                value={editorOpen.title}
+                                onChange={(e) => setEditorOpen({ ...editorOpen, title: e.target.value })}
+                                className="rounded-md border border-white/15 bg-black/60 px-3 py-2 text-sm text-white ring-amber-400/0 outline-none focus:ring-2"
+                            />
+                            <label className="mt-2 text-xs text-gray-300">Subtitle</label>
+                            <textarea
+                                value={editorOpen.subtitle}
+                                onChange={(e) => setEditorOpen({ ...editorOpen, subtitle: e.target.value })}
+                                rows={3}
+                                className="rounded-md border border-white/15 bg-black/60 px-3 py-2 text-sm text-white ring-amber-400/0 outline-none focus:ring-2"
+                            />
+                            <label className="mt-2 text-xs text-gray-300">Replace image</label>
+                            <input
+                                type="file"
+                                accept="image/jpeg,image/png"
+                                onChange={(e) => setPendingFile(e.target.files?.[0] ?? null)}
+                                className="text-xs text-gray-300 file:mr-3 file:rounded file:border-0 file:bg-amber-500 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-black hover:file:bg-amber-400"
+                            />
+                        </div>
+                        <div className="mt-4 flex items-center justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setEditorOpen(null);
+                                    setPendingFile(null);
+                                }}
+                                className="rounded-md px-3 py-2 text-sm text-gray-300 ring-1 ring-white/15 hover:bg-white/10"
                             >
-                                {social.name}
-                            </motion.a>
-                        ))}
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    if (!editorOpen) return;
+                                    setSaving(true);
+                                    try {
+                                        await axios.post('/admin/update-section', {
+                                            key: `home.${editorOpen.section}.${editorOpen.id}.title`,
+                                            content: editorOpen.title,
+                                        });
+                                        await axios.post('/admin/update-section', {
+                                            key: `home.${editorOpen.section}.${editorOpen.id}.subtitle`,
+                                            content: editorOpen.subtitle,
+                                        });
+                                        if (pendingFile) {
+                                            const form = new FormData();
+                                            form.append('key', `home.${editorOpen.section}.${editorOpen.id}.image`);
+                                            form.append('image', pendingFile);
+                                            await axios.post('/admin/upload-image', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                                        }
+                                        setEditorOpen(null);
+                                        setPendingFile(null);
+                                        
+                                        // Reload to fetch fresh data with success notification
+                                        router.reload({ 
+                                            only: ['sections'],
+                                            onSuccess: () => {
+                                                console.log('✅ Card content updated from database');
+                                                
+                                                // Show success notification
+                                                const notification = document.createElement('div');
+                                                notification.className = 'fixed top-20 right-4 z-[99999] rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4 text-white shadow-2xl';
+                                                notification.innerHTML = `
+                                                    <div class="flex items-center gap-3">
+                                                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        <div>
+                                                            <div class="font-bold">Perubahan Berhasil!</div>
+                                                            <div class="text-sm opacity-90">Semua perubahan tersimpan dengan backup</div>
+                                                        </div>
+                                                    </div>
+                                                `;
+                                                document.body.appendChild(notification);
+                                                setTimeout(() => notification.remove(), 3000);
+                                            }
+                                        });
+                                    } finally {
+                                        setSaving(false);
+                                    }
+                                }}
+                                disabled={saving}
+                                className="rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-black ring-1 ring-amber-300/60 hover:bg-amber-400 disabled:opacity-60"
+                            >
+                                {saving ? 'Saving…' : 'Save & Update'}
+                            </button>
+                        </div>
                     </div>
-                </motion.div>
-            </footer>
-        </PublicLayout>
+                )}
+
+                {/* Hidden file input for image replace */}
+                {editMode && (
+                    <input
+                        id={hiddenImageInputId}
+                        type="file"
+                        accept="image/jpeg,image/png"
+                        className="hidden"
+                        onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file || !imageTargetKey) return;
+
+                            console.log('🖼️ Image selected:', imageTargetKey);
+
+                            // 🔴 CRITICAL: Mark as dirty to trigger save button!
+                            markDirty();
+                            console.log('✅ Marked as dirty - Save button will appear');
+
+                            // Create preview URL
+                            const previewUrl = URL.createObjectURL(file);
+                            
+                            // Store pending upload
+                            setPendingImageUploads(prev => {
+                                const newMap = new Map(prev);
+                                newMap.set(imageTargetKey, file);
+                                return newMap;
+                            });
+                            
+                            // Store preview URL
+                            setImagePreviewUrls(prev => {
+                                const newMap = new Map(prev);
+                                // Cleanup old preview URL if exists
+                                const oldUrl = prev.get(imageTargetKey);
+                                if (oldUrl) URL.revokeObjectURL(oldUrl);
+                                newMap.set(imageTargetKey, previewUrl);
+                                return newMap;
+                            });
+
+                            // Update hero slides with preview
+                            const match = imageTargetKey.match(/home\.hero\.(\d+)\.image/);
+                            if (match) {
+                                const slideId = parseInt(match[1]);
+                                setHeroSlides(prevSlides =>
+                                    prevSlides.map(slide =>
+                                        slide.id === slideId ? { ...slide, image: previewUrl } : slide
+                                    )
+                                );
+                                console.log(`📸 Preview set for Hero ${slideId}`);
+                            }
+
+                            // Reset input
+                                setImageTargetKey(null);
+                                (e.target as HTMLInputElement).value = '';
+                            
+                            console.log('💡 Image ready for upload - Click "Save" button to upload');
+                        }}
+                    />
+                )}
+
+                {/* Footer Section */}
+                <footer className="bg-black py-12">
+                    <div className="mx-auto max-w-7xl px-4">
+                        <div className="flex flex-col justify-between md:flex-row">
+                            <div className="mb-6 md:mb-0">
+                                <p className="mb-2 text-white">Email: hello@cahaya-anbiya.com</p>
+                                <p className="text-white">WhatsApp: +62 812-3456-7890</p>
+                            </div>
+                            <div className="flex space-x-6 text-white">
+                                <a href="#" className="transition-colors hover:text-[#FF8C00]">
+                                    Instagram
+                                </a>
+                                <a href="#" className="transition-colors hover:text-[#FF8C00]">
+                                    TikTok
+                                </a>
+                                <a href="#" className="transition-colors hover:text-[#FF8C00]">
+                                    YouTube
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </PublicLayout>
+        </ErrorBoundary>
     );
 }

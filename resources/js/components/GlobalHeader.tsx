@@ -1,18 +1,25 @@
-import { Link, router } from '@inertiajs/react';
+import { useEditMode } from '@/components/cms';
+import { Link, router, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     ArrowRightLeft,
     Briefcase,
     Building2,
     ChevronDown,
+    History,
     Home,
     Info,
     LogIn,
+    LogOut,
     MapPin,
     Menu,
     MessageCircle,
+    Minus,
     Package,
     Phone,
+    Plus,
+    RotateCcw,
+    Save,
     Search,
     Sparkles,
     X,
@@ -35,6 +42,30 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
     const [searchQuery, setSearchQuery] = useState('');
     const mobileMenuRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
+
+    // User & admin context
+    const page = usePage();
+    const user = (page.props as any)?.auth?.user;
+    let isAdmin = false;
+    try {
+        // prefer context when provider exists
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const ctx = useEditMode();
+        isAdmin = ctx.isAdmin;
+    } catch {
+        // fallback: simple check by email allowlist or role from props if available
+        const role = (user as any)?.role;
+        const allow = ['test@example.com'];
+        isAdmin = role === 'admin' || (user && allow.includes(user.email));
+    }
+    const editCtx = (() => {
+        try {
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            return useEditMode();
+        } catch {
+            return { editMode: false, setEditMode: () => {} } as any;
+        }
+    })();
 
     // Get navigation items - menggunakan constants
     const navigationItems = variant === 'b2c' ? B2C_NAVIGATION_ITEMS : [];
@@ -171,6 +202,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
                 style={{
                     height: '80px',
                     willChange: 'transform, opacity',
+                    pointerEvents: 'auto',
                 }}
             >
                 <div className="mx-auto h-full max-w-7xl px-3 sm:px-4 lg:px-6">
@@ -247,22 +279,22 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
                                         const IconComponent = item.icon ? iconMap[item.icon] : null;
 
                                         return (
-                                            <motion.div
+                                <motion.div
                                                 key={item.label}
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: index * 0.1 + 0.3, duration: 0.4 }}
-                                                className="relative"
-                                            >
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 + 0.3, duration: 0.4 }}
+                                    className="relative"
+                                >
                                                 {/* Desktop Navigation - Always use Link (no dropdown) */}
-                                                <Link
-                                                    href={item.href}
+                                    <Link
+                                        href={item.href}
                                                     className="group relative flex items-center gap-1 rounded-lg px-2.5 py-2 text-xs font-medium text-white transition-all duration-300 hover:bg-white/10 hover:text-white lg:px-3 lg:text-sm"
                                                 >
                                                     {IconComponent && <IconComponent className="h-3.5 w-3.5 flex-shrink-0 lg:h-4 lg:w-4" />}
                                                     <span className="whitespace-nowrap">{item.label}</span>
-                                                </Link>
-                                            </motion.div>
+                                    </Link>
+                                </motion.div>
                                         );
                                     })}
                                 </>
@@ -270,50 +302,180 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
                         </motion.nav>
 
                         {/* Right Section - Buttons */}
-                        <div className="flex flex-shrink-0 items-center space-x-2 lg:space-x-2.5">
+                        <div 
+                            className="relative z-[10000] flex flex-shrink-0 items-center space-x-2 lg:space-x-2.5"
+                            style={{ pointerEvents: 'auto' }}
+                        >
+                            {/* Edit toggle for admins */}
+                            {user && isAdmin && (
+                                <>
+                                {/* Restore Center Button - Comprehensive control */}
+                                <motion.button
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.3, delay: 0.25 }}
+                                    onClick={() => router.visit('/admin/restore-center')}
+                                    className="hidden items-center gap-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-2.5 py-1.5 text-sm font-semibold text-white ring-1 ring-purple-300 transition-all hover:from-purple-600 hover:to-pink-600 hover:scale-105 md:flex"
+                                    title="Restore Center - Control all website changes"
+                                >
+                                    <RotateCcw className="h-4 w-4" />
+                                    <span className="hidden lg:inline">Restore</span>
+                                </motion.button>
+
+                                {/* Smart Edit/Save Button - Transforms based on state! */}
+                                <AnimatePresence mode="wait">
+                                    {editCtx.dirty ? (
+                                        // SAVE MODE - When has unsaved changes
+                                        <motion.button
+                                            key="save-mode"
+                                            initial={{ scale: 0.8, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            exit={{ scale: 0.8, opacity: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                
+                                                // Confirmation dialog
+                                                const confirmed = window.confirm(
+                                                    '💾 Save All Changes?\n\n' +
+                                                    'This will save all your modifications (text and images) to the database.\n\n' +
+                                                    'Are you sure you want to save these changes?'
+                                                );
+                                                
+                                                if (!confirmed) {
+                                                    console.log('❌ Save cancelled by user');
+                                                    return;
+                                                }
+                                                
+                                                console.log('💾 Saving all changes...');
+                                                
+                                                // Dispatch global save event
+                                                window.dispatchEvent(new CustomEvent('cms:flush-save'));
+                                                
+                                                // Clear dirty flag
+                                                editCtx.clearDirty();
+                                                
+                                                // Reload to get fresh data
+                                                router.reload({
+                                                    only: ['sections'],
+                                                    onSuccess: () => {
+                                                        // Show success notification (mobile responsive)
+                                                        const notification = document.createElement('div');
+                                                        notification.className = 'fixed top-20 left-1/2 -translate-x-1/2 z-[99999] rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-3 text-white shadow-2xl max-w-[90vw] sm:left-auto sm:right-4 sm:translate-x-0 sm:px-6 sm:py-4 sm:max-w-md';
+                                                        notification.innerHTML = `
+                                                            <div class="flex items-center gap-2 sm:gap-3">
+                                                                <svg class="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                                </svg>
+                                                                <div class="flex-1">
+                                                                    <div class="text-sm font-bold sm:text-base">✅ Berhasil Disimpan!</div>
+                                                                    <div class="text-xs opacity-90 sm:text-sm">Semua perubahan sudah tersimpan</div>
+                                                                </div>
+                                                            </div>
+                                                        `;
+                                                        document.body.appendChild(notification);
+                                                        setTimeout(() => {
+                                                            notification.remove();
+                                                        }, 3000);
+                                                    }
+                                                });
+                                            }}
+                                            className="hidden items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1.5 text-sm font-bold text-white shadow-lg ring-2 ring-amber-300 transition-all hover:from-amber-400 hover:to-orange-400 hover:scale-110 active:scale-95 md:flex animate-pulse"
+                                            title="Save all changes - Has unsaved work!"
+                                        >
+                                            <Save className="h-4 w-4" />
+                                            <span>Save</span>
+                                        </motion.button>
+                                    ) : editCtx.editMode ? (
+                                        // EDITING MODE - No changes yet
+                                        <motion.button
+                                            key="editing-mode"
+                                            initial={{ scale: 0.8, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            exit={{ scale: 0.8, opacity: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                            onClick={() => editCtx.setEditMode(false)}
+                                            className="hidden items-center gap-1.5 rounded-full bg-blue-500 text-white px-2.5 py-1.5 text-sm font-semibold ring-1 ring-blue-300 transition-all hover:bg-blue-600 hover:scale-105 md:flex"
+                                            title="Exit editing mode (no changes to save)"
+                                        >
+                                            <Minus className="h-4 w-4" />
+                                            <span className="hidden lg:inline">Editing</span>
+                                        </motion.button>
+                                    ) : (
+                                        // NORMAL MODE - Not editing
+                                        <motion.button
+                                            key="edit-mode"
+                                            initial={{ scale: 0.8, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            exit={{ scale: 0.8, opacity: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                            onClick={() => editCtx.setEditMode(true)}
+                                            className="hidden items-center gap-1.5 rounded-full bg-gray-900 text-white px-2.5 py-1.5 text-sm font-semibold ring-1 ring-white/10 transition-all hover:bg-gray-800 hover:scale-105 md:flex"
+                                            title="Start editing content"
+                                        >
+                                            <Plus className="h-4 w-4" />
+                                            <span className="hidden lg:inline">Edit</span>
+                                        </motion.button>
+                                    )}
+                                </AnimatePresence>
+                                </>
+                            )}
+
                             {/* Switch Button */}
                             <motion.button
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.4, delay: 0.5 }}
                                 onClick={handleModeSwitch}
-                                className={`hidden rounded-full px-4 py-2 text-sm font-semibold md:flex lg:px-5 ${
+                                className={`hidden rounded-full px-2.5 py-1.5 text-sm font-semibold md:flex ${
                                     variant === 'b2b'
                                         ? 'border border-amber-600/40 bg-amber-500/5 text-amber-400 hover:bg-amber-500/10'
                                         : 'border border-gray-400 bg-[#2C2C2C] text-white hover:bg-[#3A3A3A]'
                                 }`}
                             >
-                                <span className="flex items-center gap-2 whitespace-nowrap">
+                                <span className="flex items-center gap-1.5 whitespace-nowrap">
                                     {variant === 'b2b' ? (
                                         <>
-                                            B2B <ArrowRightLeft className="h-4 w-4" /> B2C
+                                            <span className="hidden lg:inline">B2B</span>
+                                            <ArrowRightLeft className="h-4 w-4" />
+                                            <span className="hidden lg:inline">B2C</span>
                                         </>
                                     ) : (
                                         <>
-                                            B2C <ArrowRightLeft className="h-4 w-4" /> B2B
+                                            <span className="hidden lg:inline">B2C</span>
+                                            <ArrowRightLeft className="h-4 w-4" />
+                                            <span className="hidden lg:inline">B2B</span>
                                         </>
                                     )}
                                 </span>
                             </motion.button>
 
-                            {/* Login Button */}
+                            {/* Login/Logout Button - ALWAYS VISIBLE */}
                             <motion.button
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.4, delay: 0.6 }}
                                 onClick={() => {
-                                    const loginHref = variant === 'b2b' ? '/login?mode=b2b&redirect=/b2b' : '/login?mode=b2c&redirect=/home';
-                                    router.visit(loginHref);
+                                    if (user) {
+                                        router.post('/logout');
+                                    } else {
+                                        const loginHref = variant === 'b2b' ? '/login?mode=b2b&redirect=/b2b' : '/login?mode=b2c&redirect=/home';
+                                        router.visit(loginHref);
+                                    }
                                 }}
-                                className={`hidden rounded-full px-4 py-2 text-sm font-semibold md:flex lg:px-5 ${
-                                    variant === 'b2b'
-                                        ? 'border border-orange-500/60 text-orange-300 hover:bg-orange-500/10'
-                                        : 'border border-orange-600 bg-[#8B4513] text-white hover:bg-[#A0522D]'
+                                className={`hidden rounded-full px-2.5 py-1.5 text-sm font-semibold md:flex ${
+                                    user
+                                        ? 'border border-red-500/60 text-red-300 hover:bg-red-500/10'
+                                        : variant === 'b2b'
+                                          ? 'border border-orange-500/60 text-orange-300 hover:bg-orange-500/10'
+                                          : 'border border-orange-600 bg-[#8B4513] text-white hover:bg-[#A0522D]'
                                 }`}
+                                title={user ? 'Logout from your account' : 'Login to your account'}
                             >
-                                <span className="flex items-center gap-2 whitespace-nowrap">
-                                    <LogIn className="h-4 w-4" />
-                                    Login
+                                <span className="flex items-center gap-1.5 whitespace-nowrap">
+                                    {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+                                    <span>{user ? 'Logout' : 'Login'}</span>
                                 </span>
                             </motion.button>
 
@@ -445,12 +607,12 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
                                             />
 
                                             {/* Search Button - Right (Seamlessly Integrated) */}
-                                            <button
-                                                type="submit"
+                                        <button
+                                            type="submit"
                                                 className="flex h-full flex-shrink-0 items-center justify-center bg-[#F5A623] px-4 py-3 text-sm font-bold text-white transition-all duration-300 hover:bg-[#FFB340] focus:outline-none"
                                             >
                                                 Search
-                                            </button>
+                                        </button>
                                         </div>
                                     </form>
                                 </div>
@@ -495,12 +657,12 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
                                                 const isExpanded = expandedMobileItems.includes(item.label);
 
                                                 return (
-                                                    <motion.div
+                                            <motion.div
                                                         key={item.label}
-                                                        initial={{ opacity: 0, x: 20 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        transition={{ delay: index * 0.1 + 0.2 }}
-                                                    >
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.1 + 0.2 }}
+                                            >
                                                         {item.hasDropdown ? (
                                                             <div>
                                                                 <button
@@ -559,21 +721,176 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
                                                                 )}
                                                             </div>
                                                         ) : (
-                                                            <Link
-                                                                href={item.href}
+                                                    <Link
+                                                        href={item.href}
                                                                 className="group flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white transition-all duration-300 hover:bg-gray-900 sm:px-5 sm:py-4"
-                                                                onClick={closeMobileMenu}
-                                                            >
+                                                        onClick={closeMobileMenu}
+                                                    >
                                                                 {IconComponent && <IconComponent className="h-5 w-5 flex-shrink-0" />}
                                                                 <span className="whitespace-nowrap">{item.label}</span>
-                                                            </Link>
+                                                    </Link>
                                                         )}
-                                                    </motion.div>
+                                            </motion.div>
                                                 );
                                             })
                                         )}
                                     </div>
                                 </nav>
+
+                                {/* Admin CMS Controls - Mobile */}
+                                {user && isAdmin && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="border-t border-gray-800/50 bg-gradient-to-b from-gray-900/50 to-transparent"
+                                    >
+                                        <div className="px-5 py-4 sm:px-6">
+                                            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400/80">
+                                                <div className="h-1 w-1 rounded-full bg-amber-400"></div>
+                                                <span>Admin CMS</span>
+                                            </div>
+                                            
+                                            <div className="space-y-2">
+                                                {/* Restore Center Button - Mobile */}
+                                                <button
+                                                    onClick={() => {
+                                                        router.visit('/admin/restore-center');
+                                                        closeMobileMenu();
+                                                    }}
+                                                    className="group flex w-full items-center gap-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 px-4 py-3.5 text-left text-sm font-medium text-purple-300 transition-all duration-300 hover:from-purple-500/20 hover:to-pink-500/20 hover:border-purple-400/50 active:scale-[0.98]"
+                                                >
+                                                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg">
+                                                        <RotateCcw className="h-4 w-4 text-white" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="font-semibold">Restore Center</div>
+                                                        <div className="text-xs text-purple-300/70">Manage all changes</div>
+                                                    </div>
+                                                </button>
+
+                                                {/* Edit/Save Button - Mobile - Transforms based on state */}
+                                                <AnimatePresence mode="wait">
+                                                    {editCtx.dirty ? (
+                                                        // SAVE MODE - Has unsaved changes
+                                                        <motion.button
+                                                            key="save-mode-mobile"
+                                                            initial={{ scale: 0.95, opacity: 0 }}
+                                                            animate={{ scale: 1, opacity: 1 }}
+                                                            exit={{ scale: 0.95, opacity: 0 }}
+                                                            transition={{ duration: 0.2 }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                e.preventDefault();
+                                                                
+                                                                // Confirmation dialog
+                                                                const confirmed = window.confirm(
+                                                                    '💾 Save All Changes?\n\n' +
+                                                                    'This will save all your modifications (text and images) to the database.\n\n' +
+                                                                    'Are you sure you want to save these changes?'
+                                                                );
+                                                                
+                                                                if (!confirmed) {
+                                                                    console.log('❌ Save cancelled by user');
+                                                                    return;
+                                                                }
+                                                                
+                                                                console.log('💾 Saving all changes...');
+                                                                
+                                                                // Dispatch global save event
+                                                                window.dispatchEvent(new CustomEvent('cms:flush-save'));
+                                                                
+                                                                // Clear dirty flag
+                                                                editCtx.clearDirty();
+                                                                
+                                                                // Reload to get fresh data
+                                                                router.reload({
+                                                                    only: ['sections'],
+                                                                    onSuccess: () => {
+                                                                        // Show success notification (mobile responsive)
+                                                                        const notification = document.createElement('div');
+                                                                        notification.className = 'fixed top-20 left-1/2 -translate-x-1/2 z-[99999] rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-3 text-white shadow-2xl max-w-[90vw] sm:left-auto sm:right-4 sm:translate-x-0 sm:px-6 sm:py-4 sm:max-w-md';
+                                                                        notification.innerHTML = `
+                                                                            <div class="flex items-center gap-2 sm:gap-3">
+                                                                                <svg class="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                                                </svg>
+                                                                                <div class="flex-1">
+                                                                                    <div class="text-sm font-bold sm:text-base">✅ Berhasil Disimpan!</div>
+                                                                                    <div class="text-xs opacity-90 sm:text-sm">Semua perubahan sudah tersimpan</div>
+                                                                                </div>
+                                                                            </div>
+                                                                        `;
+                                                                        document.body.appendChild(notification);
+                                                                        setTimeout(() => {
+                                                                            notification.remove();
+                                                                        }, 3000);
+                                                                        
+                                                                        // Close mobile menu after save
+                                                                        closeMobileMenu();
+                                                                    }
+                                                                });
+                                                            }}
+                                                            className="group flex w-full items-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3.5 text-left text-sm font-bold text-white shadow-lg transition-all duration-300 hover:from-amber-400 hover:to-orange-400 active:scale-[0.98] animate-pulse"
+                                                        >
+                                                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/20 shadow-lg ring-2 ring-white/30">
+                                                                <Save className="h-4 w-4 text-white" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="font-bold">Save Changes</div>
+                                                                <div className="text-xs text-white/80">You have unsaved work!</div>
+                                                            </div>
+                                                        </motion.button>
+                                                    ) : editCtx.editMode ? (
+                                                        // EDITING MODE - No changes yet
+                                                        <motion.button
+                                                            key="editing-mode-mobile"
+                                                            initial={{ scale: 0.95, opacity: 0 }}
+                                                            animate={{ scale: 1, opacity: 1 }}
+                                                            exit={{ scale: 0.95, opacity: 0 }}
+                                                            transition={{ duration: 0.2 }}
+                                                            onClick={() => {
+                                                                editCtx.setEditMode(false);
+                                                                closeMobileMenu();
+                                                            }}
+                                                            className="group flex w-full items-center gap-3 rounded-xl bg-blue-500/10 border border-blue-500/30 px-4 py-3.5 text-left text-sm font-medium text-blue-300 transition-all duration-300 hover:bg-blue-500/20 hover:border-blue-400/50 active:scale-[0.98]"
+                                                        >
+                                                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-500 shadow-lg">
+                                                                <Minus className="h-4 w-4 text-white" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="font-semibold">Editing Mode ON</div>
+                                                                <div className="text-xs text-blue-300/70">Tap to exit</div>
+                                                            </div>
+                                                        </motion.button>
+                                                    ) : (
+                                                        // NORMAL MODE - Not editing
+                                                        <motion.button
+                                                            key="edit-mode-mobile"
+                                                            initial={{ scale: 0.95, opacity: 0 }}
+                                                            animate={{ scale: 1, opacity: 1 }}
+                                                            exit={{ scale: 0.95, opacity: 0 }}
+                                                            transition={{ duration: 0.2 }}
+                                                            onClick={() => {
+                                                                editCtx.setEditMode(true);
+                                                                closeMobileMenu();
+                                                            }}
+                                                            className="group flex w-full items-center gap-3 rounded-xl bg-gray-800/50 border border-gray-700/50 px-4 py-3.5 text-left text-sm font-medium text-white transition-all duration-300 hover:bg-gray-800 hover:border-gray-600 active:scale-[0.98]"
+                                                        >
+                                                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-700 shadow-lg">
+                                                                <Plus className="h-4 w-4 text-white" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="font-semibold">Start Editing</div>
+                                                                <div className="text-xs text-gray-400">Modify content</div>
+                                                            </div>
+                                                        </motion.button>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
 
                                 {/* Mobile Footer */}
                                 <motion.div
@@ -585,14 +902,23 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
                                     {/* Login Button - Mobile */}
                                     <button
                                         onClick={() => {
-                                            const loginHref = variant === 'b2b' ? '/login?mode=b2b&redirect=/b2b' : '/login?mode=b2c&redirect=/home';
-                                            router.visit(loginHref);
+                                            if (user) {
+                                                router.post('/logout');
+                                            } else {
+                                                const loginHref =
+                                                    variant === 'b2b' ? '/login?mode=b2b&redirect=/b2b' : '/login?mode=b2c&redirect=/home';
+                                                router.visit(loginHref);
+                                            }
                                             closeMobileMenu();
                                         }}
-                                        className="mb-5 flex w-full items-center justify-center gap-2 rounded-lg border border-orange-600 bg-[#8B4513] px-5 py-3.5 text-sm font-medium text-white transition-all duration-300 hover:bg-[#A0522D] focus:ring-2 focus:ring-orange-600/50 focus:outline-none"
+                                        className={`mb-5 flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3.5 text-sm font-medium transition-all duration-300 focus:ring-2 focus:outline-none ${
+                                            user
+                                                ? 'border border-red-500/60 text-red-300 hover:bg-red-500/10 focus:ring-red-600/50'
+                                                : 'border border-orange-600 bg-[#8B4513] text-white hover:bg-[#A0522D] focus:ring-orange-600/50'
+                                        }`}
                                     >
-                                        <LogIn className="h-4 w-4" />
-                                        Login
+                                        {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+                                        {user ? 'Logout' : 'Login'}
                                     </button>
 
                                     {/* Copyright */}
@@ -607,6 +933,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
                     </motion.div>
                 )}
             </AnimatePresence>
+
         </>
     );
 };

@@ -5,8 +5,6 @@ export interface HeaderProps {
 export interface NavigationItem {
     label: string;
     href: string;
-    icon?: string;
-    hasDropdown?: boolean;
     children?: NavigationItem[];
 }
 

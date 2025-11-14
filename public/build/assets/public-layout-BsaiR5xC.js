@@ -1,1 +1,0 @@
-import{j as s}from"./app-D9SHTJxu.js";import{G as r}from"./GlobalHeader-NYy5hhLB.js";function t({children:a}){return s.jsxs("div",{className:"min-h-screen bg-white",children:[s.jsx(r,{variant:"b2c"}),s.jsx("main",{className:"w-full",children:a})]})}export{t as P};
