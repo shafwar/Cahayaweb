@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Section;
 use App\Models\SectionSnapshot;
+use App\Support\SectionDefaults;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -264,9 +265,16 @@ class AdminController extends Controller
                     continue;
                 }
 
+                if (SectionDefaults::has($key)) {
+                    Section::where('key', $key)->delete();
+                    $restored++;
+                    continue;
+                }
+
                 if (Section::restoreFromSnapshot($key)) {
                     $restored++;
                 } else {
+                    Section::where('key', $key)->delete();
                     $removed++;
                 }
             }
@@ -279,6 +287,7 @@ class AdminController extends Controller
     {
         return SectionSnapshot::latestPayload()->keys()
             ->merge(Section::pluck('key'))
+            ->merge(collect(array_keys(SectionDefaults::all())))
             ->filter()
             ->unique();
     }
@@ -301,7 +310,21 @@ class AdminController extends Controller
             )
             ->pluck('key');
 
-        return $snapshotKeys->merge($liveKeys)->filter()->unique()->values()->all();
+        $defaultKeys = collect(SectionDefaults::all())
+            ->filter(function ($default) use ($type) {
+                return $type === 'image'
+                    ? ! empty($default['public_path'])
+                    : isset($default['content']);
+            })
+            ->keys();
+
+        return $snapshotKeys
+            ->merge($liveKeys)
+            ->merge($defaultKeys)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 }
 

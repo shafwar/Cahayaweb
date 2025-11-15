@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\SectionDefaults;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
@@ -70,10 +71,14 @@ class Section extends Model
     {
         $live = static::all()->mapWithKeys(fn ($section) => [$section->key => $section]);
         $snapshot = SectionSnapshot::latestPayload();
+        $defaults = SectionDefaults::all();
 
-        $keys = $snapshot->keys()->merge($live->keys())->unique();
+        $keys = $snapshot->keys()
+            ->merge($live->keys())
+            ->merge(collect(array_keys($defaults)))
+            ->unique();
 
-        return $keys->mapWithKeys(function ($key) use ($live, $snapshot) {
+        return $keys->mapWithKeys(function ($key) use ($live, $snapshot, $defaults) {
             $section = $live->get($key);
             $payload = $snapshot->get($key);
 
@@ -84,6 +89,12 @@ class Section extends Model
             if ($imagePath) {
                 $timestamp = optional($section?->updated_at)->timestamp ?? time();
                 $imageUrl = asset('storage/' . $imagePath) . '?v=' . $timestamp;
+            } elseif (isset($defaults[$key]) && ($url = SectionDefaults::imageUrl($key))) {
+                $imageUrl = $url;
+            }
+
+            if (! $content && isset($defaults[$key]['content'])) {
+                $content = $defaults[$key]['content'];
             }
 
             return [$key => [
