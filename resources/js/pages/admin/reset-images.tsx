@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
@@ -25,18 +26,9 @@ export default function AdminResetImagesPage() {
         setResult(null);
 
         try {
-            const response = await fetch('/admin/reset-to-default', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-                body: JSON.stringify({ key }),
-            });
+            const { data } = await axios.post('/admin/reset-to-default', { key });
 
-            const data = await response.json();
-
-            if (response.ok) {
+            if (data?.status === 'ok') {
                 setResult({
                     status: 'success',
                     message: `✅ ${name} berhasil direset ke original!`,
@@ -47,16 +39,12 @@ export default function AdminResetImagesPage() {
                     window.location.href = window.location.href.split('?')[0] + '?t=' + Date.now();
                 }, 1000);
             } else {
-                setResult({
-                    status: 'error',
-                    message: `❌ Gagal reset: ${data.message || 'Unknown error'}`,
-                });
-                setIsResetting(false);
+                throw new Error(data?.message || 'Unknown error');
             }
-        } catch (error) {
+        } catch (error: any) {
             setResult({
                 status: 'error',
-                message: `❌ Error: ${(error as any).message}`,
+                message: `❌ Gagal reset: ${error?.response?.data?.message || error?.message}`,
             });
             setIsResetting(false);
         }
@@ -77,37 +65,24 @@ export default function AdminResetImagesPage() {
         setResult(null);
 
         try {
-            const response = await fetch('/admin/reset-all-heroes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-            });
+            const { data } = await axios.post('/admin/reset-all-heroes');
 
-            const data = await response.json();
-
-            if (response.ok) {
+            if (data?.status === 'ok') {
                 setResult({
                     status: 'success',
                     message: `✅ Semua hero images berhasil direset ke original! (${data.deleted} sections deleted)`,
                 });
 
-                // Reload after 1.5 seconds
                 setTimeout(() => {
                     window.location.href = '/home?t=' + Date.now();
                 }, 1500);
             } else {
-                setResult({
-                    status: 'error',
-                    message: `❌ Gagal reset: ${data.message || 'Unknown error'}`,
-                });
-                setIsResetting(false);
+                throw new Error(data?.message || 'Unknown error');
             }
-        } catch (error) {
+        } catch (error: any) {
             setResult({
                 status: 'error',
-                message: `❌ Error: ${(error as any).message}`,
+                message: `❌ Gagal reset: ${error?.response?.data?.message || error?.message}`,
             });
             setIsResetting(false);
         }
