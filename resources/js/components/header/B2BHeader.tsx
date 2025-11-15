@@ -1,4 +1,5 @@
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
+import { logout } from '@/utils/logout';
 import { Logo } from './components/Logo';
 import { MobileMenu } from './components/MobileMenu';
 import { Navigation } from './components/Navigation';
@@ -10,18 +11,6 @@ import { HeaderProps } from './types';
 export function B2BHeader({ className = '' }: HeaderProps) {
     const { isOpen, toggleMenu, closeMenu } = useMobileMenu();
     const { isScrolled, opacity, blurIntensity, scrollY } = useSmoothScroll({ threshold: 10, hideOnScrollDown: false });
-    const logout = () => {
-        const token = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-        router.post(
-            '/logout',
-            {},
-            {
-                headers: token ? { 'X-CSRF-TOKEN': token } : undefined,
-                preserveScroll: false,
-                onSuccess: () => router.visit('/'),
-            },
-        );
-    };
 
     // Parallax shift: small translateY based on scroll, capped for stability
     const parallaxShift = Math.min(12, Math.max(0, scrollY * 0.08));

@@ -1,4 +1,5 @@
 import { useEditMode } from '@/components/cms';
+import { logout } from '@/utils/logout';
 import { Link, router, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -66,19 +67,6 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
 
     // Get navigation items - menggunakan constants
     const navigationItems = variant === 'b2c' ? B2C_NAVIGATION_ITEMS : [];
-
-    const logout = () => {
-        const token = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-        router.post(
-            '/logout',
-            {},
-            {
-                headers: token ? { 'X-CSRF-TOKEN': token } : undefined,
-                preserveScroll: false,
-                onSuccess: () => router.visit('/'),
-            },
-        );
-    };
 
     // Icon mapping
     const iconMap: { [key: string]: React.ComponentType<{ className?: string; size?: number }> } = {

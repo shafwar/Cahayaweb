@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\SectionSnapshot;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,12 @@ class Section extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => SectionSnapshot::write());
+        static::deleted(fn () => SectionSnapshot::write());
+    }
 
     /**
      * Get the revisions for the section.
