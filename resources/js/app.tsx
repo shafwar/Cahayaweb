@@ -7,66 +7,28 @@ import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
-const csrfToken =
-    typeof document !== 'undefined'
-        ? document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? null
-        : null;
 
-if (typeof window !== 'undefined') {
-    const useHttps = window.location.protocol === 'https:';
-
-    const normalizeUrl = (url: string): string => {
-        if (useHttps && url.startsWith('http://')) {
-            return url.replace('http://', 'https://');
-        }
-
-        return url;
-    };
-
-    // Override fetch so every request stays on HTTPS and always carries the CSRF token header.
+// Force HTTPS for all requests to prevent Mixed Content errors
+if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    // Override fetch to force HTTPS
     const originalFetch = window.fetch;
-    window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
-        let resource = input;
-
-        if (typeof input === 'string') {
-            resource = normalizeUrl(input);
-        } else if (input instanceof Request) {
-            resource = new Request(normalizeUrl(input.url), input);
+    window.fetch = function (url, options) {
+        if (typeof url === 'string' && url.startsWith('http://')) {
+            url = url.replace('http://', 'https://');
+        } else if (url instanceof Request && url.url.startsWith('http://')) {
+            url = new Request(url.url.replace('http://', 'https://'), url);
         }
 
-        const nextInit: RequestInit = { ...init };
-        const headers = new Headers(init?.headers || {});
-
-        if (csrfToken && !headers.has('X-CSRF-TOKEN')) {
-            headers.set('X-CSRF-TOKEN', csrfToken);
-        }
-
-        nextInit.headers = headers;
-        nextInit.credentials = init?.credentials ?? 'same-origin';
-
-        return originalFetch(resource, nextInit);
+        return originalFetch(url as RequestInfo | URL, options);
     };
 
-    // Override XMLHttpRequest to force HTTPS and attach the CSRF header for legacy calls (Axios, etc.).
+    // Override XMLHttpRequest to force HTTPS
     const originalXHROpen = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function (method, url, ...args) {
-        if (typeof url === 'string') {
-            url = normalizeUrl(url);
+        if (typeof url === 'string' && url.startsWith('http://')) {
+            url = url.replace('http://', 'https://');
         }
         return originalXHROpen.call(this, method, url, ...args);
-    };
-
-    const originalXHRSend = XMLHttpRequest.prototype.send;
-    XMLHttpRequest.prototype.send = function (body) {
-        if (csrfToken) {
-            try {
-                this.setRequestHeader('X-CSRF-TOKEN', csrfToken);
-            } catch (error) {
-                // Ignore if the request has already been sent or headers are restricted.
-            }
-        }
-
-        return originalXHRSend.call(this, body);
     };
 }
 
