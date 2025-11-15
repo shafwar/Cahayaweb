@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Arr;
 
 class Section extends Model
 {
+    protected static bool $snapshotsPaused = false;
     protected $fillable = [
         'key',
         'content',
@@ -22,18 +24,35 @@ class Section extends Model
 
     protected static function booted(): void
     {
-        static::saved(fn () => static::snapshot());
-        static::deleted(fn () => static::snapshot());
+        static::saved(function () {
+            if (! static::$snapshotsPaused) {
+                static::snapshot();
+            }
+        });
     }
 
     protected static function snapshot(): void
     {
         $payload = static::orderBy('key')
             ->get(['key', 'content', 'image'])
-            ->map(fn (Section $section) => $section->only(['key', 'content', 'image']))
+            ->mapWithKeys(fn (Section $section) => [
+                $section->key => $section->only(['key', 'content', 'image']),
+            ])
             ->all();
 
         SectionSnapshot::savePayload($payload);
+    }
+
+    public static function withoutSnapshots(callable $callback): void
+    {
+        static::$snapshotsPaused = true;
+
+        try {
+            $callback();
+        } finally {
+            static::$snapshotsPaused = false;
+            static::snapshot();
+        }
     }
 
     /**
@@ -49,23 +68,51 @@ class Section extends Model
      */
     public static function getAllSections(): array
     {
-        $sections = static::all();
+        $live = static::all()->mapWithKeys(fn ($section) => [$section->key => $section]);
+        $snapshot = SectionSnapshot::latestPayload();
 
-        if ($sections->isEmpty()) {
-            $sections = SectionSnapshot::latestPayload()->mapInto(static::class);
-        }
+        $keys = $snapshot->keys()->merge($live->keys())->unique();
 
-        return $sections->mapWithKeys(function ($section) {
+        return $keys->mapWithKeys(function ($key) use ($live, $snapshot) {
+            $section = $live->get($key);
+            $payload = $snapshot->get($key);
+
+            $content = $section->content ?? Arr::get($payload, 'content');
+            $imagePath = $section->image ?? Arr::get($payload, 'image');
+
             $imageUrl = null;
-            if ($section->image) {
-                $imageUrl = asset('storage/' . $section->image) . '?v=' . now()->timestamp;
+            if ($imagePath) {
+                $timestamp = optional($section?->updated_at)->timestamp ?? time();
+                $imageUrl = asset('storage/' . $imagePath) . '?v=' . $timestamp;
             }
 
-            return [$section->key => [
-                'content' => $section->content,
+            return [$key => [
+                'content' => $content,
                 'image' => $imageUrl,
             ]];
+        })->filter(function ($value) {
+            return $value['content'] !== null || $value['image'] !== null;
         })->toArray();
+    }
+
+    public static function restoreFromSnapshot(string $key): bool
+    {
+        $payload = SectionSnapshot::dataForKey($key);
+
+        if (! $payload) {
+            Section::where('key', $key)->delete();
+            return false;
+        }
+
+        static::updateOrCreate(
+            ['key' => $key],
+            [
+                'content' => $payload['content'] ?? null,
+                'image' => $payload['image'] ?? null,
+            ],
+        );
+
+        return true;
     }
 
     /**

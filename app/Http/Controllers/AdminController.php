@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Section;
+use App\Models\SectionSnapshot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -120,13 +121,15 @@ class AdminController extends Controller
             'key' => ['required', 'string', 'max:255'],
         ]);
 
-        // Delete the section to fallback to original/default
-        $deleted = Section::where('key', $validated['key'])->delete();
+        [$restored, $removed] = $this->restoreKeys([$validated['key']]);
 
         return response()->json([
             'status' => 'ok',
-            'message' => 'Successfully reset to original/default',
-            'deleted' => $deleted,
+            'message' => $restored > 0
+                ? 'Successfully restored from latest snapshot'
+                : 'No snapshot available; key removed to use factory default',
+            'restored' => $restored,
+            'removed' => $removed,
         ]);
     }
 
@@ -135,13 +138,15 @@ class AdminController extends Controller
      */
     public function resetAllHeroes(Request $request): JsonResponse
     {
-        // Delete all hero image sections
-        $deleted = Section::where('key', 'LIKE', 'home.hero.%.image')->delete();
+        $keys = $this->knownKeys()->filter(fn ($key) => Str::startsWith($key, 'home.hero.') && Str::endsWith($key, '.image'))->values()->all();
+
+        [$restored, $removed] = $this->restoreKeys($keys);
 
         return response()->json([
             'status' => 'ok',
-            'message' => 'Successfully reset all hero images to original',
-            'deleted' => $deleted,
+            'message' => 'Successfully reset all hero images',
+            'restored' => $restored,
+            'removed' => $removed,
         ]);
     }
 
@@ -190,12 +195,15 @@ class AdminController extends Controller
      */
     public function resetAllChanges(Request $request): JsonResponse
     {
-        $deleted = Section::query()->delete();
+        $keys = $this->knownKeys()->all();
+
+        [$restored, $removed] = $this->restoreKeys($keys);
 
         return response()->json([
             'status' => 'ok',
-            'message' => 'Successfully reset all changes to original',
-            'deleted' => $deleted,
+            'message' => 'Successfully restored all changes from snapshot',
+            'restored' => $restored,
+            'removed' => $removed,
         ]);
     }
 
@@ -209,12 +217,15 @@ class AdminController extends Controller
         ]);
 
         $page = strtolower($validated['page']);
-        $deleted = Section::where('key', 'LIKE', $page . '.%')->delete();
+        $keys = $this->knownKeys()->filter(fn ($key) => Str::startsWith($key, "{$page}."))->values()->all();
+
+        [$restored, $removed] = $this->restoreKeys($keys);
 
         return response()->json([
             'status' => 'ok',
             'message' => "Successfully reset all changes in {$page} page",
-            'deleted' => $deleted,
+            'restored' => $restored,
+            'removed' => $removed,
         ]);
     }
 
@@ -227,17 +238,70 @@ class AdminController extends Controller
             'type' => ['required', 'in:text,image'],
         ]);
 
-        if ($validated['type'] === 'image') {
-            $deleted = Section::whereNotNull('image')->delete();
-        } else {
-            $deleted = Section::whereNotNull('content')->delete();
-        }
+        $keys = $this->keysByType($validated['type']);
+
+        [$restored, $removed] = $this->restoreKeys($keys);
 
         return response()->json([
             'status' => 'ok',
             'message' => "Successfully reset all {$validated['type']} changes",
-            'deleted' => $deleted,
+            'restored' => $restored,
+            'removed' => $removed,
         ]);
+    }
+
+    /**
+     * Restore multiple section keys from snapshot (or remove if missing)
+     */
+    private function restoreKeys(array $keys): array
+    {
+        $restored = 0;
+        $removed = 0;
+
+        Section::withoutSnapshots(function () use ($keys, &$restored, &$removed) {
+            foreach (array_unique($keys) as $key) {
+                if (! $key) {
+                    continue;
+                }
+
+                if (Section::restoreFromSnapshot($key)) {
+                    $restored++;
+                } else {
+                    $removed++;
+                }
+            }
+        });
+
+        return [$restored, $removed];
+    }
+
+    private function knownKeys(): \Illuminate\Support\Collection
+    {
+        return SectionSnapshot::latestPayload()->keys()
+            ->merge(Section::pluck('key'))
+            ->filter()
+            ->unique();
+    }
+
+    private function keysByType(string $type): array
+    {
+        $snapshotKeys = SectionSnapshot::latestPayload()
+            ->filter(function ($payload) use ($type) {
+                return $type === 'image'
+                    ? ! empty($payload['image'])
+                    : ! empty($payload['content']);
+            })
+            ->keys();
+
+        $liveKeys = Section::query()
+            ->when(
+                $type === 'image',
+                fn ($query) => $query->whereNotNull('image'),
+                fn ($query) => $query->whereNotNull('content')
+            )
+            ->pluck('key');
+
+        return $snapshotKeys->merge($liveKeys)->filter()->unique()->values()->all();
     }
 }
 

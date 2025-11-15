@@ -13,16 +13,30 @@ class SectionSnapshot extends Model
         'payload' => 'array',
     ];
 
+    protected static ?Collection $cachedPayload = null;
+
     public static function latestPayload(): Collection
     {
+        if (static::$cachedPayload instanceof Collection) {
+            return static::$cachedPayload;
+        }
+
         $snapshot = static::query()->latest()->value('payload') ?? [];
 
-        return collect($snapshot);
+        return static::$cachedPayload = collect($snapshot)->mapWithKeys(function ($entry) {
+            return [$entry['key'] ?? null => $entry];
+        })->filter(fn ($entry, $key) => $key !== null);
     }
 
     public static function savePayload(array $payload): void
     {
-        static::create(['payload' => $payload]);
+        static::create(['payload' => array_values($payload)]);
+        static::$cachedPayload = null;
+    }
+
+    public static function dataForKey(string $key): ?array
+    {
+        return static::latestPayload()->get($key);
     }
 }
 
