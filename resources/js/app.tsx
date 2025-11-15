@@ -1,5 +1,6 @@
 import '../css/app.css';
 
+import axios from 'axios';
 import { createInertiaApp, type PageProps } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
@@ -7,6 +8,16 @@ import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
+
+if (typeof window !== 'undefined') {
+    const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+
+    if (csrfToken) {
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+    }
+
+    axios.defaults.withCredentials = true;
+}
 
 // Force HTTPS for all requests to prevent Mixed Content errors
 if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
