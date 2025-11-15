@@ -45,12 +45,24 @@ class HandleInertiaRequests extends Middleware
         $ziggyArray = $ziggy->toArray();
         $ziggyArray['url'] = 'https://cahayaweb-production.up.railway.app';
 
+        $user = $request->user();
+        $isAdmin = false;
+        if ($user) {
+            $isAdmin = ($user->role ?? null) === 'admin'
+                || in_array($user->email, config('app.admin_emails', []), true);
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'is_admin' => $isAdmin,
+                ] : null,
             ],
             'ziggy' => fn (): array => [
                 ...$ziggyArray,

@@ -124,9 +124,9 @@ return [
     ],
 
     // Admin allowlist for inline CMS editing (IsAdmin middleware fallback)
-    'admin_emails' => [
-        // Add your admin emails here
-        'test@example.com',
-    ],
+    'admin_emails' => array_values(array_filter(array_map(
+        static fn (string $email) => trim($email),
+        explode(',', env('APP_ADMIN_EMAILS', 'test@example.com'))
+    ))),
 
 ];

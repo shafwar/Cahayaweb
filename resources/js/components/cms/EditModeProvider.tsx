@@ -22,9 +22,7 @@ export function useEditMode() {
 export default function EditModeProvider({ children }: { children: React.ReactNode }) {
     const page = usePage();
     const user = (page.props as any)?.auth?.user;
-    const role = user?.role;
-    // Consider any authenticated user as admin for UI controls; server still enforces is_admin on save
-    const isAdmin = !!user || role === 'admin' || ['admin@cahayaweb.local', 'owner@cahayaweb.local', 'test@example.com'].includes(user?.email);
+    const isAdmin = Boolean(user?.is_admin);
 
     const [editMode, setEditMode] = useState(false);
     const [dirty, setDirty] = useState(false);

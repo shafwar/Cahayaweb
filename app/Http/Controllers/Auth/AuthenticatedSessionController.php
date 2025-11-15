@@ -9,14 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
      * Show the login page.
      */
-    public function create(Request $request): Response
+    public function create(Request $request): \Inertia\Response
     {
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
@@ -29,18 +29,20 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): Response
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        $redirect = $request->input('redirect');
-        if (is_string($redirect) && strlen($redirect) > 0) {
-            return redirect()->to($redirect);
+        $redirectTarget = $this->determineRedirectTarget($request);
+
+        // Inertia form submissions expect a location response instead of a plain redirect
+        if ($request->header('X-Inertia')) {
+            return Inertia::location($redirectTarget);
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended($redirectTarget);
     }
 
     /**
@@ -54,5 +56,24 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    protected function determineRedirectTarget(Request $request): string
+    {
+        $redirect = $request->input('redirect');
+
+        if (is_string($redirect) && str_starts_with($redirect, '/')) {
+            return $redirect;
+        }
+
+        $mode = $request->input('mode');
+        if ($mode === 'b2b') {
+            return route('b2b.index', absolute: false);
+        }
+        if ($mode === 'b2c') {
+            return route('b2c.home', absolute: false);
+        }
+
+        return route('dashboard', absolute: false);
     }
 }

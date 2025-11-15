@@ -53,10 +53,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
         const ctx = useEditMode();
         isAdmin = ctx.isAdmin;
     } catch {
-        // fallback: simple check by email allowlist or role from props if available
-        const role = (user as any)?.role;
-        const allow = ['test@example.com'];
-        isAdmin = role === 'admin' || (user && allow.includes(user.email));
+        isAdmin = Boolean((user as any)?.is_admin);
     }
     const editCtx = (() => {
         try {
