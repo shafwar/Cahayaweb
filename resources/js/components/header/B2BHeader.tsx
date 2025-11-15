@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { Logo } from './components/Logo';
 import { MobileMenu } from './components/MobileMenu';
 import { Navigation } from './components/Navigation';
@@ -10,6 +10,18 @@ import { HeaderProps } from './types';
 export function B2BHeader({ className = '' }: HeaderProps) {
     const { isOpen, toggleMenu, closeMenu } = useMobileMenu();
     const { isScrolled, opacity, blurIntensity, scrollY } = useSmoothScroll({ threshold: 10, hideOnScrollDown: false });
+    const logout = () => {
+        const token = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+        router.post(
+            '/logout',
+            {},
+            {
+                headers: token ? { 'X-CSRF-TOKEN': token } : undefined,
+                preserveScroll: false,
+                onSuccess: () => router.visit('/'),
+            },
+        );
+    };
 
     // Parallax shift: small translateY based on scroll, capped for stability
     const parallaxShift = Math.min(12, Math.max(0, scrollY * 0.08));
@@ -45,13 +57,12 @@ export function B2BHeader({ className = '' }: HeaderProps) {
                             <Link href="/b2b/profile" className="font-medium text-gray-700 transition-colors duration-200 hover:text-gray-900">
                                 Profile
                             </Link>
-                            <Link
-                                href="/auth/logout"
-                                method="post"
+                            <button
+                                onClick={logout}
                                 className="rounded-md bg-red-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-red-700"
                             >
                                 Logout
-                            </Link>
+                            </button>
                         </div>
 
                         {/* Mobile Menu Button */}

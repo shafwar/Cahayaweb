@@ -67,6 +67,19 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
     // Get navigation items - menggunakan constants
     const navigationItems = variant === 'b2c' ? B2C_NAVIGATION_ITEMS : [];
 
+    const logout = () => {
+        const token = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+        router.post(
+            '/logout',
+            {},
+            {
+                headers: token ? { 'X-CSRF-TOKEN': token } : undefined,
+                preserveScroll: false,
+                onSuccess: () => router.visit('/'),
+            },
+        );
+    };
+
     // Icon mapping
     const iconMap: { [key: string]: React.ComponentType<{ className?: string; size?: number }> } = {
         Home: Home,
@@ -455,7 +468,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
                                 transition={{ duration: 0.4, delay: 0.6 }}
                                 onClick={() => {
                                     if (user) {
-                                        router.post('/logout');
+                                        logout();
                                     } else {
                                         const loginHref = variant === 'b2b' ? '/login?mode=b2b&redirect=/b2b' : '/login?mode=b2c&redirect=/home';
                                         router.visit(loginHref);
@@ -900,7 +913,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', forceLight
                                     <button
                                         onClick={() => {
                                             if (user) {
-                                                router.post('/logout');
+                                                logout();
                                             } else {
                                                 const loginHref =
                                                     variant === 'b2b' ? '/login?mode=b2b&redirect=/b2b' : '/login?mode=b2c&redirect=/home';

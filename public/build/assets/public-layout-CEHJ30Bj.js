@@ -1,0 +1,1 @@
+import{j as s}from"./app-B4QgwHz8.js";import{E as e,G as i,a as r}from"./GlobalHeader-iZh3hS0R.js";function n({children:a}){return s.jsx(e,{children:s.jsxs("div",{className:"min-h-screen bg-white",children:[s.jsx(i,{variant:"b2c"}),s.jsx("main",{className:"w-full",children:a}),s.jsx(r,{})]})})}export{n as P};
