@@ -1,1 +1,0 @@
-import{b as t}from"./inertia-B5_hUOTa.js";let e=!1;function n(){if(e)return;e=!0;const o=document.querySelector('meta[name="csrf-token"]')?.content;t.post("/logout",{},{headers:o?{"X-CSRF-TOKEN":o}:void 0,preserveScroll:!1,onFinish:()=>{e=!1}})}export{n as l};

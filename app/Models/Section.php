@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use App\Support\SectionSnapshot;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class Section extends Model
@@ -22,8 +22,18 @@ class Section extends Model
 
     protected static function booted(): void
     {
-        static::saved(fn () => SectionSnapshot::write());
-        static::deleted(fn () => SectionSnapshot::write());
+        static::saved(fn () => static::snapshot());
+        static::deleted(fn () => static::snapshot());
+    }
+
+    protected static function snapshot(): void
+    {
+        $payload = static::orderBy('key')
+            ->get(['key', 'content', 'image'])
+            ->map(fn (Section $section) => $section->only(['key', 'content', 'image']))
+            ->all();
+
+        SectionSnapshot::savePayload($payload);
     }
 
     /**
@@ -39,13 +49,18 @@ class Section extends Model
      */
     public static function getAllSections(): array
     {
-        return static::all()->mapWithKeys(function ($section) {
+        $sections = static::all();
+
+        if ($sections->isEmpty()) {
+            $sections = SectionSnapshot::latestPayload()->mapInto(static::class);
+        }
+
+        return $sections->mapWithKeys(function ($section) {
             $imageUrl = null;
             if ($section->image) {
-                // Add timestamp to bust browser cache
-                $imageUrl = asset('storage/' . $section->image) . '?v=' . $section->updated_at->timestamp;
+                $imageUrl = asset('storage/' . $section->image) . '?v=' . now()->timestamp;
             }
-            
+
             return [$section->key => [
                 'content' => $section->content,
                 'image' => $imageUrl,
