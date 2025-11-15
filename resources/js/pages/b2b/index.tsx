@@ -45,7 +45,7 @@ function LiveCounter({ end, label, delay = 0 }: { end: number; label: string; de
     }, [started, end]);
 
     return (
-        <div className="flex items-center gap-2 text-xs sm:text-sm">
+        <div className="flex items-center gap-2 text-center text-xs sm:text-left sm:text-sm">
             <div className="h-2 w-2 rounded-full bg-amber-400"></div>
             <span>
                 <motion.span
@@ -360,7 +360,7 @@ export default function CahayaAnbiyaHero() {
             <Head title="Cahaya Anbiya - Premium Hajj & Umrah Services" />
 
             {/* Hero Section - Improved Spacing & Proportions */}
-            <section className="relative z-[1] flex min-h-screen items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8">
+            <section className="relative z-[1] flex min-h-[100svh] items-center justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
                 {/* Floating Elements Animation */}
                 <div className="pointer-events-none absolute inset-0">
                     <motion.div
@@ -444,7 +444,7 @@ export default function CahayaAnbiyaHero() {
                 </div>
 
                 {/* Content Container - Better Proportions */}
-                <div className="relative z-[2] mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
+                <div className="relative z-[2] mx-auto w-full max-w-5xl px-2 text-center sm:px-4 lg:px-8">
                     <motion.div
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -456,7 +456,7 @@ export default function CahayaAnbiyaHero() {
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1, delay: 0.3 }}
-                            className="text-4xl leading-tight font-bold tracking-wide text-white sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl"
+                            className="text-3xl leading-tight font-bold tracking-wide text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
                             style={{
                                 fontFamily: 'Playfair Display, serif',
                                 textShadow: '3px 6px 12px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.3)',
@@ -471,7 +471,7 @@ export default function CahayaAnbiyaHero() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1, delay: 0.6 }}
-                            className="mx-auto max-w-3xl px-4 text-base leading-relaxed font-light text-white sm:text-lg md:text-xl lg:text-2xl"
+                            className="mx-auto max-w-3xl px-2 text-base leading-relaxed font-light text-white sm:px-4 sm:text-lg md:text-xl"
                             style={{
                                 fontFamily: 'Poppins, sans-serif',
                                 textShadow: '2px 4px 8px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.2)',
@@ -498,18 +498,18 @@ export default function CahayaAnbiyaHero() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1, delay: 1.2 }}
-                            className="flex flex-col items-center justify-center gap-3 pt-6 sm:flex-row sm:gap-4 sm:pt-4"
+                            className="flex w-full flex-col items-center justify-center gap-3 pt-6 sm:w-auto sm:flex-row sm:gap-4 sm:pt-4"
                         >
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <RippleButton
-                                        className="transform rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:from-amber-600 hover:to-amber-700 hover:shadow-xl sm:px-8 sm:py-4 sm:text-lg"
+                                        className="w-full transform rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:from-amber-600 hover:to-amber-700 hover:shadow-xl sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                                         style={{ fontFamily: 'Poppins, sans-serif' }}
                                     >
                                         Free Consultation
                                     </RippleButton>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-md">
+                                <DialogContent className="w-[calc(100vw-2rem)] max-w-md sm:max-w-lg">
                                     <DialogHeader>
                                         <DialogTitle>{consultationSteps[consultationStep].title}</DialogTitle>
                                         <DialogDescription>
@@ -525,13 +525,13 @@ export default function CahayaAnbiyaHero() {
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        className="rounded-full border border-white/20 bg-white/10 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 sm:px-8 sm:py-4 sm:text-lg"
+                                        className="w-full rounded-full border border-white/20 bg-white/10 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                                         style={{ fontFamily: 'Poppins, sans-serif' }}
                                     >
                                         View Packages
                                     </motion.button>
                                 </DialogTrigger>
-                                <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto border border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+                                <DialogContent className="max-h-[80vh] w-[calc(100vw-2rem)] max-w-4xl overflow-y-auto border border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
                                     <DialogHeader className="pb-6">
                                         <DialogTitle className="mb-3 text-3xl font-bold text-white">✨ Premium Hajj & Umrah Packages</DialogTitle>
                                         <DialogDescription className="text-lg leading-relaxed text-gray-300">
@@ -704,7 +704,7 @@ export default function CahayaAnbiyaHero() {
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 0.5, delay: 2.5 }}
-                    className="fixed right-4 bottom-4 z-50 sm:right-6 sm:bottom-6"
+                    className="fixed right-4 bottom-20 z-50 sm:bottom-6 sm:right-6"
                 >
                     <Dialog>
                         <DialogTrigger asChild>
@@ -927,7 +927,7 @@ export default function CahayaAnbiyaHero() {
 
             {/* Packages Dialog from Header */}
             <Dialog open={showPackagesDialog} onOpenChange={setShowPackagesDialog}>
-                <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto border border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+                <DialogContent className="max-h-[80vh] w-[calc(100vw-2rem)] max-w-4xl overflow-y-auto border border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
                     <DialogHeader className="pb-6">
                         <DialogTitle className="mb-3 text-3xl font-bold text-white">✨ Premium Hajj & Umrah Packages</DialogTitle>
                         <DialogDescription className="text-lg leading-relaxed text-gray-300">
