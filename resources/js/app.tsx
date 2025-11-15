@@ -11,62 +11,35 @@ const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
 
 if (typeof window !== 'undefined') {
     const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-    const shouldForceHttps = window.location.protocol === 'https:';
 
     if (csrfToken) {
         axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
     }
+
     axios.defaults.withCredentials = true;
+}
 
-    const injectCsrfHeader = (incomingHeaders?: HeadersInit) => {
-        const headers = new Headers(incomingHeaders);
-        if (csrfToken && !headers.has('X-CSRF-TOKEN') && !headers.has('X-XSRF-TOKEN')) {
-            headers.set('X-CSRF-TOKEN', csrfToken);
-        }
-        return headers;
-    };
-
+// Force HTTPS for all requests to prevent Mixed Content errors
+if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    // Override fetch to force HTTPS
     const originalFetch = window.fetch;
-    window.fetch = (input, init = {}) => {
-        let resource = input;
-
-        if (shouldForceHttps) {
-            if (typeof resource === 'string' && resource.startsWith('http://')) {
-                resource = resource.replace('http://', 'https://');
-            } else if (resource instanceof Request && resource.url.startsWith('http://')) {
-                resource = new Request(resource.url.replace('http://', 'https://'), resource);
-            }
+    window.fetch = function (url, options) {
+        if (typeof url === 'string' && url.startsWith('http://')) {
+            url = url.replace('http://', 'https://');
+        } else if (url instanceof Request && url.url.startsWith('http://')) {
+            url = new Request(url.url.replace('http://', 'https://'), url);
         }
 
-        const config: RequestInit = { ...init };
-        config.headers = injectCsrfHeader(init.headers);
-        if (config.credentials === undefined) {
-            config.credentials = 'same-origin';
-        }
-
-        return originalFetch(resource as RequestInfo | URL, config);
+        return originalFetch(url as RequestInfo | URL, options);
     };
 
+    // Override XMLHttpRequest to force HTTPS
     const originalXHROpen = XMLHttpRequest.prototype.open;
-    const originalXHRSend = XMLHttpRequest.prototype.send;
-
     XMLHttpRequest.prototype.open = function (method, url, ...args) {
-        let nextUrl = url;
-        if (shouldForceHttps && typeof nextUrl === 'string' && nextUrl.startsWith('http://')) {
-            nextUrl = nextUrl.replace('http://', 'https://');
+        if (typeof url === 'string' && url.startsWith('http://')) {
+            url = url.replace('http://', 'https://');
         }
-        return originalXHROpen.call(this, method, nextUrl, ...args);
-    };
-
-    XMLHttpRequest.prototype.send = function (body) {
-        if (csrfToken) {
-            try {
-                this.setRequestHeader('X-CSRF-TOKEN', csrfToken);
-            } catch {
-                // ignore if setting header fails (e.g., preflight requests)
-            }
-        }
-        return originalXHRSend.call(this, body);
+        return originalXHROpen.call(this, method, url, ...args);
     };
 }
 

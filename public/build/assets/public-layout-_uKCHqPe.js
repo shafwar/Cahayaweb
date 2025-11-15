@@ -1,1 +1,0 @@
-import{j as s}from"./app-COsIVHeF.js";import{E as e,G as i,a as r}from"./GlobalHeader-COGU9uYw.js";function n({children:a}){return s.jsx(e,{children:s.jsxs("div",{className:"min-h-screen bg-white",children:[s.jsx(i,{variant:"b2c"}),s.jsx("main",{className:"w-full",children:a}),s.jsx(r,{})]})})}export{n as P};
