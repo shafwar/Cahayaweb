@@ -143,17 +143,40 @@ class Section extends Model
             }
 
             // Restore section from snapshot
-            static::withoutSnapshots(function () use ($key, $payload) {
-                static::updateOrCreate(
+            $restored = false;
+            static::withoutSnapshots(function () use ($key, $payload, &$restored) {
+                $section = static::updateOrCreate(
                     ['key' => $key],
                     [
                         'content' => $payload['content'] ?? null,
                         'image' => $payload['image'] ?? null,
                     ],
                 );
+
+                // Verify restore was successful
+                $section->refresh();
+                
+                // Check if content matches
+                $contentMatch = ($payload['content'] ?? null) === $section->content;
+                $imageMatch = ($payload['image'] ?? null) === $section->image;
+                
+                $restored = $contentMatch && $imageMatch;
+                
+                if (!$restored) {
+                    \Log::warning('Restore verification failed in restoreFromSnapshot', [
+                        'key' => $key,
+                        'expected_content' => $payload['content'] ?? null,
+                        'actual_content' => $section->content,
+                        'expected_image' => $payload['image'] ?? null,
+                        'actual_image' => $section->image,
+                    ]);
+                }
             });
 
-            return true;
+            // Clear cache after restore
+            SectionSnapshot::clearCache();
+
+            return $restored;
         } catch (\PDOException $e) {
             \Log::error('Database error during restore from snapshot', [
                 'key' => $key,

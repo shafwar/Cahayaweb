@@ -15,6 +15,14 @@ class SectionSnapshot extends Model
 
     protected static ?Collection $cachedPayload = null;
 
+    /**
+     * Clear the cached payload
+     */
+    public static function clearCache(): void
+    {
+        static::$cachedPayload = null;
+    }
+
     public static function latestPayload(): Collection
     {
         if (static::$cachedPayload instanceof Collection) {

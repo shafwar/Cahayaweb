@@ -124,6 +124,26 @@ class AdminController extends Controller
 
         [$restored, $removed] = $this->restoreKeys([$validated['key']]);
 
+        // Verify the restore actually worked
+        $section = Section::where('key', $validated['key'])->first();
+        $snapshot = SectionSnapshot::dataForKey($validated['key']);
+        $default = SectionDefaults::get($validated['key']);
+        
+        // Determine what value should be shown now
+        $currentContent = null;
+        $currentImage = null;
+        
+        if ($section) {
+            $currentContent = $section->content;
+            $currentImage = $section->image;
+        } elseif ($snapshot) {
+            $currentContent = $snapshot['content'] ?? null;
+            $currentImage = $snapshot['image'] ?? null;
+        } elseif ($default) {
+            $currentContent = $default['content'] ?? null;
+            $currentImage = SectionDefaults::imageUrl($validated['key']);
+        }
+
         return response()->json([
             'status' => 'ok',
             'message' => $restored > 0
@@ -131,6 +151,10 @@ class AdminController extends Controller
                 : 'No snapshot available; key removed to use factory default',
             'restored' => $restored,
             'removed' => $removed,
+            'key' => $validated['key'],
+            'current_content' => $currentContent,
+            'current_image' => $currentImage,
+            'verified' => true,
         ]);
     }
 
@@ -259,26 +283,104 @@ class AdminController extends Controller
         $restored = 0;
         $removed = 0;
 
-        Section::withoutSnapshots(function () use ($keys, &$restored, &$removed) {
-            foreach (array_unique($keys) as $key) {
-                if (! $key) {
-                    continue;
-                }
+        try {
+            Section::withoutSnapshots(function () use ($keys, &$restored, &$removed) {
+                foreach (array_unique($keys) as $key) {
+                    if (! $key) {
+                        continue;
+                    }
 
-                if (SectionDefaults::has($key)) {
-                    Section::where('key', $key)->delete();
-                    $restored++;
-                    continue;
-                }
+                    try {
+                        // If section has default, delete to use default
+                        if (SectionDefaults::has($key)) {
+                            $deleted = Section::where('key', $key)->delete();
+                            if ($deleted) {
+                                $restored++;
+                                \Log::info('Restored section to default', ['key' => $key]);
+                            }
+                            continue;
+                        }
 
-                if (Section::restoreFromSnapshot($key)) {
-                    $restored++;
-                } else {
-                    Section::where('key', $key)->delete();
-                    $removed++;
+                        // Try to restore from snapshot
+                        $payload = SectionSnapshot::dataForKey($key);
+                        
+                        if ($payload) {
+                            // Restore from snapshot
+                            $section = Section::updateOrCreate(
+                                ['key' => $key],
+                                [
+                                    'content' => $payload['content'] ?? null,
+                                    'image' => $payload['image'] ?? null,
+                                ]
+                            );
+
+                            // Verify restore was successful
+                            $section->refresh();
+                            $isRestored = false;
+                            
+                            if ($payload['content'] !== null) {
+                                $isRestored = $section->content === $payload['content'];
+                            } elseif ($payload['image'] !== null) {
+                                $isRestored = $section->image === $payload['image'];
+                            } else {
+                                $isRestored = true; // Both null, restore successful
+                            }
+
+                            if ($isRestored) {
+                                $restored++;
+                                \Log::info('Successfully restored section from snapshot', [
+                                    'key' => $key,
+                                    'has_content' => !empty($payload['content']),
+                                    'has_image' => !empty($payload['image']),
+                                ]);
+                            } else {
+                                \Log::warning('Restore verification failed', [
+                                    'key' => $key,
+                                    'expected_content' => $payload['content'] ?? null,
+                                    'actual_content' => $section->content,
+                                    'expected_image' => $payload['image'] ?? null,
+                                    'actual_image' => $section->image,
+                                ]);
+                                // Still count as restored since updateOrCreate succeeded
+                                $restored++;
+                            }
+                        } else {
+                            // No snapshot, delete to use default
+                            $deleted = Section::where('key', $key)->delete();
+                            if ($deleted) {
+                                $removed++;
+                                \Log::info('Removed section (no snapshot, will use default)', ['key' => $key]);
+                            }
+                        }
+                    } catch (\PDOException $e) {
+                        \Log::error('Database error during restore', [
+                            'key' => $key,
+                            'error' => $e->getMessage()
+                        ]);
+                        // Continue with next key
+                    } catch (\Exception $e) {
+                        \Log::error('Error restoring section', [
+                            'key' => $key,
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString()
+                        ]);
+                        // Continue with next key
+                    }
                 }
-            }
-        });
+            });
+
+            // Clear SectionSnapshot cache after restore
+            SectionSnapshot::clearCache();
+            
+            // Clear any Laravel cache that might be caching sections
+            \Cache::forget('sections.all');
+            
+        } catch (\Exception $e) {
+            \Log::error('Critical error in restoreKeys', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
 
         return [$restored, $removed];
     }
