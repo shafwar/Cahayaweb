@@ -704,7 +704,7 @@ export default function CahayaAnbiyaHero() {
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 0.5, delay: 2.5 }}
-                    className="fixed right-4 bottom-20 z-50 sm:bottom-6 sm:right-6"
+                    className="fixed right-4 bottom-20 z-50 sm:right-6 sm:bottom-6"
                 >
                     <Dialog>
                         <DialogTrigger asChild>

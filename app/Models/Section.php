@@ -34,14 +34,32 @@ class Section extends Model
 
     protected static function snapshot(): void
     {
-        $payload = static::orderBy('key')
-            ->get(['key', 'content', 'image'])
-            ->mapWithKeys(fn (Section $section) => [
-                $section->key => $section->only(['key', 'content', 'image']),
-            ])
-            ->all();
+        try {
+            // Check if database tables exist before attempting snapshot
+            if (! \Illuminate\Support\Facades\Schema::hasTable('sections') || 
+                ! \Illuminate\Support\Facades\Schema::hasTable('section_snapshots')) {
+                return;
+            }
 
-        SectionSnapshot::savePayload($payload);
+            $payload = static::orderBy('key')
+                ->get(['key', 'content', 'image'])
+                ->mapWithKeys(fn (Section $section) => [
+                    $section->key => $section->only(['key', 'content', 'image']),
+                ])
+                ->all();
+
+            SectionSnapshot::savePayload($payload);
+        } catch (\PDOException $e) {
+            // Database connection issue - log but don't crash
+            \Log::warning('Database error during snapshot creation', [
+                'error' => $e->getMessage()
+            ]);
+        } catch (\Exception $e) {
+            // Any other error - log but don't crash
+            \Log::warning('Error creating snapshot', [
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     public static function withoutSnapshots(callable $callback): void
@@ -108,22 +126,48 @@ class Section extends Model
 
     public static function restoreFromSnapshot(string $key): bool
     {
-        $payload = SectionSnapshot::dataForKey($key);
+        try {
+            $payload = SectionSnapshot::dataForKey($key);
 
-        if (! $payload) {
-            Section::where('key', $key)->delete();
+            if (! $payload) {
+                // If no snapshot exists, try to delete the section
+                try {
+                    Section::where('key', $key)->delete();
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to delete section during restore', [
+                        'key' => $key,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+                return false;
+            }
+
+            // Restore section from snapshot
+            static::withoutSnapshots(function () use ($key, $payload) {
+                static::updateOrCreate(
+                    ['key' => $key],
+                    [
+                        'content' => $payload['content'] ?? null,
+                        'image' => $payload['image'] ?? null,
+                    ],
+                );
+            });
+
+            return true;
+        } catch (\PDOException $e) {
+            \Log::error('Database error during restore from snapshot', [
+                'key' => $key,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        } catch (\Exception $e) {
+            \Log::error('Error restoring section from snapshot', [
+                'key' => $key,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return false;
         }
-
-        static::updateOrCreate(
-            ['key' => $key],
-            [
-                'content' => $payload['content'] ?? null,
-                'image' => $payload['image'] ?? null,
-            ],
-        );
-
-        return true;
     }
 
     /**
