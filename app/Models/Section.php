@@ -100,19 +100,24 @@ class Section extends Model
             $section = $live->get($key);
             $payload = $snapshot->get($key);
 
+            // Priority: Live DB > Snapshot > Default
             $content = $section->content ?? Arr::get($payload, 'content');
             $imagePath = $section->image ?? Arr::get($payload, 'image');
 
+            // If no content from live/snapshot, try default
+            if (! $content && isset($defaults[$key]['content'])) {
+                $content = $defaults[$key]['content'];
+            }
+
+            // Handle image URL
             $imageUrl = null;
             if ($imagePath) {
+                // Image from DB or snapshot - use storage path
                 $timestamp = optional($section?->updated_at)->timestamp ?? time();
                 $imageUrl = asset('storage/' . $imagePath) . '?v=' . $timestamp;
             } elseif (isset($defaults[$key]) && ($url = SectionDefaults::imageUrl($key))) {
+                // Image from default
                 $imageUrl = $url;
-            }
-
-            if (! $content && isset($defaults[$key]['content'])) {
-                $content = $defaults[$key]['content'];
             }
 
             return [$key => [
@@ -120,6 +125,7 @@ class Section extends Model
                 'image' => $imageUrl,
             ]];
         })->filter(function ($value) {
+            // Include if has content OR image (even if null, as long as key exists)
             return $value['content'] !== null || $value['image'] !== null;
         })->toArray();
     }
