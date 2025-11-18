@@ -332,105 +332,70 @@ class AdminController extends Controller
                     }
 
                     try {
-                        // If section has default, delete to use default
-                        if (SectionDefaults::has($key)) {
-                            $deleted = Section::where('key', $key)->delete();
-                            if ($deleted) {
-                                $restored++;
-                                \Log::info('Restored section to default', ['key' => $key]);
-                            }
-                            continue;
-                        }
-
-                        // Try to restore from snapshot
+                        // Priority: Snapshot > Default > Delete
                         $payload = SectionSnapshot::dataForKey($key);
                         $default = SectionDefaults::get($key);
                         
-                        // Determine what the restored value should be
-                        $restoreContent = null;
-                        $restoreImage = null;
-                        $shouldDelete = false;
-                        
                         if ($payload) {
-                            // Restore from snapshot
+                            // ALWAYS restore from snapshot if it exists
+                            // This preserves the original saved state
                             $restoreContent = $payload['content'] ?? null;
                             $restoreImage = $payload['image'] ?? null;
+                            
+                            // Restore from snapshot
+                            $section = Section::updateOrCreate(
+                                ['key' => $key],
+                                [
+                                    'content' => $restoreContent,
+                                    'image' => $restoreImage,
+                                ]
+                            );
+
+                            // Verify restore was successful
+                            $section->refresh();
+                            $isRestored = false;
+                            
+                            if ($restoreContent !== null) {
+                                $isRestored = $section->content === $restoreContent;
+                            } elseif ($restoreImage !== null) {
+                                $isRestored = $section->image === $restoreImage;
+                            } else {
+                                // Both null - check if both were null in snapshot
+                                $isRestored = ($section->content === null && $section->image === null);
+                            }
+
+                            if ($isRestored) {
+                                $restored++;
+                                \Log::info('Successfully restored section from snapshot', [
+                                    'key' => $key,
+                                    'has_content' => !empty($restoreContent),
+                                    'has_image' => !empty($restoreImage),
+                                    'content' => $restoreContent ? substr($restoreContent, 0, 50) . '...' : 'null',
+                                ]);
+                            } else {
+                                \Log::warning('Restore verification failed', [
+                                    'key' => $key,
+                                    'expected_content' => $restoreContent,
+                                    'actual_content' => $section->content,
+                                    'expected_image' => $restoreImage,
+                                    'actual_image' => $section->image,
+                                ]);
+                                // Still count as restored since updateOrCreate succeeded
+                                $restored++;
+                            }
                         } elseif ($default) {
-                            // No snapshot, check if default exists
-                            // If default exists, delete section to use default
-                            $shouldDelete = true;
+                            // No snapshot, but has default - delete to use default
+                            $deleted = Section::where('key', $key)->delete();
+                            if ($deleted) {
+                                $restored++;
+                                \Log::info('Restored section to default (deleted, will use default)', ['key' => $key]);
+                            }
                         } else {
-                            // No snapshot and no default, just delete
-                            $shouldDelete = true;
-                        }
-                        
-                        if ($shouldDelete) {
-                            // Delete section to use default (or nothing)
+                            // No snapshot and no default - delete section
                             $deleted = Section::where('key', $key)->delete();
                             if ($deleted) {
                                 $removed++;
-                                \Log::info('Removed section (will use default or nothing)', ['key' => $key]);
-                            }
-                        } else {
-                            // Check if restore value matches default
-                            $defaultContent = $default['content'] ?? null;
-                            $defaultImage = SectionDefaults::imageUrl($key);
-                            if ($defaultImage) {
-                                // Extract path from URL
-                                $defaultImage = str_replace(asset(''), '', $defaultImage);
-                            }
-                            
-                            // If restore value equals default, delete instead of update
-                            $contentMatchesDefault = ($restoreContent === $defaultContent);
-                            $imageMatchesDefault = ($restoreImage === $defaultImage);
-                            
-                            if ($contentMatchesDefault && $imageMatchesDefault && $default) {
-                                // Restore value = default, so delete to use default
-                                $deleted = Section::where('key', $key)->delete();
-                                if ($deleted) {
-                                    $restored++;
-                                    \Log::info('Restored section to default (deleted, will use default)', ['key' => $key]);
-                                }
-                            } else {
-                                // Restore from snapshot (different from default)
-                                $section = Section::updateOrCreate(
-                                    ['key' => $key],
-                                    [
-                                        'content' => $restoreContent,
-                                        'image' => $restoreImage,
-                                    ]
-                                );
-
-                                // Verify restore was successful
-                                $section->refresh();
-                                $isRestored = false;
-                                
-                                if ($restoreContent !== null) {
-                                    $isRestored = $section->content === $restoreContent;
-                                } elseif ($restoreImage !== null) {
-                                    $isRestored = $section->image === $restoreImage;
-                                } else {
-                                    $isRestored = true; // Both null, restore successful
-                                }
-
-                                if ($isRestored) {
-                                    $restored++;
-                                    \Log::info('Successfully restored section from snapshot', [
-                                        'key' => $key,
-                                        'has_content' => !empty($restoreContent),
-                                        'has_image' => !empty($restoreImage),
-                                    ]);
-                                } else {
-                                    \Log::warning('Restore verification failed', [
-                                        'key' => $key,
-                                        'expected_content' => $restoreContent,
-                                        'actual_content' => $section->content,
-                                        'expected_image' => $restoreImage,
-                                        'actual_image' => $section->image,
-                                    ]);
-                                    // Still count as restored since updateOrCreate succeeded
-                                    $restored++;
-                                }
+                                \Log::info('Removed section (no snapshot, no default)', ['key' => $key]);
                             }
                         }
                     } catch (\PDOException $e) {
