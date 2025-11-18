@@ -177,54 +177,15 @@ class AdminController extends Controller
 
     /**
      * Get all changed sections (comprehensive restore data)
-     * Only shows sections that are DIFFERENT from defaults/snapshots
+     * Shows all sections in database as changes (simplified - anything in DB = change)
      */
     public function getAllChanges(Request $request): JsonResponse
     {
-        // Get all sections from database
+        // Get all sections from database (anything in DB = changed from original)
+        // Simplified approach: if it's in DB, it's a change
         $sections = Section::orderBy('updated_at', 'desc')->get();
-        $snapshot = SectionSnapshot::latestPayload();
-        $defaults = SectionDefaults::all();
 
-        $changes = $sections->filter(function ($section) use ($snapshot, $defaults) {
-            $key = $section->key;
-            
-            // Get expected values (priority: snapshot > default)
-            $expectedContent = null;
-            $expectedImage = null;
-            $hasExpectedValue = false;
-            
-            if ($snapshot->has($key)) {
-                $payload = $snapshot->get($key);
-                $expectedContent = $payload['content'] ?? null;
-                $expectedImage = $payload['image'] ?? null;
-                $hasExpectedValue = true;
-            } elseif (isset($defaults[$key])) {
-                $expectedContent = $defaults[$key]['content'] ?? null;
-                $expectedImage = SectionDefaults::imageUrl($key);
-                if ($expectedImage) {
-                    // Extract path from URL for comparison
-                    $expectedImage = str_replace(asset(''), '', $expectedImage);
-                }
-                $hasExpectedValue = true;
-            }
-            
-            // If no expected value exists, section in DB is always a change
-            if (!$hasExpectedValue) {
-                return true;
-            }
-            
-            // Normalize null vs empty string for comparison
-            $actualContent = $section->content ?? null;
-            $actualImage = $section->image ?? null;
-            
-            // Compare actual vs expected
-            $contentDiffers = $actualContent !== $expectedContent;
-            $imageDiffers = $actualImage !== $expectedImage;
-            
-            // Only include if it's actually different
-            return $contentDiffers || $imageDiffers;
-        })->map(function ($section) {
+        $changes = $sections->map(function ($section) {
             // Parse section key to extract metadata
             $parts = explode('.', $section->key);
             $page = $parts[0] ?? 'unknown';
@@ -247,7 +208,7 @@ class AdminController extends Controller
                 'updated_at' => $section->updated_at->format('Y-m-d H:i:s'),
                 'updated_at_human' => $section->updated_at->diffForHumans(),
             ];
-        })->values();
+        });
 
         return response()->json([
             'status' => 'ok',

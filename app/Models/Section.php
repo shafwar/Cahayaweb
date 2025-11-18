@@ -101,8 +101,8 @@ class Section extends Model
             $payload = $snapshot->get($key);
 
             // Priority: Live DB > Snapshot > Default
-            $content = $section->content ?? Arr::get($payload, 'content');
-            $imagePath = $section->image ?? Arr::get($payload, 'image');
+            $content = $section?->content ?? Arr::get($payload, 'content');
+            $imagePath = $section?->image ?? Arr::get($payload, 'image');
 
             // If no content from live/snapshot, try default
             if (! $content && isset($defaults[$key]['content'])) {
