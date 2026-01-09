@@ -4,11 +4,11 @@ import PublicLayout from '@/layouts/public-layout';
 import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, Edit3, X } from 'lucide-react';
+import { ArrowRight, Camera, Check, Edit3, Star, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-// Standalone Modal Component - Rendered via Portal (GUARANTEED CENTERED!)
+// Enhanced Modal Component
 function HighlightEditorModal({
     highlight,
     onClose,
@@ -23,12 +23,11 @@ function HighlightEditorModal({
         badge: string;
     };
     onClose: () => void;
-    onSave: (data: any) => Promise<void>;
+    onSave: (data: { id: number; title: string; subtitle: string; description: string; category: string; badge: string }) => Promise<void>;
 }) {
     const [formData, setFormData] = useState(highlight);
     const [isSaving, setIsSaving] = useState(false);
 
-    // Lock body scroll when modal is mounted
     useEffect(() => {
         document.body.style.overflow = 'hidden';
         return () => {
@@ -36,7 +35,6 @@ function HighlightEditorModal({
         };
     }, []);
 
-    // Update form data when highlight prop changes
     useEffect(() => {
         setFormData(highlight);
     }, [highlight]);
@@ -53,7 +51,6 @@ function HighlightEditorModal({
         }
     };
 
-    // Render modal using Portal - GUARANTEED to be at document root!
     return createPortal(
         <AnimatePresence>
             <motion.div
@@ -68,170 +65,144 @@ function HighlightEditorModal({
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                    className="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border-2 border-amber-500/50 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl overflow-hidden"
+                    className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border-2 border-amber-500/50 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    {/* Header */}
-                    <div className="flex-shrink-0 px-6 py-5 border-b border-white/10 bg-gradient-to-r from-amber-600/20 to-orange-600/20">
+                    <div className="flex-shrink-0 border-b-2 border-white/10 bg-gradient-to-r from-amber-600/20 to-orange-600/20 px-8 py-6">
                         <div className="flex items-start justify-between">
                             <div>
-                                <h2 className="text-2xl font-bold text-white mb-1">✨ Edit Highlight</h2>
-                                <p className="text-sm text-gray-400">Update highlight information</p>
+                                <h2 className="mb-2 text-3xl font-bold text-white">✨ Edit Highlight</h2>
+                                <p className="text-base text-gray-300">Update highlight information</p>
                             </div>
                             <button
                                 onClick={onClose}
-                                className="rounded-lg p-2 text-gray-400 hover:text-white hover:bg-white/10 transition-all hover:rotate-90"
+                                className="rounded-xl p-3 text-gray-400 transition-all hover:rotate-90 hover:bg-white/10 hover:text-white"
                             >
-                                <X className="h-5 w-5" />
+                                <X className="h-6 w-6" />
                             </button>
                         </div>
                     </div>
 
-                    {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto px-6 py-6">
-                        <div className="space-y-5">
-                            {/* Title */}
+                    <div className="flex-1 overflow-y-auto px-8 py-8">
+                        <div className="space-y-6">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Title</label>
+                                <label className="mb-3 block text-base font-bold text-gray-200">Title</label>
                                 <input
                                     type="text"
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full px-4 py-2.5 rounded-lg bg-gray-900/50 border border-white/20 text-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
+                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                     placeholder="Highlight title"
                                 />
                             </div>
-
-                            {/* Subtitle */}
                             <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Subtitle</label>
+                                <label className="mb-3 block text-base font-bold text-gray-200">Subtitle</label>
                                 <input
                                     type="text"
                                     value={formData.subtitle}
                                     onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                                    className="w-full px-4 py-2.5 rounded-lg bg-gray-900/50 border border-white/20 text-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
+                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                     placeholder="Short description"
                                 />
                             </div>
-
-                            {/* Description */}
                             <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Description</label>
+                                <label className="mb-3 block text-base font-bold text-gray-200">Description</label>
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     rows={5}
-                                    className="w-full px-4 py-2.5 rounded-lg bg-gray-900/50 border border-white/20 text-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all resize-none"
+                                    className="w-full resize-none rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                     placeholder="Detailed description"
                                 />
                             </div>
-
-                            {/* Category & Badge */}
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Category</label>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Category</label>
                                     <input
                                         type="text"
                                         value={formData.category}
                                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                        className="w-full px-4 py-2.5 rounded-lg bg-gray-900/50 border border-white/20 text-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
+                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                         placeholder="e.g., Premium"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Badge</label>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Badge</label>
                                     <input
                                         type="text"
                                         value={formData.badge}
                                         onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                                        className="w-full px-4 py-2.5 rounded-lg bg-gray-900/50 border border-white/20 text-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
-                                        placeholder="e.g., Best Seller"
+                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                                        placeholder="e.g., Featured"
                                     />
                                 </div>
                             </div>
-
-                            {/* Image Replacement */}
                             <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Replace Image</label>
+                                <label className="mb-3 block text-base font-bold text-gray-200">Replace Image</label>
                                 <input
                                     type="file"
                                     accept="image/jpeg,image/png,image/webp"
-                                    className="w-full px-4 py-2.5 rounded-lg bg-gray-900/50 border border-white/20 text-white text-sm file:mr-4 file:px-4 file:py-2 file:rounded-lg file:border-0 file:bg-gradient-to-r file:from-amber-500 file:to-orange-500 file:text-white file:font-semibold file:cursor-pointer hover:file:from-amber-400 hover:file:to-orange-400 transition-all"
+                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-base text-white transition-all file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-amber-500 file:to-orange-500 file:px-5 file:py-3 file:font-bold file:text-white hover:file:from-amber-400 hover:file:to-orange-400"
                                     onChange={async (e) => {
                                         const file = e.target.files?.[0];
                                         if (!file) return;
-
                                         setIsSaving(true);
                                         try {
                                             const formData = new FormData();
                                             formData.append('key', `highlights.${highlight.id}.image`);
                                             formData.append('image', file);
-
                                             const response = await axios.post('/admin/upload-image', formData, {
                                                 headers: { 'Content-Type': 'multipart/form-data' },
                                             });
-
                                             if (response.data.success && response.data.imageUrl) {
-                                                // Update image in DOM
                                                 const img = document.querySelector(
-                                                    `img[data-highlight-id="${highlight.id}"]`
+                                                    `img[data-highlight-id="${highlight.id}"]`,
                                                 ) as HTMLImageElement | null;
-                                                if (img) {
-                                                    img.src = response.data.imageUrl;
-                                                }
-
-                                                // Show success notification
+                                                if (img) img.src = response.data.imageUrl;
                                                 const notification = document.createElement('div');
-                                                notification.className = 'fixed top-20 right-4 z-[99999] rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4 text-white shadow-2xl';
-                                                notification.innerHTML = `
-                                                    <div class="flex items-center gap-3">
-                                                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                        </svg>
-                                                        <div>
-                                                            <div class="font-bold">📸 Image Updated!</div>
-                                                            <div class="text-sm opacity-90">Image saved successfully</div>
-                                                        </div>
-                                                    </div>
-                                                `;
+                                                notification.className =
+                                                    'fixed top-20 right-4 z-[99999] rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 px-8 py-5 text-white shadow-2xl';
+                                                notification.innerHTML =
+                                                    '<div class="flex items-center gap-4"><svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><div><div class="font-bold text-lg">📸 Image Updated!</div><div class="text-sm opacity-90">Successfully saved</div></div></div>';
                                                 document.body.appendChild(notification);
                                                 setTimeout(() => notification.remove(), 3000);
                                             }
                                         } catch (error) {
-                                            console.error('Image upload failed:', error);
+                                            console.error('Upload failed:', error);
                                             alert('Failed to upload image');
                                         } finally {
                                             setIsSaving(false);
-                                            e.target.value = ''; // Reset input
+                                            e.target.value = '';
                                         }
                                     }}
                                 />
-                                <p className="mt-2 text-xs text-gray-500">
-                                    Supported formats: JPEG, PNG, WebP • Max 5MB
-                                </p>
+                                <p className="mt-3 text-sm text-gray-400">Supported: JPEG, PNG, WebP • Max 5MB</p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Footer */}
-                    <div className="flex-shrink-0 px-6 py-4 border-t border-white/10 bg-gray-900/50">
-                        <div className="flex items-center justify-end gap-3">
+                    <div className="flex-shrink-0 border-t-2 border-white/10 bg-gray-900/50 px-8 py-5">
+                        <div className="flex items-center justify-end gap-4">
                             <button
                                 onClick={onClose}
-                                className="px-5 py-2.5 rounded-lg text-sm font-medium text-gray-300 border border-white/10 hover:bg-white/5 transition-all"
+                                className="rounded-xl border-2 border-white/10 px-6 py-3 text-base font-semibold text-gray-300 transition-all hover:bg-white/5"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleSave}
                                 disabled={isSaving}
-                                className="px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="hover:shadow-3xl rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-base font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50"
                             >
                                 {isSaving ? (
                                     <span className="flex items-center gap-2">
-                                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                        <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                            <path
+                                                className="opacity-75"
+                                                fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                            />
                                         </svg>
                                         Saving...
                                     </span>
@@ -244,12 +215,11 @@ function HighlightEditorModal({
                 </motion.div>
             </motion.div>
         </AnimatePresence>,
-        document.body
+        document.body,
     );
 }
 
 export default function Highlights() {
-    // Listen to global edit mode flag from provider
     const [editMode, setEditModeUI] = useState<boolean>(false);
     useEffect(() => {
         const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
@@ -267,40 +237,19 @@ export default function Highlights() {
         category: string;
         badge: string;
     }>(null);
-    const [saving, setSaving] = useState(false);
     const [imageTargetKey, setImageTargetKey] = useState<string | null>(null);
     const hiddenImageInputId = 'highlights-image-replacer';
 
-    // Animation variants for stagger effect
     const containerVariants = {
         hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.2,
-            },
-        },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
     };
 
     const cardVariants = {
-        hidden: {
-            opacity: 0,
-            y: 30,
-            scale: 0.95,
-        },
-        visible: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: {
-                duration: 0.6,
-                ease: 'easeOut',
-            },
-        },
+        hidden: { opacity: 0, y: 30, scale: 0.95 },
+        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } },
     };
 
-    // Comprehensive highlights with travel-related content
     const highlights = [
         {
             id: 1,
@@ -318,13 +267,8 @@ export default function Highlights() {
                 'Comprehensive travel insurance',
                 'Daily spiritual programs',
             ],
-            stats: {
-                travelers: '5000+',
-                satisfaction: '98%',
-                experience: '15+ years',
-            },
+            stats: { travelers: '5000+', satisfaction: '98%', experience: '15+ years' },
             badge: 'Featured',
-            badgeColor: 'bg-gradient-to-r from-secondary to-accent',
         },
         {
             id: 2,
@@ -342,13 +286,8 @@ export default function Highlights() {
                 'Local cuisine tasting',
                 'Cultural workshops',
             ],
-            stats: {
-                travelers: '3200+',
-                satisfaction: '96%',
-                experience: '12+ years',
-            },
+            stats: { travelers: '3200+', satisfaction: '96%', experience: '12+ years' },
             badge: 'Popular',
-            badgeColor: 'bg-gradient-to-r from-orange-500 to-red-500',
         },
         {
             id: 3,
@@ -366,13 +305,8 @@ export default function Highlights() {
                 'Egyptian Museum tour',
                 'Traditional felucca sailing',
             ],
-            stats: {
-                travelers: '2800+',
-                satisfaction: '95%',
-                experience: '10+ years',
-            },
+            stats: { travelers: '2800+', satisfaction: '95%', experience: '10+ years' },
             badge: 'Heritage',
-            badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
         },
         {
             id: 4,
@@ -390,13 +324,8 @@ export default function Highlights() {
                 'Ferrari World theme park',
                 'Dhow cruise dinner',
             ],
-            stats: {
-                travelers: '4500+',
-                satisfaction: '97%',
-                experience: '14+ years',
-            },
+            stats: { travelers: '4500+', satisfaction: '97%', experience: '14+ years' },
             badge: 'Premium',
-            badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500',
         },
         {
             id: 5,
@@ -414,13 +343,8 @@ export default function Highlights() {
                 'Dolphin watching cruise',
                 'Mountain village tours',
             ],
-            stats: {
-                travelers: '1800+',
-                satisfaction: '99%',
-                experience: '8+ years',
-            },
+            stats: { travelers: '1800+', satisfaction: '99%', experience: '8+ years' },
             badge: 'Explorer',
-            badgeColor: 'bg-gradient-to-r from-green-500 to-emerald-500',
         },
         {
             id: 6,
@@ -438,126 +362,118 @@ export default function Highlights() {
                 'Katara Cultural Village',
                 'Luxury resort accommodations',
             ],
-            stats: {
-                travelers: '2200+',
-                satisfaction: '94%',
-                experience: '9+ years',
-            },
+            stats: { travelers: '2200+', satisfaction: '94%', experience: '9+ years' },
             badge: 'Premium',
-            badgeColor: 'bg-gradient-to-r from-secondary to-primary',
         },
     ];
 
     return (
         <PublicLayout>
-            <Head title="Highlights - Cahaya Anbiya Wisata" />
+            <Head title="Highlights - Cahaya Anbiya Travel" />
 
-            <div className="w-full bg-black">
-                <section className="mx-auto max-w-7xl px-6 py-12 md:px-10 md:py-16">
-                    {/* Enhanced Header Section */}
+            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
+                <section className="relative mx-auto max-w-7xl px-4 pt-12 pb-8 sm:px-6 md:pt-16 md:pb-10">
+                    {/* Ambient Effects */}
+                    <div className="pointer-events-none absolute inset-0">
+                        <div className="absolute top-0 left-1/4 h-[500px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.1),transparent_70%)] blur-3xl" />
+                        <div className="absolute right-1/4 bottom-0 h-[500px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.1),transparent_70%)] blur-3xl" />
+                    </div>
+
+                    {/* Hero Section - Compact */}
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, ease: 'easeOut' }}
-                        className="mb-12 text-center md:mb-16"
+                        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                        className="relative mb-8 text-center md:mb-10"
                     >
-                        <h1 className="mb-4 text-4xl font-bold text-white md:text-6xl lg:text-7xl">
-                            <EditableText
-                                sectionKey="highlights.header.title"
-                                value="Travel Highlights & Experiences"
-                                tag="span"
-                                className="bg-gradient-to-r from-amber-300 via-orange-300 to-amber-400 bg-clip-text text-transparent"
-                            />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.6 }}
+                            className="mb-4 inline-block"
+                        >
+                            <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-4 py-1.5 shadow-xl backdrop-blur-sm">
+                                <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
+                                    ✨ Premium Travel Highlights
+                                </span>
+                            </div>
+                        </motion.div>
+
+                        <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
+                            Travel Highlights & Experiences
                         </h1>
-                        <p className="mx-auto max-w-3xl text-lg text-gray-300 md:text-xl">
-                            <EditableText
-                                sectionKey="highlights.header.subtitle"
-                                value="Discover our most popular and unforgettable travel experiences. From spiritual journeys to luxury adventures, each highlight represents the best of what we offer to create lasting memories for our travelers."
-                                tag="span"
-                            />
+
+                        <p className="mx-auto mb-6 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
+                            Discover our most popular and unforgettable travel experiences. From spiritual journeys to luxury adventures, each
+                            highlight represents the best of what we offer.
                         </p>
-                        <div className="mt-6 flex items-center justify-center space-x-4 text-sm text-gray-400">
-                            <div className="flex items-center space-x-2">
-                                <div className="h-2 w-2 rounded-full bg-primary"></div>
-                                <span>
-                                    <EditableText sectionKey="highlights.header.badge1" value="Premium Experiences" tag="span" />
-                                </span>
+
+                        <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/70 sm:gap-6 sm:text-sm">
+                            <div className="flex items-center gap-2">
+                                <div className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 shadow-md" />
+                                <span className="font-medium">Premium Experiences</span>
                             </div>
-                            <div className="flex items-center space-x-2">
-                                <div className="h-2 w-2 rounded-full bg-secondary"></div>
-                                <span>
-                                    <EditableText sectionKey="highlights.header.badge2" value="Expert Guidance" tag="span" />
-                                </span>
+                            <div className="flex items-center gap-2">
+                                <div className="h-2 w-2 rounded-full bg-gradient-to-r from-orange-400 to-red-400 shadow-md" />
+                                <span className="font-medium">Expert Guidance</span>
                             </div>
-                            <div className="flex items-center space-x-2">
-                                <div className="h-2 w-2 rounded-full bg-secondary"></div>
-                                <span>
-                                    <EditableText sectionKey="highlights.header.badge3" value="Unforgettable Memories" tag="span" />
-                                </span>
+                            <div className="flex items-center gap-2">
+                                <div className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 shadow-md" />
+                                <span className="font-medium">Unforgettable Memories</span>
                             </div>
                         </div>
                     </motion.div>
 
-                    {/* Highlights Grid */}
+                    {/* Highlights Grid - Compact */}
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
-                        animate="visible"
-                        className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:gap-10"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: '-100px' }}
+                        className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3"
                         style={{ gridAutoRows: '1fr' }}
                     >
                         {highlights.map((highlight) => (
                             <motion.article
                                 key={highlight.id}
                                 variants={cardVariants}
-                                whileHover={{
-                                    scale: 1.03,
-                                    y: -8,
-                                    transition: { duration: 0.3, ease: 'easeOut' },
-                                }}
-                                className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-white/15 bg-black/50 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-md transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
+                                whileHover={{ scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
+                                className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl backdrop-blur-sm transition-all duration-300"
                             >
-                                {/* Highlight Image */}
                                 <div className="relative aspect-video overflow-hidden">
                                     <img
                                         src={highlight.image}
                                         alt={highlight.title}
                                         data-highlight-id={highlight.id}
-                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        loading="lazy"
+                                        decoding="async"
+                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 will-change-transform"
                                         onError={(e) => {
                                             e.currentTarget.style.display = 'none';
                                             const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                            if (nextElement) {
-                                                nextElement.style.display = 'block';
-                                            }
+                                            if (nextElement) nextElement.style.display = 'block';
                                         }}
                                     />
-                                    <PlaceholderImage className="hidden h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                    <PlaceholderImage className="hidden h-full w-full object-cover" />
 
-                                    {/* Category Badge */}
                                     <div className="absolute top-3 left-3">
-                                        <span className="rounded-full bg-black/50 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                                        <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white shadow-lg backdrop-blur-sm sm:text-sm">
                                             {highlight.category}
                                         </span>
                                     </div>
 
-                                    {/* Edit Mode Controls - NEW ICONS! */}
                                     {editMode && (
                                         <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-                                            {/* Camera Icon - Image Replacement */}
                                             <button
                                                 onClick={() => {
                                                     setImageTargetKey(`highlights.${highlight.id}.image`);
-                                                    const el = document.getElementById(hiddenImageInputId) as HTMLInputElement | null;
-                                                    el?.click();
+                                                    document.getElementById(hiddenImageInputId)?.click();
                                                 }}
-                                                className="group/icon flex h-8 w-8 items-center justify-center rounded-lg bg-white/90 text-gray-800 shadow-lg ring-2 ring-white/20 backdrop-blur-sm transition-all hover:scale-110 hover:bg-white hover:shadow-xl"
+                                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
                                                 title="Replace image"
                                             >
-                                                <Camera className="h-4 w-4" />
+                                                <Camera className="h-5 w-5" strokeWidth={2.5} />
                                             </button>
-                                            
-                                            {/* Edit3 Icon - Edit Details */}
                                             <button
                                                 onClick={() =>
                                                     setEditorOpen({
@@ -569,10 +485,10 @@ export default function Highlights() {
                                                         badge: highlight.badge,
                                                     })
                                                 }
-                                                className="group/icon flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 backdrop-blur-sm transition-all hover:scale-110 hover:rotate-12 hover:shadow-2xl"
+                                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110 hover:rotate-12"
                                                 title="Edit details"
                                             >
-                                                <Edit3 className="h-4 w-4" />
+                                                <Edit3 className="h-5 w-5" strokeWidth={2.5} />
                                             </button>
                                         </div>
                                     )}
@@ -580,16 +496,15 @@ export default function Highlights() {
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                 </div>
 
-                                {/* Highlight Content */}
-                                <div className="flex flex-1 flex-col p-6">
-                                    <h3 className="mb-2 text-xl font-bold text-white transition-colors duration-300 group-hover:text-amber-300 md:text-2xl">
+                                <div className="flex flex-1 flex-col p-5 sm:p-6">
+                                    <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl">
                                         <EditableText sectionKey={`highlights.${highlight.id}.title`} value={highlight.title} tag="span" />
                                     </h3>
-                                    <p className="mb-3 text-sm font-medium text-amber-300">
+                                    <p className="mb-3 text-sm font-semibold text-amber-300 sm:text-base">
                                         <EditableText sectionKey={`highlights.${highlight.id}.subtitle`} value={highlight.subtitle} tag="span" />
                                     </p>
 
-                                    <p className="mb-4 text-sm leading-relaxed text-gray-300">
+                                    <p className="mb-4 text-sm leading-relaxed text-white/80 sm:text-base">
                                         <EditableText
                                             sectionKey={`highlights.${highlight.id}.description`}
                                             value={highlight.description}
@@ -597,49 +512,45 @@ export default function Highlights() {
                                         />
                                     </p>
 
-                                    {/* Statistics */}
-                                    <div className="mb-4 grid grid-cols-3 gap-3 rounded-lg border border-white/10 bg-white/5 p-3">
+                                    <div className="mb-4 grid grid-cols-3 gap-3 rounded-xl border border-white/10 bg-white/5 p-4 shadow-lg">
                                         <div className="text-center">
-                                            <div className="text-lg font-bold text-amber-300">
+                                            <div className="text-lg font-bold text-amber-300 sm:text-xl">
                                                 <EditableText
                                                     sectionKey={`highlights.${highlight.id}.stats.travelers`}
                                                     value={highlight.stats.travelers}
                                                     tag="span"
                                                 />
                                             </div>
-                                            <div className="text-xs text-gray-400">Travelers</div>
+                                            <div className="text-xs font-medium text-white/70">Travelers</div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="text-lg font-bold text-amber-300">
+                                            <div className="text-lg font-bold text-amber-300 sm:text-xl">
                                                 <EditableText
                                                     sectionKey={`highlights.${highlight.id}.stats.satisfaction`}
                                                     value={highlight.stats.satisfaction}
                                                     tag="span"
                                                 />
                                             </div>
-                                            <div className="text-xs text-gray-400">Satisfaction</div>
+                                            <div className="text-xs font-medium text-white/70">Satisfaction</div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="text-lg font-bold text-amber-300">
+                                            <div className="text-lg font-bold text-amber-300 sm:text-xl">
                                                 <EditableText
                                                     sectionKey={`highlights.${highlight.id}.stats.experience`}
                                                     value={highlight.stats.experience}
                                                     tag="span"
                                                 />
                                             </div>
-                                            <div className="text-xs text-gray-400">Experience</div>
+                                            <div className="text-xs font-medium text-white/70">Experience</div>
                                         </div>
                                     </div>
 
-                                    {/* Features */}
                                     <div className="mb-4">
-                                        <h4 className="mb-2 text-sm font-semibold text-white">Key Features:</h4>
-                                        <ul className="grid grid-cols-1 gap-1 text-xs text-gray-300">
+                                        <h4 className="mb-2 text-sm font-bold text-white sm:text-base">Key Features:</h4>
+                                        <ul className="space-y-1.5 text-xs text-white/80 sm:text-sm">
                                             {highlight.features.map((feature, index) => (
-                                                <li key={index} className="flex items-center space-x-2">
-                                                    <svg className="h-3 w-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                    </svg>
+                                                <li key={index} className="flex items-center gap-2">
+                                                    <Check className="h-3.5 w-3.5 flex-shrink-0 text-green-400" />
                                                     <span>
                                                         <EditableText
                                                             sectionKey={`highlights.${highlight.id}.features.${index}`}
@@ -652,85 +563,75 @@ export default function Highlights() {
                                         </ul>
                                     </div>
 
-                                    {/* CTA Button */}
                                     <div className="mt-auto flex items-center justify-between">
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
-                                            className="rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-black transition-all duration-300 hover:shadow-lg"
+                                            className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:from-amber-400 hover:to-orange-400 sm:px-6 sm:py-3 sm:text-base"
                                         >
                                             Learn More
                                         </motion.button>
-                                        <div className="text-xs text-gray-400">{highlight.features.length} features included</div>
+                                        <div className="text-xs font-semibold text-white/60 sm:text-sm">{highlight.features.length} features</div>
                                     </div>
                                 </div>
 
-                                {/* Bottom Accent Line */}
-                                <div className="h-1 origin-left scale-x-0 transform bg-gradient-to-r from-amber-300 to-orange-400 transition-transform duration-500 group-hover:scale-x-100" />
+                                <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-transform duration-500 group-hover:scale-x-100" />
                             </motion.article>
                         ))}
                     </motion.div>
 
-                    {/* Call to Action Section */}
+                    {/* CTA Section - Compact */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, margin: '-100px' }}
                         transition={{ duration: 0.8, delay: 0.3 }}
-                        className="mt-16 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-8 text-center backdrop-blur-sm sm:p-12"
+                        className="mt-12 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-8 text-center shadow-xl md:mt-16"
                     >
-                        <div className="mx-auto max-w-3xl">
-                            <h3 className="mb-4 text-2xl font-bold text-foreground sm:text-3xl">
-                                <EditableText sectionKey="highlights.cta.title" value="Ready to Experience These Highlights?" tag="span" />
-                            </h3>
-                            <p className="mb-6 text-muted-foreground">
-                                <EditableText
-                                    sectionKey="highlights.cta.description"
-                                    value="Join thousands of satisfied travelers who have experienced the magic of our carefully curated destinations. Let us help you create unforgettable memories with our expert guidance and premium travel experiences."
-                                    tag="span"
-                                />
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-black/20 via-transparent to-black/10" />
+                        <div className="relative mx-auto max-w-3xl">
+                            <h3 className="mb-4 text-2xl font-bold text-white sm:text-3xl md:text-4xl">Ready to Experience These Highlights?</h3>
+                            <p className="mb-6 text-sm text-white/95 sm:text-base md:text-lg">
+                                Join thousands of satisfied travelers who have experienced the magic of our carefully curated destinations. Let us
+                                help you create unforgettable memories.
                             </p>
                             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
                                 <motion.a
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
                                     rel="noreferrer"
-                                    whileHover={{ scale: 1.05 }}
+                                    whileHover={{ scale: 1.05, y: -3 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-lg sm:px-8 sm:py-4 sm:text-base"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black shadow-xl transition-all hover:bg-white/95 sm:px-8 sm:py-4 sm:text-base"
                                 >
                                     Start Your Journey
-                                    <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
+                                    <ArrowRight className="h-5 w-5" />
                                 </motion.a>
                                 <motion.a
                                     href="/destinations"
-                                    whileHover={{ scale: 1.05 }}
+                                    whileHover={{ scale: 1.05, y: -3 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="inline-flex items-center justify-center rounded-lg border border-primary px-6 py-3 text-sm font-medium text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground sm:px-8 sm:py-4 sm:text-base"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white px-6 py-3 text-sm font-bold text-white transition-all hover:bg-white hover:text-black sm:px-8 sm:py-4 sm:text-base"
                                 >
                                     View All Destinations
-                                    <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
+                                    <ArrowRight className="h-5 w-5" />
                                 </motion.a>
                             </div>
                         </div>
                     </motion.div>
 
-                    {/* Testimonials Section */}
+                    {/* Testimonials - Compact */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, margin: '-100px' }}
                         transition={{ duration: 0.8, delay: 0.4 }}
-                        className="mt-16"
+                        className="mt-12 md:mt-16"
                     >
-                        <h3 className="mb-8 text-center text-2xl font-bold text-foreground sm:text-3xl">
-                            <EditableText sectionKey="highlights.testimonials.title" value="What Our Travelers Say" tag="span" />
+                        <h3 className="mb-8 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-center text-2xl font-bold text-transparent sm:text-3xl md:text-4xl">
+                            What Our Travelers Say
                         </h3>
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
                             {[
                                 {
                                     name: 'Ahmad Rizki',
@@ -761,46 +662,21 @@ export default function Highlights() {
                                     key={index}
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
+                                    viewport={{ once: true, margin: '-50px' }}
                                     transition={{ duration: 0.6, delay: index * 0.1 }}
-                                    className="rounded-xl border border-border bg-card p-6 shadow-md"
+                                    className="rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-xl backdrop-blur-sm sm:p-6"
                                 >
-                                    <div className="mb-4 flex items-center space-x-1">
+                                    <div className="mb-4 flex items-center gap-1">
                                         {[...Array(testimonial.rating)].map((_, i) => (
-                                            <svg key={i} className="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                            </svg>
+                                            <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400 sm:h-5 sm:w-5" />
                                         ))}
                                     </div>
-                                    <p className="mb-4 text-sm text-muted-foreground">
-                                        "
-                                        <EditableText
-                                            sectionKey={`highlights.testimonials.${index}.testimonial`}
-                                            value={testimonial.testimonial}
-                                            tag="span"
-                                        />
-                                        "
-                                    </p>
-                                    <div className="flex items-center justify-between">
+                                    <p className="mb-4 text-sm leading-relaxed text-white/80 sm:text-base">"{testimonial.testimonial}"</p>
+                                    <div className="flex items-center justify-between border-t border-white/10 pt-4">
                                         <div>
-                                            <div className="font-medium text-foreground">
-                                                <EditableText
-                                                    sectionKey={`highlights.testimonials.${index}.name`}
-                                                    value={testimonial.name}
-                                                    tag="span"
-                                                />
-                                            </div>
-                                            <div className="text-xs text-muted-foreground">
-                                                <EditableText
-                                                    sectionKey={`highlights.testimonials.${index}.location`}
-                                                    value={testimonial.location}
-                                                    tag="span"
-                                                />
-                                            </div>
+                                            <div className="text-xs text-white/60 sm:text-sm">{testimonial.location}</div>
                                         </div>
-                                        <div className="text-xs text-primary">
-                                            <EditableText sectionKey={`highlights.testimonials.${index}.trip`} value={testimonial.trip} tag="span" />
-                                        </div>
+                                        <div className="text-xs font-bold text-amber-300 sm:text-sm">{testimonial.trip}</div>
                                     </div>
                                 </motion.div>
                             ))}
@@ -808,48 +684,44 @@ export default function Highlights() {
                     </motion.div>
                 </section>
 
-                {/* Enhanced Footer */}
-                <footer className="border-t border-white/10 bg-black">
+                {/* Footer - Enhanced */}
+                <footer className="relative border-t border-white/10 bg-black/60 backdrop-blur-sm">
                     <motion.div
-                        className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:flex md:items-center md:justify-between md:px-6 md:py-12 lg:px-8 xl:px-10"
-                        initial={{ opacity: 0, y: 15 }}
+                        className="mx-auto max-w-7xl px-4 py-12 sm:px-6"
+                        initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
+                        viewport={{ once: true, margin: '-100px' }}
+                        transition={{ duration: 0.6 }}
                     >
-                        {/* Contact Info */}
-                        <div className="xs:text-sm text-center text-xs leading-relaxed text-muted-foreground sm:text-left md:text-sm">
-                            <div className="font-medium">Email: hello@cahaya-anbiya.com</div>
-                            <div className="xs:mt-1 mt-0.5 font-medium">WhatsApp: +62 812-3456-7890</div>
-                            <div className="xs:mt-1 mt-0.5 font-medium">24/7 Customer Support</div>
+                        <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+                            <div className="text-center text-base text-white/70 md:text-left">
+                                <div className="font-semibold">Email: hello@cahaya-anbiya.com</div>
+                                <div className="mt-2 font-semibold">WhatsApp: +62 812-3456-7890</div>
+                                <div className="mt-2 font-semibold">24/7 Customer Support</div>
+                            </div>
+                            <div className="flex items-center gap-8">
+                                {['Instagram', 'TikTok', 'YouTube'].map((social) => (
+                                    <motion.a
+                                        key={social}
+                                        href={`https://${social.toLowerCase()}.com`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-base font-semibold text-white/70 transition-colors hover:text-amber-400"
+                                        whileHover={{ scale: 1.1, y: -2 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        {social}
+                                    </motion.a>
+                                ))}
+                            </div>
                         </div>
-
-                        {/* Social Links */}
-                        <div className="xs:gap-5 xs:text-sm mt-4 flex items-center justify-center gap-4 text-xs sm:mt-6 sm:gap-6 md:mt-0 md:text-sm">
-                            {[
-                                { name: 'Instagram', url: 'https://instagram.com' },
-                                { name: 'TikTok', url: 'https://tiktok.com' },
-                                { name: 'YouTube', url: 'https://youtube.com' },
-                            ].map((social) => (
-                                <motion.a
-                                    key={social.name}
-                                    href={social.url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="font-medium transition-colors duration-200 hover:text-accent"
-                                    whileHover={{ scale: 1.05, y: -1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    style={{ minHeight: '44px', minWidth: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                >
-                                    {social.name}
-                                </motion.a>
-                            ))}
+                        <div className="mt-10 border-t border-white/10 pt-8 text-center">
+                            <p className="text-sm text-white/50">© 2024 Cahaya Anbiya Travel. All rights reserved.</p>
                         </div>
                     </motion.div>
                 </footer>
             </div>
 
-            {/* Hidden File Input for Image Replacement */}
             <input
                 id={hiddenImageInputId}
                 type="file"
@@ -861,31 +733,24 @@ export default function Highlights() {
                     const formData = new FormData();
                     formData.append('key', imageTargetKey);
                     formData.append('image', f);
-                    setSaving(true);
                     axios
-                        .post('/admin/upload-image', formData, {
-                            headers: { 'Content-Type': 'multipart/form-data' },
-                        })
+                        .post('/admin/upload-image', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
                         .then((r) => {
                             if (r.data.success && r.data.imageUrl) {
                                 const highlightId = imageTargetKey.split('.')[1];
                                 const img = document.querySelector(`img[data-highlight-id="${highlightId}"]`) as HTMLImageElement | null;
-                                if (img) {
-                                    img.src = r.data.imageUrl;
-                                }
+                                if (img) img.src = r.data.imageUrl;
                                 window.dispatchEvent(new CustomEvent('cms:flush-save'));
                             }
                         })
                         .catch(() => {})
                         .finally(() => {
-                            setSaving(false);
                             setImageTargetKey(null);
                             e.target.value = '';
                         });
                 }}
             />
 
-            {/* Portal-Based Modal - GUARANTEED Centered & Perfect! */}
             {editorOpen && (
                 <HighlightEditorModal
                     highlight={editorOpen}
@@ -898,27 +763,15 @@ export default function Highlights() {
                             { key: `highlights.${data.id}.category`, content: data.category },
                             { key: `highlights.${data.id}.badge`, content: data.badge },
                         ];
-
                         await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
                         window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                        
-                        // Success notification
                         const notification = document.createElement('div');
-                        notification.className = 'fixed top-20 right-4 z-[99999] rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4 text-white shadow-2xl';
-                        notification.innerHTML = `
-                            <div class="flex items-center gap-3">
-                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                <div>
-                                    <div class="font-bold">✅ Berhasil Disimpan!</div>
-                                    <div class="text-sm opacity-90">Semua perubahan tersimpan</div>
-                                </div>
-                            </div>
-                        `;
+                        notification.className =
+                            'fixed top-20 right-4 z-[99999] rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-8 py-5 text-white shadow-2xl';
+                        notification.innerHTML =
+                            '<div class="flex items-center gap-4"><svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg><div><div class="font-bold text-lg">✅ Successfully Saved!</div><div class="text-sm opacity-90">All changes saved</div></div></div>';
                         document.body.appendChild(notification);
                         setTimeout(() => notification.remove(), 3000);
-                        
                         setEditorOpen(null);
                     }}
                 />

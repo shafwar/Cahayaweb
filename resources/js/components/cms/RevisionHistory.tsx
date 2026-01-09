@@ -27,11 +27,6 @@ export default function RevisionHistory({
     const [loading, setLoading] = useState(false);
     const [restoring, setRestoring] = useState<number | null>(null);
 
-    // Only show in edit mode and for admins
-    if (!isAdmin || !editMode) {
-        return null;
-    }
-
     const fetchRevisions = async () => {
         setLoading(true);
         try {
@@ -43,7 +38,8 @@ export default function RevisionHistory({
             setRevisions(response.data.revisions || []);
         } catch (error) {
             console.error('❌ Failed to fetch revisions:', error);
-            alert('Gagal memuat riwayat perubahan. Error: ' + (error as any).message);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            alert('Gagal memuat riwayat perubahan. Error: ' + errorMessage);
         } finally {
             setLoading(false);
         }
@@ -96,7 +92,14 @@ export default function RevisionHistory({
             });
         } catch (error) {
             console.error('❌ Failed to restore revision:', error);
-            alert('Gagal mengembalikan ke versi sebelumnya.\nError: ' + ((error as any).response?.data?.message || (error as any).message));
+            let errorMessage = 'Unknown error';
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+                errorMessage = axiosError.response?.data?.message || axiosError.message || 'Unknown error';
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+            alert('Gagal mengembalikan ke versi sebelumnya.\nError: ' + errorMessage);
         } finally {
             setRestoring(null);
         }
@@ -106,7 +109,13 @@ export default function RevisionHistory({
         if (isOpen) {
             fetchRevisions();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
+
+    // Only show in edit mode and for admins
+    if (!isAdmin || !editMode) {
+        return null;
+    }
 
     return (
         <>

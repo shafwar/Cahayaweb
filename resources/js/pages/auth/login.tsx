@@ -30,7 +30,7 @@ export default function Login({ status, canResetPassword, mode, redirect }: Logi
         email: '',
         password: '',
         remember: false,
-        mode: (mode as any) ?? undefined,
+        mode: typeof mode === 'string' ? mode : undefined,
         redirect: redirect ?? undefined,
     });
 

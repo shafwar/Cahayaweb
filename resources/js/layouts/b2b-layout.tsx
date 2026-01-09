@@ -14,7 +14,6 @@ document.head.appendChild(fontLink);
 
 export default function B2BLayout({ children }: { children: ReactNode }) {
     const [showPackagesDialog, setShowPackagesDialog] = useState(false);
-    const { sections = {} } = usePage().props as { sections?: Record<string, { content?: string; image?: string }> };
 
     useEffect(() => {
         const handler = () => setShowPackagesDialog(true);

@@ -39,7 +39,7 @@ export default function EditableImage({
             form.append('image', file);
             
             try {
-                const response = await axios.post('/admin/upload-image', form, { 
+                await axios.post('/admin/upload-image', form, { 
                     headers: { 'Content-Type': 'multipart/form-data' } 
                 });
                 

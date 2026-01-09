@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { router } from '@inertiajs/react';
 import { RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import { useEditMode } from './EditModeProvider';
@@ -124,7 +123,14 @@ export default function UndoButton({ sectionKey }: { sectionKey: string }) {
 
         } catch (error) {
             console.error('❌ Undo failed:', error);
-            alert('❌ Gagal undo: ' + ((error as any).response?.data?.message || (error as any).message));
+            let errorMessage = 'Unknown error';
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+                errorMessage = axiosError.response?.data?.message || axiosError.message || 'Unknown error';
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+            alert('❌ Gagal undo: ' + errorMessage);
             setIsUndoing(false);
         }
     };

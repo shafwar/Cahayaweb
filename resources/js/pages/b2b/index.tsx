@@ -359,8 +359,8 @@ export default function CahayaAnbiyaHero() {
         <B2BLayout>
             <Head title="Cahaya Anbiya - Premium Hajj & Umrah Services" />
 
-            {/* Hero Section - Improved Spacing & Proportions */}
-            <section className="relative z-[1] flex min-h-[100svh] items-center justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+            {/* Hero Section - Optimized with B2C Consistency */}
+            <section className="relative z-[1] flex min-h-screen items-center justify-center overflow-hidden bg-black px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
                 {/* Floating Elements Animation */}
                 <div className="pointer-events-none absolute inset-0">
                     <motion.div
@@ -369,7 +369,7 @@ export default function CahayaAnbiyaHero() {
                             y: [0, -20, 0],
                             rotate: [0, 5, 0],
                         }}
-                        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+                        transition={{ duration: 8, repeat: Infinity, ease: [0.22, 1, 0.36, 1] }}
                         className="absolute top-16 left-8 h-12 w-12 rounded-full bg-amber-400/10 blur-xl sm:top-20 sm:left-10 sm:h-16 sm:w-16"
                     />
                     <motion.div
@@ -378,7 +378,7 @@ export default function CahayaAnbiyaHero() {
                             y: [0, 15, 0],
                             rotate: [0, -3, 0],
                         }}
-                        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                        transition={{ duration: 6, repeat: Infinity, ease: [0.22, 1, 0.36, 1] }}
                         className="absolute top-32 right-16 h-20 w-20 rounded-full bg-amber-300/8 blur-xl sm:top-40 sm:right-20 sm:h-24 sm:w-24"
                     />
                     <motion.div
@@ -386,14 +386,20 @@ export default function CahayaAnbiyaHero() {
                             x: [0, 20, 0],
                             y: [0, -10, 0],
                         }}
-                        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+                        transition={{ duration: 10, repeat: Infinity, ease: [0.22, 1, 0.36, 1] }}
                         className="absolute bottom-24 left-1/4 h-16 w-16 rounded-full bg-white/5 blur-xl sm:bottom-32 sm:h-20 sm:w-20"
                     />
                 </div>
 
                 {/* Background Image with Overlay */}
                 <div className="absolute inset-0">
-                    <img src={heroImage} alt="Beautiful view of Kaaba and Masjid al-Haram" className="h-full w-full object-cover" />
+                    <img 
+                        src={heroImage} 
+                        alt="Beautiful view of Kaaba and Masjid al-Haram" 
+                        loading="eager"
+                        decoding="async"
+                        className="h-full w-full object-cover will-change-transform"
+                    />
 
                     {/* Replace Image Button (NEW CONSISTENT STYLE!) */}
                     {editMode && (
@@ -448,14 +454,14 @@ export default function CahayaAnbiyaHero() {
                     <motion.div
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1, ease: 'easeOut' }}
+                        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                         className="space-y-6 sm:space-y-8"
                     >
                         {/* Main Title */}
                         <motion.h1
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 1, delay: 0.3 }}
+                            transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                             className="text-3xl leading-tight font-bold tracking-wide text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
                             style={{
                                 fontFamily: 'Playfair Display, serif',
@@ -470,7 +476,7 @@ export default function CahayaAnbiyaHero() {
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 1, delay: 0.6 }}
+                            transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
                             className="mx-auto max-w-3xl px-2 text-base leading-relaxed font-light text-white sm:px-4 sm:text-lg md:text-xl"
                             style={{
                                 fontFamily: 'Poppins, sans-serif',
@@ -489,7 +495,7 @@ export default function CahayaAnbiyaHero() {
                         <motion.div
                             initial={{ opacity: 0, scaleX: 0 }}
                             animate={{ opacity: 1, scaleX: 1 }}
-                            transition={{ duration: 0.8, delay: 0.9 }}
+                            transition={{ duration: 0.8, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
                             className="mx-auto h-1 w-20 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 sm:w-24"
                         />
 
@@ -497,17 +503,23 @@ export default function CahayaAnbiyaHero() {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 1, delay: 1.2 }}
+                            transition={{ duration: 1, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
                             className="flex w-full flex-col items-center justify-center gap-3 pt-6 sm:w-auto sm:flex-row sm:gap-4 sm:pt-4"
                         >
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <RippleButton
-                                        className="w-full transform rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:from-amber-600 hover:to-amber-700 hover:shadow-xl sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
-                                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                                    <motion.div
+                                        whileHover={{ scale: 1.05, y: -2 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                                     >
-                                        Free Consultation
-                                    </RippleButton>
+                                        <RippleButton
+                                            className="w-full transform rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:from-amber-600 hover:to-amber-700 hover:shadow-xl sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                                            style={{ fontFamily: 'Poppins, sans-serif' }}
+                                        >
+                                            Free Consultation
+                                        </RippleButton>
+                                    </motion.div>
                                 </DialogTrigger>
                                 <DialogContent className="w-[calc(100vw-2rem)] max-w-md sm:max-w-lg">
                                     <DialogHeader>
@@ -522,14 +534,15 @@ export default function CahayaAnbiyaHero() {
 
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="w-full rounded-full border border-white/20 bg-white/10 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
-                                        style={{ fontFamily: 'Poppins, sans-serif' }}
-                                    >
-                                        View Packages
-                                    </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                                className="w-full rounded-full border border-white/20 bg-white/10 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                                style={{ fontFamily: 'Poppins, sans-serif' }}
+                            >
+                                View Packages
+                            </motion.button>
                                 </DialogTrigger>
                                 <DialogContent className="max-h-[80vh] w-[calc(100vw-2rem)] max-w-4xl overflow-y-auto border border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
                                     <DialogHeader className="pb-6">
@@ -545,7 +558,7 @@ export default function CahayaAnbiyaHero() {
                                                 key={pkg.id}
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: pkg.id * 0.1 }}
+                                                transition={{ delay: pkg.id * 0.1, ease: [0.22, 1, 0.36, 1] }}
                                                 className={`group relative overflow-hidden rounded-xl border transition-all duration-300 ${
                                                     selectedPackage === pkg.id
                                                         ? 'border-amber-500 bg-gradient-to-r from-amber-900/20 to-orange-900/20'
@@ -588,7 +601,7 @@ export default function CahayaAnbiyaHero() {
                                                         <motion.div
                                                             initial={{ opacity: 0, height: 0 }}
                                                             animate={{ opacity: 1, height: 'auto' }}
-                                                            transition={{ duration: 0.3, ease: 'easeOut' }}
+                                                            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                                                             className="border-t border-gray-600 pt-4"
                                                         >
                                                             <div className="mb-4">
@@ -602,7 +615,7 @@ export default function CahayaAnbiyaHero() {
                                                                             key={index}
                                                                             initial={{ opacity: 0, x: -10 }}
                                                                             animate={{ opacity: 1, x: 0 }}
-                                                                            transition={{ delay: index * 0.05 }}
+                                                                            transition={{ delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
                                                                             className="flex items-start gap-2 rounded border border-gray-600 bg-gray-700/50 p-2 text-sm"
                                                                         >
                                                                             <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-400"></div>
@@ -632,7 +645,7 @@ export default function CahayaAnbiyaHero() {
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.5 }}
+                                            transition={{ delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
                                             className="rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-900/20 to-purple-900/20 p-6"
                                         >
                                             <div className="mb-4 flex items-start gap-3">
@@ -677,7 +690,7 @@ export default function CahayaAnbiyaHero() {
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ duration: 1, delay: 1.5 }}
+                            transition={{ duration: 1, delay: 1.5, ease: [0.22, 1, 0.36, 1] }}
                             className="flex flex-wrap items-center justify-center gap-4 pt-6 text-white/80 sm:gap-6 sm:pt-8"
                             style={{ fontFamily: 'Poppins, sans-serif' }}
                         >
@@ -703,7 +716,7 @@ export default function CahayaAnbiyaHero() {
                 <motion.div
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 2.5 }}
+                    transition={{ duration: 0.5, delay: 2.5, ease: [0.22, 1, 0.36, 1] }}
                     className="fixed right-4 bottom-20 z-50 sm:right-6 sm:bottom-6"
                 >
                     <Dialog>
@@ -746,7 +759,7 @@ export default function CahayaAnbiyaHero() {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 }}
+                                    transition={{ delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                                     className="rounded-lg border border-green-500/30 bg-gradient-to-r from-green-900/20 to-emerald-900/20 p-4"
                                 >
                                     <div className="mb-3 flex items-center gap-2">
@@ -798,7 +811,7 @@ export default function CahayaAnbiyaHero() {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2 }}
+                                    transition={{ delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                                     className="rounded-lg border border-blue-500/30 bg-gradient-to-r from-blue-900/20 to-indigo-900/20 p-4"
                                 >
                                     <div className="mb-3 flex items-center gap-2">
@@ -841,7 +854,7 @@ export default function CahayaAnbiyaHero() {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
+                                    transition={{ delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                                     className="rounded-lg border border-amber-500/30 bg-gradient-to-r from-amber-900/20 to-orange-900/20 p-4 sm:col-span-2"
                                 >
                                     <div className="mb-3 flex items-center gap-2">
@@ -886,7 +899,7 @@ export default function CahayaAnbiyaHero() {
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.5 }}
+                                    transition={{ delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
                                     className="rounded-lg border border-gray-500/30 bg-gray-800/50 p-3 text-center sm:col-span-2"
                                 >
                                     <div className="mb-2 flex items-center justify-center gap-2">
@@ -908,7 +921,7 @@ export default function CahayaAnbiyaHero() {
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 2 }}
+                    transition={{ duration: 1, delay: 2, ease: [0.22, 1, 0.36, 1] }}
                     className="absolute bottom-8 left-1/2 -translate-x-1/2 transform"
                 >
                     <motion.div

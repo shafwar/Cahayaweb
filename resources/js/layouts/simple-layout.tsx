@@ -2,7 +2,7 @@ import { type ReactNode } from 'react';
 
 interface SimpleLayoutProps {
     children: ReactNode;
-    breadcrumbs?: any[];
+    breadcrumbs?: Array<{ label: string; href: string }>;
 }
 
 export default function SimpleLayout({ children }: SimpleLayoutProps) {

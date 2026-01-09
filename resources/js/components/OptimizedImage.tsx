@@ -29,7 +29,6 @@ export function OptimizedImage({
     // Generate optimized image paths
     const getOptimizedSrc = (originalSrc: string) => {
         const filename = originalSrc.split('/').pop()?.split('.')[0];
-        const extension = originalSrc.split('.').pop();
 
         if (!filename) return originalSrc;
 

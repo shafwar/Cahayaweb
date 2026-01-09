@@ -8,7 +8,6 @@ import {
     CheckCircle, 
     ArrowLeft, 
     Trash2,
-    Filter,
     Search,
     Image as ImageIcon,
     Type,
@@ -51,9 +50,16 @@ export default function RestoreCenter() {
             setChanges(response.data.changes || []);
         } catch (error) {
             console.error('Failed to fetch changes:', error);
+            let errorMessage = 'Unknown error';
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+                errorMessage = axiosError.response?.data?.message || axiosError.message || 'Unknown error';
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             setResult({
                 status: 'error',
-                message: 'Failed to load changes: ' + ((error as any).response?.data?.message || (error as any).message),
+                message: 'Failed to load changes: ' + errorMessage,
             });
         } finally {
             setLoading(false);
@@ -129,9 +135,16 @@ export default function RestoreCenter() {
             await fetchChanges(); // Refresh list
             setTimeout(() => setResult(null), 3000);
         } catch (error) {
+            let errorMessage = 'Unknown error';
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+                errorMessage = axiosError.response?.data?.message || axiosError.message || 'Unknown error';
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             setResult({
                 status: 'error',
-                message: `❌ Failed: ${(error as any).response?.data?.message || (error as any).message}`,
+                message: `❌ Failed: ${errorMessage}`,
             });
         } finally {
             setIsResetting(false);
@@ -155,9 +168,16 @@ export default function RestoreCenter() {
             await fetchChanges();
             setTimeout(() => setResult(null), 3000);
         } catch (error) {
+            let errorMessage = 'Unknown error';
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+                errorMessage = axiosError.response?.data?.message || axiosError.message || 'Unknown error';
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             setResult({
                 status: 'error',
-                message: `❌ Failed: ${(error as any).response?.data?.message || (error as any).message}`,
+                message: `❌ Failed: ${errorMessage}`,
             });
         } finally {
             setIsResetting(false);
@@ -181,9 +201,16 @@ export default function RestoreCenter() {
             await fetchChanges();
             setTimeout(() => setResult(null), 3000);
         } catch (error) {
+            let errorMessage = 'Unknown error';
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+                errorMessage = axiosError.response?.data?.message || axiosError.message || 'Unknown error';
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             setResult({
                 status: 'error',
-                message: `❌ Failed: ${(error as any).response?.data?.message || (error as any).message}`,
+                message: `❌ Failed: ${errorMessage}`,
             });
         } finally {
             setIsResetting(false);
@@ -212,9 +239,16 @@ export default function RestoreCenter() {
                 window.location.href = '/home?t=' + Date.now();
             }, 2000);
         } catch (error) {
+            let errorMessage = 'Unknown error';
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+                errorMessage = axiosError.response?.data?.message || axiosError.message || 'Unknown error';
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             setResult({
                 status: 'error',
-                message: `❌ Failed: ${(error as any).response?.data?.message || (error as any).message}`,
+                message: `❌ Failed: ${errorMessage}`,
             });
             setIsResetting(false);
         }

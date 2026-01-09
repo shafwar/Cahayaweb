@@ -6,7 +6,11 @@ interface HeroImageProps {
     alt: string;
     className?: string;
     style?: React.CSSProperties;
-    variants?: any;
+    variants?: {
+        [key: string]: {
+            [key: string]: string | number;
+        };
+    };
     initial?: string;
     animate?: string;
     exit?: string;

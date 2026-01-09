@@ -41,10 +41,17 @@ export default function AdminResetImagesPage() {
             } else {
                 throw new Error(data?.message || 'Unknown error');
             }
-        } catch (error: any) {
+        } catch (error) {
+            let errorMessage = 'Unknown error';
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+                errorMessage = axiosError.response?.data?.message || axiosError.message || 'Unknown error';
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             setResult({
                 status: 'error',
-                message: `❌ Gagal reset: ${error?.response?.data?.message || error?.message}`,
+                message: `❌ Gagal reset: ${errorMessage}`,
             });
             setIsResetting(false);
         }
@@ -79,10 +86,17 @@ export default function AdminResetImagesPage() {
             } else {
                 throw new Error(data?.message || 'Unknown error');
             }
-        } catch (error: any) {
+        } catch (error) {
+            let errorMessage = 'Unknown error';
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+                errorMessage = axiosError.response?.data?.message || axiosError.message || 'Unknown error';
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             setResult({
                 status: 'error',
-                message: `❌ Gagal reset: ${error?.response?.data?.message || error?.message}`,
+                message: `❌ Gagal reset: ${errorMessage}`,
             });
             setIsResetting(false);
         }

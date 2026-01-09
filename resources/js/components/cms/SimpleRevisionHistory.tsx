@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { router } from '@inertiajs/react';
 import { History, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useEditMode } from './EditModeProvider';
@@ -21,11 +20,6 @@ export default function SimpleRevisionHistory({ sectionKey }: { sectionKey: stri
     const [loading, setLoading] = useState(false);
     const [restoring, setRestoring] = useState<number | null>(null);
 
-    // Only render in edit mode
-    if (!isAdmin || !editMode) {
-        return null;
-    }
-
     const fetchRevisions = async () => {
         setLoading(true);
         try {
@@ -37,7 +31,8 @@ export default function SimpleRevisionHistory({ sectionKey }: { sectionKey: stri
             setRevisions(response.data.revisions || []);
         } catch (error) {
             console.error('❌ Failed to fetch revisions:', error);
-            alert('Gagal memuat riwayat: ' + (error as any).message);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            alert('Gagal memuat riwayat: ' + errorMessage);
         } finally {
             setLoading(false);
         }
@@ -79,7 +74,14 @@ export default function SimpleRevisionHistory({ sectionKey }: { sectionKey: stri
 
         } catch (error) {
             console.error('❌ Restore failed:', error);
-            alert('❌ Gagal restore:\n\n' + ((error as any).response?.data?.message || (error as any).message));
+            let errorMessage = 'Unknown error';
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+                errorMessage = axiosError.response?.data?.message || axiosError.message || 'Unknown error';
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+            alert('❌ Gagal restore:\n\n' + errorMessage);
         } finally {
             setRestoring(null);
         }
@@ -89,7 +91,13 @@ export default function SimpleRevisionHistory({ sectionKey }: { sectionKey: stri
         if (isOpen) {
             fetchRevisions();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
+
+    // Only render in edit mode
+    if (!isAdmin || !editMode) {
+        return null;
+    }
 
     return (
         <>

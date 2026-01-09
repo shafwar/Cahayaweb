@@ -19,9 +19,17 @@ export function useEditMode() {
     return ctx;
 }
 
+interface PageProps {
+    auth?: {
+        user?: {
+            is_admin?: boolean;
+        };
+    };
+}
+
 export default function EditModeProvider({ children }: { children: React.ReactNode }) {
     const page = usePage();
-    const user = (page.props as any)?.auth?.user;
+    const user = (page.props as PageProps)?.auth?.user;
     const isAdmin = Boolean(user?.is_admin);
 
     const [editMode, setEditMode] = useState(false);

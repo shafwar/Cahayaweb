@@ -78,7 +78,8 @@ async function performQuickUndo() {
 
     } catch (error) {
         console.error('❌ Quick undo failed:', error);
-        alert('Undo failed: ' + (error as any).message);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        alert('Undo failed: ' + errorMessage);
     }
 }
 

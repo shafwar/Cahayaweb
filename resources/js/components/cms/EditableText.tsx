@@ -60,7 +60,7 @@ export default function EditableText({
     tag?: keyof JSX.IntrinsicElements;
     className?: string;
 }) {
-    const { isAdmin, editMode, markDirty, clearDirty } = useEditMode();
+    const { isAdmin, editMode, markDirty } = useEditMode();
     const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
     
     // Prioritize data from database, fallback to default value
@@ -81,7 +81,7 @@ export default function EditableText({
             // Only update if not currently editing
             setText(newValue);
         }
-    }, [dbContent, value]);
+    }, [dbContent, value, text, hasChanges]);
 
     // Restore cursor position after state update
     useEffect(() => {
@@ -137,16 +137,17 @@ export default function EditableText({
         <div className={editMode && isAdmin ? 'group relative' : undefined}>
             <div className="relative">
                 <Tag
-                ref={ref as any}
+                ref={ref as React.RefObject<HTMLElement>}
                 contentEditable={isAdmin && editMode}
                 suppressContentEditableWarning
-                onInput={(e: any) => {
+                onInput={(e: React.FormEvent<HTMLElement>) => {
                     // Save cursor position BEFORE updating state
                     if (ref.current) {
                         cursorPositionRef.current = saveCursorPosition(ref.current);
                     }
                     
-                    const next = e.currentTarget.innerText;
+                    const target = e.currentTarget as HTMLElement;
+                    const next = target.innerText;
                     
                     // Update text state (cursor will be restored by useEffect)
                     setText(next);
@@ -160,7 +161,7 @@ export default function EditableText({
                     }
                 }}
                 onBlur={handleBlur}
-                onKeyDown={(e: any) => {
+                onKeyDown={(e: React.KeyboardEvent<HTMLElement>) => {
                     // Save on Ctrl/Cmd + S
                     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                         e.preventDefault();

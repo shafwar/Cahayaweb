@@ -87,7 +87,25 @@ class Section extends Model
      */
     public static function getAllSections(): array
     {
+        try {
+            // Check if table exists before querying
+            if (! \Illuminate\Support\Facades\Schema::hasTable('sections')) {
+                $live = collect([]);
+            } else {
         $live = static::all()->mapWithKeys(fn ($section) => [$section->key => $section]);
+            }
+        } catch (\PDOException $e) {
+            \Log::warning('Database error getting sections', [
+                'error' => $e->getMessage()
+            ]);
+            $live = collect([]);
+        } catch (\Exception $e) {
+            \Log::warning('Error getting sections', [
+                'error' => $e->getMessage()
+            ]);
+            $live = collect([]);
+        }
+        
         $snapshot = SectionSnapshot::latestPayload();
         $defaults = SectionDefaults::all();
 

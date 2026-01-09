@@ -1,304 +1,409 @@
-import { EditableText } from '@/components/cms';
 import PublicLayout from '@/layouts/public-layout';
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Heart, Shield, Star } from 'lucide-react';
+import { Award, Globe, Heart, Shield, Star, TrendingUp, Users } from 'lucide-react';
 
 // Animation variants
-const cardVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
+const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0 },
+};
+
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    show: {
         opacity: 1,
-        scale: 1,
         transition: {
-            duration: 0.5,
-            ease: 'easeOut',
+            staggerChildren: 0.12,
         },
     },
 };
 
+const scaleIn = {
+    hidden: { opacity: 0, scale: 0.8 },
+    show: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+            duration: 0.6,
+            ease: [0.22, 1, 0.36, 1],
+        },
+    },
+};
+
+const ease = [0.22, 1, 0.36, 1];
+
 export default function About() {
     const coreValues = [
         {
-            icon: <Shield className="h-6 w-6" />,
+            icon: Shield,
             title: 'Integrity',
             description: 'Transparency and honesty in every service we provide',
+            color: 'from-blue-500/20 to-indigo-500/20',
+            borderColor: 'border-blue-500/30',
+            iconColor: 'text-blue-400',
+            accentGradient: 'from-blue-400 to-indigo-400',
         },
         {
-            icon: <Heart className="h-6 w-6" />,
+            icon: Heart,
             title: 'Hospitality',
             description: 'Genuine warmth and care in every journey',
+            color: 'from-rose-500/20 to-pink-500/20',
+            borderColor: 'border-rose-500/30',
+            iconColor: 'text-rose-400',
+            accentGradient: 'from-rose-400 to-pink-400',
         },
         {
-            icon: <Star className="h-6 w-6" />,
+            icon: Star,
             title: 'Excellence',
             description: 'Uncompromising quality in every travel detail',
+            color: 'from-amber-500/20 to-orange-500/20',
+            borderColor: 'border-amber-500/30',
+            iconColor: 'text-amber-400',
+            accentGradient: 'from-amber-400 to-orange-400',
         },
     ];
 
     const stats = [
-        { number: '500+', label: 'Happy Travelers' },
-        { number: '50+', label: 'Destinations' },
-        { number: '5+', label: 'Years Experience' },
+        {
+            number: '100+',
+            label: 'Happy Travelers',
+            icon: Users,
+        },
+        {
+            number: '15+',
+            label: 'Destinations',
+            icon: Globe,
+        },
+        {
+            number: '2025',
+            label: 'Established',
+            icon: Award,
+        },
+        {
+            number: '95%',
+            label: 'Satisfaction Rate',
+            icon: TrendingUp,
+        },
     ];
 
     return (
         <PublicLayout>
-            <Head title="About" />
+            <Head title="About Us - Cahaya Anbiya Travel" />
 
-            {/* Dark theme background - solid black */}
-            <div className="min-h-screen bg-black">
-                <section className="mx-auto max-w-6xl px-4 pt-4 pb-16 sm:px-6 sm:pt-6">
-                    {/* Clean Header */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: 'easeOut' }}
-                        className="mb-16 text-center"
-                    >
-                        <div className="mb-6 inline-block rounded-full border border-secondary/30 bg-gradient-to-r from-secondary/20 to-secondary/30 px-4 py-2">
-                            <span className="text-sm font-medium text-secondary">
-                                <EditableText sectionKey="about.header.badge" value="✨ Cahaya Anbiya Travel" tag="span" />
-                            </span>
-                        </div>
-                        <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl lg:text-6xl">
-                            <EditableText sectionKey="about.header.title" value="About Us" tag="span" />
-                        </h1>
-                        <p className="mx-auto max-w-2xl text-lg text-gray-300">
-                            <EditableText
-                                sectionKey="about.header.subtitle"
-                                value="Creating memorable travel experiences with the best service"
-                                tag="span"
-                            />
-                        </p>
-                    </motion.div>
+            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
+                {/* Hero Section */}
+                <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
+                    {/* Ambient Background Effects */}
+                    <div className="pointer-events-none absolute inset-0">
+                        <div className="absolute top-0 left-1/4 h-[500px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.1),transparent_70%)] blur-3xl" />
+                        <div className="absolute right-1/4 bottom-0 h-[500px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.1),transparent_70%)] blur-3xl" />
+                    </div>
 
-                    {/* Mobile-First Responsive Layout */}
-                    <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
-                        {/* Left - Content with Better Mobile Spacing */}
+                    <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+                        {/* Header */}
                         <motion.div
-                            initial={{ opacity: 0, x: -30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
-                            className="space-y-6 lg:space-y-8"
+                            initial="hidden"
+                            animate="show"
+                            variants={fadeInUp}
+                            transition={{ duration: 0.8, ease }}
+                            className="mb-8 text-center md:mb-10"
                         >
-                            {/* Company Profile */}
-                            <div className="space-y-4">
-                                <h2 className="text-2xl font-semibold text-white">
-                                    <EditableText sectionKey="about.company.heading" value="Company Profile" tag="span" />
-                                </h2>
-                                <p className="leading-relaxed text-gray-300">
-                                    <EditableText
-                                        sectionKey="about.company.description"
-                                        value="PT Cahaya Anbiya Travel is a travel company committed to providing memorable and comfortable halal travel experiences. We prioritize service quality with a friendly and professional approach, ensuring every journey is both spiritually fulfilling and culturally enriching."
-                                        tag="span"
-                                    />
-                                </p>
-                            </div>
+                            {/* Badge */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.6 }}
+                                className="mb-4 inline-block"
+                            >
+                                <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-4 py-1.5 shadow-xl backdrop-blur-sm">
+                                    <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
+                                        ✨ Cahaya Anbiya Travel
+                                    </span>
+                                </div>
+                            </motion.div>
 
-                            {/* Vision & Mission - Mobile-Optimized Cards */}
-                            <div className="space-y-4 lg:space-y-6">
-                                <motion.div
-                                    variants={cardVariants}
-                                    initial="hidden"
-                                    whileInView="visible"
-                                    viewport={{ once: true }}
-                                    className="rounded-2xl border border-secondary/30 bg-black/40 p-4 shadow-lg backdrop-blur-sm lg:p-6"
-                                >
-                                    <h3 className="mb-3 text-lg font-semibold text-secondary">
-                                        <EditableText sectionKey="about.vision.heading" value="Vision" tag="span" />
-                                    </h3>
-                                    <p className="text-sm leading-relaxed text-gray-300 lg:text-base">
-                                        <EditableText
-                                            sectionKey="about.vision.description"
-                                            value="To become a leading travel company in inspiring halal travel packages that connect people with their faith and culture."
-                                            tag="span"
-                                        />
-                                    </p>
-                                </motion.div>
+                            {/* Title - Compact Size */}
+                            <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
+                                About Us
+                            </h1>
 
-                                <motion.div
-                                    variants={cardVariants}
-                                    initial="hidden"
-                                    whileInView="visible"
-                                    viewport={{ once: true }}
-                                    transition={{ delay: 0.1 }}
-                                    className="rounded-2xl border border-secondary/30 bg-black/40 p-4 shadow-lg backdrop-blur-sm lg:p-6"
-                                >
-                                    <h3 className="mb-3 text-lg font-semibold text-secondary">
-                                        <EditableText sectionKey="about.mission.heading" value="Mission" tag="span" />
-                                    </h3>
-                                    <ul className="space-y-2 text-sm text-gray-300 lg:text-base">
-                                        <li className="flex items-start gap-2">
-                                            <span className="mt-1 flex-shrink-0 text-secondary">•</span>
-                                            <span>
-                                                <EditableText
-                                                    sectionKey="about.mission.item1"
-                                                    value="Provide inspiring halal travel experiences that enrich spiritual journeys"
-                                                    tag="span"
-                                                />
-                                            </span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="mt-1 flex-shrink-0 text-secondary">•</span>
-                                            <span>
-                                                <EditableText
-                                                    sectionKey="about.mission.item2"
-                                                    value="Prioritize safety, comfort, and authenticity in every service"
-                                                    tag="span"
-                                                />
-                                            </span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="mt-1 flex-shrink-0 text-secondary">•</span>
-                                            <span>
-                                                <EditableText
-                                                    sectionKey="about.mission.item3"
-                                                    value="Deliver exceptional customer service with cultural sensitivity"
-                                                    tag="span"
-                                                />
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </motion.div>
-                            </div>
-
-                            {/* Mobile-Optimized Stats */}
-                            <div className="grid grid-cols-3 gap-3 py-4 lg:gap-6 lg:py-6">
-                                {stats.map((stat, index) => (
-                                    <motion.div
-                                        key={index}
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        whileInView={{ opacity: 1, scale: 1 }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 0.4, delay: index * 0.1 }}
-                                        className="text-center"
-                                    >
-                                        <div className="mb-1 text-lg font-bold text-secondary lg:text-2xl">
-                                            <EditableText sectionKey={`about.stats.${index}.number`} value={stat.number} tag="span" />
-                                        </div>
-                                        <div className="text-xs leading-tight text-gray-400 lg:text-sm">
-                                            <EditableText sectionKey={`about.stats.${index}.label`} value={stat.label} tag="span" />
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
+                            {/* Subtitle */}
+                            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
+                                Creating unforgettable travel experiences with exceptional service, cultural authenticity, and unwavering commitment
+                                to excellence
+                            </p>
                         </motion.div>
 
-                        {/* Right - Core Values */}
+                        {/* Stats Grid - Compact */}
                         <motion.div
-                            initial={{ opacity: 0, x: 30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: 0.2 }}
-                            className="space-y-4"
+                            variants={staggerContainer}
+                            initial="hidden"
+                            whileInView="show"
+                            viewport={{ once: true, margin: '-100px' }}
+                            className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4"
                         >
-                            <h2 className="mb-4 text-xl font-semibold text-white lg:mb-6 lg:text-2xl">
-                                <EditableText sectionKey="about.corevalues.heading" value="Our Core Values" tag="span" />
-                            </h2>
-
-                            <div className="space-y-3 lg:space-y-4">
-                                {coreValues.map((value, index) => (
+                            {stats.map((stat, index) => {
+                                const IconComponent = stat.icon;
+                                return (
                                     <motion.div
                                         key={index}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 0.4, delay: index * 0.1 }}
-                                        whileHover={{
-                                            scale: 1.02,
-                                            transition: { duration: 0.2 },
-                                        }}
-                                        className="group rounded-2xl border border-white/20 bg-black/40 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-secondary/50 hover:shadow-xl lg:p-6"
+                                        variants={scaleIn}
+                                        whileHover={{ y: -6, scale: 1.02 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-4 text-center shadow-lg backdrop-blur-sm sm:p-5 md:p-6"
                                     >
-                                        <div className="flex items-start space-x-3 lg:space-x-4">
-                                            <div className="flex-shrink-0 rounded-xl border border-secondary/30 bg-gradient-to-br from-secondary/20 to-secondary/30 p-2 transition-transform duration-300 group-hover:scale-110 lg:p-3">
-                                                <div className="h-5 w-5 text-secondary transition-colors group-hover:text-secondary lg:h-6 lg:w-6">
-                                                    {value.icon}
+                                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-orange-500/0 transition-all duration-500 group-hover:from-amber-500/15 group-hover:to-orange-500/15" />
+
+                                        <div className="relative">
+                                            {/* Icon */}
+                                            <div className="mb-3 flex justify-center">
+                                                <div className="rounded-lg bg-gradient-to-br from-amber-500/25 to-orange-500/25 p-2 shadow-md ring-1 ring-amber-500/50 sm:p-2.5">
+                                                    <IconComponent className="h-5 w-5 text-amber-400 sm:h-6 sm:w-6" />
                                                 </div>
                                             </div>
-                                            <div className="min-w-0 flex-1">
-                                                <h3 className="mb-2 text-base font-semibold text-white transition-colors group-hover:text-secondary lg:text-lg">
-                                                    <EditableText sectionKey={`about.corevalues.${index}.title`} value={value.title} tag="span" />
-                                                </h3>
-                                                <p className="text-xs leading-relaxed text-gray-300 transition-colors group-hover:text-gray-200 lg:text-sm">
-                                                    <EditableText
-                                                        sectionKey={`about.corevalues.${index}.description`}
-                                                        value={value.description}
-                                                        tag="span"
-                                                    />
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
 
-                            {/* Simple CTA */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: 0.5 }}
-                                className="mt-8 rounded-2xl border border-secondary/30 bg-gradient-to-r from-secondary to-accent p-6 text-center"
-                            >
-                                <h3 className="mb-2 text-xl font-semibold text-white">
-                                    <EditableText sectionKey="about.cta.title" value="Ready to Start Your Journey?" tag="span" />
-                                </h3>
-                                <p className="mb-4 text-sm text-white">
-                                    <EditableText sectionKey="about.cta.description" value="Contact us for a free consultation" tag="span" />
-                                </p>
-                                <motion.a
-                                    href="https://wa.me/6281234567890"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="rounded-full bg-white px-6 py-3 font-medium text-black shadow-lg transition-colors duration-300 hover:bg-gray-50"
-                                >
-                                    Free Consultation
-                                </motion.a>
-                            </motion.div>
+                                            {/* Number - Compact */}
+                                            <div className="mb-1.5 bg-gradient-to-r from-amber-200 via-amber-100 to-orange-200 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl md:text-4xl lg:text-5xl">
+                                                {stat.number}
+                                            </div>
+
+                                            {/* Label */}
+                                            <div className="text-xs font-semibold text-white/90 sm:text-sm">{stat.label}</div>
+                                        </div>
+
+                                        {/* Bottom Accent Line */}
+                                        <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-all duration-500 group-hover:w-full" />
+                                    </motion.div>
+                                );
+                            })}
                         </motion.div>
                     </div>
                 </section>
 
-                {/* Footer - solid black to match page background */}
-                <footer className="border-t border-white/10 bg-black">
+                {/* Main Content */}
+                <section className="relative py-12 md:py-20">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6">
+                        <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
+                            {/* Left Column - Company Info */}
+                            <motion.div
+                                initial={{ opacity: 0, x: -30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, margin: '-100px' }}
+                                transition={{ duration: 0.8, ease }}
+                                className="space-y-6"
+                            >
+                                {/* Company Profile */}
+                                <div className="space-y-3">
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true, margin: '-50px' }}
+                                        transition={{ duration: 0.6 }}
+                                    >
+                                        <h2 className="mb-3 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-xl font-bold text-transparent sm:text-2xl lg:text-3xl">
+                                            Company Profile
+                                        </h2>
+                                        <p className="text-sm leading-relaxed text-white/80 sm:text-base md:text-lg">
+                                            PT Cahaya Anbiya Travel is a premier travel company committed to providing memorable and comfortable halal
+                                            travel experiences. We prioritize service quality with a friendly and professional approach, ensuring
+                                            every journey is both spiritually fulfilling and culturally enriching.
+                                        </p>
+                                    </motion.div>
+                                </div>
+
+                                {/* Vision Card */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, margin: '-50px' }}
+                                    transition={{ duration: 0.6, delay: 0.1 }}
+                                    whileHover={{ y: -4 }}
+                                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm sm:p-6"
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-indigo-500/0 transition-all duration-500 group-hover:from-blue-500/10 group-hover:to-indigo-500/10" />
+
+                                    <div className="relative">
+                                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-500/40 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 px-3 py-1.5">
+                                            <div className="h-2 w-2 rounded-full bg-blue-400 shadow-md shadow-blue-400/50" />
+                                            <span className="text-xs font-bold tracking-wider text-blue-300 uppercase">Vision</span>
+                                        </div>
+                                        <p className="text-sm leading-relaxed text-white/85 sm:text-base">
+                                            To become a leading travel company in inspiring halal travel packages that connect people with their faith
+                                            and culture, creating transformative experiences that last a lifetime.
+                                        </p>
+                                    </div>
+
+                                    <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-blue-400 to-indigo-400 shadow-md transition-all duration-500 group-hover:w-full" />
+                                </motion.div>
+
+                                {/* Mission Card */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, margin: '-50px' }}
+                                    transition={{ duration: 0.6, delay: 0.2 }}
+                                    whileHover={{ y: -4 }}
+                                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm sm:p-6"
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-500/0 transition-all duration-500 group-hover:from-purple-500/10 group-hover:to-pink-500/10" />
+
+                                    <div className="relative">
+                                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-purple-500/40 bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-3 py-1.5">
+                                            <div className="h-2 w-2 rounded-full bg-purple-400 shadow-md shadow-purple-400/50" />
+                                            <span className="text-xs font-bold tracking-wider text-purple-300 uppercase">Mission</span>
+                                        </div>
+                                        <ul className="space-y-2.5 text-sm text-white/85 sm:text-base">
+                                            <li className="flex items-start gap-2.5">
+                                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 shadow-md" />
+                                                <span>Provide inspiring halal travel experiences that enrich spiritual journeys</span>
+                                            </li>
+                                            <li className="flex items-start gap-2.5">
+                                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 shadow-md" />
+                                                <span>Prioritize safety, comfort, and authenticity in every service</span>
+                                            </li>
+                                            <li className="flex items-start gap-2.5">
+                                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 shadow-md" />
+                                                <span>Deliver exceptional customer service with cultural sensitivity</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-purple-400 to-pink-400 shadow-md transition-all duration-500 group-hover:w-full" />
+                                </motion.div>
+                            </motion.div>
+
+                            {/* Right Column - Core Values */}
+                            <motion.div
+                                initial={{ opacity: 0, x: 30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, margin: '-100px' }}
+                                transition={{ duration: 0.8, ease, delay: 0.2 }}
+                                className="space-y-6"
+                            >
+                                <div>
+                                    <h2 className="mb-5 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-xl font-bold text-transparent sm:text-2xl lg:text-3xl">
+                                        Our Core Values
+                                    </h2>
+
+                                    <div className="space-y-4">
+                                        {coreValues.map((value, index) => {
+                                            const IconComponent = value.icon;
+                                            return (
+                                                <motion.div
+                                                    key={index}
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    whileInView={{ opacity: 1, y: 0 }}
+                                                    viewport={{ once: true, margin: '-50px' }}
+                                                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                                                    whileHover={{ y: -4, x: 1 }}
+                                                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm sm:p-6"
+                                                >
+                                                    <div
+                                                        className={`absolute inset-0 bg-gradient-to-br ${value.color} opacity-0 transition-all duration-500 group-hover:opacity-100`}
+                                                    />
+
+                                                    <div className="relative flex items-start gap-3.5">
+                                                        <div
+                                                            className={`flex-shrink-0 rounded-lg border ${value.borderColor} bg-gradient-to-br ${value.color} p-2.5 shadow-md transition-all duration-300 group-hover:scale-105 group-hover:rotate-2 sm:p-3`}
+                                                        >
+                                                            <IconComponent className={`h-5 w-5 ${value.iconColor} sm:h-6 sm:w-6`} />
+                                                        </div>
+
+                                                        <div className="flex-1">
+                                                            <h3 className="mb-1.5 text-base font-bold text-white transition-colors sm:text-lg lg:text-xl">
+                                                                {value.title}
+                                                            </h3>
+                                                            <p className="text-xs leading-relaxed text-white/75 transition-colors group-hover:text-white/90 sm:text-sm">
+                                                                {value.description}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div
+                                                        className={`absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r ${value.accentGradient} shadow-md transition-all duration-500 group-hover:w-full`}
+                                                    />
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* CTA Card */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, margin: '-50px' }}
+                                    transition={{ duration: 0.6, delay: 0.4 }}
+                                    className="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-6 shadow-xl sm:p-8"
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/10" />
+
+                                    <div className="relative text-center">
+                                        <h3 className="mb-2.5 text-xl font-bold text-white sm:text-2xl">Ready to Start Your Journey?</h3>
+                                        <p className="mb-5 text-sm text-white/95 sm:text-base">
+                                            Contact us today for a free consultation and let us help you plan your perfect travel experience
+                                        </p>
+                                        <motion.a
+                                            href="https://wa.me/6281234567890"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            whileHover={{ scale: 1.05, y: -2 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black shadow-xl transition-all hover:bg-white/95 hover:shadow-2xl sm:px-8 sm:py-4 sm:text-base"
+                                        >
+                                            <span>Free Consultation</span>
+                                            <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                            </svg>
+                                        </motion.a>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Footer */}
+                <footer className="relative border-t border-white/10 bg-black/60 backdrop-blur-sm">
                     <motion.div
-                        className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:flex md:items-center md:justify-between md:px-6 md:py-12 lg:px-8 xl:px-10"
-                        initial={{ opacity: 0, y: 15 }}
+                        className="mx-auto max-w-7xl px-4 py-12 sm:px-6"
+                        initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
+                        viewport={{ once: true, margin: '-100px' }}
+                        transition={{ duration: 0.6 }}
                     >
-                        {/* Contact Info */}
-                        <div className="xs:text-sm text-center text-xs leading-relaxed text-muted-foreground sm:text-left md:text-sm">
-                            <div className="font-medium">Email: hello@cahaya-anbiya.com</div>
-                            <div className="xs:mt-1 mt-0.5 font-medium">WhatsApp: +62 812-3456-7890</div>
+                        <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+                            {/* Contact Info */}
+                            <div className="text-center text-base text-white/70 md:text-left">
+                                <div className="font-semibold">Email: hello@cahaya-anbiya.com</div>
+                                <div className="mt-2 font-semibold">WhatsApp: +62 812-3456-7890</div>
+                            </div>
+
+                            {/* Social Links */}
+                            <div className="flex items-center gap-8">
+                                {[
+                                    { name: 'Instagram', url: 'https://instagram.com' },
+                                    { name: 'TikTok', url: 'https://tiktok.com' },
+                                    { name: 'YouTube', url: 'https://youtube.com' },
+                                ].map((social) => (
+                                    <motion.a
+                                        key={social.name}
+                                        href={social.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-base font-semibold text-white/70 transition-colors hover:text-amber-400"
+                                        whileHover={{ scale: 1.1, y: -2 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        {social.name}
+                                    </motion.a>
+                                ))}
+                            </div>
                         </div>
 
-                        {/* Social Links */}
-                        <div className="xs:gap-5 xs:text-sm mt-4 flex items-center justify-center gap-4 text-xs sm:mt-6 sm:gap-6 md:mt-0 md:text-sm">
-                            {[
-                                { name: 'Instagram', url: 'https://instagram.com' },
-                                { name: 'TikTok', url: 'https://tiktok.com' },
-                                { name: 'YouTube', url: 'https://youtube.com' },
-                            ].map((social) => (
-                                <motion.a
-                                    key={social.name}
-                                    href={social.url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="font-medium transition-colors duration-200 hover:text-accent"
-                                    whileHover={{ scale: 1.05, y: -1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    style={{ minHeight: '44px', minWidth: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} // Touch-friendly
-                                >
-                                    {social.name}
-                                </motion.a>
-                            ))}
+                        <div className="mt-10 border-t border-white/10 pt-8 text-center">
+                            <p className="text-sm text-white/50">© 2024 Cahaya Anbiya Travel. All rights reserved.</p>
                         </div>
                     </motion.div>
                 </footer>

@@ -14,7 +14,7 @@ interface UseSmoothScrollOptions {
 }
 
 export function useSmoothScroll(options: UseSmoothScrollOptions = {}) {
-    const { threshold = 10, hideOnScrollDown = false, showOnScrollUp = true } = options;
+    const { threshold = 10, hideOnScrollDown = false } = options;
 
     const [scrollState, setScrollState] = useState<ScrollState>({
         scrollY: 0,
