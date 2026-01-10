@@ -268,13 +268,16 @@ export default function Home() {
                 <Head title="Home" />
 
                 <div ref={containerRef}>
-                    {/* Hero Section - Clean Video Background - Proportional to Video */}
-                    <section className="relative w-full overflow-hidden bg-black" style={{ aspectRatio: '16/9', height: 'auto', minHeight: '65vh', maxHeight: '85vh' }}>
+                    {/* Hero Section - Clean Video Background - Mobile Optimized */}
+                    <section className="relative h-[92vh] w-full overflow-hidden bg-black sm:h-[88vh] md:h-[85vh] lg:h-[85vh]">
                         {/* Video Background */}
                         <motion.div
                             className="absolute inset-0 overflow-hidden"
                             style={{
                                 y: useTransform(scrollYProgress, [0, 1], [0, 200]),
+                                width: '100%',
+                                height: '100%',
+                                minHeight: '100%'
                             }}
                         >
                             <video
@@ -287,8 +290,16 @@ export default function Home() {
                                 style={{ 
                                     objectFit: 'cover',
                                     objectPosition: 'center center',
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
                                     width: '100%',
-                                    height: '100%'
+                                    height: '100%',
+                                    minWidth: '100%',
+                                    minHeight: '100%',
+                                    maxWidth: '100%',
+                                    maxHeight: '100%',
+                                    zIndex: 0
                                 }}
                             >
                                 <source src="/b2cherosectionvideo.mp4" type="video/mp4" />
@@ -317,7 +328,7 @@ export default function Home() {
 
 
                         {/* Hero Content - Clean Single Line */}
-                        <div className="relative z-10 flex h-full items-center justify-center px-4">
+                        <div className="relative z-10 flex h-full items-center justify-center px-4 pb-20 sm:pb-24">
                                     <motion.h1
                                 className="max-w-5xl text-center text-4xl font-light leading-tight text-white drop-shadow-2xl md:text-6xl lg:text-7xl"
                                         initial={{ opacity: 0, y: 20 }}
@@ -330,10 +341,10 @@ export default function Home() {
 
                         {/* Scroll Down Button - Elegant & Subtle */}
                                     <motion.div
-                            className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2"
+                            className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 sm:bottom-8"
                             initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 1.2 }}
+                            transition={{ duration: 0.8, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
                                     >
                                         <motion.button
                                             onClick={() => smoothScrollTo('best-sellers')}

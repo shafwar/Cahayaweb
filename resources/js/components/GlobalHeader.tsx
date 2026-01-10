@@ -23,25 +23,291 @@ import {
     Sparkles,
     X,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { B2C_NAVIGATION_ITEMS } from './header/constants';
 
-// Global Header Component untuk Cahaya Anbiya
 interface GlobalHeaderProps {
     variant?: 'b2c' | 'b2b';
     forceLightTheme?: boolean;
     className?: string;
 }
 
+interface NavigationItem {
+    label: string;
+    href: string;
+    icon?: string;
+    hasDropdown?: boolean;
+}
+
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    is_admin?: boolean;
+}
+
+interface EditContext {
+    editMode: boolean;
+    setEditMode: (value: boolean) => void;
+    dirty?: boolean;
+    clearDirty?: () => void;
+}
+
+// Mobile Menu Component
+const MobileMenuPortal: React.FC<{
+    isOpen: boolean;
+    onClose: () => void;
+    variant: 'b2c' | 'b2b';
+    navigationItems: NavigationItem[];
+    iconMap: { [key: string]: React.ComponentType<{ className?: string; size?: number }> };
+    user: User | null | undefined;
+    isAdmin: boolean;
+    editCtx: EditContext;
+    searchQuery: string;
+    setSearchQuery: (q: string) => void;
+    handleSearchSubmit: (e: React.FormEvent) => void;
+    handleModeSwitch: () => void;
+}> = ({
+    isOpen,
+    onClose,
+    variant,
+    navigationItems,
+    iconMap,
+    user,
+    isAdmin,
+    editCtx,
+    searchQuery,
+    setSearchQuery,
+    handleSearchSubmit,
+    handleModeSwitch,
+}) => {
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.paddingRight = '0px';
+        } else {
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        };
+    }, [isOpen]);
+
+    if (!isOpen) return null;
+
+    return createPortal(
+        <div className="fixed inset-0 z-[99999] lg:hidden" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+            {/* Backdrop */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={onClose}
+                className="absolute inset-0 bg-black/90 backdrop-blur-md"
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            />
+
+            {/* Panel */}
+            <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                className="absolute top-0 right-0 h-full w-80 overflow-y-auto bg-gradient-to-b from-black to-slate-950 shadow-2xl sm:w-96"
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    height: '100vh',
+                    maxHeight: '100vh',
+                    overflowY: 'auto',
+                    overflowX: 'hidden',
+                }}
+            >
+                <div className="flex min-h-full flex-col" style={{ minHeight: '100vh' }}>
+                    {/* Header */}
+                    <div className="flex items-center justify-between border-b border-white/5 p-5">
+                        <div className="flex items-center gap-3">
+                            <img src="/cahayanbiyalogo.png" alt="Logo" className="h-10 w-auto" />
+                            <div>
+                                <div className="bg-gradient-to-r from-amber-200 to-amber-100 bg-clip-text text-base font-bold text-transparent">
+                                    CAHAYA ANBIYA
+                                </div>
+                                <div className="text-xs text-white/60">TRAVEL AGENCY</div>
+                            </div>
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white hover:bg-white/10"
+                        >
+                            <X className="h-5 w-5" />
+                        </button>
+                    </div>
+
+                    {/* Mode Switch */}
+                    <div className="border-b border-white/5 p-5">
+                        <button
+                            onClick={() => {
+                                handleModeSwitch();
+                                onClose();
+                            }}
+                            className={`w-full rounded-xl px-4 py-3 text-sm font-semibold ${
+                                variant === 'b2b'
+                                    ? 'border border-amber-500/30 bg-amber-500/10 text-amber-300'
+                                    : 'border border-white/10 bg-white/5 text-white'
+                            }`}
+                        >
+                            {variant === 'b2b' ? 'Switch to B2C' : 'Switch to B2B'}
+                        </button>
+                    </div>
+
+                    {/* Search */}
+                    <div className="border-b border-white/5 p-5">
+                        <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
+                            <div className="relative flex-1">
+                                <div className="absolute top-1/2 left-3 -translate-y-1/2">
+                                    <Search className="h-4 w-4 text-amber-500/60" />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Search destinations, packages, or locations..."
+                                    className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pr-3 pl-10 text-sm text-white placeholder:text-white/40 focus:border-amber-500/50 focus:bg-white/10 focus:ring-1 focus:ring-amber-500/30 focus:outline-none"
+                                />
+                                {searchQuery && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setSearchQuery('')}
+                                        className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-1 text-white/40 transition-colors hover:bg-white/10 hover:text-white/70"
+                                    >
+                                        <X className="h-3.5 w-3.5" />
+                                    </button>
+                                )}
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={!searchQuery.trim()}
+                                className="rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-amber-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                Search
+                            </button>
+                        </form>
+                    </div>
+
+                    {/* Navigation */}
+                    <nav className="p-5" style={{ flex: '1 1 auto', minHeight: 0 }}>
+                        <div className="space-y-2">
+                            {navigationItems.map((item) => {
+                                const IconComponent = item.icon ? iconMap[item.icon] : null;
+                                return (
+                                    <Link
+                                        key={item.label}
+                                        href={item.href}
+                                        onClick={onClose}
+                                        className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white hover:bg-white/5"
+                                    >
+                                        {IconComponent && <IconComponent className="h-5 w-5" />}
+                                        <span>{item.label}</span>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </nav>
+
+                    {/* Admin */}
+                    {user && isAdmin && (
+                        <div className="border-t border-white/5 bg-gradient-to-b from-transparent to-black/50 p-5">
+                            <div className="mb-3 text-xs font-semibold tracking-wider text-amber-400/80 uppercase">Admin CMS</div>
+                            <div className="space-y-2">
+                                <button
+                                    onClick={() => {
+                                        router.visit('/admin/restore-center');
+                                        onClose();
+                                    }}
+                                    className="flex w-full items-center gap-3 rounded-xl border border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-4 py-3 text-sm font-medium text-purple-300"
+                                >
+                                    <RotateCcw className="h-5 w-5" />
+                                    <span>Restore Center</span>
+                                </button>
+                                {editCtx.dirty ? (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            const confirmed = window.confirm('💾 Save all changes?');
+                                            if (!confirmed) return;
+                                            window.dispatchEvent(new CustomEvent('cms:flush-save'));
+                                            editCtx.clearDirty?.();
+                                            router.reload({ only: ['sections'] });
+                                            onClose();
+                                        }}
+                                        className="flex w-full animate-pulse items-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-bold text-white"
+                                    >
+                                        <Save className="h-5 w-5" />
+                                        <span>Save Changes</span>
+                                    </button>
+                                ) : editCtx.editMode ? (
+                                    <button
+                                        onClick={() => {
+                                            editCtx.setEditMode(false);
+                                            onClose();
+                                        }}
+                                        className="flex w-full items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm font-medium text-blue-300"
+                                    >
+                                        <Minus className="h-5 w-5" />
+                                        <span>Exit Editing</span>
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => {
+                                            editCtx.setEditMode(true);
+                                            onClose();
+                                        }}
+                                        className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white"
+                                    >
+                                        <Plus className="h-5 w-5" />
+                                        <span>Start Editing</span>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Footer */}
+                    <div className="border-t border-white/5 p-5">
+                        <button
+                            onClick={() => {
+                                if (user) logout();
+                                else router.visit(variant === 'b2b' ? '/login?mode=b2b&redirect=/b2b' : '/login?mode=b2c&redirect=/home');
+                                onClose();
+                            }}
+                            className={`mb-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${
+                                user
+                                    ? 'border border-red-500/30 bg-red-500/10 text-red-300'
+                                    : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
+                            }`}
+                        >
+                            {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+                            {user ? 'Logout' : 'Login'}
+                        </button>
+                        <p className="text-center text-xs text-white/40">© 2024 Cahaya Anbiya Travel</p>
+                    </div>
+                </div>
+            </motion.div>
+        </div>,
+        document.body,
+    );
+};
+
 const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className = '' }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
-    const [, setExpandedMobileItems] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const mobileMenuRef = useRef<HTMLDivElement>(null);
-    const searchInputRef = useRef<HTMLInputElement>(null);
 
-    // User & admin context
     const page = usePage();
     interface PageProps {
         auth?: {
@@ -54,34 +320,26 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
         };
     }
     const user = (page.props as PageProps)?.auth?.user;
+
     let isAdmin = false;
     try {
-        // prefer context when provider exists
-         
         const ctx = useEditMode();
         isAdmin = ctx.isAdmin;
     } catch {
         isAdmin = Boolean(user?.is_admin);
     }
-    interface EditContext {
-        editMode: boolean;
-        setEditMode: (value: boolean) => void;
-        dirty?: boolean;
-        clearDirty?: () => void;
-    }
+
     const editCtx = (() => {
         try {
             // eslint-disable-next-line react-hooks/rules-of-hooks
             return useEditMode();
         } catch {
-            return { editMode: false, setEditMode: () => {} } as EditContext;
+            return { editMode: false, setEditMode: () => {}, clearDirty: () => {} } as EditContext;
         }
     })();
 
-    // Get navigation items
     const navigationItems = variant === 'b2c' ? B2C_NAVIGATION_ITEMS : [];
 
-    // Icon mapping
     const iconMap: { [key: string]: React.ComponentType<{ className?: string; size?: number }> } = {
         Home: Home,
         Info: Info,
@@ -91,8 +349,6 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
         Phone: Phone,
     };
 
-    // Search functionality
-
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchQuery.trim()) {
@@ -100,7 +356,6 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
         }
     };
 
-    // Scroll detection
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 50);
@@ -109,81 +364,16 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Close mobile menu on window resize
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth >= 1024) {
                 setIsMobileMenuOpen(false);
-                setExpandedMobileItems([]);
             }
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Body Scroll Lock
-    useEffect(() => {
-        if (isMobileMenuOpen) {
-            const scrollY = window.scrollY;
-            document.body.style.position = 'fixed';
-            document.body.style.top = `-${scrollY}px`;
-            document.body.style.width = '100%';
-            document.body.style.overflow = 'hidden';
-            document.body.classList.add('mobile-menu-open');
-
-            return () => {
-                document.body.style.position = '';
-                document.body.style.top = '';
-                document.body.style.width = '';
-                document.body.style.overflow = '';
-                document.body.classList.remove('mobile-menu-open');
-                window.scrollTo(0, scrollY);
-            };
-        }
-    }, [isMobileMenuOpen]);
-
-    // Click Outside Handler
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
-                const hamburgerButton = (event.target as Element).closest('[aria-label*="menu"]');
-                if (!hamburgerButton) {
-                    setIsMobileMenuOpen(false);
-                    setExpandedMobileItems([]);
-                }
-            }
-        }
-        if (isMobileMenuOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isMobileMenuOpen]);
-
-    // Handle escape key
-    useEffect(() => {
-        const handleEscape = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                setIsMobileMenuOpen(false);
-                setExpandedMobileItems([]);
-            }
-        };
-        if (isMobileMenuOpen) {
-            document.addEventListener('keydown', handleEscape);
-        }
-        return () => {
-            document.removeEventListener('keydown', handleEscape);
-        };
-    }, [isMobileMenuOpen]);
-
-
-    const closeMobileMenu = () => {
-        setIsMobileMenuOpen(false);
-        setExpandedMobileItems([]);
-    };
-
-    // Handle mode switch
     const handleModeSwitch = () => {
         const target = variant === 'b2b' ? '/home' : '/b2b';
         router.visit(target);
@@ -191,7 +381,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
 
     return (
         <>
-            {/* Desktop Header - Black with subtle border */}
+            {/* Desktop Header */}
             <motion.header
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
@@ -206,17 +396,12 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
             >
                 <div className="mx-auto h-20 max-w-7xl px-4 lg:px-6">
                     <div className="flex h-full items-center justify-between gap-4">
-                        {/* Logo Section */}
                         <Link
                             href={variant === 'b2c' ? '/home' : '/b2b'}
                             className="group flex flex-shrink-0 items-center gap-3"
                             aria-label="Cahaya Anbiya Home"
                         >
-                            <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                transition={{ duration: 0.3 }}
-                                className="flex items-center gap-3"
-                            >
+                            <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }} className="flex items-center gap-3">
                                 <div className="relative">
                                     <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 blur-xl transition-all duration-500 group-hover:from-amber-500/30 group-hover:to-orange-500/30" />
                                     <img
@@ -225,19 +410,15 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                         className="relative h-10 w-auto transition-transform duration-300 group-hover:rotate-3 lg:h-11"
                                     />
                                 </div>
-
                                 <div className="hidden sm:block">
-                                    <div className="bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-sm font-bold leading-tight text-transparent lg:text-base">
+                                    <div className="bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-sm leading-tight font-bold text-transparent lg:text-base">
                                         CAHAYA ANBIYA
                                     </div>
-                                    <div className="mt-0.5 text-xs font-medium leading-tight text-white/70">
-                                        WISATA INDONESIA
-                                    </div>
+                                    <div className="mt-0.5 text-xs leading-tight font-medium text-white/70">WISATA INDONESIA</div>
                                 </div>
                             </motion.div>
                         </Link>
 
-                        {/* Desktop Navigation */}
                         <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex">
                             {variant === 'b2b' ? (
                                 <>
@@ -288,23 +469,18 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                             )}
                         </nav>
 
-                        {/* Right Section */}
                         <div className="flex flex-shrink-0 items-center gap-2">
-                            {/* Admin Controls */}
                             {user && isAdmin && (
                                 <>
-                                    {/* Restore Button */}
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => router.visit('/admin/restore-center')}
-                                        className="hidden items-center gap-2 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 px-3 py-2 text-sm font-semibold text-purple-300 transition-all hover:from-purple-500/20 hover:to-pink-500/20 md:flex"
+                                        className="hidden items-center gap-2 rounded-xl border border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-3 py-2 text-sm font-semibold text-purple-300 transition-all hover:from-purple-500/20 hover:to-pink-500/20 md:flex"
                                     >
                                         <RotateCcw className="h-4 w-4" />
                                         <span className="hidden lg:inline">Restore</span>
                                     </motion.button>
-
-                                    {/* Edit/Save Toggle */}
                                     <AnimatePresence mode="wait">
                                         {editCtx.dirty ? (
                                             <motion.button
@@ -319,10 +495,10 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                                     const confirmed = window.confirm('💾 Save all changes?');
                                                     if (!confirmed) return;
                                                     window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                                                    editCtx.clearDirty();
+                                                    editCtx.clearDirty?.();
                                                     router.reload({ only: ['sections'] });
                                                 }}
-                                                className="hidden items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-2 text-sm font-bold text-white shadow-lg ring-2 ring-amber-400/50 transition-all hover:from-amber-400 hover:to-orange-400 md:flex animate-pulse"
+                                                className="hidden animate-pulse items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-2 text-sm font-bold text-white shadow-lg ring-2 ring-amber-400/50 transition-all hover:from-amber-400 hover:to-orange-400 md:flex"
                                             >
                                                 <Save className="h-4 w-4" />
                                                 <span>Save</span>
@@ -336,7 +512,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                                 whileHover={{ scale: 1.05 }}
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={() => editCtx.setEditMode(false)}
-                                                className="hidden items-center gap-2 rounded-xl bg-blue-500/10 border border-blue-500/30 px-3 py-2 text-sm font-semibold text-blue-300 transition-all hover:bg-blue-500/20 md:flex"
+                                                className="hidden items-center gap-2 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-sm font-semibold text-blue-300 transition-all hover:bg-blue-500/20 md:flex"
                                             >
                                                 <Minus className="h-4 w-4" />
                                                 <span className="hidden lg:inline">Editing</span>
@@ -350,7 +526,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                                 whileHover={{ scale: 1.05 }}
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={() => editCtx.setEditMode(true)}
-                                                className="hidden items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm font-semibold text-white transition-all hover:bg-white/10 md:flex"
+                                                className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white transition-all hover:bg-white/10 md:flex"
                                             >
                                                 <Plus className="h-4 w-4" />
                                                 <span className="hidden lg:inline">Edit</span>
@@ -360,16 +536,11 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                 </>
                             )}
 
-                            {/* Mode Switch */}
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleModeSwitch}
-                                className={`hidden rounded-xl px-3 py-2 text-sm font-semibold md:flex ${
-                                    variant === 'b2b'
-                                        ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20'
-                                        : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
-                                }`}
+                                className={`hidden rounded-xl px-3 py-2 text-sm font-semibold md:flex ${variant === 'b2b' ? 'border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20' : 'border border-white/10 bg-white/5 text-white hover:bg-white/10'}`}
                             >
                                 <span className="flex items-center gap-2">
                                     <span className="hidden lg:inline">{variant === 'b2b' ? 'B2B' : 'B2C'}</span>
@@ -378,7 +549,6 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                 </span>
                             </motion.button>
 
-                            {/* Login/Logout */}
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -390,11 +560,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                         router.visit(loginHref);
                                     }
                                 }}
-                                className={`hidden rounded-xl px-3 py-2 text-sm font-semibold md:flex ${
-                                    user
-                                        ? 'bg-red-500/10 border border-red-500/30 text-red-300 hover:bg-red-500/20'
-                                        : 'bg-gradient-to-r from-amber-500 to-orange-500 border-none text-white hover:from-amber-400 hover:to-orange-400'
-                                }`}
+                                className={`hidden rounded-xl px-3 py-2 text-sm font-semibold md:flex ${user ? 'border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20' : 'border-none bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400'}`}
                             >
                                 <span className="flex items-center gap-2">
                                     {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
@@ -402,208 +568,35 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                 </span>
                             </motion.button>
 
-                            {/* Mobile Menu Button */}
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                            <button
                                 onClick={() => setIsMobileMenuOpen(true)}
-                                className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white transition-all hover:bg-white/10 focus:outline-none lg:hidden"
-                                aria-label="Open menu"
+                                className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white transition-all hover:bg-white/10 lg:hidden"
+                                aria-label="Open mobile menu"
                             >
                                 <Menu className="h-5 w-5" />
-                            </motion.button>
+                            </button>
                         </div>
                     </div>
                 </div>
             </motion.header>
 
-            {/* Mobile Menu */}
+            {/* Mobile Menu - Using Portal */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[99999] lg:hidden"
-                        ref={mobileMenuRef}
-                    >
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/90 backdrop-blur-md"
-                            onClick={closeMobileMenu}
-                        />
-
-                        <motion.div
-                            initial={{ x: '100%' }}
-                            animate={{ x: 0 }}
-                            exit={{ x: '100%' }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="absolute top-0 right-0 h-full w-80 bg-gradient-to-b from-black to-slate-950 shadow-2xl sm:w-96"
-                        >
-                            <div className="flex h-full flex-col">
-                                {/* Mobile Header */}
-                                <div className="flex items-center justify-between border-b border-white/5 p-5">
-                                    <div className="flex items-center gap-3">
-                                        <img src="/cahayanbiyalogo.png" alt="Logo" className="h-10 w-auto" />
-                                        <div>
-                                            <div className="bg-gradient-to-r from-amber-200 to-amber-100 bg-clip-text text-base font-bold text-transparent">
-                                                CAHAYA ANBIYA
-                                            </div>
-                                            <div className="text-xs text-white/60">TRAVEL AGENCY</div>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={closeMobileMenu}
-                                        className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white hover:bg-white/10"
-                                    >
-                                        <X className="h-5 w-5" />
-                                    </button>
-                                </div>
-
-                                {/* Mode Switch */}
-                                <div className="border-b border-white/5 p-5">
-                                    <button
-                                        onClick={() => {
-                                            handleModeSwitch();
-                                            closeMobileMenu();
-                                        }}
-                                        className={`w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
-                                            variant === 'b2b'
-                                                ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300'
-                                                : 'bg-white/5 border border-white/10 text-white'
-                                        }`}
-                                    >
-                                        {variant === 'b2b' ? 'Switch to B2C' : 'Switch to B2B'}
-                                    </button>
-                                </div>
-
-                                {/* Search Bar */}
-                                <div className="border-b border-white/5 p-5">
-                                    <form onSubmit={handleSearchSubmit} className="flex overflow-hidden rounded-xl border-2 border-amber-500">
-                                        <div className="flex items-center bg-black px-3">
-                                            <Search className="h-4 w-4 text-white/60" />
-                                        </div>
-                                        <input
-                                            ref={searchInputRef}
-                                            type="text"
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            placeholder="Search destinations..."
-                                            className="flex-1 border-none bg-black py-3 px-3 text-sm text-white placeholder-white/40 focus:outline-none"
-                                        />
-                                        <button
-                                            type="submit"
-                                            className="bg-gradient-to-r from-amber-500 to-orange-500 px-4 text-sm font-bold text-white hover:from-amber-400 hover:to-orange-400"
-                                        >
-                                            Search
-                                        </button>
-                                    </form>
-                                </div>
-
-                                {/* Navigation */}
-                                <nav className="flex-1 overflow-y-auto p-5">
-                                    <div className="space-y-2">
-                                        {(variant === 'b2b' ? [] : navigationItems).map((item) => {
-                                            const IconComponent = item.icon ? iconMap[item.icon] : null;
-                                            return (
-                                                <Link
-                                                    key={item.label}
-                                                    href={item.href}
-                                                    onClick={closeMobileMenu}
-                                                    className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white transition-all hover:bg-white/5"
-                                                >
-                                                    {IconComponent && <IconComponent className="h-5 w-5" />}
-                                                    <span>{item.label}</span>
-                                                </Link>
-                                            );
-                                        })}
-                                    </div>
-                                </nav>
-
-                                {/* Admin Section */}
-                                {user && isAdmin && (
-                                    <div className="border-t border-white/5 bg-gradient-to-b from-transparent to-black/50 p-5">
-                                        <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-amber-400/80">Admin CMS</div>
-                                        <div className="space-y-2">
-                                            <button
-                                                onClick={() => {
-                                                    router.visit('/admin/restore-center');
-                                                    closeMobileMenu();
-                                                }}
-                                                className="flex w-full items-center gap-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 px-4 py-3 text-sm font-medium text-purple-300"
-                                            >
-                                                <RotateCcw className="h-5 w-5" />
-                                                <span>Restore Center</span>
-                                            </button>
-                                            <AnimatePresence mode="wait">
-                                                {editCtx.dirty ? (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            const confirmed = window.confirm('💾 Save all changes?');
-                                                            if (!confirmed) return;
-                                                            window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                                                            editCtx.clearDirty();
-                                                            router.reload({ only: ['sections'] });
-                                                            closeMobileMenu();
-                                                        }}
-                                                        className="flex w-full items-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-bold text-white animate-pulse"
-                                                    >
-                                                        <Save className="h-5 w-5" />
-                                                        <span>Save Changes</span>
-                                                    </button>
-                                                ) : editCtx.editMode ? (
-                                                    <button
-                                                        onClick={() => {
-                                                            editCtx.setEditMode(false);
-                                                            closeMobileMenu();
-                                                        }}
-                                                        className="flex w-full items-center gap-3 rounded-xl bg-blue-500/10 border border-blue-500/30 px-4 py-3 text-sm font-medium text-blue-300"
-                                                    >
-                                                        <Minus className="h-5 w-5" />
-                                                        <span>Exit Editing</span>
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        onClick={() => {
-                                                            editCtx.setEditMode(true);
-                                                            closeMobileMenu();
-                                                        }}
-                                                        className="flex w-full items-center gap-3 rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-sm font-medium text-white"
-                                                    >
-                                                        <Plus className="h-5 w-5" />
-                                                        <span>Start Editing</span>
-                                                    </button>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Footer */}
-                                <div className="border-t border-white/5 p-5">
-                                    <button
-                                        onClick={() => {
-                                            if (user) logout();
-                                            else router.visit(variant === 'b2b' ? '/login?mode=b2b&redirect=/b2b' : '/login?mode=b2c&redirect=/home');
-                                            closeMobileMenu();
-                                        }}
-                                        className={`mb-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${
-                                            user
-                                                ? 'bg-red-500/10 border border-red-500/30 text-red-300'
-                                                : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                                        }`}
-                                    >
-                                        {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
-                                        {user ? 'Logout' : 'Login'}
-                                    </button>
-                                    <p className="text-center text-xs text-white/40">© 2024 Cahaya Anbiya Travel</p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
+                    <MobileMenuPortal
+                        isOpen={isMobileMenuOpen}
+                        onClose={() => setIsMobileMenuOpen(false)}
+                        variant={variant}
+                        navigationItems={navigationItems}
+                        iconMap={iconMap}
+                        user={user}
+                        isAdmin={isAdmin}
+                        editCtx={editCtx}
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        handleSearchSubmit={handleSearchSubmit}
+                        handleModeSwitch={handleModeSwitch}
+                    />
                 )}
             </AnimatePresence>
         </>
