@@ -173,9 +173,16 @@ export default function Home() {
     const [editMode, setEditModeUI] = useState<boolean>(false);
 
     const containerRef = useRef<HTMLDivElement>(null);
+    // Optimized scroll with throttling for better performance
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ['start start', 'end end'],
+        layoutEffect: false, // Use regular effect instead of layout effect for better performance
+    });
+    
+    // Throttled transform to reduce re-renders
+    const videoY = useTransform(scrollYProgress, [0, 1], [0, 200], {
+        clamp: false,
     });
 
     useEffect(() => {
@@ -274,10 +281,11 @@ export default function Home() {
                         <motion.div
                             className="absolute inset-0 overflow-hidden"
                             style={{
-                                y: useTransform(scrollYProgress, [0, 1], [0, 200]),
+                                y: videoY,
                                 width: '100%',
                                 height: '100%',
-                                minHeight: '100%'
+                                minHeight: '100%',
+                                willChange: 'transform', // GPU acceleration hint
                             }}
                         >
                             <video
@@ -312,8 +320,9 @@ export default function Home() {
 
                         {/* Ambient glow effects */}
                         <div className="pointer-events-none absolute inset-0 z-[6]">
+                            {/* Reduced blur for better performance - using blur-2xl instead of blur-3xl */}
                             <motion.div
-                                className="absolute -top-40 left-1/2 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.08),transparent_70%)] blur-3xl"
+                                className="absolute -top-40 left-1/2 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.08),transparent_70%)] blur-2xl"
                                 animate={{
                                     opacity: [0.3, 0.5, 0.3],
                                     scale: [1, 1.1, 1],
@@ -323,6 +332,7 @@ export default function Home() {
                                     repeat: Infinity,
                                     ease: 'easeInOut',
                                 }}
+                                style={{ willChange: 'opacity, transform' }} // GPU acceleration
                             />
                         </div>
 
@@ -348,7 +358,7 @@ export default function Home() {
                                     >
                                         <motion.button
                                             onClick={() => smoothScrollTo('best-sellers')}
-                                className="group flex flex-col items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-4 py-3 backdrop-blur-sm transition-all duration-300 hover:border-white/30 hover:bg-white/10"
+                                className="group flex flex-col items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-3 transition-all duration-300 hover:border-white/30 hover:bg-white/15"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 aria-label="Scroll down"
@@ -367,10 +377,10 @@ export default function Home() {
 
                     {/* Best Sellers Section - Unified 2-Column Design */}
                     <section id="best-sellers" className="relative bg-gradient-to-b from-black via-slate-950 to-black py-24">
-                        {/* Ambient background effects */}
+                        {/* Ambient background effects - Reduced blur for performance */}
                         <div className="pointer-events-none absolute inset-0">
-                            <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.04),transparent_70%)] blur-3xl" />
-                            <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,84,255,0.03),transparent_70%)] blur-3xl" />
+                            <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.04),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
+                            <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,84,255,0.03),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
                         </div>
 
                         <div className="relative mx-auto max-w-7xl px-4">
@@ -389,7 +399,7 @@ export default function Home() {
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.6 }}
                                 >
-                                    <div className="rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 backdrop-blur-sm">
+                                    <div className="rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-1.5">
                                         <span className="bg-gradient-to-r from-amber-200 to-orange-300 bg-clip-text text-sm font-semibold text-transparent">
                                             MOST LOVED
                                         </span>
@@ -421,8 +431,11 @@ export default function Home() {
                                                     src={item.image}
                                                     alt={item.title}
                                                     className="h-full w-full object-cover"
+                                                    loading="lazy"
+                                                    decoding="async"
                                                     whileHover={{ scale: 1.1 }}
                                                     transition={{ duration: 0.8, ease }}
+                                                    style={{ willChange: 'transform' }}
                                                 />
 
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
@@ -430,7 +443,7 @@ export default function Home() {
                                                 {/* Badge */}
                                                 <div className="absolute top-4 right-4">
                                                     <motion.div
-                                                        className="flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 shadow-xl backdrop-blur-sm"
+                                                        className="flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 shadow-xl"
                                                         whileHover={{ scale: 1.05 }}
                                                     >
                                                         <Sparkles className="h-3.5 w-3.5 text-white" />
@@ -500,7 +513,7 @@ export default function Home() {
                     {/* New Destinations - Creative Magazine Layout */}
                     <section className="relative bg-gradient-to-b from-black via-slate-950 to-black py-24">
                         <div className="pointer-events-none absolute inset-0">
-                            <div className="absolute top-1/3 right-0 h-[500px] w-[600px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.04),transparent_70%)] blur-3xl" />
+                            <div className="absolute top-1/3 right-0 h-[500px] w-[600px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.04),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
                         </div>
 
                         <div className="relative mx-auto max-w-7xl px-4">
@@ -519,7 +532,7 @@ export default function Home() {
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.6 }}
                                 >
-                                    <div className="rounded-full border border-orange-500/20 bg-orange-500/5 px-4 py-1.5 backdrop-blur-sm">
+                                    <div className="rounded-full border border-orange-500/20 bg-orange-500/10 px-4 py-1.5">
                                         <span className="bg-gradient-to-r from-orange-200 to-amber-300 bg-clip-text text-sm font-semibold text-transparent">
                                             JUST LAUNCHED
                                         </span>
@@ -906,7 +919,7 @@ export default function Home() {
                                     transition={{ duration: 0.5, delay: 0.1 }}
                                     className="mb-5"
                                 >
-                                    <div className="inline-flex rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 backdrop-blur-sm">
+                                    <div className="inline-flex rounded-full border border-blue-500/30 bg-blue-500/15 px-4 py-1.5">
                                         <span className="bg-gradient-to-r from-blue-200 via-cyan-200 to-blue-300 bg-clip-text text-xs font-semibold tracking-wider text-transparent uppercase sm:text-sm">
                                             Featured Experiences
                                         </span>
@@ -966,7 +979,7 @@ export default function Home() {
                                                 {/* Enhanced Badge */}
                                                 <div className="absolute top-4 right-4 z-10">
                                                     <motion.span
-                                                        className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500 px-4 py-1.5 text-xs font-bold tracking-wide text-white shadow-xl ring-1 ring-blue-400/30 backdrop-blur-md"
+                                                        className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500 px-4 py-1.5 text-xs font-bold tracking-wide text-white shadow-xl ring-1 ring-blue-400/30"
                                                         whileHover={{ scale: 1.1, rotate: 2 }}
                                                         transition={{ duration: 0.2 }}
                                                     >
@@ -1028,7 +1041,7 @@ export default function Home() {
                     {/* Editor Modal */}
                     {editMode && editorOpen && (
                         <motion.div
-                            className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/90 p-6 shadow-2xl backdrop-blur-xl"
+                            className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/95 p-6 shadow-2xl"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 20 }}

@@ -676,6 +676,50 @@ main {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Critical: Optimize scrolling performance */
+html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Optimize scroll container */
+body {
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* GPU acceleration for scroll-heavy elements */
+[class*='motion-'],
+[class*='animate-'],
+.motion-div,
+.motion-section {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Reduce backdrop-blur performance impact */
+.backdrop-blur-sm,
+.backdrop-blur-md,
+.backdrop-blur-xl {
+    will-change: auto; /* Only use will-change when animating */
+}
+
+/* Optimize images during scroll */
+img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    content-visibility: auto;
+}
+
+/* Reduce repaints for animated elements */
+[class*='blur-'] {
+    will-change: auto;
+    transform: translateZ(0);
+}
+
 /* Clean main element styling - FIXED */
 main {
     width: 100%;

@@ -96,8 +96,8 @@ export default function About() {
                 <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
                     {/* Ambient Background Effects */}
                     <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute top-0 left-1/4 h-[500px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.1),transparent_70%)] blur-3xl" />
-                        <div className="absolute right-1/4 bottom-0 h-[500px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.1),transparent_70%)] blur-3xl" />
+                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.1),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
+                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.1),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
                     </div>
 
                     <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
@@ -116,7 +116,7 @@ export default function About() {
                                 transition={{ duration: 0.6 }}
                                 className="mb-4 inline-block"
                             >
-                                <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-4 py-1.5 shadow-xl backdrop-blur-sm">
+                                <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
                                     <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
                                         ✨ Cahaya Anbiya Travel
                                     </span>
@@ -151,7 +151,7 @@ export default function About() {
                                         variants={scaleIn}
                                         whileHover={{ y: -6, scale: 1.02 }}
                                         transition={{ duration: 0.3 }}
-                                        className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-4 text-center shadow-lg backdrop-blur-sm sm:p-5 md:p-6"
+                                        className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-4 text-center shadow-lg sm:p-5 md:p-6"
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-orange-500/0 transition-all duration-500 group-hover:from-amber-500/15 group-hover:to-orange-500/15" />
 
@@ -365,7 +365,7 @@ export default function About() {
                 </section>
 
                 {/* Footer */}
-                <footer className="relative border-t border-white/10 bg-black/60 backdrop-blur-sm">
+                <footer className="relative border-t border-white/10 bg-black/70">
                     <motion.div
                         className="mx-auto max-w-7xl px-4 py-12 sm:px-6"
                         initial={{ opacity: 0, y: 20 }}

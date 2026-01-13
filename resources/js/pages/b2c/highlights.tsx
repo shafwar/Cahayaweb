@@ -57,7 +57,7 @@ function HighlightEditorModal({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-md"
+                className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90"
                 onClick={onClose}
             >
                 <motion.div
@@ -375,8 +375,8 @@ export default function Highlights() {
                 <section className="relative mx-auto max-w-7xl px-4 pt-12 pb-8 sm:px-6 md:pt-16 md:pb-10">
                     {/* Ambient Effects */}
                     <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute top-0 left-1/4 h-[500px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.1),transparent_70%)] blur-3xl" />
-                        <div className="absolute right-1/4 bottom-0 h-[500px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.1),transparent_70%)] blur-3xl" />
+                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.1),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
+                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.1),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
                     </div>
 
                     {/* Hero Section - Compact */}
@@ -392,7 +392,7 @@ export default function Highlights() {
                             transition={{ duration: 0.6 }}
                             className="mb-4 inline-block"
                         >
-                            <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-4 py-1.5 shadow-xl backdrop-blur-sm">
+                            <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
                                 <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
                                     ✨ Premium Travel Highlights
                                 </span>
@@ -438,7 +438,7 @@ export default function Highlights() {
                                 key={highlight.id}
                                 variants={cardVariants}
                                 whileHover={{ scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
-                                className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl backdrop-blur-sm transition-all duration-300"
+                                className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300"
                             >
                                 <div className="relative aspect-video overflow-hidden">
                                     <img
@@ -457,7 +457,7 @@ export default function Highlights() {
                                     <PlaceholderImage className="hidden h-full w-full object-cover" />
 
                                     <div className="absolute top-3 left-3">
-                                        <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white shadow-lg backdrop-blur-sm sm:text-sm">
+                                        <span className="rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white shadow-lg sm:text-sm">
                                             {highlight.category}
                                         </span>
                                     </div>
@@ -664,7 +664,7 @@ export default function Highlights() {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true, margin: '-50px' }}
                                     transition={{ duration: 0.6, delay: index * 0.1 }}
-                                    className="rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-xl backdrop-blur-sm sm:p-6"
+                                    className="rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-xl sm:p-6"
                                 >
                                     <div className="mb-4 flex items-center gap-1">
                                         {[...Array(testimonial.rating)].map((_, i) => (
@@ -685,7 +685,7 @@ export default function Highlights() {
                 </section>
 
                 {/* Footer - Enhanced */}
-                <footer className="relative border-t border-white/10 bg-black/60 backdrop-blur-sm">
+                <footer className="relative border-t border-white/10 bg-black/70">
                     <motion.div
                         className="mx-auto max-w-7xl px-4 py-12 sm:px-6"
                         initial={{ opacity: 0, y: 20 }}
