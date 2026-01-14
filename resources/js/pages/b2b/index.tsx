@@ -395,7 +395,14 @@ export default function CahayaAnbiyaHero() {
 
                 {/* Background Image */}
                 <div className="absolute inset-0">
-                    <img src={heroImage} alt="Kaaba and Masjid al-Haram" loading="eager" decoding="async" className="h-full w-full object-cover" style={{ imageRendering: 'auto', willChange: 'auto' }} />
+                    <img
+                        src={heroImage}
+                        alt="Kaaba and Masjid al-Haram"
+                        loading="eager"
+                        decoding="async"
+                        className="h-full w-full object-cover"
+                        style={{ imageRendering: 'auto', willChange: 'auto' }}
+                    />
 
                     {/* Replace Image Button */}
                     {editMode && (
@@ -547,7 +554,7 @@ export default function CahayaAnbiyaHero() {
                                         transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
                                     >
                                         <RippleButton className="group relative w-full overflow-hidden rounded-2xl border-2 border-white/30 bg-white/10 px-8 py-5 text-lg font-bold text-white shadow-2xl shadow-white/5 transition-all duration-300 hover:border-white/50 hover:bg-white/20 hover:shadow-2xl hover:shadow-white/10 sm:w-auto sm:px-10 sm:py-6 sm:text-xl">
-                                        <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
                                             <span className="relative" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                                 View Packages
                                             </span>
@@ -585,10 +592,10 @@ export default function CahayaAnbiyaHero() {
                                                                 </h3>
                                                                 <div
                                                                     className={`rounded-full bg-gradient-to-r ${pkg.badgeColor} px-2 py-0.5 text-[9px] font-medium text-white sm:text-[10px]`}
-                                                    >
-                                                        {pkg.badge}
-                                                    </div>
-                                                </div>
+                                                                >
+                                                                    {pkg.badge}
+                                                                </div>
+                                                            </div>
                                                             <p className="text-xs text-gray-400 sm:text-sm">📅 {pkg.duration}</p>
                                                         </div>
                                                         <div className="flex-shrink-0 rounded-md bg-gradient-to-br from-amber-500/90 to-orange-600/90 px-4 py-2.5 text-center shadow-sm sm:px-5 sm:py-3">
@@ -600,7 +607,7 @@ export default function CahayaAnbiyaHero() {
                                                     {/* Highlights - More Compact */}
                                                     <div className="mb-4 rounded-md border border-amber-500/15 bg-amber-500/5 p-2.5 sm:p-3">
                                                         <p className="text-xs leading-relaxed text-amber-200/80 sm:text-sm">{pkg.highlights}</p>
-                                                        </div>
+                                                    </div>
 
                                                     {/* Features Toggle - Better Spacing */}
                                                     <button
@@ -612,7 +619,7 @@ export default function CahayaAnbiyaHero() {
                                                             <span className="rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-medium text-amber-300 sm:text-[10px]">
                                                                 {pkg.features.length}
                                                             </span>
-                                                    </div>
+                                                        </div>
                                                         <motion.svg
                                                             animate={{ rotate: selectedPackage === pkg.id ? 180 : 0 }}
                                                             transition={{ duration: 0.2 }}
@@ -757,86 +764,86 @@ export default function CahayaAnbiyaHero() {
 
                             <div className="space-y-4 p-5 sm:space-y-5 sm:p-6 lg:p-8">
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
-                                {/* WhatsApp */}
-                                <motion.div
+                                    {/* WhatsApp */}
+                                    <motion.div
                                         initial={{ opacity: 0, y: 15 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                                         className="rounded-lg border border-green-500/20 bg-gradient-to-br from-green-950/40 to-emerald-950/40 p-4 sm:p-5"
-                                >
+                                    >
                                         <div className="mb-3 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
                                             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-green-400 to-emerald-600 text-lg shadow-md sm:h-12 sm:w-12 sm:text-xl">
-                                            📱
-                                        </div>
+                                                📱
+                                            </div>
                                             <div className="min-w-0 flex-1">
                                                 <h3 className="text-sm font-semibold text-white sm:text-base lg:text-lg">WhatsApp</h3>
                                                 <p className="text-xs text-green-200/80 sm:text-sm">Instant response</p>
+                                            </div>
                                         </div>
-                                    </div>
                                         <div className="mb-3 space-y-2 sm:mb-4">
                                             <div className="flex items-center justify-between rounded-md border border-green-500/20 bg-green-500/10 p-2.5 sm:p-3">
                                                 <span className="text-xs font-medium text-green-300 sm:text-sm">Response Time</span>
                                                 <span className="text-xs font-semibold text-green-400 sm:text-sm">&lt; 2 min</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <RippleButton
-                                        onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
+                                        <RippleButton
+                                            onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
                                             className="w-full rounded-md bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-2.5 text-xs font-medium text-white shadow-sm transition-all hover:shadow-md sm:py-3 sm:text-sm"
-                                    >
-                                        Start Chat
-                                    </RippleButton>
-                                </motion.div>
+                                        >
+                                            Start Chat
+                                        </RippleButton>
+                                    </motion.div>
 
-                                {/* Phone */}
-                                <motion.div
+                                    {/* Phone */}
+                                    <motion.div
                                         initial={{ opacity: 0, y: 15 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                                         className="rounded-lg border border-blue-500/20 bg-gradient-to-br from-blue-950/40 to-indigo-950/40 p-4 sm:p-5"
-                                >
+                                    >
                                         <div className="mb-3 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
                                             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-indigo-600 text-lg shadow-md sm:h-12 sm:w-12 sm:text-xl">
-                                            📞
-                                        </div>
+                                                📞
+                                            </div>
                                             <div className="min-w-0 flex-1">
                                                 <h3 className="text-sm font-semibold text-white sm:text-base lg:text-lg">Phone</h3>
                                                 <p className="text-xs text-blue-200/80 sm:text-sm">Direct line</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="space-y-2">
+                                        <div className="space-y-2">
                                             <div className="rounded-md border border-blue-500/20 bg-blue-500/10 p-2.5 sm:p-3">
-                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center justify-between">
                                                     <span className="text-xs font-medium text-blue-300 sm:text-sm">Main Office</span>
                                                     <span className="font-mono text-xs text-blue-100 sm:text-sm">021-1234-5678</span>
+                                                </div>
                                             </div>
-                                        </div>
                                             <div className="rounded-md border border-blue-500/20 bg-blue-500/10 p-2.5 sm:p-3">
-                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center justify-between">
                                                     <span className="text-xs font-medium text-blue-300 sm:text-sm">Hours</span>
                                                     <span className="text-xs text-blue-100 sm:text-sm">Mon-Fri: 08:00-17:00</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </motion.div>
-                            </div>
+                                    </motion.div>
+                                </div>
 
-                            {/* Status */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
+                                {/* Status */}
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
                                     transition={{ delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                                     className="rounded-lg border border-gray-800/50 bg-gray-800/30 p-3 text-center sm:p-4"
-                            >
+                                >
                                     <div className="mb-1.5 flex items-center justify-center gap-2 sm:mb-2">
-                                    <motion.div
+                                        <motion.div
                                             animate={{ scale: [1, 1.2, 1] }}
-                                        transition={{ duration: 1.5, repeat: Infinity }}
+                                            transition={{ duration: 1.5, repeat: Infinity }}
                                             className="h-2 w-2 rounded-full bg-green-400 shadow-md shadow-green-400/50 sm:h-2.5 sm:w-2.5"
-                                    />
+                                        />
                                         <span className="text-xs font-semibold text-green-400 sm:text-sm">Live Support Active</span>
-                                </div>
+                                    </div>
                                     <p className="text-xs text-gray-400 sm:text-sm">🔒 All consultations are confidential and free</p>
-                            </motion.div>
+                                </motion.div>
                             </div>
                         </DialogContent>
                     </Dialog>
