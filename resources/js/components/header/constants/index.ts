@@ -35,24 +35,27 @@ export const B2C_NAVIGATION_ITEMS = [
 
 export const B2B_NAVIGATION_ITEMS = [
     {
-        label: 'Dashboard',
-        href: '/b2b/dashboard',
+        label: 'Home',
+        href: '/b2b',
+        icon: 'Home',
     },
     {
         label: 'Packages',
-        href: '/b2b/packages',
+        href: '#packages',
+        icon: 'Briefcase',
+        action: 'open-b2b-packages', // Special action to trigger packages dialog
     },
     {
-        label: 'Customers',
-        href: '/b2b/customers',
+        label: 'Consultation',
+        href: '#consultation',
+        icon: 'Phone',
+        action: 'open-consultation', // Special action to trigger consultation dialog
     },
     {
-        label: 'Reports',
-        href: '/b2b/reports',
-    },
-    {
-        label: 'Settings',
-        href: '/b2b/settings',
+        label: 'WhatsApp',
+        href: 'https://wa.me/6281234567890',
+        icon: 'MessageCircle',
+        external: true,
     },
 ];
 

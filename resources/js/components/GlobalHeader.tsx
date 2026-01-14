@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { B2C_NAVIGATION_ITEMS } from './header/constants';
+import { B2C_NAVIGATION_ITEMS, B2B_NAVIGATION_ITEMS } from './header/constants';
 
 interface GlobalHeaderProps {
     variant?: 'b2c' | 'b2b';
@@ -38,6 +38,8 @@ interface NavigationItem {
     href: string;
     icon?: string;
     hasDropdown?: boolean;
+    action?: string;
+    external?: boolean;
 }
 
 interface User {
@@ -204,6 +206,45 @@ const MobileMenuPortal: React.FC<{
                         <div className="space-y-2">
                             {navigationItems.map((item) => {
                                 const IconComponent = item.icon ? iconMap[item.icon] : null;
+                                const itemWithAction = item as NavigationItem & { action?: string; external?: boolean };
+                                
+                                if (itemWithAction.action) {
+                                    return (
+                                        <button
+                                            key={item.label}
+                                            onClick={() => {
+                                                if (itemWithAction.action === 'open-b2b-packages') {
+                                                    window.dispatchEvent(new Event('open-b2b-packages'));
+                                                } else if (itemWithAction.action === 'open-consultation') {
+                                                    const consultationButton = document.querySelector('[data-consultation-trigger]') as HTMLElement;
+                                                    consultationButton?.click();
+                                                }
+                                                onClose();
+                                            }}
+                                            className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white hover:bg-white/5"
+                                        >
+                                            {IconComponent && <IconComponent className="h-5 w-5" />}
+                                            <span>{item.label}</span>
+                                        </button>
+                                    );
+                                }
+                                
+                                if (itemWithAction.external) {
+                                    return (
+                                        <a
+                                            key={item.label}
+                                            href={item.href}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            onClick={onClose}
+                                            className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white hover:bg-white/5"
+                                        >
+                                            {IconComponent && <IconComponent className="h-5 w-5" />}
+                                            <span>{item.label}</span>
+                                        </a>
+                                    );
+                                }
+                                
                                 return (
                                     <Link
                                         key={item.label}
@@ -338,7 +379,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
         }
     })();
 
-    const navigationItems = variant === 'b2c' ? B2C_NAVIGATION_ITEMS : [];
+    const navigationItems = variant === 'b2c' ? B2C_NAVIGATION_ITEMS : B2B_NAVIGATION_ITEMS;
 
     const iconMap: { [key: string]: React.ComponentType<{ className?: string; size?: number }> } = {
         Home: Home,
@@ -347,6 +388,9 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
         Box: Package,
         Sparkles: Sparkles,
         Phone: Phone,
+        Building2: Building2,
+        Briefcase: Briefcase,
+        MessageCircle: MessageCircle,
     };
 
     const handleSearchSubmit = (e: React.FormEvent) => {
@@ -420,42 +464,44 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                         </Link>
 
                         <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex">
-                            {variant === 'b2b' ? (
-                                <>
-                                    <Link
-                                        href="/b2b"
-                                        className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/5 hover:text-white"
+                            {navigationItems.map((item, index) => {
+                                const IconComponent = item.icon ? iconMap[item.icon] : null;
+                                const itemWithAction = item as NavigationItem & { action?: string; external?: boolean };
+                                
+                                return (
+                                    <motion.div
+                                        key={item.label}
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.05, duration: 0.4 }}
                                     >
-                                        <Building2 className="h-4 w-4" />
-                                        <span>Agency</span>
-                                    </Link>
-                                    <button
-                                        onClick={() => window.dispatchEvent(new Event('open-b2b-packages'))}
-                                        className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/5 hover:text-white"
-                                    >
-                                        <Briefcase className="h-4 w-4" />
-                                        <span>Packages</span>
-                                    </button>
-                                    <a
-                                        href="https://wa.me/6281234567890"
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/5 hover:text-white"
-                                    >
-                                        <MessageCircle className="h-4 w-4" />
-                                        <span>WhatsApp</span>
-                                    </a>
-                                </>
-                            ) : (
-                                navigationItems.map((item, index) => {
-                                    const IconComponent = item.icon ? iconMap[item.icon] : null;
-                                    return (
-                                        <motion.div
-                                            key={item.label}
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.05, duration: 0.4 }}
-                                        >
+                                        {itemWithAction.action ? (
+                                            <button
+                                                onClick={() => {
+                                                    if (itemWithAction.action === 'open-b2b-packages') {
+                                                        window.dispatchEvent(new Event('open-b2b-packages'));
+                                                    } else if (itemWithAction.action === 'open-consultation') {
+                                                        // Trigger consultation dialog
+                                                        const consultationButton = document.querySelector('[data-consultation-trigger]') as HTMLElement;
+                                                        consultationButton?.click();
+                                                    }
+                                                }}
+                                                className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/5 hover:text-white"
+                                            >
+                                                {IconComponent && <IconComponent className="h-4 w-4" />}
+                                                <span>{item.label}</span>
+                                            </button>
+                                        ) : itemWithAction.external ? (
+                                            <a
+                                                href={item.href}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/5 hover:text-white"
+                                            >
+                                                {IconComponent && <IconComponent className="h-4 w-4" />}
+                                                <span>{item.label}</span>
+                                            </a>
+                                        ) : (
                                             <Link
                                                 href={item.href}
                                                 className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/5 hover:text-white"
@@ -463,10 +509,10 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                                 {IconComponent && <IconComponent className="h-4 w-4" />}
                                                 <span>{item.label}</span>
                                             </Link>
-                                        </motion.div>
-                                    );
-                                })
-                            )}
+                                        )}
+                                    </motion.div>
+                                );
+                            })}
                         </nav>
 
                         <div className="flex flex-shrink-0 items-center gap-2">
