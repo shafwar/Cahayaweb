@@ -231,13 +231,13 @@ export default function SelectMode() {
                             ))}
                         </div>
 
-                        <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
+                        <div className="relative z-10 flex flex-col items-center justify-center px-4 text-center">
                             {/* Powerful logo reveal with blur-fade - Optimized for mobile */}
-                            <motion.div variants={logoVariants} initial="hidden" animate="visible" className="mb-8 sm:mb-10 md:mb-12">
+                            <motion.div variants={logoVariants} initial="hidden" animate="visible" className="mb-10 sm:mb-8 md:mb-12">
                                 <motion.img
                                     src="/cahayanbiyalogo.png"
                                     alt="Cahaya Anbiya Logo"
-                                    className="h-36 w-auto sm:h-40 md:h-48 lg:h-56 xl:h-64"
+                                    className="h-48 w-auto sm:h-40 md:h-48 lg:h-56 xl:h-64"
                                     style={{
                                         filter: 'drop-shadow(0 0 50px rgba(254,201,1,0.4)) drop-shadow(0 0 80px rgba(0,84,255,0.2))',
                                     }}
@@ -250,7 +250,7 @@ export default function SelectMode() {
                                 variants={textRevealVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="mb-3 text-lg font-light tracking-wide text-white/90 sm:mb-4 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
+                                className="mb-4 text-xl font-light tracking-wide text-white/90 sm:mb-4 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
                                 style={{ fontFamily: 'Poppins, sans-serif' }}
                             >
                                 Welcome to
@@ -262,7 +262,7 @@ export default function SelectMode() {
                                 variants={textRevealVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="relative mb-2 text-3xl font-semibold tracking-tight sm:mb-3 sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
+                                className="relative mb-3 text-4xl font-semibold tracking-tight sm:mb-3 sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
                                 style={{ fontFamily: 'Poppins, sans-serif' }}
                             >
                                 <motion.span
@@ -283,18 +283,18 @@ export default function SelectMode() {
                                 variants={textRevealVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="text-xs font-light tracking-widest text-white/50 sm:text-base md:text-lg lg:text-xl"
+                                className="text-sm font-light tracking-widest text-white/50 sm:text-base md:text-lg lg:text-xl"
                                 style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '0.25em' }}
                             >
                                 WISATA INDONESIA
                             </motion.p>
 
                             {/* Smooth loading dots with wave animation - Optimized for mobile */}
-                            <motion.div variants={dotVariants} initial="hidden" animate="visible" className="mt-8 flex gap-2 sm:mt-10 md:mt-12">
+                            <motion.div variants={dotVariants} initial="hidden" animate="visible" className="mt-10 flex gap-2.5 sm:mt-10 md:mt-12">
                                 {[0, 1, 2].map((i) => (
                                     <motion.div
                                         key={i}
-                                        className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300"
+                                        className="h-2.5 w-2.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 sm:h-2 sm:w-2"
                                         animate={{
                                             opacity: [0.3, 1, 0.3],
                                             scale: [1, 1.3, 1],
