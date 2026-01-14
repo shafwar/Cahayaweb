@@ -1,0 +1,1 @@
+import{j as e}from"./app-DZXnkRRh.js";function n({children:o}){return e.jsx("div",{className:"flex min-h-screen flex-col bg-background text-foreground",children:e.jsx("main",{className:"flex-1 overflow-x-hidden p-4",children:o})})}export{n as S};
