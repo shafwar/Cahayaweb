@@ -2,15 +2,21 @@ import { createInertiaApp, type PageProps } from '@inertiajs/react';
 import createServer from '@inertiajs/react/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
-import { type RouteName, route } from 'ziggy-js';
+import React from 'react';
+import { route, type RouteName } from 'ziggy-js';
+
+// Pre-import critical admin pages for SSR
+import AdminDashboard from './pages/admin/dashboard';
+import AdminAgentVerifications from './pages/admin/agent-verifications';
+import AdminAgentVerificationDetail from './pages/admin/agent-verification-detail';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
 
-// Explicit imports for critical pages to ensure they're always available in production
-const criticalPages: Record<string, () => Promise<{ default: React.ComponentType<PageProps> }>> = {
-    'admin/dashboard': () => import('./pages/admin/dashboard'),
-    'admin/agent-verifications': () => import('./pages/admin/agent-verifications'),
-    'admin/agent-verification-detail': () => import('./pages/admin/agent-verification-detail'),
+// Map of critical pages with their pre-imported components
+const criticalPages: Record<string, React.ComponentType<PageProps>> = {
+    'admin/dashboard': AdminDashboard,
+    'admin/agent-verifications': AdminAgentVerifications,
+    'admin/agent-verification-detail': AdminAgentVerificationDetail,
 };
 
 createServer((page) =>
@@ -19,9 +25,9 @@ createServer((page) =>
         render: ReactDOMServer.renderToString,
         title: (title) => (title ? `${title} - ${appName}` : appName),
         resolve: (name) => {
-            // Try critical pages first (explicit imports for production reliability)
+            // Try critical pages first (pre-imported for production reliability)
             if (criticalPages[name]) {
-                return criticalPages[name]();
+                return Promise.resolve(criticalPages[name]);
             }
             // Fallback to dynamic glob for other pages
             return resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx', { eager: false }));

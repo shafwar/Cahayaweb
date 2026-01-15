@@ -5,6 +5,7 @@ import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import React from 'react';
 import { initializeTheme } from './hooks/use-appearance';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
@@ -43,41 +44,40 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
     };
 }
 
-// Explicit imports for critical pages to ensure they're always available in production
-const criticalPages: Record<string, () => Promise<{ default: React.ComponentType<PageProps> }>> = {
-    'admin/dashboard': () => import('./pages/admin/dashboard'),
-    'admin/agent-verifications': () => import('./pages/admin/agent-verifications'),
-    'admin/agent-verification-detail': () => import('./pages/admin/agent-verification-detail'),
+// Pre-import critical admin pages to ensure they're always bundled in production
+// Using direct imports ensures these pages are always available, even if dynamic imports fail
+import AdminDashboard from './pages/admin/dashboard';
+import AdminAgentVerifications from './pages/admin/agent-verifications';
+import AdminAgentVerificationDetail from './pages/admin/agent-verification-detail';
+
+// Map of critical pages with their pre-imported components
+const criticalPages: Record<string, React.ComponentType<PageProps>> = {
+    'admin/dashboard': AdminDashboard,
+    'admin/agent-verifications': AdminAgentVerifications,
+    'admin/agent-verification-detail': AdminAgentVerificationDetail,
 };
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => {
-        // Try critical pages first (explicit imports for production reliability)
+        // Try critical pages first (pre-imported for production reliability)
         if (criticalPages[name]) {
-            return criticalPages[name]()
-                .then((module) => {
-                    const Page = module.default;
-                    const Wrapped = (pageProps: PageProps) => (
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={(pageProps as Record<string, unknown>).ziggy?.location || location.pathname}
-                                initial={{ opacity: 0, y: 4, scale: 0.995, filter: 'blur(8px)' }}
-                                animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-                                exit={{ opacity: 0, y: -4, scale: 0.995, filter: 'blur(8px)' }}
-                                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                style={{ willChange: 'transform, opacity, filter' }}
-                            >
-                                <Page {...pageProps} />
-                            </motion.div>
-                        </AnimatePresence>
-                    );
-                    return Wrapped;
-                })
-                .catch((error) => {
-                    console.error(`Failed to load critical page: ${name}`, error);
-                    throw error;
-                });
+            const Page = criticalPages[name];
+            const Wrapped = (pageProps: PageProps) => (
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={(pageProps as Record<string, unknown>).ziggy?.location || location.pathname}
+                        initial={{ opacity: 0, y: 4, scale: 0.995, filter: 'blur(8px)' }}
+                        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                        exit={{ opacity: 0, y: -4, scale: 0.995, filter: 'blur(8px)' }}
+                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ willChange: 'transform, opacity, filter' }}
+                    >
+                        <Page {...pageProps} />
+                    </motion.div>
+                </AnimatePresence>
+            );
+            return Promise.resolve(Wrapped);
         }
 
         // Fallback to dynamic glob for other pages
