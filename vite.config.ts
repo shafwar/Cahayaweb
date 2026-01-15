@@ -26,6 +26,10 @@ export default defineConfig({
                 },
             },
         },
+        // Ensure all dynamic imports are included in production build
+        commonjsOptions: {
+            include: [/node_modules/],
+        },
     },
     esbuild: {
         jsx: 'automatic',
