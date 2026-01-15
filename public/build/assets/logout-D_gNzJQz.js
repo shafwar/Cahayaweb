@@ -1,1 +1,0 @@
-let n=!1;function u(){if(n)return;n=!0;const o=document.querySelector('meta[name="csrf-token"]')?.content||"",e=document.createElement("form");e.method="POST",e.action="/logout";const t=document.createElement("input");t.type="hidden",t.name="_token",t.value=o,e.appendChild(t),document.body.appendChild(e),e.submit()}export{u as l};
