@@ -9,11 +9,14 @@ Setelah deployment, admin account akan otomatis dibuat dengan credentials beriku
 
 ## Environment Variables di Railway
 
-Pastikan environment variable berikut sudah diset di Railway Dashboard:
+Pastikan environment variables berikut sudah diset di Railway Dashboard:
 
 ```
 APP_ADMIN_EMAILS=admin@cahayaweb.com
+NIXPACKS_NODE_VERSION=20
 ```
+
+**Penting:** `NIXPACKS_NODE_VERSION=20` diperlukan untuk memastikan Railway menggunakan Node.js 20 (bukan 18 default) yang diperlukan oleh `vite@7.0.6` dan `laravel-vite-plugin@2.0.0`.
 
 ## Cara Setup di Railway
 
