@@ -139,18 +139,24 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         try {
-            // Regenerate CSRF token before logout to prevent 419 errors
-            $request->session()->regenerateToken();
-
-            // Logout user
+            // Logout user first (before invalidating session)
             Auth::guard('web')->logout();
 
-            // Invalidate session
+            // Invalidate session (this will clear all session data)
             $request->session()->invalidate();
 
-            // Regenerate session ID for security
+            // Regenerate session ID for security (creates new empty session)
             $request->session()->regenerate();
+
+            // Regenerate CSRF token after session regeneration
+            $request->session()->regenerateToken();
         } catch (\Exception $e) {
+            // Log error for debugging but don't expose to user
+            \Log::error('Logout error: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => $request->user()?->id,
+            ]);
+
             // If there's any error, still try to logout gracefully
             try {
                 // Try to logout even if session operations fail
@@ -159,6 +165,7 @@ class AuthenticatedSessionController extends Controller
                 }
             } catch (\Exception $logoutError) {
                 // Ignore logout errors - user might already be logged out
+                \Log::warning('Fallback logout also failed: ' . $logoutError->getMessage());
             }
         }
 

@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { router } from '@inertiajs/react';
+import axios from 'axios';
 
 let isLoggingOut = false;
 
@@ -50,20 +50,30 @@ export function logout() {
     if (isLoggingOut) return;
     isLoggingOut = true;
 
-    // Refresh CSRF token first, then perform logout
-    refreshCsrfToken()
-        .then((token) => {
-            if (!token) {
-                console.warn('No CSRF token available, using fallback logout');
+    // Get CSRF token from meta tag (should always be available)
+    const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+
+    if (!csrfToken) {
+        console.warn('No CSRF token found, trying to refresh...');
+        // Try to refresh token first
+        refreshCsrfToken()
+            .then((token) => {
+                if (token) {
+                    performLogout();
+                } else {
+                    console.warn('Failed to get CSRF token, using fallback logout');
+                    fallbackLogout();
+                }
+            })
+            .catch((error) => {
+                console.error('Error refreshing CSRF token:', error);
                 fallbackLogout();
-                return;
-            }
-            performLogout();
-        })
-        .catch((error) => {
-            console.error('Error refreshing CSRF token:', error);
-            fallbackLogout();
-        });
+            });
+        return;
+    }
+
+    // If token exists, proceed with logout immediately
+    performLogout();
 }
 
 function performLogout() {
@@ -83,13 +93,16 @@ function performLogout() {
         {
             preserveState: false,
             preserveScroll: false,
+            only: [], // Don't preserve any props
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
             },
             onSuccess: () => {
                 isLoggingOut = false;
-                // Force page reload to ensure clean state
-                window.location.href = '/';
+                // Force full page reload to ensure clean state
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 100);
             },
             onError: (errors) => {
                 console.error('Logout error:', errors);
