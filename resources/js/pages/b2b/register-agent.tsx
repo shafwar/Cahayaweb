@@ -199,8 +199,15 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
         setData('company_phone', phoneNumber ? `${data.company_phone_country_code} ${phoneNumber}` : '');
         setData('contact_person_phone', contactPhoneNumber ? `${data.contact_person_phone_country_code} ${contactPhoneNumber}` : '');
 
+        // Get route URL and ensure it uses HTTPS
+        let submitUrl = route('b2b.register.store');
+        // Force HTTPS if current page is HTTPS
+        if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+            submitUrl = submitUrl.replace(/^http:/, 'https:');
+        }
+
         // Submit - country code fields will be ignored by backend
-        post(route('b2b.register.store'), {
+        post(submitUrl, {
             forceFormData: true,
             preserveState: false,
             preserveScroll: false,
