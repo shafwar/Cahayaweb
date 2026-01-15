@@ -43,16 +43,50 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
     };
 }
 
+// Explicit imports for critical pages to ensure they're always available in production
+const criticalPages: Record<string, () => Promise<{ default: React.ComponentType<PageProps> }>> = {
+    'admin/dashboard': () => import('./pages/admin/dashboard'),
+    'admin/agent-verifications': () => import('./pages/admin/agent-verifications'),
+    'admin/agent-verification-detail': () => import('./pages/admin/agent-verification-detail'),
+};
+
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => {
-        // Import all pages using glob pattern - this ensures all pages are included in build
+        // Try critical pages first (explicit imports for production reliability)
+        if (criticalPages[name]) {
+            return criticalPages[name]()
+                .then((module) => {
+                    const Page = module.default;
+                    const Wrapped = (pageProps: PageProps) => (
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={(pageProps as Record<string, unknown>).ziggy?.location || location.pathname}
+                                initial={{ opacity: 0, y: 4, scale: 0.995, filter: 'blur(8px)' }}
+                                animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                                exit={{ opacity: 0, y: -4, scale: 0.995, filter: 'blur(8px)' }}
+                                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                                style={{ willChange: 'transform, opacity, filter' }}
+                            >
+                                <Page {...pageProps} />
+                            </motion.div>
+                        </AnimatePresence>
+                    );
+                    return Wrapped;
+                })
+                .catch((error) => {
+                    console.error(`Failed to load critical page: ${name}`, error);
+                    throw error;
+                });
+        }
+
+        // Fallback to dynamic glob for other pages
         const pages = import.meta.glob('./pages/**/*.tsx', { eager: false });
-        // Resolve page component with proper path matching
         return resolvePageComponent(`./pages/${name}.tsx`, pages)
             .then((module: unknown) => {
                 if (!module) {
                     console.error(`Module not found for page: ${name}`);
+                    console.error('Available pages:', Object.keys(pages));
                     throw new Error(`Page component not found: ${name}`);
                 }
                 const Page = (module as { default: React.ComponentType<PageProps> })?.default;
