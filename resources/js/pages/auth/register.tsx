@@ -37,9 +37,28 @@ export default function Register() {
             (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
         }
 
-        post(route('register'), {
-            preserveState: true,
-            preserveScroll: true,
+        // Preserve mode and redirect parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const modeParam = urlParams.get('mode');
+        const redirectParam = urlParams.get('redirect');
+
+        // Build registration URL with preserved parameters
+        let registerUrl = route('register', {}, true);
+        const params = new URLSearchParams();
+        if (modeParam) params.set('mode', modeParam);
+        if (redirectParam) params.set('redirect', redirectParam);
+        if (params.toString()) {
+            registerUrl += '?' + params.toString();
+        }
+
+        // Ensure HTTPS
+        if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+            registerUrl = registerUrl.replace(/^http:/, 'https:');
+        }
+
+        post(registerUrl, {
+            preserveState: false,
+            preserveScroll: false,
             onError: (errors) => {
                 console.error('Registration errors:', errors);
                 // Errors will be automatically displayed via InputError components
@@ -54,7 +73,7 @@ export default function Register() {
                 }
             },
             onSuccess: () => {
-                // Success - user will be redirected automatically
+                // Success - user will be redirected automatically by backend
             },
             onFinish: () => {
                 reset('password', 'password_confirmation');
