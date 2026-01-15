@@ -103,9 +103,16 @@ class AgentVerificationController extends Controller
                 $request->session()->put('b2b_registration_files', $fileData);
             }
 
+            // Ensure HTTPS for redirect URL
+            $redirectUrl = route('b2b.register.store.continue', [], true);
+            // Force HTTPS if request is HTTPS
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
+                $redirectUrl = str_replace('http://', 'https://', $redirectUrl);
+            }
+            
             return redirect()->route('register', [
                 'mode' => 'b2b',
-                'redirect' => route('b2b.register.store.continue')
+                'redirect' => $redirectUrl
             ])->with('info', 'Please create an account to complete your B2B agent registration.');
         }
 
