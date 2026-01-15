@@ -4,8 +4,8 @@ import { createInertiaApp, type PageProps } from '@inertiajs/react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { createRoot } from 'react-dom/client';
 import React from 'react';
+import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
@@ -46,9 +46,9 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
 
 // Pre-import critical admin pages to ensure they're always bundled in production
 // Using direct imports ensures these pages are always available, even if dynamic imports fail
-import AdminDashboard from './pages/admin/dashboard';
-import AdminAgentVerifications from './pages/admin/agent-verifications';
 import AdminAgentVerificationDetail from './pages/admin/agent-verification-detail';
+import AdminAgentVerifications from './pages/admin/agent-verifications';
+import AdminDashboard from './pages/admin/dashboard';
 
 // Map of critical pages with their pre-imported components
 const criticalPages: Record<string, React.ComponentType<PageProps>> = {

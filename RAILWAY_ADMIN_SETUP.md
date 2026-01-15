@@ -23,16 +23,16 @@ NIXPACKS_NODE_VERSION=20
 1. Buka Railway Dashboard → Project Anda → Service Cahayaweb
 2. Klik tab **Variables**
 3. Tambahkan atau update variable:
-   - **Key**: `APP_ADMIN_EMAILS`
-   - **Value**: `admin@cahayaweb.com`
+    - **Key**: `APP_ADMIN_EMAILS`
+    - **Value**: `admin@cahayaweb.com`
 4. Save dan tunggu deployment selesai
 
 ## Testing Admin Login
 
 1. Buka URL deployment Anda: `https://your-app.up.railway.app/admin`
 2. Login dengan:
-   - Email: `admin@cahayaweb.com`
-   - Password: `Admin123!`
+    - Email: `admin@cahayaweb.com`
+    - Password: `Admin123!`
 3. Anda akan di-redirect ke Admin Dashboard
 
 ## Troubleshooting

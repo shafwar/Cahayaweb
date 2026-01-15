@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
         // Create admin user
         $adminEmail = 'admin@cahayaweb.com';
         $adminPassword = 'Admin123!';
-        
+
         $admin = User::firstOrCreate(
             ['email' => $adminEmail],
             [

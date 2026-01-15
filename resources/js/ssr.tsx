@@ -1,14 +1,14 @@
 import { createInertiaApp, type PageProps } from '@inertiajs/react';
 import createServer from '@inertiajs/react/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import ReactDOMServer from 'react-dom/server';
 import React from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { route, type RouteName } from 'ziggy-js';
 
 // Pre-import critical admin pages for SSR
-import AdminDashboard from './pages/admin/dashboard';
-import AdminAgentVerifications from './pages/admin/agent-verifications';
 import AdminAgentVerificationDetail from './pages/admin/agent-verification-detail';
+import AdminAgentVerifications from './pages/admin/agent-verifications';
+import AdminDashboard from './pages/admin/dashboard';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
 
