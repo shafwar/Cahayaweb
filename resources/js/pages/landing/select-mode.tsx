@@ -368,11 +368,21 @@ export default function SelectMode() {
                             </p>
 
                             <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-                                <Link href="/b2b" className="flex-1">
-                                    <RippleButton className="w-full bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/40 sm:px-6 sm:py-3.5 sm:text-base sm:font-medium">
+                                <div className="flex-1">
+                                    <RippleButton
+                                        className="w-full bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/40 sm:px-6 sm:py-3.5 sm:text-base sm:font-medium"
+                                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                            e.preventDefault();
+                                            // Ensure HTTPS for B2B portal navigation
+                                            const currentUrl = window.location.origin;
+                                            const b2bUrl = `${currentUrl}/b2b`;
+                                            // Use window.location for reliable HTTPS navigation
+                                            window.location.href = b2bUrl;
+                                        }}
+                                    >
                                         Enter B2B Portal
                                     </RippleButton>
-                                </Link>
+                                </div>
                                 <RippleButton
                                     className="flex min-w-[48px] items-center justify-center gap-1.5 border border-white/10 bg-white/10 px-3 py-2.5 text-xs font-semibold text-white/80 transition-all duration-300 hover:border-white/20 hover:bg-white/15 hover:text-white sm:min-w-0 sm:gap-2 sm:px-6 sm:py-3.5 sm:text-base sm:font-medium"
                                     onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
