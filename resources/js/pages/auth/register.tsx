@@ -31,10 +31,21 @@ export default function Register() {
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        // Refresh CSRF token before submission
+        // Get CSRF token from meta tag (most reliable)
         const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-        if (csrfToken && typeof window !== 'undefined' && (window as any).axios) {
-            (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+        
+        // Fallback to XSRF-TOKEN cookie if meta tag token is missing
+        let token = csrfToken;
+        if (!token && typeof document !== 'undefined') {
+            const xsrfCookie = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='));
+            if (xsrfCookie) {
+                token = decodeURIComponent(xsrfCookie.split('=')[1]);
+            }
+        }
+
+        // Set CSRF token for axios if available
+        if (token && typeof window !== 'undefined' && (window as any).axios) {
+            (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
         }
 
         // Preserve mode and redirect parameters from URL
@@ -42,25 +53,55 @@ export default function Register() {
         const modeParam = urlParams.get('mode');
         const redirectParam = urlParams.get('redirect');
 
-        // Build registration URL with preserved parameters
-        let registerUrl = route('register', {}, true);
+        // Build registration URL (use relative to avoid HTTPS issues)
+        let registerUrl = route('register');
+
+        // Add mode and redirect as both URL params and data (to ensure they're available)
         const params = new URLSearchParams();
         if (modeParam) params.set('mode', modeParam);
         if (redirectParam) params.set('redirect', redirectParam);
+
+        // Build full URL with parameters
         if (params.toString()) {
             registerUrl += '?' + params.toString();
         }
 
-        // Ensure HTTPS
+        // Ensure HTTPS if current page is HTTPS
         if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
-            registerUrl = registerUrl.replace(/^http:/, 'https:');
+            const absoluteUrl = new URL(registerUrl, window.location.origin);
+            if (absoluteUrl.protocol === 'http:') {
+                absoluteUrl.protocol = 'https:';
+                registerUrl = absoluteUrl.toString();
+            }
+        }
+
+        // Include mode and redirect in data as well (for POST data)
+        const postData: any = {
+            ...data,
+        };
+        
+        // Add mode and redirect to POST data if they exist
+        if (modeParam) {
+            (postData as any).mode = modeParam;
+        }
+        if (redirectParam) {
+            (postData as any).redirect = redirectParam;
         }
 
         post(registerUrl, {
+            data: postData,
             preserveState: false,
             preserveScroll: false,
+            only: [],
             onError: (errors) => {
                 console.error('Registration errors:', errors);
+                // If 419 error, reload page to refresh CSRF token
+                const errorMessage = errors?.message || (typeof errors === 'string' ? errors : '');
+                if (errorMessage.includes('419') || errorMessage.includes('expired') || errorMessage.includes('PAGE EXPIRED')) {
+                    alert('Your session has expired. Please refresh the page and try again.');
+                    window.location.reload();
+                    return;
+                }
                 // Errors will be automatically displayed via InputError components
                 // Scroll to first error
                 const firstErrorField = Object.keys(errors)[0];
