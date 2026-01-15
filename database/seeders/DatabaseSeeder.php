@@ -27,15 +27,18 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        if ($admin->wasRecentlyCreated) {
-            $this->command->info("✅ Admin user created successfully!");
-            $this->command->info("   Email: {$adminEmail}");
-            $this->command->info("   Password: {$adminPassword}");
-        } else {
-            // Update password if user already exists
+        // Always update password to ensure it's set correctly (for Railway deployment)
+        if (!$admin->wasRecentlyCreated) {
             $admin->password = Hash::make($adminPassword);
             $admin->save();
-            $this->command->info("✅ Admin user password updated!");
+        }
+
+        if ($this->command) {
+            if ($admin->wasRecentlyCreated) {
+                $this->command->info("✅ Admin user created successfully!");
+            } else {
+                $this->command->info("✅ Admin user already exists, password updated!");
+            }
             $this->command->info("   Email: {$adminEmail}");
             $this->command->info("   Password: {$adminPassword}");
         }
