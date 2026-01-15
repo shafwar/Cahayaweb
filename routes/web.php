@@ -1,23 +1,77 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AgentVerificationController;
 use Inertia\Inertia;
 
+// Admin login page - accessible without auth
+Route::get('/admin', function (Request $request) {
+    $user = $request->user();
+
+    // If user is already logged in, check if admin
+    if ($user) {
+        // Check admin status - use same logic as IsAdmin middleware
+        $isAdmin = false;
+        if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
+            $isAdmin = true;
+        }
+        if (!$isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
+            $isAdmin = true;
+        }
+
+        if ($isAdmin) {
+            // User is admin - show dashboard
+            return Inertia::render('admin/dashboard');
+        } else {
+            // Non-admin user trying to access admin - show login page with error
+            return Inertia::render('auth/login', [
+                'canResetPassword' => \Illuminate\Support\Facades\Route::has('password.request'),
+                'status' => null,
+                'mode' => 'admin',
+                'redirect' => '/admin',
+                'error' => 'You do not have admin access. Please login with an admin account.',
+            ]);
+        }
+    }
+
+    // User not logged in - show admin login page
+    return Inertia::render('auth/login', [
+        'canResetPassword' => \Illuminate\Support\Facades\Route::has('password.request'),
+        'status' => null,
+        'mode' => 'admin',
+        'redirect' => '/admin',
+    ]);
+})->name('admin.dashboard');
+
 Route::middleware(['auth', 'is_admin'])->group(function () {
+
     Route::post('/admin/update-section', [AdminController::class, 'updateSection']);
     Route::post('/admin/upload-image', [AdminController::class, 'uploadImage']);
     Route::get('/admin/revisions', [AdminController::class, 'getRevisions']);
     Route::post('/admin/restore-revision', [AdminController::class, 'restoreRevision']);
     Route::post('/admin/reset-to-default', [AdminController::class, 'resetToDefault']);
     Route::post('/admin/reset-all-heroes', [AdminController::class, 'resetAllHeroes']);
-    
+
     // Comprehensive Restore Center
     Route::get('/admin/restore-center', fn () => Inertia::render('admin/restore-center'))->name('admin.restore-center');
     Route::get('/admin/get-all-changes', [AdminController::class, 'getAllChanges']);
     Route::post('/admin/reset-all-changes', [AdminController::class, 'resetAllChanges']);
     Route::post('/admin/reset-by-page', [AdminController::class, 'resetByPage']);
     Route::post('/admin/reset-by-type', [AdminController::class, 'resetByType']);
+
+    // Agent Verification Management
+    // IMPORTANT: More specific routes (with /all) must come BEFORE parameterized routes
+    Route::delete('/admin/agent-verifications/all', [AgentVerificationController::class, 'destroyAll'])->name('admin.agent-verifications.destroy-all');
+    Route::delete('/admin/agent-verifications', [AgentVerificationController::class, 'destroyMultiple'])->name('admin.agent-verifications.destroy-multiple');
+
+    Route::get('/admin/agent-verifications', [AgentVerificationController::class, 'index'])->name('admin.agent-verifications');
+    Route::get('/admin/agent-verifications/{verification}', [AgentVerificationController::class, 'show'])->name('admin.agent-verification.show');
+    Route::post('/admin/agent-verifications/{verification}/approve', [AgentVerificationController::class, 'approve'])->name('admin.agent-verification.approve');
+    Route::post('/admin/agent-verifications/{verification}/reject', [AgentVerificationController::class, 'reject'])->name('admin.agent-verification.reject');
+    Route::post('/admin/agent-verifications/{verification}/update', [AgentVerificationController::class, 'update'])->name('admin.agent-verification.update');
+    Route::delete('/admin/agent-verifications/{verification}', [AgentVerificationController::class, 'destroy'])->name('admin.agent-verification.destroy');
 });
 
 // Add this at the very top, before existing routes
@@ -65,16 +119,29 @@ Route::get('/blog/{id}', fn ($id) => Inertia::render('b2c/blog/[id]', ['id' => $
 Route::get('/contact', fn () => Inertia::render('b2c/contact'))->name('b2c.contact');
 Route::get('/search', fn () => Inertia::render('b2c/search'))->name('b2c.search');
 
-// Simple B2B view
-Route::get('/b2b', function () {
-    return Inertia::render('b2b/index');
-})->name('b2b.index');
+// B2B Agent Verification Routes (public - no login required)
+Route::get('/b2b/register', [AgentVerificationController::class, 'create'])->name('b2b.register');
+Route::post('/b2b/register', [AgentVerificationController::class, 'store'])->name('b2b.register.store');
+Route::get('/b2b/register/continue', [AgentVerificationController::class, 'storeContinue'])->name('b2b.register.store.continue')->middleware('auth');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+// B2B Pending page (requires auth to view status)
+Route::middleware('auth')->group(function () {
+    Route::get('/b2b/pending', [AgentVerificationController::class, 'pending'])->name('b2b.pending');
 });
+
+// B2B Portal (verify.b2b middleware will handle auth check and redirect to register if needed)
+Route::middleware('verify.b2b')->group(function () {
+    Route::get('/b2b', function () {
+        return Inertia::render('b2b/index');
+    })->name('b2b.index');
+});
+
+// Dashboard route removed - users are redirected to home or B2B pages instead
+// Route::middleware(['auth', 'verified'])->group(function () {
+//     Route::get('dashboard', function () {
+//         return Inertia::render('dashboard');
+//     })->name('dashboard');
+// });
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

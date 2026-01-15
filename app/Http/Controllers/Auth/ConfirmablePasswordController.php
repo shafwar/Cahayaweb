@@ -36,6 +36,11 @@ class ConfirmablePasswordController extends Controller
 
         $request->session()->put('auth.password_confirmed_at', time());
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = $request->user();
+        // Check if user has B2B access
+        if ($user->hasB2BAccess()) {
+            return redirect()->intended(route('b2b.index', absolute: false));
+        }
+        return redirect()->intended(route('home', absolute: false));
     }
 }

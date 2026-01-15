@@ -12,14 +12,20 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class RegisteredUserController extends Controller
 {
     /**
      * Show the registration page.
      */
-    public function create(): Response
+    public function create(Request $request)
     {
+        // If user is already logged in and coming from B2B registration, redirect to B2B register
+        if ($request->user() && $request->input('mode') === 'b2b') {
+            return redirect()->route('b2b.register');
+        }
+
         return Inertia::render('auth/register');
     }
 
@@ -30,22 +36,60 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            ], [
+                'name.required' => 'Name is required.',
+                'email.required' => 'Email address is required.',
+                'email.email' => 'Please enter a valid email address.',
+                'email.unique' => 'This email address is already registered. If this is your account, please log in instead or use a different email address.',
+                'password.required' => 'Password is required.',
+                'password.confirmed' => 'Password confirmation does not match.',
+            ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ]);
 
-        event(new Registered($user));
+            event(new Registered($user));
 
-        Auth::login($user);
+            Auth::login($user);
 
-        return redirect()->intended(route('dashboard', absolute: false));
+            // Regenerate session token after successful registration
+            $request->session()->regenerateToken();
+
+            // Check if there's a redirect parameter (e.g., from B2B registration)
+            $redirect = $request->input('redirect');
+            if ($redirect && str_starts_with($redirect, '/')) {
+                return redirect($redirect);
+            }
+
+            // Check if there's stored B2B registration data
+            if ($request->session()->has('b2b_registration_data')) {
+                return redirect()->route('b2b.register.store.continue');
+            }
+
+            // Check mode parameter for B2B
+            $mode = $request->input('mode');
+            if ($mode === 'b2b') {
+                return redirect()->route('b2b.register.store.continue');
+            }
+
+            // For non-B2B registrations, redirect to home instead of dashboard
+            return redirect()->route('home');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Re-throw validation exceptions so they're handled by Inertia
+            throw $e;
+        } catch (\Exception $e) {
+            // Handle other exceptions
+            return back()->withErrors([
+                'email' => 'An error occurred during registration. Please try again.',
+            ])->withInput($request->only('name', 'email'));
+        }
     }
 }

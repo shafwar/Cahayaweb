@@ -21,11 +21,12 @@ type LoginForm = {
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
-    mode?: 'b2b' | 'b2c';
+    mode?: 'b2b' | 'b2c' | 'admin';
     redirect?: string;
+    error?: string;
 }
 
-export default function Login({ status, canResetPassword, mode, redirect }: LoginProps) {
+export default function Login({ status, canResetPassword, mode, redirect, error }: LoginProps) {
     const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
         email: '',
         password: '',
@@ -42,8 +43,18 @@ export default function Login({ status, canResetPassword, mode, redirect }: Logi
     };
 
     return (
-        <AuthLayout title="Log in to your account" description="Enter your email and password below to log in">
-            <Head title="Log in" />
+        <AuthLayout
+            title={mode === 'admin' ? "Admin Login" : "Log in to your account"}
+            description={mode === 'admin' ? "Enter your admin credentials to access the admin dashboard" : "Enter your email and password below to log in"}
+        >
+            <Head title={mode === 'admin' ? "Admin Login" : "Log in"} />
+
+            {/* Display error message if provided */}
+            {error && (
+                <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                    <p className="text-sm text-red-300">{error}</p>
+                </div>
+            )}
 
             <form method="POST" className="flex flex-col gap-6" onSubmit={submit}>
                 {data.mode && <input type="hidden" name="mode" value={data.mode} />}
@@ -63,6 +74,13 @@ export default function Login({ status, canResetPassword, mode, redirect }: Logi
                             placeholder="email@example.com"
                         />
                         <InputError message={errors.email} />
+                        {errors.email && errors.email.includes('Admin accounts cannot login') && (
+                            <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                                <p className="text-sm text-red-300">
+                                    {errors.email} Please use the admin login page directly at <code className="text-xs bg-red-500/20 px-1 py-0.5 rounded">/admin</code>
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="grid gap-2">

@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
@@ -17,6 +17,10 @@ type RegisterForm = {
 };
 
 export default function Register() {
+    const { url, props } = usePage();
+    const mode = new URLSearchParams(url.split('?')[1] || '').get('mode');
+    const redirect = new URLSearchParams(url.split('?')[1] || '').get('redirect');
+    const status = (props as any)?.status;
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
         name: '',
         email: '',
@@ -26,14 +30,49 @@ export default function Register() {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+
+        // Refresh CSRF token before submission
+        const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+        if (csrfToken && typeof window !== 'undefined' && (window as any).axios) {
+            (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+        }
+
         post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+            preserveState: true,
+            preserveScroll: true,
+            onError: (errors) => {
+                console.error('Registration errors:', errors);
+                // Errors will be automatically displayed via InputError components
+                // Scroll to first error
+                const firstErrorField = Object.keys(errors)[0];
+                if (firstErrorField) {
+                    const errorElement = document.getElementById(firstErrorField) || document.querySelector(`[name="${firstErrorField}"]`);
+                    if (errorElement) {
+                        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        (errorElement as HTMLElement).focus();
+                    }
+                }
+            },
+            onSuccess: () => {
+                // Success - user will be redirected automatically
+            },
+            onFinish: () => {
+                reset('password', 'password_confirmation');
+            },
         });
     };
 
     return (
         <AuthLayout title="Create an account" description="Enter your details below to create your account">
             <Head title="Register" />
+
+            {/* Display status messages */}
+            {status && (
+                <div className="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 p-3">
+                    <p className="text-sm text-green-300">{status}</p>
+                </div>
+            )}
+
             <form method="POST" className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
@@ -65,8 +104,48 @@ export default function Register() {
                             onChange={(e) => setData('email', e.target.value)}
                             disabled={processing}
                             placeholder="email@example.com"
+                            className={
+                                errors.email && errors.email.includes('already registered')
+                                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                    : ''
+                            }
                         />
                         <InputError message={errors.email} />
+                        {errors.email &&
+                            (errors.email.includes('already registered') ||
+                                errors.email.includes('already been taken') ||
+                                errors.email.includes('unique')) && (
+                                <div className="mt-2 rounded-lg border-2 border-amber-500/50 bg-amber-500/20 p-4 shadow-lg">
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-0.5 flex-shrink-0">
+                                            <svg className="h-5 w-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path
+                                                    fillRule="evenodd"
+                                                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h4 className="mb-1 text-sm font-semibold text-amber-300">Email Already Registered</h4>
+                                            <p className="text-sm leading-relaxed text-amber-200/90">
+                                                The email address <strong className="font-semibold text-amber-100">{data.email}</strong> is already
+                                                registered in our system.
+                                            </p>
+                                            <p className="mt-2 text-sm text-amber-200/90">
+                                                If this is your account, please{' '}
+                                                <TextLink
+                                                    href={route('login', mode === 'b2b' ? { mode: 'b2b', redirect } : {})}
+                                                    className="font-semibold text-amber-100 underline hover:text-amber-50"
+                                                >
+                                                    log in here
+                                                </TextLink>{' '}
+                                                instead. If you forgot your password, you can reset it from the login page.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                     </div>
 
                     <div className="grid gap-2">
@@ -80,9 +159,24 @@ export default function Register() {
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
                             disabled={processing}
-                            placeholder="Password"
+                            placeholder="Password (minimum 8 characters)"
+                            minLength={8}
                         />
-                        <InputError message={errors.password} />
+                        <div className="flex items-start gap-2">
+                            <InputError message={errors.password} />
+                            {!errors.password && (
+                                <p className="text-xs text-muted-foreground">
+                                    Password must be at least 8 characters long.
+                                </p>
+                            )}
+                        </div>
+                        {data.password && data.password.length > 0 && data.password.length < 8 && (
+                            <div className="mt-1 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2">
+                                <p className="text-xs text-amber-300">
+                                    <strong>Password too short:</strong> Your password must be at least 8 characters. Currently: {data.password.length} character{data.password.length !== 1 ? 's' : ''}.
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="grid gap-2">
@@ -99,17 +193,37 @@ export default function Register() {
                             placeholder="Confirm password"
                         />
                         <InputError message={errors.password_confirmation} />
+                        {data.password && data.password_confirmation && data.password !== data.password_confirmation && (
+                            <div className="mt-1 rounded-lg border border-red-500/30 bg-red-500/10 p-2">
+                                <p className="text-xs text-red-300">
+                                    <strong>Passwords do not match.</strong> Please make sure both password fields contain the same password.
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>
-                        {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Create account
+                        {processing ? (
+                            <>
+                                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                                Creating account...
+                            </>
+                        ) : (
+                            'Create account'
+                        )}
                     </Button>
                 </div>
 
+                {/* Display general errors if any */}
+                {errors && Object.keys(errors).length > 0 && !errors.name && !errors.email && !errors.password && !errors.password_confirmation && (
+                    <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                        <p className="text-sm text-red-300">Please check the form for errors and try again.</p>
+                    </div>
+                )}
+
                 <div className="text-center text-sm text-muted-foreground">
                     Already have an account?{' '}
-                    <TextLink href={route('login')} tabIndex={6}>
+                    <TextLink href={route('login', mode === 'b2b' ? { mode: 'b2b', redirect } : {})} tabIndex={6}>
                         Log in
                     </TextLink>
                 </div>

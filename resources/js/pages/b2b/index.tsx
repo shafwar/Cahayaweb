@@ -99,15 +99,15 @@ export default function CahayaAnbiyaHero() {
         window.dispatchEvent(new CustomEvent('cms:clear-dirty'));
     };
 
-    const packages = [
-        {
-            id: 1,
-            name: 'Premium Umrah Package',
-            duration: '9 Days 8 Nights',
-            price: 'Starting from Rp 28,500,000',
-            badge: 'Most Popular',
-            badgeColor: 'from-amber-500 to-orange-500',
-            features: [
+    // Get packages data from database or use defaults
+    const getPackageData = (id: number) => {
+        const baseKey = `b2b.packages.${id}`;
+
+        // Read features from individual sections (b2b.packages.{id}.features.{index})
+        // Try to find all features by checking sections with pattern b2b.packages.{id}.features.{index}
+        let features: string[] = [];
+        const defaultFeatures: Record<number, string[]> = {
+            1: [
                 '5-star hotel accommodation (Makkah & Madinah)',
                 'Direct flights with premium airlines',
                 'Private transportation throughout',
@@ -117,16 +117,7 @@ export default function CahayaAnbiyaHero() {
                 '24/7 customer support',
                 'Comprehensive travel insurance',
             ],
-            highlights: 'Best for first-time pilgrims seeking comfort and guidance',
-        },
-        {
-            id: 2,
-            name: 'Luxury Hajj Package',
-            duration: '14 Days 13 Nights',
-            price: 'Starting from Rp 87,500,000',
-            badge: 'Premium',
-            badgeColor: 'from-purple-500 to-pink-500',
-            features: [
+            2: [
                 'Luxury 5-star hotels (closest to Haram)',
                 'VIP airport transfers',
                 'Premium tent accommodation in Mina',
@@ -136,16 +127,7 @@ export default function CahayaAnbiyaHero() {
                 'Health monitoring service',
                 'Exclusive group sizes (max 20 people)',
             ],
-            highlights: 'Ultimate spiritual journey with maximum comfort and personalized service',
-        },
-        {
-            id: 3,
-            name: 'Economy Umrah Package',
-            duration: '7 Days 6 Nights',
-            price: 'Starting from Rp 18,500,000',
-            badge: 'Best Value',
-            badgeColor: 'from-blue-500 to-cyan-500',
-            features: [
+            3: [
                 '4-star hotel accommodation',
                 'Shared transportation',
                 'Experienced group leader',
@@ -154,9 +136,103 @@ export default function CahayaAnbiyaHero() {
                 'Group guidance sessions',
                 'Essential amenities provided',
             ],
-            highlights: 'Perfect for budget-conscious pilgrims without compromising essentials',
-        },
-    ];
+        };
+
+        // Get features from sections - check up to 20 features per package
+        for (let i = 0; i < 20; i++) {
+            const featureKey = `${baseKey}.features.${i}`;
+            const featureContent = props.sections?.[featureKey]?.content;
+            if (featureContent && featureContent.trim()) {
+                features.push(featureContent.trim());
+            }
+        }
+
+        // If no features found in database, use defaults
+        if (features.length === 0) {
+            features = defaultFeatures[id] || [];
+        }
+
+        // Default packages data
+        const defaults: Record<
+            number,
+            {
+                name: string;
+                duration: string;
+                price: string;
+                badge: string;
+                badgeColor: string;
+                features: string[];
+                highlights: string;
+            }
+        > = {
+            1: {
+                name: 'Premium Umrah Package',
+                duration: '9 Days 8 Nights',
+                price: 'Starting from Rp 28,500,000',
+                badge: 'Most Popular',
+                badgeColor: 'from-amber-500 to-orange-500',
+                features: [
+                    '5-star hotel accommodation (Makkah & Madinah)',
+                    'Direct flights with premium airlines',
+                    'Private transportation throughout',
+                    'Professional multilingual guide',
+                    'All meals included (Halal certified)',
+                    'Zam-zam water supply',
+                    '24/7 customer support',
+                    'Comprehensive travel insurance',
+                ],
+                highlights: 'Best for first-time pilgrims seeking comfort and guidance',
+            },
+            2: {
+                name: 'Luxury Hajj Package',
+                duration: '14 Days 13 Nights',
+                price: 'Starting from Rp 87,500,000',
+                badge: 'Premium',
+                badgeColor: 'from-purple-500 to-pink-500',
+                features: [
+                    'Luxury 5-star hotels (closest to Haram)',
+                    'VIP airport transfers',
+                    'Premium tent accommodation in Mina',
+                    'Dedicated scholar for spiritual guidance',
+                    'All rituals assistance included',
+                    'Premium meal arrangements',
+                    'Health monitoring service',
+                    'Exclusive group sizes (max 20 people)',
+                ],
+                highlights: 'Ultimate spiritual journey with maximum comfort and personalized service',
+            },
+            3: {
+                name: 'Economy Umrah Package',
+                duration: '7 Days 6 Nights',
+                price: 'Starting from Rp 18,500,000',
+                badge: 'Best Value',
+                badgeColor: 'from-blue-500 to-cyan-500',
+                features: [
+                    '4-star hotel accommodation',
+                    'Shared transportation',
+                    'Experienced group leader',
+                    'Daily breakfast included',
+                    'Basic travel insurance',
+                    'Group guidance sessions',
+                    'Essential amenities provided',
+                ],
+                highlights: 'Perfect for budget-conscious pilgrims without compromising essentials',
+            },
+        };
+
+        return {
+            id,
+            name: props.sections?.[`${baseKey}.name`]?.content || defaults[id]?.name || '',
+            duration: props.sections?.[`${baseKey}.duration`]?.content || defaults[id]?.duration || '',
+            price: props.sections?.[`${baseKey}.price`]?.content || defaults[id]?.price || '',
+            badge: props.sections?.[`${baseKey}.badge`]?.content || defaults[id]?.badge || '',
+            badgeColor: defaults[id]?.badgeColor || 'from-amber-500 to-orange-500',
+            features: features.length > 0 ? features : defaults[id]?.features || [],
+            highlights: props.sections?.[`${baseKey}.highlights`]?.content || defaults[id]?.highlights || '',
+        };
+    };
+
+    const packages = [1, 2, 3].map((id) => getPackageData(id));
 
     const consultationSteps = {
         start: {
@@ -563,9 +639,15 @@ export default function CahayaAnbiyaHero() {
                                 </DialogTrigger>
                                 <DialogContent className="max-h-[90vh] w-[calc(100vw-0.5rem)] max-w-6xl overflow-y-auto border border-gray-800/50 bg-gray-950/95 sm:w-[calc(100vw-2rem)]">
                                     <DialogHeader className="border-b border-gray-800/50 pb-4 sm:pb-5">
-                                        <DialogTitle className="text-lg font-semibold text-white sm:text-xl">Premium Packages</DialogTitle>
+                                        <DialogTitle className="text-lg font-semibold text-white sm:text-xl">
+                                            <EditableText sectionKey="b2b.packages_dialog.title" value="Premium Packages" tag="span" />
+                                        </DialogTitle>
                                         <DialogDescription className="mt-1 text-xs text-gray-400 sm:text-sm">
-                                            Choose from our carefully curated packages for your spiritual journey
+                                            <EditableText
+                                                sectionKey="b2b.packages_dialog.description"
+                                                value="Choose from our carefully curated packages for your spiritual journey"
+                                                tag="span"
+                                            />
                                         </DialogDescription>
                                     </DialogHeader>
 
@@ -588,25 +670,52 @@ export default function CahayaAnbiyaHero() {
                                                         <div className="min-w-0 flex-1">
                                                             <div className="mb-2 flex flex-wrap items-center gap-2">
                                                                 <h3 className="text-sm font-semibold text-white sm:text-base lg:text-lg">
-                                                                    {pkg.name}
+                                                                    <EditableText
+                                                                        sectionKey={`b2b.packages.${pkg.id}.name`}
+                                                                        value={pkg.name}
+                                                                        tag="span"
+                                                                    />
                                                                 </h3>
                                                                 <div
                                                                     className={`rounded-full bg-gradient-to-r ${pkg.badgeColor} px-2 py-0.5 text-[9px] font-medium text-white sm:text-[10px]`}
                                                                 >
-                                                                    {pkg.badge}
+                                                                    <EditableText
+                                                                        sectionKey={`b2b.packages.${pkg.id}.badge`}
+                                                                        value={pkg.badge}
+                                                                        tag="span"
+                                                                    />
                                                                 </div>
                                                             </div>
-                                                            <p className="text-xs text-gray-400 sm:text-sm">📅 {pkg.duration}</p>
+                                                            <p className="text-xs text-gray-400 sm:text-sm">
+                                                                📅{' '}
+                                                                <EditableText
+                                                                    sectionKey={`b2b.packages.${pkg.id}.duration`}
+                                                                    value={pkg.duration}
+                                                                    tag="span"
+                                                                />
+                                                            </p>
                                                         </div>
                                                         <div className="flex-shrink-0 rounded-md bg-gradient-to-br from-amber-500/90 to-orange-600/90 px-4 py-2.5 text-center shadow-sm sm:px-5 sm:py-3">
-                                                            <p className="text-xs font-semibold text-white sm:text-sm lg:text-base">{pkg.price}</p>
+                                                            <p className="text-xs font-semibold text-white sm:text-sm lg:text-base">
+                                                                <EditableText
+                                                                    sectionKey={`b2b.packages.${pkg.id}.price`}
+                                                                    value={pkg.price}
+                                                                    tag="span"
+                                                                />
+                                                            </p>
                                                             <p className="text-[9px] text-white/80 sm:text-[10px]">per person</p>
                                                         </div>
                                                     </div>
 
                                                     {/* Highlights - More Compact */}
                                                     <div className="mb-4 rounded-md border border-amber-500/15 bg-amber-500/5 p-2.5 sm:p-3">
-                                                        <p className="text-xs leading-relaxed text-amber-200/80 sm:text-sm">{pkg.highlights}</p>
+                                                        <p className="text-xs leading-relaxed text-amber-200/80 sm:text-sm">
+                                                            <EditableText
+                                                                sectionKey={`b2b.packages.${pkg.id}.highlights`}
+                                                                value={pkg.highlights}
+                                                                tag="span"
+                                                            />
+                                                        </p>
                                                     </div>
 
                                                     {/* Features Toggle - Better Spacing */}
@@ -642,10 +751,16 @@ export default function CahayaAnbiyaHero() {
                                                             className="mb-4 overflow-hidden"
                                                         >
                                                             <div className="grid grid-cols-1 gap-2.5 rounded-md border border-gray-800/50 bg-gray-800/20 p-3 sm:grid-cols-2 lg:grid-cols-3">
-                                                                {pkg.features.map((feature, idx) => (
+                                                                {pkg.features.map((feature: string, idx: number) => (
                                                                     <div key={idx} className="flex items-start gap-2 rounded-sm bg-gray-900/40 p-2.5">
                                                                         <div className="mt-1 h-1 w-1 flex-shrink-0 rounded-full bg-green-400"></div>
-                                                                        <span className="text-xs leading-relaxed text-gray-300">{feature}</span>
+                                                                        <span className="text-xs leading-relaxed text-gray-300">
+                                                                            <EditableText
+                                                                                sectionKey={`b2b.packages.${pkg.id}.features.${idx}`}
+                                                                                value={feature}
+                                                                                tag="span"
+                                                                            />
+                                                                        </span>
                                                                     </div>
                                                                 ))}
                                                             </div>

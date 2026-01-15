@@ -20,12 +20,13 @@ import {
     RotateCcw,
     Save,
     Search,
+    Shield,
     Sparkles,
     X,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { B2C_NAVIGATION_ITEMS, B2B_NAVIGATION_ITEMS } from './header/constants';
+import { B2B_NAVIGATION_ITEMS, B2C_NAVIGATION_ITEMS } from './header/constants';
 
 interface GlobalHeaderProps {
     variant?: 'b2c' | 'b2b';
@@ -207,7 +208,7 @@ const MobileMenuPortal: React.FC<{
                             {navigationItems.map((item) => {
                                 const IconComponent = item.icon ? iconMap[item.icon] : null;
                                 const itemWithAction = item as NavigationItem & { action?: string; external?: boolean };
-                                
+
                                 if (itemWithAction.action) {
                                     return (
                                         <button
@@ -228,7 +229,7 @@ const MobileMenuPortal: React.FC<{
                                         </button>
                                     );
                                 }
-                                
+
                                 if (itemWithAction.external) {
                                     return (
                                         <a
@@ -244,7 +245,7 @@ const MobileMenuPortal: React.FC<{
                                         </a>
                                     );
                                 }
-                                
+
                                 return (
                                     <Link
                                         key={item.label}
@@ -267,6 +268,16 @@ const MobileMenuPortal: React.FC<{
                             <div className="space-y-2">
                                 <button
                                     onClick={() => {
+                                        router.visit('/admin');
+                                        onClose();
+                                    }}
+                                    className="flex w-full items-center gap-3 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-4 py-3 text-sm font-medium text-amber-300"
+                                >
+                                    <Shield className="h-5 w-5" />
+                                    <span>Admin Dashboard</span>
+                                </button>
+                                <button
+                                    onClick={() => {
                                         router.visit('/admin/restore-center');
                                         onClose();
                                     }}
@@ -274,6 +285,16 @@ const MobileMenuPortal: React.FC<{
                                 >
                                     <RotateCcw className="h-5 w-5" />
                                     <span>Restore Center</span>
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        router.visit('/admin/agent-verifications');
+                                        onClose();
+                                    }}
+                                    className="flex w-full items-center gap-3 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-4 py-3 text-sm font-medium text-amber-300"
+                                >
+                                    <Building2 className="h-5 w-5" />
+                                    <span>Agent Verifications</span>
                                 </button>
                                 {editCtx.dirty ? (
                                     <button
@@ -320,21 +341,24 @@ const MobileMenuPortal: React.FC<{
 
                     {/* Footer */}
                     <div className="border-t border-white/5 p-5">
-                        <button
-                            onClick={() => {
-                                if (user) logout();
-                                else router.visit(variant === 'b2b' ? '/login?mode=b2b&redirect=/b2b' : '/login?mode=b2c&redirect=/home');
-                                onClose();
-                            }}
-                            className={`mb-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${
-                                user
-                                    ? 'border border-red-500/30 bg-red-500/10 text-red-300'
-                                    : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                            }`}
-                        >
-                            {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
-                            {user ? 'Logout' : 'Login'}
-                        </button>
+                        {/* Only show login button for B2B variant, not for admin */}
+                        {variant === 'b2b' && !isAdmin && (
+                            <button
+                                onClick={() => {
+                                    if (user) logout();
+                                    else router.visit('/login?mode=b2b&redirect=/b2b');
+                                    onClose();
+                                }}
+                                className={`mb-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${
+                                    user
+                                        ? 'border border-red-500/30 bg-red-500/10 text-red-300'
+                                        : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
+                                }`}
+                            >
+                                {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+                                {user ? 'Logout' : 'Login'}
+                            </button>
+                        )}
                         <p className="text-center text-xs text-white/40">© 2024 Cahaya Anbiya Travel</p>
                     </div>
                 </div>
@@ -467,7 +491,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                             {navigationItems.map((item, index) => {
                                 const IconComponent = item.icon ? iconMap[item.icon] : null;
                                 const itemWithAction = item as NavigationItem & { action?: string; external?: boolean };
-                                
+
                                 return (
                                     <motion.div
                                         key={item.label}
@@ -482,7 +506,9 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                                         window.dispatchEvent(new Event('open-b2b-packages'));
                                                     } else if (itemWithAction.action === 'open-consultation') {
                                                         // Trigger consultation dialog
-                                                        const consultationButton = document.querySelector('[data-consultation-trigger]') as HTMLElement;
+                                                        const consultationButton = document.querySelector(
+                                                            '[data-consultation-trigger]',
+                                                        ) as HTMLElement;
                                                         consultationButton?.click();
                                                     }
                                                 }}
@@ -518,6 +544,16 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                         <div className="flex flex-shrink-0 items-center gap-2">
                             {user && isAdmin && (
                                 <>
+                                    {/* Admin Indicator Button - Small and Proportional */}
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => router.visit('/admin')}
+                                        className="hidden items-center justify-center rounded-lg border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-orange-500/10 p-2 text-amber-300 transition-all hover:from-amber-500/20 hover:to-orange-500/20 md:flex"
+                                        title="Admin Dashboard"
+                                    >
+                                        <Shield className="h-4 w-4" />
+                                    </motion.button>
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
@@ -595,24 +631,26 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                 </span>
                             </motion.button>
 
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => {
-                                    if (user) {
-                                        logout();
-                                    } else {
-                                        const loginHref = variant === 'b2b' ? '/login?mode=b2b&redirect=/b2b' : '/login?mode=b2c&redirect=/home';
-                                        router.visit(loginHref);
-                                    }
-                                }}
-                                className={`hidden rounded-xl px-3 py-2 text-sm font-semibold md:flex ${user ? 'border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20' : 'border-none bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400'}`}
-                            >
-                                <span className="flex items-center gap-2">
-                                    {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
-                                    <span>{user ? 'Logout' : 'Login'}</span>
-                                </span>
-                            </motion.button>
+                            {/* Only show login button for B2B variant, not for admin */}
+                            {variant === 'b2b' && !isAdmin && (
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => {
+                                        if (user) {
+                                            logout();
+                                        } else {
+                                            router.visit('/login?mode=b2b&redirect=/b2b');
+                                        }
+                                    }}
+                                    className={`hidden rounded-xl px-3 py-2 text-sm font-semibold md:flex ${user ? 'border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20' : 'border-none bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400'}`}
+                                >
+                                    <span className="flex items-center gap-2">
+                                        {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+                                        <span>{user ? 'Logout' : 'Login'}</span>
+                                    </span>
+                                </motion.button>
+                            )}
 
                             <button
                                 onClick={() => setIsMobileMenuOpen(true)}

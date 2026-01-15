@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->alias([
+            'verify.b2b' => \App\Http\Middleware\VerifyB2BAccess::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

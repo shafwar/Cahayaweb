@@ -237,7 +237,7 @@ export default function SelectMode() {
                                 <motion.img
                                     src="/cahayanbiyalogo.png"
                                     alt="Cahaya Anbiya Logo"
-                                    className="w-[75vw] max-w-[450px] h-auto sm:w-auto sm:h-40 md:h-48 lg:h-56 xl:h-64"
+                                    className="h-auto w-[75vw] max-w-[450px] sm:h-40 sm:w-auto md:h-48 lg:h-56 xl:h-64"
                                     style={{
                                         filter: 'drop-shadow(0 0 50px rgba(254,201,1,0.4)) drop-shadow(0 0 80px rgba(0,84,255,0.2))',
                                     }}

@@ -15,8 +15,16 @@ class EmailVerificationPromptController extends Controller
      */
     public function __invoke(Request $request): Response|RedirectResponse
     {
-        return $request->user()->hasVerifiedEmail()
-                    ? redirect()->intended(route('dashboard', absolute: false))
-                    : Inertia::render('auth/verify-email', ['status' => $request->session()->get('status')]);
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            // Check if user has B2B access
+            if ($user->hasB2BAccess()) {
+                return redirect()->intended(route('b2b.index', absolute: false));
+            }
+            return redirect()->intended(route('home', absolute: false));
+        }
+
+        return Inertia::render('auth/verify-email', ['status' => $request->session()->get('status')]);
     }
 }
