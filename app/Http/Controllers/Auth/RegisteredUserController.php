@@ -63,21 +63,32 @@ class RegisteredUserController extends Controller
             // Regenerate session token after successful registration
             $request->session()->regenerateToken();
 
-            // Check if there's a redirect parameter (e.g., from B2B registration)
-            $redirect = $request->input('redirect');
-            if ($redirect && str_starts_with($redirect, '/')) {
-                return redirect($redirect);
-            }
-
-            // Check if there's stored B2B registration data
+            // PRIORITY 1: Check if there's stored B2B registration data in session (most reliable)
             if ($request->session()->has('b2b_registration_data')) {
                 return redirect()->route('b2b.register.store.continue');
             }
 
-            // Check mode parameter for B2B
+            // PRIORITY 2: Check mode parameter for B2B
             $mode = $request->input('mode');
             if ($mode === 'b2b') {
+                // If mode is b2b, always redirect to continue registration
                 return redirect()->route('b2b.register.store.continue');
+            }
+
+            // PRIORITY 3: Check if there's a redirect parameter (e.g., from B2B registration)
+            $redirect = $request->input('redirect');
+            if ($redirect) {
+                // Handle both relative and absolute URLs
+                if (str_starts_with($redirect, '/')) {
+                    // Relative URL - use directly
+                    return redirect($redirect);
+                } elseif (str_starts_with($redirect, 'http://') || str_starts_with($redirect, 'https://')) {
+                    // Absolute URL - extract path and use it
+                    $parsedUrl = parse_url($redirect);
+                    if (isset($parsedUrl['path'])) {
+                        return redirect($parsedUrl['path'] . (isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : ''));
+                    }
+                }
             }
 
             // For non-B2B registrations, redirect to home instead of dashboard
