@@ -46,7 +46,9 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => {
+        // Import all pages using glob pattern - this ensures all pages are included in build
         const pages = import.meta.glob('./pages/**/*.tsx', { eager: false });
+        // Resolve page component with proper path matching
         return resolvePageComponent(`./pages/${name}.tsx`, pages)
             .then((module: unknown) => {
                 if (!module) {
