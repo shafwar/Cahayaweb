@@ -6,8 +6,9 @@
         "npm": ">=10.0.0"
     },
     "scripts": {
-        "build": "vite build",
-        "build:ssr": "vite build && vite build --ssr",
+        "build": "vite build && npm run build:copy-manifest",
+        "build:copy-manifest": "cp public/build/.vite/manifest.json public/build/manifest.json || true",
+        "build:ssr": "vite build && vite build --ssr && npm run build:copy-manifest",
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
