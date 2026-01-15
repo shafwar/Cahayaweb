@@ -1,7 +1,7 @@
 import '../css/app.css';
 
-import axios from 'axios';
 import { createInertiaApp, type PageProps } from '@inertiajs/react';
+import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
@@ -45,13 +45,18 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
-    resolve: (name) =>
-        resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx', { eager: false }))
+    resolve: (name) => {
+        const pages = import.meta.glob('./pages/**/*.tsx', { eager: false });
+        return resolvePageComponent(`./pages/${name}.tsx`, pages)
             .then((module: unknown) => {
-                const Page = (module as { default: React.ComponentType<PageProps> }).default;
-                if (!Page) {
-                    console.error(`Page component not found for: ${name}`);
+                if (!module) {
+                    console.error(`Module not found for page: ${name}`);
                     throw new Error(`Page component not found: ${name}`);
+                }
+                const Page = (module as { default: React.ComponentType<PageProps> })?.default;
+                if (!Page) {
+                    console.error(`Page component default export not found for: ${name}`, module);
+                    throw new Error(`Page component default export not found: ${name}`);
                 }
                 const Wrapped = (pageProps: PageProps) => (
                     <AnimatePresence mode="wait">
@@ -71,14 +76,16 @@ createInertiaApp({
             })
             .catch((error) => {
                 console.error(`Failed to load page component: ${name}`, error);
+                console.error('Available pages:', Object.keys(pages));
                 // Return a fallback error page
                 const ErrorPage = () => (
                     <div className="flex min-h-screen items-center justify-center bg-gray-50">
                         <div className="text-center">
                             <h1 className="text-2xl font-bold text-gray-900">Page Not Found</h1>
                             <p className="mt-2 text-gray-600">The page "{name}" could not be loaded.</p>
+                            <p className="mt-1 text-sm text-gray-500">Error: {error instanceof Error ? error.message : String(error)}</p>
                             <button
-                                onClick={() => window.location.href = '/'}
+                                onClick={() => (window.location.href = '/')}
                                 className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                             >
                                 Go Home
@@ -87,7 +94,8 @@ createInertiaApp({
                     </div>
                 );
                 return ErrorPage;
-            }),
+            });
+    },
     setup({ el, App, props }) {
         const root = createRoot(el);
         root.render(<App {...props} />);
