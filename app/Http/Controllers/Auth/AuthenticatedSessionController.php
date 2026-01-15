@@ -139,22 +139,35 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         try {
-            // Logout user first
+            // Regenerate CSRF token before logout to prevent 419 errors
+            $request->session()->regenerateToken();
+
+            // Logout user
             Auth::guard('web')->logout();
 
-            // Invalidate and regenerate session
+            // Invalidate session
             $request->session()->invalidate();
-            $request->session()->regenerateToken();
+
+            // Regenerate session ID for security
+            $request->session()->regenerate();
         } catch (\Exception $e) {
-            // If there's any error, still try to logout
+            // If there's any error, still try to logout gracefully
             try {
-                Auth::guard('web')->logout();
+                // Try to logout even if session operations fail
+                if (Auth::check()) {
+                    Auth::guard('web')->logout();
+                }
             } catch (\Exception $logoutError) {
-                // Ignore logout errors
+                // Ignore logout errors - user might already be logged out
             }
         }
 
-        // Always redirect to home - Inertia will handle it properly
+        // For Inertia requests, use location redirect to ensure clean state
+        if ($request->header('X-Inertia')) {
+            return Inertia::location('/');
+        }
+
+        // Always redirect to home
         return redirect('/');
     }
 
