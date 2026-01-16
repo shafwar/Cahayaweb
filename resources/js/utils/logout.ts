@@ -57,10 +57,17 @@ export function logout() {
  */
 function performFormLogout(token: string) {
     try {
+        // Ensure logout URL uses HTTPS to prevent Mixed Content errors
+        let logoutUrl = '/logout';
+        if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+            // Use absolute HTTPS URL to prevent any protocol issues
+            logoutUrl = window.location.origin + '/logout';
+        }
+
         // Create a form element
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '/logout';
+        form.action = logoutUrl;
         form.style.display = 'none';
 
         // Add CSRF token as hidden input
