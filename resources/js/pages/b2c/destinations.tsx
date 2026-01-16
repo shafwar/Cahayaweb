@@ -578,22 +578,13 @@ export default function Destinations() {
                             viewport={{ once: true, margin: '-100px' }}
                             className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3"
                         >
-                            {destinations.map((destination) => (
-                                <Dialog key={destination.id}>
-                                    {editMode ? (
-                                        <motion.article
-                                            variants={cardVariants}
-                                            whileHover={{ scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
-                                            className="group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300"
-                                        >
-                                    ) : (
-                                        <DialogTrigger asChild>
-                                            <motion.article
-                                                variants={cardVariants}
-                                                whileHover={{ scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
-                                                className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300"
-                                            >
-                                    )}
+                            {destinations.map((destination) => {
+                                const CardContent = (
+                                    <motion.article
+                                        variants={cardVariants}
+                                        whileHover={{ scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
+                                        className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 ${!editMode ? 'cursor-pointer' : ''}`}
+                                    >
                                             <div className="relative aspect-video overflow-hidden">
                                                 <img
                                                     src={destination.image}
@@ -751,8 +742,18 @@ export default function Destinations() {
                                             </div>
 
                                             <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-transform duration-500 group-hover:scale-x-100" />
-                                        </motion.article>
-                                    </DialogTrigger>
+                                    </motion.article>
+                                );
+
+                                return (
+                                    <Dialog key={destination.id}>
+                                        {editMode ? (
+                                            CardContent
+                                        ) : (
+                                            <DialogTrigger asChild>
+                                                {CardContent}
+                                            </DialogTrigger>
+                                        )}
 
                                     <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto rounded-3xl border-2 border-white/20 bg-gradient-to-br from-black/98 to-slate-900/98 shadow-2xl">
                                         <DialogHeader>
