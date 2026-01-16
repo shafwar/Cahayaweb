@@ -586,18 +586,20 @@ export default function Destinations() {
                                             whileHover={{ scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
                                             className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300"
                                             onClick={(e) => {
-                                                // Prevent dialog from opening if clicking on edit buttons or EditableText in edit mode
+                                                // In edit mode, prevent dialog from opening when clicking on editable areas or edit buttons
                                                 if (editMode) {
                                                     const target = e.target as HTMLElement;
-                                                    // Check if click is on edit button, EditableText, or its parent
+                                                    // Check if click is on edit button, EditableText, or any editable element
                                                     if (
                                                         target.closest('button[title="Edit details"]') ||
                                                         target.closest('button[title="Replace image"]') ||
-                                                        target.closest('[data-editable-text]') ||
-                                                        target.closest('.editable-text-wrapper')
+                                                        target.closest('[contenteditable="true"]') ||
+                                                        target.closest('.group.relative') || // EditableText wrapper
+                                                        target.closest('div[class*="ring-"]') // EditableText with ring indicator
                                                     ) {
                                                         e.preventDefault();
                                                         e.stopPropagation();
+                                                        return false;
                                                     }
                                                 }
                                             }}
@@ -676,14 +678,22 @@ export default function Destinations() {
                                             </div>
 
                                             <div className="p-5 sm:p-6">
-                                                <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl">
+                                                <h3 
+                                                    className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl"
+                                                    onClick={(e) => editMode && e.stopPropagation()}
+                                                    onMouseDown={(e) => editMode && e.stopPropagation()}
+                                                >
                                                     <EditableText
                                                         sectionKey={`destinations.${destination.id}.title`}
                                                         value={destination.title}
                                                         tag="span"
                                                     />
                                                 </h3>
-                                                <p className="mb-3 text-sm leading-relaxed text-white/80 sm:text-base">
+                                                <p 
+                                                    className="mb-3 text-sm leading-relaxed text-white/80 sm:text-base"
+                                                    onClick={(e) => editMode && e.stopPropagation()}
+                                                    onMouseDown={(e) => editMode && e.stopPropagation()}
+                                                >
                                                     <EditableText
                                                         sectionKey={`destinations.${destination.id}.subtitle`}
                                                         value={destination.subtitle}
@@ -691,7 +701,11 @@ export default function Destinations() {
                                                     />
                                                 </p>
 
-                                                <div className="mb-3 flex items-center justify-between">
+                                                <div 
+                                                    className="mb-3 flex items-center justify-between"
+                                                    onClick={(e) => editMode && e.stopPropagation()}
+                                                    onMouseDown={(e) => editMode && e.stopPropagation()}
+                                                >
                                                     <div className="text-lg font-bold text-amber-300 sm:text-xl">
                                                         <EditableText
                                                             sectionKey={`destinations.${destination.id}.price`}
@@ -711,7 +725,11 @@ export default function Destinations() {
                                                     </div>
                                                 </div>
 
-                                                <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-white/70 sm:text-sm">
+                                                <div 
+                                                    className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-white/70 sm:text-sm"
+                                                    onClick={(e) => editMode && e.stopPropagation()}
+                                                    onMouseDown={(e) => editMode && e.stopPropagation()}
+                                                >
                                                     <MapPin className="h-4 w-4" />
                                                     <span>
                                                         <EditableText
@@ -722,23 +740,17 @@ export default function Destinations() {
                                                     </span>
                                                 </div>
 
-                                                {editMode ? (
-                                                    <div 
-                                                        className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm editable-text-wrapper"
-                                                        onClick={(e) => e.stopPropagation()}
-                                                        onMouseDown={(e) => e.stopPropagation()}
-                                                    >
-                                                        <EditableText
-                                                            sectionKey={`destinations.${destination.id}.highlights`}
-                                                            value={destination.highlights}
-                                                            tag="span"
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <p className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm">
-                                                        {destination.highlights}
-                                                    </p>
-                                                )}
+                                                <div 
+                                                    className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm"
+                                                    onClick={(e) => editMode && e.stopPropagation()}
+                                                    onMouseDown={(e) => editMode && e.stopPropagation()}
+                                                >
+                                                    <EditableText
+                                                        sectionKey={`destinations.${destination.id}.highlights`}
+                                                        value={destination.highlights}
+                                                        tag="span"
+                                                    />
+                                                </div>
 
                                                 <div className="flex items-center justify-between">
                                                     <div className="text-sm font-bold text-amber-300 transition-transform group-hover:scale-105 sm:text-base">
