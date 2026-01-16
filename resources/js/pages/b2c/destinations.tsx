@@ -854,8 +854,9 @@ export default function Destinations() {
                                             </div>
                                         </div>
                                     </DialogContent>
-                                </Dialog>
-                            ))}
+                                    </Dialog>
+                                );
+                            })}
                         </motion.div>
 
                         {/* CTA Section - Enhanced */}
