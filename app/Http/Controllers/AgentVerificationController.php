@@ -329,6 +329,10 @@ class AgentVerificationController extends Controller
         // Clear stored session data
         $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
 
+        // Regenerate session token after successful submission
+        $request->session()->regenerateToken();
+
+        // Use plain redirect to ensure it works correctly
         return redirect()->route('b2b.pending')->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
     }
 

@@ -63,23 +63,17 @@ class RegisteredUserController extends Controller
             // PRIORITY 1: Check if there's stored B2B registration data in session (most reliable)
             // Check this BEFORE regenerating token to preserve session data
             if ($request->session()->has('b2b_registration_data')) {
-                // Don't regenerate token here - let storeContinue handle it
-                // Use Inertia location redirect to avoid CSRF issues
-                if ($request->header('X-Inertia')) {
-                    return Inertia::location(route('b2b.register.store.continue'));
-                }
+                // Redirect to continue registration endpoint (GET request)
+                // Use plain redirect to avoid Inertia location issues
                 return redirect()->route('b2b.register.store.continue');
             }
 
             // PRIORITY 2: Check mode parameter for B2B (from POST data or query string)
             $mode = $request->input('mode');
             if ($mode === 'b2b') {
-                // If mode is b2b, always redirect to continue registration
-                // Use Inertia location redirect to avoid CSRF issues
-                if ($request->header('X-Inertia')) {
-                    return Inertia::location(route('b2b.register.store.continue'));
-                }
-                return redirect()->route('b2b.register.store.continue');
+                // If mode is b2b but no session data, redirect to B2B register form
+                // User needs to fill the form again
+                return redirect()->route('b2b.register')->with('error', 'Please complete the B2B registration form.');
             }
 
             // Regenerate session token after successful registration (only if not B2B)
