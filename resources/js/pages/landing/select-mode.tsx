@@ -32,59 +32,59 @@ export default function SelectMode() {
     const ease = [0.22, 1, 0.36, 1];
     const smoothEase = [0.25, 0.46, 0.45, 0.94];
 
-    // Cinematic splash screen animation
+    // Cinematic splash screen animation - Smoother transitions
     const splashVariants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
             transition: {
-                duration: 0.6,
-                ease,
+                duration: 0.8,
+                ease: smoothEase,
             },
         },
         exit: {
             opacity: 0,
-            scale: 0.96,
-            filter: 'blur(10px)',
+            scale: 0.98,
+            filter: 'blur(8px)',
             transition: {
-                duration: 0.8,
-                ease,
+                duration: 1,
+                ease: smoothEase,
             },
         },
     };
 
-    // Powerful logo reveal with blur-fade
+    // Powerful logo reveal with blur-fade - Smoother animation
     const logoVariants = {
         hidden: {
             opacity: 0,
-            scale: 0.85,
-            filter: 'blur(20px)',
+            scale: 0.9,
+            filter: 'blur(15px)',
         },
         visible: {
             opacity: 1,
             scale: 1,
             filter: 'blur(0px)',
             transition: {
-                duration: 1.2,
+                duration: 1,
                 ease: smoothEase,
-                delay: 0.3,
+                delay: 0.2,
             },
         },
     };
 
-    // Dramatic text reveal with blur-fade-up
+    // Dramatic text reveal with blur-fade-up - Smoother animation
     const textRevealVariants = {
         hidden: {
             opacity: 0,
-            y: 40,
-            filter: 'blur(10px)',
+            y: 30,
+            filter: 'blur(8px)',
         },
         visible: (delay: number) => ({
             opacity: 1,
             y: 0,
             filter: 'blur(0px)',
             transition: {
-                duration: 1,
+                duration: 0.9,
                 ease: smoothEase,
                 delay,
             },
@@ -135,15 +135,16 @@ export default function SelectMode() {
         }),
     };
 
-    // Loading dots with smooth wave
+    // Loading dots with smooth wave - Smoother animation
     const dotVariants = {
-        hidden: { opacity: 0, scale: 0.5 },
+        hidden: { opacity: 0, scale: 0.6 },
         visible: {
             opacity: 1,
             scale: 1,
             transition: {
-                duration: 0.5,
-                delay: 1.8,
+                duration: 0.6,
+                delay: 1.2,
+                ease: smoothEase,
             },
         },
     };
@@ -232,37 +233,37 @@ export default function SelectMode() {
                         </div>
 
                         <div className="relative z-10 flex flex-col items-center justify-center px-4 text-center">
-                            {/* 🔥 ULTRA ENLARGED LOGO for mobile ONLY - Using viewport-based sizing */}
-                            <motion.div variants={logoVariants} initial="hidden" animate="visible" className="mb-10 sm:mb-8 md:mb-12">
+                            {/* Logo - Reduced size for mobile, proportional */}
+                            <motion.div variants={logoVariants} initial="hidden" animate="visible" className="mb-6 sm:mb-8 md:mb-12">
                                 <motion.img
                                     src="/cahayanbiyalogo.png"
                                     alt="Cahaya Anbiya Logo"
-                                    className="h-auto w-[75vw] max-w-[450px] sm:h-40 sm:w-auto md:h-48 lg:h-56 xl:h-64"
+                                    className="h-auto w-[50vw] max-w-[280px] sm:h-40 sm:w-auto md:h-48 lg:h-56 xl:h-64"
                                     style={{
-                                        filter: 'drop-shadow(0 0 50px rgba(254,201,1,0.4)) drop-shadow(0 0 80px rgba(0,84,255,0.2))',
+                                        filter: 'drop-shadow(0 0 40px rgba(254,201,1,0.3)) drop-shadow(0 0 60px rgba(0,84,255,0.15))',
                                     }}
                                 />
                             </motion.div>
 
-                            {/* 🔥 ULTRA ENLARGED "Welcome to" text - Mobile ONLY with larger size */}
+                            {/* "Welcome to" text - Reduced size for mobile */}
                             <motion.h1
-                                custom={0.8}
+                                custom={0.6}
                                 variants={textRevealVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="mb-5 text-[32px] font-light tracking-wide text-white/90 sm:mb-4 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
+                                className="mb-3 text-xl font-light tracking-wide text-white/90 sm:mb-4 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
                                 style={{ fontFamily: 'Poppins, sans-serif' }}
                             >
                                 Welcome to
                             </motion.h1>
 
-                            {/* 🔥 ULTRA ENLARGED brand name - Mobile ONLY with much larger size */}
+                            {/* Brand name - Reduced size for mobile */}
                             <motion.h2
-                                custom={1}
+                                custom={0.8}
                                 variants={textRevealVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="relative mb-4 text-[48px] leading-[1.1] font-semibold tracking-tight sm:mb-3 sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
+                                className="relative mb-3 text-[32px] leading-[1.1] font-semibold tracking-tight sm:mb-3 sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
                                 style={{ fontFamily: 'Poppins, sans-serif' }}
                             >
                                 <motion.span
@@ -278,36 +279,36 @@ export default function SelectMode() {
                                 </motion.span>
                             </motion.h2>
 
-                            {/* 🔥 ULTRA ENLARGED subtitle - Mobile ONLY */}
+                            {/* Subtitle - Reduced size for mobile */}
                             <motion.p
-                                custom={1.2}
+                                custom={1}
                                 variants={textRevealVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="text-[18px] font-light tracking-widest text-white/50 sm:text-base md:text-lg lg:text-xl"
+                                className="text-sm font-light tracking-widest text-white/50 sm:text-base md:text-lg lg:text-xl"
                                 style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '0.25em' }}
                             >
                                 WISATA INDONESIA
                             </motion.p>
 
-                            {/* 🔥 ULTRA ENLARGED loading dots - Mobile ONLY */}
-                            <motion.div variants={dotVariants} initial="hidden" animate="visible" className="mt-12 flex gap-3.5 sm:mt-10 md:mt-12">
+                            {/* Loading dots - Reduced size for mobile */}
+                            <motion.div variants={dotVariants} initial="hidden" animate="visible" className="mt-8 flex gap-2.5 sm:mt-10 md:mt-12">
                                 {[0, 1, 2].map((i) => (
                                     <motion.div
                                         key={i}
-                                        className="h-[16px] w-[16px] rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 sm:h-2 sm:w-2"
+                                        className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 sm:h-2 sm:w-2"
                                         animate={{
                                             opacity: [0.3, 1, 0.3],
-                                            scale: [1, 1.3, 1],
+                                            scale: [1, 1.2, 1],
                                         }}
                                         transition={{
-                                            duration: 1.5,
+                                            duration: 1.2,
                                             repeat: Infinity,
-                                            delay: i * 0.2,
+                                            delay: i * 0.15,
                                             ease: 'easeInOut',
                                         }}
                                         style={{
-                                            boxShadow: '0 0 15px rgba(254,201,1,0.6)',
+                                            boxShadow: '0 0 12px rgba(254,201,1,0.5)',
                                         }}
                                     />
                                 ))}
