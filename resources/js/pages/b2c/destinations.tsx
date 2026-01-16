@@ -580,27 +580,17 @@ export default function Destinations() {
                         >
                             {destinations.map((destination) => (
                                 <Dialog key={destination.id}>
-                                    <DialogTrigger asChild>
+                                    <DialogTrigger asChild disabled={editMode}>
                                         <motion.article
                                             variants={cardVariants}
                                             whileHover={{ scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
-                                            className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300"
+                                            className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 ${editMode ? 'cursor-default' : 'cursor-pointer'}`}
                                             onClick={(e) => {
-                                                // In edit mode, prevent dialog from opening when clicking on editable areas or edit buttons
+                                                // In edit mode, prevent dialog from opening
                                                 if (editMode) {
-                                                    const target = e.target as HTMLElement;
-                                                    // Check if click is on edit button, EditableText, or any editable element
-                                                    if (
-                                                        target.closest('button[title="Edit details"]') ||
-                                                        target.closest('button[title="Replace image"]') ||
-                                                        target.closest('[contenteditable="true"]') ||
-                                                        target.closest('.group.relative') || // EditableText wrapper
-                                                        target.closest('div[class*="ring-"]') // EditableText with ring indicator
-                                                    ) {
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                        return false;
-                                                    }
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    return false;
                                                 }
                                             }}
                                         >
