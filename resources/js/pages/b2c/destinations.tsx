@@ -580,18 +580,20 @@ export default function Destinations() {
                         >
                             {destinations.map((destination) => (
                                 <Dialog key={destination.id}>
-                                    <DialogTrigger asChild disabled={editMode}>
+                                    <DialogTrigger 
+                                        asChild 
+                                        onClick={(e) => {
+                                            // In edit mode, prevent dialog from opening
+                                            if (editMode) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                            }
+                                        }}
+                                    >
                                         <motion.article
                                             variants={cardVariants}
                                             whileHover={!editMode ? { scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } } : {}}
                                             className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 ${!editMode ? 'cursor-pointer' : 'cursor-default'}`}
-                                            onClick={(e) => {
-                                                // In edit mode, prevent dialog from opening
-                                                if (editMode) {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                }
-                                            }}
                                         >
                                             <div className="relative aspect-video overflow-hidden">
                                                 <img
