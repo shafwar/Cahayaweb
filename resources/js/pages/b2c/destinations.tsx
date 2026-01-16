@@ -586,12 +586,9 @@ export default function Destinations() {
                                         key={destination.id}
                                         open={dialogOpen}
                                         onOpenChange={(open) => {
-                                            // Prevent dialog from opening in edit mode
-                                            if (!editMode) {
-                                                setDialogOpen(open);
-                                            } else {
-                                                setDialogOpen(false);
-                                            }
+                                            // Allow dialog to open in both edit mode and normal mode
+                                            // This allows editing description in the dialog
+                                            setDialogOpen(open);
                                         }}
                                     >
                                         <DialogTrigger asChild>
@@ -738,20 +735,9 @@ export default function Destinations() {
                                                     </span>
                                                 </div>
 
-                                                {/* Description field with clear indicator */}
-                                                <div className="mb-4">
-                                                    {editMode && (
-                                                        <div className="mb-1 text-[10px] font-medium text-amber-300/80">
-                                                            📝 Click to edit description:
-                                                        </div>
-                                                    )}
-                                                    <div className="line-clamp-2 text-xs text-white/70 sm:text-sm">
-                                                        <EditableText
-                                                            sectionKey={`destinations.${destination.id}.highlights`}
-                                                            value={destination.highlights}
-                                                            tag="span"
-                                                        />
-                                                    </div>
+                                                {/* Highlights - Read-only display in card */}
+                                                <div className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm">
+                                                    {destination.highlights}
                                                 </div>
 
                                                 <div className="flex items-center justify-between">
@@ -776,6 +762,11 @@ export default function Destinations() {
                                                 />
                                             </DialogTitle>
                                             <DialogDescription className="text-lg leading-relaxed text-white/80">
+                                                {editMode && (
+                                                    <div className="mb-3 rounded-md bg-blue-500/10 px-3 py-2 text-sm font-medium text-blue-300 ring-1 ring-blue-400/30">
+                                                        📝 Edit description below
+                                                    </div>
+                                                )}
                                                 <EditableText
                                                     sectionKey={`destinations.${destination.id}.description`}
                                                     value={destination.description}
