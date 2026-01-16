@@ -262,7 +262,11 @@ class AgentVerificationController extends Controller
         $user = $request->user();
 
         if (!$user) {
-            return redirect()->route('b2b.register');
+            $registerUrl = route('b2b.register', [], true);
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                $registerUrl = str_replace('http://', 'https://', $registerUrl);
+            }
+            return redirect($registerUrl);
         }
 
         // Check if there's stored registration data
@@ -270,13 +274,21 @@ class AgentVerificationController extends Controller
         $storedFiles = $request->session()->get('b2b_registration_files');
 
         if (!$storedData) {
-            return redirect()->route('b2b.register')->with('error', 'No registration data found. Please fill the form again.');
+            $registerUrl = route('b2b.register', [], true);
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                $registerUrl = str_replace('http://', 'https://', $registerUrl);
+            }
+            return redirect($registerUrl)->with('error', 'No registration data found. Please fill the form again.');
         }
 
         // Check if user already has a verification
         if ($user->agentVerification) {
             $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
-            return redirect()->route('b2b.pending')->with('info', 'You already have a verification application.');
+            $pendingUrl = route('b2b.pending', [], true);
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
+            }
+            return redirect($pendingUrl)->with('info', 'You already have a verification application.');
         }
 
         // Validate stored data
@@ -303,7 +315,11 @@ class AgentVerificationController extends Controller
 
         if ($validator->fails()) {
             $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
-            return redirect()->route('b2b.register')->withErrors($validator)->with('error', 'Invalid registration data. Please fill the form again.');
+            $registerUrl = route('b2b.register', [], true);
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                $registerUrl = str_replace('http://', 'https://', $registerUrl);
+            }
+            return redirect($registerUrl)->withErrors($validator)->with('error', 'Invalid registration data. Please fill the form again.');
         }
 
         $validated = $validator->validated();
