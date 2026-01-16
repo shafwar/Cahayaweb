@@ -64,8 +64,12 @@ class RegisteredUserController extends Controller
             // Check this BEFORE regenerating token to preserve session data
             if ($request->session()->has('b2b_registration_data')) {
                 // Redirect to continue registration endpoint (GET request)
-                // Use plain redirect to avoid Inertia location issues
-                return redirect()->route('b2b.register.store.continue');
+                // Force HTTPS to prevent Mixed Content errors
+                $continueUrl = route('b2b.register.store.continue', [], true);
+                if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                    $continueUrl = str_replace('http://', 'https://', $continueUrl);
+                }
+                return redirect($continueUrl);
             }
 
             // PRIORITY 2: Check mode parameter for B2B (from POST data or query string)
@@ -73,7 +77,11 @@ class RegisteredUserController extends Controller
             if ($mode === 'b2b') {
                 // If mode is b2b but no session data, redirect to B2B register form
                 // User needs to fill the form again
-                return redirect()->route('b2b.register')->with('error', 'Please complete the B2B registration form.');
+                $registerUrl = route('b2b.register', [], true);
+                if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                    $registerUrl = str_replace('http://', 'https://', $registerUrl);
+                }
+                return redirect($registerUrl)->with('error', 'Please complete the B2B registration form.');
             }
 
             // Regenerate session token after successful registration (only if not B2B)

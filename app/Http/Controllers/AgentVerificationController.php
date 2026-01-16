@@ -332,8 +332,14 @@ class AgentVerificationController extends Controller
         // Regenerate session token after successful submission
         $request->session()->regenerateToken();
 
+        // Force HTTPS to prevent Mixed Content errors
+        $pendingUrl = route('b2b.pending', [], true);
+        if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+            $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
+        }
+
         // Use plain redirect to ensure it works correctly
-        return redirect()->route('b2b.pending')->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
+        return redirect($pendingUrl)->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
     }
 
     /**
