@@ -37,8 +37,44 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+
+        // Refresh CSRF token before submission to prevent 419 errors
+        const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+        if (csrfToken && typeof window !== 'undefined' && (window as any).axios) {
+            (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+        }
+
+        // Also set for Inertia's internal axios instance
+        if (typeof window !== 'undefined' && (window as any).axios) {
+            const axiosInstance = (window as any).axios;
+            if (axiosInstance.defaults) {
+                axiosInstance.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+            }
+        }
+
         post(route('login'), {
+            preserveState: false,
+            preserveScroll: false,
             onFinish: () => reset('password'),
+            onError: (errors) => {
+                // Handle 419 PAGE EXPIRED errors
+                const errorMessage = errors?.message || (typeof errors === 'string' ? errors : '');
+                const errorString = JSON.stringify(errors || {});
+                
+                if (
+                    errorMessage.includes('419') || 
+                    errorMessage.includes('expired') || 
+                    errorMessage.includes('PAGE EXPIRED') ||
+                    errorString.includes('419') ||
+                    errorString.includes('expired')
+                ) {
+                    // Reload page to refresh CSRF token and retry
+                    console.warn('CSRF token expired, reloading page to refresh...');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                }
+            },
         });
     };
 

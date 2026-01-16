@@ -55,11 +55,19 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request)
     {
+        // Authenticate user first (before any session operations)
         $request->authenticate();
 
+        // Get user before regenerating session
+        $user = Auth::user();
+
+        // Regenerate session ID for security (after authentication succeeds)
+        // This prevents session fixation attacks
         $request->session()->regenerate();
 
-        $user = $request->user();
+        // Regenerate CSRF token after session regeneration
+        // This ensures the token is fresh and valid
+        $request->session()->regenerateToken();
 
         // Check mode parameter
         $mode = $request->input('mode');
