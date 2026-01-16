@@ -578,13 +578,21 @@ export default function Destinations() {
                             viewport={{ once: true, margin: '-100px' }}
                             className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3"
                         >
-                            {destinations.map((destination) => {
-                                const CardContent = (
-                                    <motion.article
-                                        variants={cardVariants}
-                                        whileHover={{ scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
-                                        className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 ${!editMode ? 'cursor-pointer' : ''}`}
-                                    >
+                            {destinations.map((destination) => (
+                                <Dialog key={destination.id}>
+                                    <DialogTrigger asChild disabled={editMode}>
+                                        <motion.article
+                                            variants={cardVariants}
+                                            whileHover={!editMode ? { scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } } : {}}
+                                            className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 ${!editMode ? 'cursor-pointer' : 'cursor-default'}`}
+                                            onClick={(e) => {
+                                                // In edit mode, prevent dialog from opening
+                                                if (editMode) {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                }
+                                            }}
+                                        >
                                             <div className="relative aspect-video overflow-hidden">
                                                 <img
                                                     src={destination.image}
@@ -619,9 +627,10 @@ export default function Destinations() {
                                                 </div>
 
                                                 {editMode && (
-                                                    <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+                                                    <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
                                                         <button
                                                             onClick={(e) => {
+                                                                e.preventDefault();
                                                                 e.stopPropagation();
                                                                 setImageTargetKey(`destinations.${destination.id}.image`);
                                                                 document.getElementById(hiddenImageInputId)?.click();
@@ -633,6 +642,7 @@ export default function Destinations() {
                                                         </button>
                                                         <button
                                                             onClick={(e) => {
+                                                                e.preventDefault();
                                                                 e.stopPropagation();
                                                                 setEditorOpen({
                                                                     id: destination.id,
@@ -648,10 +658,19 @@ export default function Destinations() {
                                                                 });
                                                             }}
                                                             className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
-                                                            title="Edit details"
+                                                            title="Edit card details (all fields)"
                                                         >
                                                             <Edit3 className="h-5 w-5" strokeWidth={2.5} />
                                                         </button>
+                                                    </div>
+                                                )}
+                                                
+                                                {/* Visual indicator for edit mode - shows which areas are editable */}
+                                                {editMode && (
+                                                    <div className="absolute top-3 right-3 z-10">
+                                                        <div className="rounded-lg bg-blue-500/20 px-2 py-1 text-[10px] font-semibold text-blue-300 ring-1 ring-blue-400/30">
+                                                            EDIT MODE
+                                                        </div>
                                                     </div>
                                                 )}
 
@@ -659,22 +678,21 @@ export default function Destinations() {
                                             </div>
 
                                             <div className="p-5 sm:p-6">
-                                                <h3 
-                                                    className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl"
-                                                    onClick={(e) => editMode && e.stopPropagation()}
-                                                    onMouseDown={(e) => editMode && e.stopPropagation()}
-                                                >
+                                                {/* Edit mode indicator for card fields */}
+                                                {editMode && (
+                                                    <div className="mb-2 rounded-md bg-blue-500/10 px-2 py-1 text-[10px] font-medium text-blue-300">
+                                                        💡 Click blue button above to edit all card data
+                                                    </div>
+                                                )}
+                                                
+                                                <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl">
                                                     <EditableText
                                                         sectionKey={`destinations.${destination.id}.title`}
                                                         value={destination.title}
                                                         tag="span"
                                                     />
                                                 </h3>
-                                                <p 
-                                                    className="mb-3 text-sm leading-relaxed text-white/80 sm:text-base"
-                                                    onClick={(e) => editMode && e.stopPropagation()}
-                                                    onMouseDown={(e) => editMode && e.stopPropagation()}
-                                                >
+                                                <p className="mb-3 text-sm leading-relaxed text-white/80 sm:text-base">
                                                     <EditableText
                                                         sectionKey={`destinations.${destination.id}.subtitle`}
                                                         value={destination.subtitle}
@@ -682,11 +700,7 @@ export default function Destinations() {
                                                     />
                                                 </p>
 
-                                                <div 
-                                                    className="mb-3 flex items-center justify-between"
-                                                    onClick={(e) => editMode && e.stopPropagation()}
-                                                    onMouseDown={(e) => editMode && e.stopPropagation()}
-                                                >
+                                                <div className="mb-3 flex items-center justify-between">
                                                     <div className="text-lg font-bold text-amber-300 sm:text-xl">
                                                         <EditableText
                                                             sectionKey={`destinations.${destination.id}.price`}
@@ -706,11 +720,7 @@ export default function Destinations() {
                                                     </div>
                                                 </div>
 
-                                                <div 
-                                                    className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-white/70 sm:text-sm"
-                                                    onClick={(e) => editMode && e.stopPropagation()}
-                                                    onMouseDown={(e) => editMode && e.stopPropagation()}
-                                                >
+                                                <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-white/70 sm:text-sm">
                                                     <MapPin className="h-4 w-4" />
                                                     <span>
                                                         <EditableText
@@ -721,16 +731,20 @@ export default function Destinations() {
                                                     </span>
                                                 </div>
 
-                                                <div 
-                                                    className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm"
-                                                    onClick={(e) => editMode && e.stopPropagation()}
-                                                    onMouseDown={(e) => editMode && e.stopPropagation()}
-                                                >
-                                                    <EditableText
-                                                        sectionKey={`destinations.${destination.id}.highlights`}
-                                                        value={destination.highlights}
-                                                        tag="span"
-                                                    />
+                                                {/* Description field with clear indicator */}
+                                                <div className="mb-4">
+                                                    {editMode && (
+                                                        <div className="mb-1 text-[10px] font-medium text-amber-300/80">
+                                                            📝 Click to edit description:
+                                                        </div>
+                                                    )}
+                                                    <div className="line-clamp-2 text-xs text-white/70 sm:text-sm">
+                                                        <EditableText
+                                                            sectionKey={`destinations.${destination.id}.highlights`}
+                                                            value={destination.highlights}
+                                                            tag="span"
+                                                        />
+                                                    </div>
                                                 </div>
 
                                                 <div className="flex items-center justify-between">
@@ -742,18 +756,8 @@ export default function Destinations() {
                                             </div>
 
                                             <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-transform duration-500 group-hover:scale-x-100" />
-                                    </motion.article>
-                                );
-
-                                return (
-                                    <Dialog key={destination.id}>
-                                        {editMode ? (
-                                            CardContent
-                                        ) : (
-                                            <DialogTrigger asChild>
-                                                {CardContent}
-                                            </DialogTrigger>
-                                        )}
+                                        </motion.article>
+                                    </DialogTrigger>
 
                                     <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto rounded-3xl border-2 border-white/20 bg-gradient-to-br from-black/98 to-slate-900/98 shadow-2xl">
                                         <DialogHeader>
