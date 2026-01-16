@@ -585,6 +585,22 @@ export default function Destinations() {
                                             variants={cardVariants}
                                             whileHover={{ scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
                                             className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300"
+                                            onClick={(e) => {
+                                                // Prevent dialog from opening if clicking on edit buttons or EditableText in edit mode
+                                                if (editMode) {
+                                                    const target = e.target as HTMLElement;
+                                                    // Check if click is on edit button, EditableText, or its parent
+                                                    if (
+                                                        target.closest('button[title="Edit details"]') ||
+                                                        target.closest('button[title="Replace image"]') ||
+                                                        target.closest('[data-editable-text]') ||
+                                                        target.closest('.editable-text-wrapper')
+                                                    ) {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                    }
+                                                }
+                                            }}
                                         >
                                             <div className="relative aspect-video overflow-hidden">
                                                 <img
@@ -706,13 +722,23 @@ export default function Destinations() {
                                                     </span>
                                                 </div>
 
-                                                <p className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm">
-                                                    <EditableText
-                                                        sectionKey={`destinations.${destination.id}.highlights`}
-                                                        value={destination.highlights}
-                                                        tag="span"
-                                                    />
-                                                </p>
+                                                {editMode ? (
+                                                    <div 
+                                                        className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm editable-text-wrapper"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        onMouseDown={(e) => e.stopPropagation()}
+                                                    >
+                                                        <EditableText
+                                                            sectionKey={`destinations.${destination.id}.highlights`}
+                                                            value={destination.highlights}
+                                                            tag="span"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <p className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm">
+                                                        {destination.highlights}
+                                                    </p>
+                                                )}
 
                                                 <div className="flex items-center justify-between">
                                                     <div className="text-sm font-bold text-amber-300 transition-transform group-hover:scale-105 sm:text-base">
