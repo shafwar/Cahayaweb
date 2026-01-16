@@ -6,7 +6,7 @@ import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Camera, Check, Clock, Edit3, MapPin, Plus, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 // Enhanced Modal Component
@@ -578,23 +578,28 @@ export default function Destinations() {
                             viewport={{ once: true, margin: '-100px' }}
                             className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3"
                         >
-                            {destinations.map((destination) => (
-                                <Dialog key={destination.id}>
-                                    <DialogTrigger 
-                                        asChild 
-                                        onClick={(e) => {
-                                            // In edit mode, prevent dialog from opening
-                                            if (editMode) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
+                            {destinations.map((destination) => {
+                                const [dialogOpen, setDialogOpen] = React.useState(false);
+                                
+                                return (
+                                    <Dialog 
+                                        key={destination.id}
+                                        open={dialogOpen}
+                                        onOpenChange={(open) => {
+                                            // Prevent dialog from opening in edit mode
+                                            if (!editMode) {
+                                                setDialogOpen(open);
+                                            } else {
+                                                setDialogOpen(false);
                                             }
                                         }}
                                     >
-                                        <motion.article
-                                            variants={cardVariants}
-                                            whileHover={!editMode ? { scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } } : {}}
-                                            className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 ${!editMode ? 'cursor-pointer' : 'cursor-default'}`}
-                                        >
+                                        <DialogTrigger asChild>
+                                            <motion.article
+                                                variants={cardVariants}
+                                                whileHover={!editMode ? { scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } } : {}}
+                                                className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 ${!editMode ? 'cursor-pointer' : 'cursor-default'}`}
+                                            >
                                             <div className="relative aspect-video overflow-hidden">
                                                 <img
                                                     src={destination.image}
