@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Section;
 use App\Models\SectionRevision;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class HistoryController extends Controller
@@ -14,17 +15,26 @@ class HistoryController extends Controller
      */
     public function index(Request $request)
     {
+        $diskName = config('filesystems.default', 'r2');
+        $disk = Storage::disk($diskName);
+        
         // Get all sections with their latest revisions
-        $sections = Section::all()->map(function ($section) {
+        $sections = Section::all()->map(function ($section) use ($disk) {
             $latestRevisions = SectionRevision::where('key', $section->key)
                 ->orderByDesc('created_at')
                 ->limit(5)
                 ->get()
-                ->map(function ($revision) {
+                ->map(function ($revision) use ($disk) {
+                    // Generate R2 URL if image exists
+                    $imageUrl = null;
+                    if ($revision->image) {
+                        $imageUrl = $disk->url($revision->image);
+                    }
+                    
                     return [
                         'id' => $revision->id,
                         'content' => $revision->content,
-                        'image' => $revision->image ? asset('storage/' . $revision->image) : null,
+                        'image' => $imageUrl,
                         'changed_by' => $revision->changed_by,
                         'change_type' => $revision->change_type,
                         'created_at' => $revision->created_at->format('Y-m-d H:i:s'),
@@ -32,10 +42,16 @@ class HistoryController extends Controller
                     ];
                 });
 
+            // Generate R2 URL for current image
+            $currentImageUrl = null;
+            if ($section->image) {
+                $currentImageUrl = $disk->url($section->image);
+            }
+            
             return [
                 'key' => $section->key,
                 'current_content' => $section->content,
-                'current_image' => $section->image ? asset('storage/' . $section->image) : null,
+                'current_image' => $currentImageUrl,
                 'updated_at' => $section->updated_at->format('Y-m-d H:i:s'),
                 'revisions' => $latestRevisions,
                 'total_revisions' => SectionRevision::where('key', $section->key)->count(),

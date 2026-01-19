@@ -36,25 +36,40 @@ class AdminController extends Controller
             'image' => ['required', 'file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
         ]);
 
-        $path = $validated['image']->storeAs(
-            'images',
-            Str::uuid()->toString() . '.' . $validated['image']->getClientOriginalExtension(),
-            'public'
-        );
-
-        $url = asset('storage/' . $path);
+        // Use R2 disk instead of local 'public' disk
+        $diskName = config('filesystems.default', 'r2');
+        $disk = Storage::disk($diskName);
+        
+        $filename = Str::uuid()->toString() . '.' . $validated['image']->getClientOriginalExtension();
+        
+        // Store in 'public/images/' folder (R2 root is 'public' so path becomes 'images/')
+        $storedPath = $disk->putFileAs('images', $validated['image'], $filename);
+        
+        // Get the root directory configured in filesystems
+        $root = trim((string) config("filesystems.disks.{$diskName}.root", ''), '/');
+        
+        // Build the object path as stored in R2
+        // If root is 'public', then full path is 'public/images/filename'
+        $objectPath = $root ? $root . '/' . $storedPath : $storedPath;
+        $objectPath = ltrim(preg_replace('#/+#', '/', $objectPath), '/');
+        
+        // Generate public URL using AWS_URL (custom domain)
+        $url = $disk->url($storedPath);
 
         // Use updateWithBackup to automatically create revision
+        // Store the path relative to R2 root (e.g., 'images/uuid.jpg')
         Section::updateWithBackup(
             $validated['key'],
-            ['image' => $path]
+            ['image' => $storedPath]
         );
 
         return response()->json([
             'status' => 'ok', 
-            'path' => $path, 
+            'path' => $storedPath,
+            'objectPath' => $objectPath,
             'url' => $url,
-            'message' => 'Image uploaded with backup'
+            'disk' => $diskName,
+            'message' => 'Image uploaded to R2 with backup'
         ]);
     }
 
@@ -184,8 +199,11 @@ class AdminController extends Controller
         // Get all sections from database (anything in DB = changed from original)
         // Simplified approach: if it's in DB, it's a change
         $sections = Section::orderBy('updated_at', 'desc')->get();
+        
+        $diskName = config('filesystems.default', 'r2');
+        $disk = Storage::disk($diskName);
 
-        $changes = $sections->map(function ($section) {
+        $changes = $sections->map(function ($section) use ($disk) {
             // Parse section key to extract metadata
             $parts = explode('.', $section->key);
             $page = $parts[0] ?? 'unknown';
@@ -195,6 +213,13 @@ class AdminController extends Controller
 
             // Determine type
             $type = $section->image ? 'image' : 'text';
+            
+            // Generate correct R2 URL
+            $imageUrl = null;
+            if ($section->image) {
+                // Image path is stored relative to disk root (e.g., 'images/uuid.jpg')
+                $imageUrl = $disk->url($section->image) . '?v=' . $section->updated_at->timestamp;
+            }
 
             return [
                 'id' => $section->id,
@@ -204,7 +229,7 @@ class AdminController extends Controller
                 'field' => ucfirst($field),
                 'type' => $type,
                 'content' => $section->content,
-                'image' => $section->image ? asset('storage/' . $section->image) . '?v=' . $section->updated_at->timestamp : null,
+                'image' => $imageUrl,
                 'updated_at' => $section->updated_at->format('Y-m-d H:i:s'),
                 'updated_at_human' => $section->updated_at->diffForHumans(),
             ];
