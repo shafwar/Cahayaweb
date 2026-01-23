@@ -7,9 +7,14 @@ export function getImageUrl(
     sectionKey: string,
     fallbackPath: string
 ): string {
-    // First, try to get from sections (database)
+    // First, try to get from sections (database) - this is the highest priority
     const sectionImage = sections?.[sectionKey]?.image;
     if (sectionImage && typeof sectionImage === 'string' && sectionImage.trim()) {
+        // If it's already a full URL, return as is
+        if (sectionImage.startsWith('http://') || sectionImage.startsWith('https://')) {
+            return sectionImage;
+        }
+        // If it's a relative path, it should already be processed by backend
         return sectionImage;
     }
 
