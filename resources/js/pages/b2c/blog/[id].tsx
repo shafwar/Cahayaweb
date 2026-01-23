@@ -1,6 +1,7 @@
 import PublicLayout from '@/layouts/public-layout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import { getR2Url } from '@/utils/imageHelper';
 
 export default function BlogArticle() {
     const { props } = usePage();
@@ -604,7 +605,25 @@ export default function BlogArticle() {
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className="mb-8 overflow-hidden rounded-xl"
                 >
-                    <img src={currentArticle.image} alt={currentArticle.title} className="h-64 w-full object-cover md:h-96" />
+                    <img src={getR2Url(currentArticle.image)} alt={currentArticle.title} className="h-64 w-full object-cover md:h-96" onError={(e) => {
+                        const target = e.currentTarget;
+                        if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                            const currentUrl = target.src;
+                            let altPath = currentUrl;
+                            if (currentUrl.includes('/public/images/')) {
+                                altPath = currentUrl.replace('/public/images/', '/images/');
+                            } else if (currentUrl.includes('/public/')) {
+                                altPath = currentUrl.replace('/public/', '/');
+                            } else if (currentUrl.includes('/images/')) {
+                                altPath = currentUrl.replace('/images/', '/public/images/');
+                            } else {
+                                const fileName = currentUrl.split('/').pop() || currentArticle.image;
+                                altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
+                            }
+                            console.log('[Blog Article Image] Trying alternative R2 path:', altPath);
+                            target.src = altPath;
+                        }
+                    }} />
                 </motion.div>
 
                 {/* Article Content */}
@@ -651,7 +670,7 @@ export default function BlogArticle() {
                                 >
                                     <div className="aspect-video overflow-hidden">
                                         <img
-                                            src={article.image}
+                                            src={getR2Url(article.image)}
                                             alt={article.title}
                                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                         />

@@ -1,5 +1,6 @@
 import GlobalHeader from '@/components/GlobalHeader';
 import { searchItems, SearchResult } from '@/utils/search';
+import { getR2Url } from '@/utils/imageHelper';
 import { Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { FileText, MapPin, Package, Search as SearchIcon, X } from 'lucide-react';
@@ -415,9 +416,28 @@ export default function SearchPage() {
                                                     >
                                                         <div className="relative aspect-video overflow-hidden">
                                                             <img
-                                                                src={result.item.image}
+                                                                src={getR2Url(result.item.image)}
                                                                 alt={result.item.title}
                                                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                                onError={(e) => {
+                                                                    const target = e.currentTarget;
+                                                                    if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                                        const currentUrl = target.src;
+                                                                        let altPath = currentUrl;
+                                                                        if (currentUrl.includes('/public/images/')) {
+                                                                            altPath = currentUrl.replace('/public/images/', '/images/');
+                                                                        } else if (currentUrl.includes('/public/')) {
+                                                                            altPath = currentUrl.replace('/public/', '/');
+                                                                        } else if (currentUrl.includes('/images/')) {
+                                                                            altPath = currentUrl.replace('/images/', '/public/images/');
+                                                                        } else {
+                                                                            const fileName = currentUrl.split('/').pop() || result.item.image;
+                                                                            altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
+                                                                        }
+                                                                        console.log('[Search Image] Trying alternative R2 path:', altPath);
+                                                                        target.src = altPath;
+                                                                    }
+                                                                }}
                                                             />
                                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                                                             <div className="absolute bottom-4 left-4 right-4">
@@ -481,9 +501,28 @@ export default function SearchPage() {
                                                     >
                                                         <div className="relative aspect-video overflow-hidden">
                                                             <img
-                                                                src={result.item.image}
+                                                                src={getR2Url(result.item.image)}
                                                                 alt={result.item.title}
                                                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                                onError={(e) => {
+                                                                    const target = e.currentTarget;
+                                                                    if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                                        const currentUrl = target.src;
+                                                                        let altPath = currentUrl;
+                                                                        if (currentUrl.includes('/public/images/')) {
+                                                                            altPath = currentUrl.replace('/public/images/', '/images/');
+                                                                        } else if (currentUrl.includes('/public/')) {
+                                                                            altPath = currentUrl.replace('/public/', '/');
+                                                                        } else if (currentUrl.includes('/images/')) {
+                                                                            altPath = currentUrl.replace('/images/', '/public/images/');
+                                                                        } else {
+                                                                            const fileName = currentUrl.split('/').pop() || result.item.image;
+                                                                            altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
+                                                                        }
+                                                                        console.log('[Search Image] Trying alternative R2 path:', altPath);
+                                                                        target.src = altPath;
+                                                                    }
+                                                                }}
                                                             />
                                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                                                             <div className="absolute bottom-4 left-4 right-4">

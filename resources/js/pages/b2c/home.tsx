@@ -131,7 +131,7 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
                     }}
                 >
                     <source src={fallbackR2Url} type="video/mp4" />
-                    <source src={fallbackUrl || '/b2cherosectionvideo.mp4'} type="video/mp4" />
+                    <source src={fallbackUrl || 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4'} type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
             );

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PublicLayout from '@/layouts/public-layout';
+import { getR2Url } from '@/utils/imageHelper';
 import { 
     RotateCcw, 
     AlertCircle, 
@@ -495,9 +496,28 @@ export default function RestoreCenter() {
                                                     {change.type === 'image' && change.image ? (
                                                         <div className="flex-shrink-0">
                                                             <img
-                                                                src={change.image}
+                                                                src={getR2Url(change.image)}
                                                                 alt="Preview"
                                                                 className="h-16 w-16 rounded-lg object-cover sm:h-20 sm:w-20"
+                                                                onError={(e) => {
+                                                                    const target = e.currentTarget;
+                                                                    if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                                        const currentUrl = target.src;
+                                                                        let altPath = currentUrl;
+                                                                        if (currentUrl.includes('/public/images/')) {
+                                                                            altPath = currentUrl.replace('/public/images/', '/images/');
+                                                                        } else if (currentUrl.includes('/public/')) {
+                                                                            altPath = currentUrl.replace('/public/', '/');
+                                                                        } else if (currentUrl.includes('/images/')) {
+                                                                            altPath = currentUrl.replace('/images/', '/public/images/');
+                                                                        } else {
+                                                                            const fileName = currentUrl.split('/').pop() || change.image;
+                                                                            altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
+                                                                        }
+                                                                        console.log('[Restore Center Image] Trying alternative R2 path:', altPath);
+                                                                        target.src = altPath;
+                                                                    }
+                                                                }}
                                                             />
                                                         </div>
                                                     ) : null}

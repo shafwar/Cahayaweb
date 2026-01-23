@@ -3,6 +3,7 @@ import PublicLayout from '@/layouts/public-layout';
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { getR2Url } from '@/utils/imageHelper';
 
 export default function BlogIndex() {
     const [selectedArticle, setSelectedArticle] = useState<number | null>(null);
@@ -219,9 +220,28 @@ export default function BlogIndex() {
                                     {/* Featured Image */}
                                     <div className="relative aspect-video overflow-hidden">
                                         <img
-                                            src={article.image}
+                                            src={getR2Url(article.image)}
                                             alt={article.title}
                                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            onError={(e) => {
+                                                const target = e.currentTarget;
+                                                if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                    const currentUrl = target.src;
+                                                    let altPath = currentUrl;
+                                                    if (currentUrl.includes('/public/images/')) {
+                                                        altPath = currentUrl.replace('/public/images/', '/images/');
+                                                    } else if (currentUrl.includes('/public/')) {
+                                                        altPath = currentUrl.replace('/public/', '/');
+                                                    } else if (currentUrl.includes('/images/')) {
+                                                        altPath = currentUrl.replace('/images/', '/public/images/');
+                                                    } else {
+                                                        const fileName = currentUrl.split('/').pop() || article.image;
+                                                        altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
+                                                    }
+                                                    console.log('[Blog Image] Trying alternative R2 path:', altPath);
+                                                    target.src = altPath;
+                                                }
+                                            }}
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
@@ -303,9 +323,28 @@ export default function BlogIndex() {
                                 {/* Article Image */}
                                 <div className="relative aspect-video overflow-hidden">
                                     <img
-                                        src={article.image}
+                                        src={getR2Url(article.image)}
                                         alt={article.title}
                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        onError={(e) => {
+                                            const target = e.currentTarget;
+                                            if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                const currentUrl = target.src;
+                                                let altPath = currentUrl;
+                                                if (currentUrl.includes('/public/images/')) {
+                                                    altPath = currentUrl.replace('/public/images/', '/images/');
+                                                } else if (currentUrl.includes('/public/')) {
+                                                    altPath = currentUrl.replace('/public/', '/');
+                                                } else if (currentUrl.includes('/images/')) {
+                                                    altPath = currentUrl.replace('/images/', '/public/images/');
+                                                } else {
+                                                    const fileName = currentUrl.split('/').pop() || article.image;
+                                                    altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
+                                                }
+                                                console.log('[Blog Image] Trying alternative R2 path:', altPath);
+                                                target.src = altPath;
+                                            }
+                                        }}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
@@ -458,7 +497,7 @@ export default function BlogIndex() {
                                     {/* Article Image */}
                                     <div className="relative overflow-hidden rounded-lg border border-amber-500/30">
                                         <img
-                                            src={article.image}
+                                            src={getR2Url(article.image)}
                                             alt={article.title}
                                             className="h-28 w-full object-cover sm:h-32 md:h-40 lg:h-48 xl:h-56"
                                         />

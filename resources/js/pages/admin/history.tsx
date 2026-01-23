@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PublicLayout from '@/layouts/public-layout';
+import { getR2Url } from '@/utils/imageHelper';
 import { 
     History, 
     RotateCcw, 
@@ -396,9 +397,28 @@ export default function AdminHistoryPage({ sections }: Props) {
                                                                                     {revision.image && (
                                                                                         <div className="overflow-hidden rounded-lg border border-gray-700/50">
                                                                                             <img
-                                                                                                src={revision.image}
+                                                                                                src={getR2Url(revision.image)}
                                                                                                 alt="Revision preview"
                                                                                                 className="h-32 w-full object-cover"
+                                                                                                onError={(e) => {
+                                                                                                    const target = e.currentTarget;
+                                                                                                    if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                                                                        const currentUrl = target.src;
+                                                                                                        let altPath = currentUrl;
+                                                                                                        if (currentUrl.includes('/public/images/')) {
+                                                                                                            altPath = currentUrl.replace('/public/images/', '/images/');
+                                                                                                        } else if (currentUrl.includes('/public/')) {
+                                                                                                            altPath = currentUrl.replace('/public/', '/');
+                                                                                                        } else if (currentUrl.includes('/images/')) {
+                                                                                                            altPath = currentUrl.replace('/images/', '/public/images/');
+                                                                                                        } else {
+                                                                                                            const fileName = currentUrl.split('/').pop() || revision.image;
+                                                                                                            altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
+                                                                                                        }
+                                                                                                        console.log('[History Image] Trying alternative R2 path:', altPath);
+                                                                                                        target.src = altPath;
+                                                                                                    }
+                                                                                                }}
                                                                                             />
                                                                                         </div>
                                                                                     )}

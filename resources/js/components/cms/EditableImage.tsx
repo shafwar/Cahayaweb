@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { router, usePage } from '@inertiajs/react';
 import { useCallback, useRef, useState } from 'react';
 import { useEditMode } from './EditModeProvider';
+import { getR2Url } from '@/utils/imageHelper';
 
 export default function EditableImage({
     sectionKey,
@@ -26,7 +27,18 @@ export default function EditableImage({
     const [saved, setSaved] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const currentSrc = preview ?? dbImage ?? src ?? '';
+    // Convert all sources to R2 URLs
+    const getR2Src = (path: string | undefined): string => {
+        if (!path) return '';
+        // If already a full URL (from DB), return as is
+        if (path.startsWith('http://') || path.startsWith('https://')) {
+            return path;
+        }
+        // Convert local path to R2 URL
+        return getR2Url(path);
+    };
+
+    const currentSrc = preview ?? (dbImage ? getR2Src(dbImage) : (src ? getR2Src(src) : ''));
 
     const onDrop = useCallback(
         async (file: File) => {
@@ -89,7 +101,31 @@ export default function EditableImage({
                 if (f) onDrop(f);
             }}
         >
-            <img src={currentSrc} alt={alt} className={imgClassName} />
+            <img 
+                src={currentSrc} 
+                alt={alt} 
+                className={imgClassName}
+                onError={(e) => {
+                    const target = e.currentTarget;
+                    if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                        // Try alternative R2 path variations
+                        const currentUrl = target.src;
+                        let altPath = currentUrl;
+                        if (currentUrl.includes('/public/images/')) {
+                            altPath = currentUrl.replace('/public/images/', '/images/');
+                        } else if (currentUrl.includes('/public/')) {
+                            altPath = currentUrl.replace('/public/', '/');
+                        } else if (currentUrl.includes('/images/')) {
+                            altPath = currentUrl.replace('/images/', '/public/images/');
+                        } else {
+                            const fileName = currentUrl.split('/').pop() || src || '';
+                            altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
+                        }
+                        console.log('[EditableImage] Trying alternative R2 path:', altPath);
+                        target.src = altPath;
+                    }
+                }}
+            />
 
             <AnimatePresence>
                 {isAdmin && editMode && (
