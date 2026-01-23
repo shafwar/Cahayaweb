@@ -33,7 +33,8 @@ export function getImageUrl(
         // R2 custom domain points to bucket root, files are at bucket/public/images/file.jpg
         // So URL should be: baseUrl/public/images/file.jpg
         const r2BaseUrl = 'https://assets.cahayaanbiya.com';
-        return `${r2BaseUrl}/public/${cleanPath}`;
+        const r2Url = `${r2BaseUrl}/public/${cleanPath}`;
+        return r2Url;
     }
 
     // Assume it's an image in the public root, try images folder
@@ -41,7 +42,10 @@ export function getImageUrl(
     // So URL should be: baseUrl/public/images/file.jpg
     const r2BaseUrl = 'https://assets.cahayaanbiya.com';
     const r2Path = `public/images/${cleanPath}`;
-    return `${r2BaseUrl}/${r2Path}`;
+    const r2Url = `${r2BaseUrl}/${r2Path}`;
+    
+    // Return R2 URL - browser will handle 404 and trigger onError handler if file doesn't exist
+    return r2Url;
 }
 
 /**

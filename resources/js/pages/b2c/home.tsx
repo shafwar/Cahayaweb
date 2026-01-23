@@ -447,9 +447,11 @@ export default function Home() {
                                                     onError={(e) => {
                                                         // Fallback to local asset if R2 image fails to load
                                                         const target = e.currentTarget;
-                                                        const fallbackSrc = target.src.replace('https://assets.cahayaanbiya.com', '');
-                                                        if (!fallbackSrc.startsWith('/')) {
-                                                            target.src = item.image.startsWith('/') ? item.image : '/' + item.image;
+                                                        // Try to get the original fallback path
+                                                        const fallbackLocal = item.image.startsWith('/') ? item.image : '/' + item.image;
+                                                        // Only change if current src is R2 URL
+                                                        if (target.src.includes('assets.cahayaanbiya.com')) {
+                                                            target.src = fallbackLocal;
                                                         }
                                                     }}
                                                 />
