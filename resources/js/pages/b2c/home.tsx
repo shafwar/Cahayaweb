@@ -32,18 +32,27 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
                     try {
                         if (!hasError && videoSrc && videoSrc.includes('assets.cahayaanbiya.com')) {
                             setHasError(true);
-                            // Try alternative R2 path variations instead of local fallback
+                            // Try alternative R2 path variations
                             const currentUrl = videoSrc;
                             let altUrl = fallbackUrl;
                             
-                            if (currentUrl.includes('/public/')) {
+                            // Try multiple path variations
+                            if (currentUrl.includes('/public/videos/')) {
+                                // Try without /public/
+                                altUrl = currentUrl.replace('/public/videos/', '/videos/');
+                            } else if (currentUrl.includes('/public/')) {
                                 // Try without /public/
                                 altUrl = currentUrl.replace('/public/', '/');
-                            } else {
+                            } else if (currentUrl.includes('/videos/')) {
                                 // Try with /public/ prefix
-                                altUrl = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
+                                altUrl = currentUrl.replace('/videos/', '/public/videos/');
+                            } else {
+                                // Try with /public/videos/ prefix
+                                const fileName = currentUrl.split('/').pop() || 'b2cherosectionvideo.mp4';
+                                altUrl = `https://assets.cahayaanbiya.com/public/videos/${fileName}`;
                             }
                             
+                            console.log('[Video] Trying alternative R2 path:', altUrl);
                             setVideoSrc(altUrl || 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4');
                             video.load();
                         }
@@ -597,17 +606,27 @@ export default function Home() {
                                                         // Try alternative R2 path if current R2 URL fails
                                                         const target = e.currentTarget;
                                                         if (target.src.includes('assets.cahayaanbiya.com')) {
-                                                            // Try different R2 path variations
                                                             const currentUrl = target.src;
-                                                            // If current path has /public/, try without it
-                                                            if (currentUrl.includes('/public/')) {
-                                                                const altPath = currentUrl.replace('/public/', '/');
-                                                                target.src = altPath;
-                                                            } else {
+                                                            let altPath = currentUrl;
+                                                            
+                                                            // Try multiple path variations
+                                                            if (currentUrl.includes('/public/images/')) {
+                                                                // Try without /public/
+                                                                altPath = currentUrl.replace('/public/images/', '/images/');
+                                                            } else if (currentUrl.includes('/public/')) {
+                                                                // Try without /public/
+                                                                altPath = currentUrl.replace('/public/', '/');
+                                                            } else if (currentUrl.includes('/images/')) {
                                                                 // Try with /public/ prefix
-                                                                const altPath = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
-                                                                target.src = altPath;
+                                                                altPath = currentUrl.replace('/images/', '/public/images/');
+                                                            } else {
+                                                                // Try with /public/images/ prefix
+                                                                const fileName = currentUrl.split('/').pop() || item.image;
+                                                                altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
                                                             }
+                                                            
+                                                            console.log('[Image] Trying alternative R2 path:', altPath);
+                                                            target.src = altPath;
                                                         }
                                                     }}
                                                 />

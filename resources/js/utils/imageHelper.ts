@@ -47,6 +47,7 @@ export function getImageUrl(
 /**
  * Get R2 URL for a given path
  * IMPORTANT: Always returns R2 URL, never local path
+ * Tries multiple path variations to handle different R2 bucket structures
  */
 export function getR2Url(path: string): string {
     try {
@@ -62,25 +63,24 @@ export function getR2Url(path: string): string {
         const cleanPath = path.startsWith('/') ? path.slice(1) : path;
         const r2BaseUrl = 'https://assets.cahayaanbiya.com';
         
-        // R2 custom domain points to bucket root, files are at bucket/public/images/file.jpg
-        // So URL should be: baseUrl/public/images/file.jpg
-        
-        // Check if path already includes folder structure
+        // Try multiple path variations based on common R2 bucket structures:
+        // 1. If path already includes folder structure (images/ or videos/)
         if (cleanPath.startsWith('images/') || cleanPath.startsWith('videos/')) {
+            // Try with /public/ prefix first (most common)
             return `${r2BaseUrl}/public/${cleanPath}`;
         }
         
-        // Check file extension to determine folder
+        // 2. Check file extension to determine folder
         const lowerPath = cleanPath.toLowerCase();
         const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi'];
         const isVideo = videoExtensions.some(ext => lowerPath.endsWith(ext));
         
         if (isVideo) {
-            // Video file - try videos folder
+            // Video file - try videos folder with /public/ prefix
             return `${r2BaseUrl}/public/videos/${cleanPath}`;
         }
         
-        // Image file - use images folder
+        // 3. Image file - use images folder with /public/ prefix
         return `${r2BaseUrl}/public/images/${cleanPath}`;
     } catch (error) {
         console.error('Error in getR2Url:', error);
@@ -94,6 +94,7 @@ export function getR2Url(path: string): string {
  * Get R2 URL for video files
  * Videos are typically stored in the videos/ folder or public root
  * IMPORTANT: Always returns R2 URL, never local path
+ * Tries multiple path variations to handle different R2 bucket structures
  */
 export function getVideoUrl(path: string): string {
     try {
@@ -111,6 +112,7 @@ export function getVideoUrl(path: string): string {
         
         // If path already includes videos/ folder
         if (cleanPath.startsWith('videos/')) {
+            // Try with /public/ prefix first (most common)
             return `${r2BaseUrl}/public/${cleanPath}`;
         }
         
@@ -119,12 +121,12 @@ export function getVideoUrl(path: string): string {
         const isVideoFile = videoExtensions.some(ext => cleanPath.toLowerCase().endsWith(ext));
         
         if (isVideoFile) {
-            // Video file - use videos folder
+            // Video file - use videos folder with /public/ prefix
             return `${r2BaseUrl}/public/videos/${cleanPath}`;
         }
         
         // Not a recognized video extension, but assume it's a video
-        // Try videos folder first, then public root
+        // Try videos folder with /public/ prefix
         return `${r2BaseUrl}/public/videos/${cleanPath}`;
     } catch (error) {
         console.error('Error in getVideoUrl:', error);
