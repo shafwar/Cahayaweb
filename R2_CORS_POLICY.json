@@ -1,0 +1,28 @@
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedOrigins": [
+      "https://cahayaanbiya.com",
+      "http://cahayaanbiya.com",
+      "https://www.cahayaanbiya.com",
+      "http://www.cahayaanbiya.com",
+      "https://*.cahayaanbiya.com",
+      "http://*.cahayaanbiya.com",
+      "https://cahayaweb-production.up.railway.app",
+      "http://cahayaweb-production.up.railway.app",
+      "https://*.up.railway.app",
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://localhost:8000",
+      "http://cahayaweb.test"
+    ],
+    "ExposeHeaders": [
+      "Content-Length",
+      "Content-Type",
+      "ETag",
+      "Last-Modified"
+    ],
+    "MaxAgeSeconds": 3600
+  }
+]
