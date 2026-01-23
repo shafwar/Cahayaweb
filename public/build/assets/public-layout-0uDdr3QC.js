@@ -1,1 +1,0 @@
-import{j as s}from"./app-cahIlaJI.js";import{E as i,G as a}from"./GlobalHeader-DSR_a_jl.js";import{E as e}from"./EditToggleButton-De4Zs7MN.js";function n({children:r}){return s.jsx(i,{children:s.jsxs("div",{className:"min-h-screen bg-white",children:[s.jsx(a,{variant:"b2c"}),s.jsx("main",{className:"w-full",children:r}),s.jsx(e,{})]})})}export{n as P};

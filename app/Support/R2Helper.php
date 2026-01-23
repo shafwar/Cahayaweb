@@ -65,30 +65,37 @@ class R2Helper
                 // Get root folder from config (default: 'public')
                 $root = trim($diskConfig['root'] ?? 'public', '/');
                 
-                // IMPORTANT: Custom domain R2 might already point to the root folder
-                // So we need to check if we should include root in the URL or not
-                // If custom domain points to 'public' folder, then path 'images/file.jpg' 
-                // should become URL: baseUrl/images/file.jpg (no 'public' prefix)
-                // If custom domain points to bucket root, then path 'images/file.jpg'
-                // should become URL: baseUrl/public/images/file.jpg
+                // IMPORTANT: R2 custom domain behavior
+                // When using R2 custom domain, the domain typically points to the bucket root
+                // Files are stored at: bucket/public/images/file.jpg
+                // URL should be: customDomain/public/images/file.jpg
+                // 
+                // However, if custom domain is configured to point to 'public' folder,
+                // then URL should be: customDomain/images/file.jpg
+                //
+                // For now, we'll use the standard approach: include root in URL
+                // If path already includes root, use as-is, otherwise prepend root
                 
-                // For now, assume custom domain points to the root folder
-                // So if root is 'public' and path is 'images/file.jpg',
-                // the file in R2 is at 'public/images/file.jpg' but URL should be 'baseUrl/images/file.jpg'
-                // because custom domain already points to 'public' folder
-                
-                // If path already includes root, remove it (custom domain handles root)
+                // If path already starts with root, use it directly
                 if ($root && str_starts_with($cleanPath, $root . '/')) {
-                    // Path: 'public/images/file.jpg' -> URL path: 'images/file.jpg'
-                    $urlPath = substr($cleanPath, strlen($root) + 1);
+                    $fullPath = $cleanPath;
                 } elseif ($root && !str_starts_with($cleanPath, $root . '/')) {
-                    // Path: 'images/file.jpg' -> URL path: 'images/file.jpg' (root handled by custom domain)
-                    $urlPath = $cleanPath;
+                    // Path doesn't include root, add it
+                    $fullPath = $root . '/' . $cleanPath;
                 } else {
-                    $urlPath = $cleanPath;
+                    $fullPath = $cleanPath;
                 }
                 
-                $url = rtrim($baseUrl, '/') . '/' . ltrim($urlPath, '/');
+                $url = rtrim($baseUrl, '/') . '/' . ltrim($fullPath, '/');
+                
+                // Log for debugging (remove in production if needed)
+                Log::debug('R2 URL generated', [
+                    'original_path' => $path,
+                    'clean_path' => $cleanPath,
+                    'root' => $root,
+                    'full_path' => $fullPath,
+                    'final_url' => $url
+                ]);
                 
                 return $url;
             }
