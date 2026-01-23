@@ -55,8 +55,32 @@ class R2Helper
                 $baseUrl = $diskConfig['url'] ?? null;
                 
                 if (!$baseUrl) {
-                    // Fallback to local storage if R2 URL not configured
-                    return asset('storage/' . $path);
+                    // R2 URL not configured - still return R2 URL structure, don't fallback to local
+                    // This ensures we always try R2 first
+                    $r2BaseUrl = 'https://assets.cahayaanbiya.com';
+                    $cleanPath = trim($path, '/');
+                    $root = 'public';
+                    
+                    // Build R2 URL structure
+                    if (str_starts_with($cleanPath, 'images/') || str_starts_with($cleanPath, 'videos/')) {
+                        return $r2BaseUrl . '/public/' . $cleanPath;
+                    }
+                    
+                    // Determine if it's a video or image
+                    $videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi'];
+                    $isVideo = false;
+                    foreach ($videoExtensions as $ext) {
+                        if (str_ends_with(strtolower($cleanPath), $ext)) {
+                            $isVideo = true;
+                            break;
+                        }
+                    }
+                    
+                    if ($isVideo) {
+                        return $r2BaseUrl . '/public/videos/' . $cleanPath;
+                    }
+                    
+                    return $r2BaseUrl . '/public/images/' . $cleanPath;
                 }
                 
                 // Clean the path (remove leading/trailing slashes)
@@ -104,8 +128,41 @@ class R2Helper
             ]);
         }
 
-        // Fallback to local storage on any error
-        return asset('storage/' . $path);
+        // On error, still return R2 URL structure, don't fallback to local
+        // This ensures we always try R2 first
+        try {
+            $r2BaseUrl = 'https://assets.cahayaanbiya.com';
+            $cleanPath = trim($path, '/');
+            $root = 'public';
+            
+            // Build R2 URL structure
+            if (str_starts_with($cleanPath, 'images/') || str_starts_with($cleanPath, 'videos/')) {
+                return $r2BaseUrl . '/public/' . $cleanPath;
+            }
+            
+            // Determine if it's a video or image
+            $videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi'];
+            $isVideo = false;
+            foreach ($videoExtensions as $ext) {
+                if (str_ends_with(strtolower($cleanPath), $ext)) {
+                    $isVideo = true;
+                    break;
+                }
+            }
+            
+            if ($isVideo) {
+                return $r2BaseUrl . '/public/videos/' . $cleanPath;
+            }
+            
+            return $r2BaseUrl . '/public/images/' . $cleanPath;
+        } catch (\Throwable $e) {
+            Log::error('Failed to generate R2 URL even in fallback', [
+                'path' => $path,
+                'error' => $e->getMessage()
+            ]);
+            // Last resort: return R2 URL structure anyway
+            return 'https://assets.cahayaanbiya.com/public/images/' . trim($path, '/');
+        }
     }
 
     /**

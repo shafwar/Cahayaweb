@@ -75,8 +75,17 @@ class SectionDefaults
                 }
             }
 
-            // Fallback to local asset if R2 not available
-            return asset($path);
+            // Always use R2 URL structure, never fallback to local
+            $r2BaseUrl = 'https://assets.cahayaanbiya.com';
+            $cleanPath = ltrim($path, '/');
+            
+            // Build R2 URL structure
+            if (str_starts_with($cleanPath, 'images/') || str_starts_with($cleanPath, 'videos/')) {
+                return $r2BaseUrl . '/public/' . $cleanPath;
+            }
+            
+            // Assume it's an image
+            return $r2BaseUrl . '/public/images/' . $cleanPath;
         } catch (\Exception $e) {
             Log::warning('Error in SectionDefaults::imageUrl', [
                 'key' => $key,

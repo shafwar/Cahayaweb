@@ -194,11 +194,22 @@ export default function Packages() {
                                         <div className="relative aspect-video overflow-hidden">
                                             <img src={getR2Url(pkg.image)} alt={pkg.title} data-package-id={pkg.id} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 will-change-transform"
                                                 onError={(e) => {
-                                                    // Fallback to local image if R2 image fails
+                                                    // Try alternative R2 paths, never fallback to local
                                                     const target = e.currentTarget;
                                                     if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
-                                                        target.src = pkg.image.startsWith('/') ? pkg.image : '/' + pkg.image;
+                                                        const currentUrl = target.src;
+                                                        // Try different R2 path variations
+                                                        if (currentUrl.includes('/public/')) {
+                                                            // Try without /public/
+                                                            const altPath = currentUrl.replace('/public/', '/');
+                                                            target.src = altPath;
+                                                        } else {
+                                                            // Try with /public/ prefix
+                                                            const altPath = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
+                                                            target.src = altPath;
+                                                        }
                                                     } else {
+                                                        // Hide image if not R2 URL
                                                         target.style.display = 'none';
                                                         const nextElement = target.nextElementSibling as HTMLElement;
                                                         if (nextElement) nextElement.style.display = 'block';
@@ -417,11 +428,22 @@ export default function Packages() {
                                     <div className="relative aspect-[4/3] overflow-hidden">
                                         <img src={getR2Url(destination.image)} alt={destination.title} data-gallery-id={destination.id} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 will-change-transform"
                                             onError={(e) => {
-                                                // Fallback to local image if R2 image fails
+                                                // Try alternative R2 paths, never fallback to local
                                                 const target = e.currentTarget;
                                                 if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
-                                                    target.src = destination.image.startsWith('/') ? destination.image : '/' + destination.image;
+                                                    const currentUrl = target.src;
+                                                    // Try different R2 path variations
+                                                    if (currentUrl.includes('/public/')) {
+                                                        // Try without /public/
+                                                        const altPath = currentUrl.replace('/public/', '/');
+                                                        target.src = altPath;
+                                                    } else {
+                                                        // Try with /public/ prefix
+                                                        const altPath = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
+                                                        target.src = altPath;
+                                                    }
                                                 } else {
+                                                    // Hide image if not R2 URL
                                                     target.style.display = 'none';
                                                     const nextElement = target.nextElementSibling as HTMLElement;
                                                     if (nextElement) nextElement.style.display = 'block';

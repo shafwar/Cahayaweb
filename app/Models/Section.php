@@ -161,9 +161,12 @@ class Section extends Model
                             $timestamp = optional($section?->updated_at)->timestamp ?? time();
                             $imageUrl = $r2Url . (str_contains($r2Url, '?') ? '&' : '?') . 'v=' . $timestamp;
                         } else {
-                            // Fallback to local storage if R2 not configured
+                            // R2 not configured - still use R2 URL structure
+                            $r2BaseUrl = 'https://assets.cahayaanbiya.com';
+                            $cleanPath = trim($imagePath, '/');
+                            $r2Url = $r2BaseUrl . '/public/images/' . $cleanPath;
                             $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                            $imageUrl = asset('storage/' . $imagePath) . '?v=' . $timestamp;
+                            $imageUrl = $r2Url . '?v=' . $timestamp;
                         }
                     } catch (\Exception $e) {
                         Log::warning('Error generating image URL for section', [
@@ -171,9 +174,12 @@ class Section extends Model
                             'path' => $imagePath,
                             'error' => $e->getMessage()
                         ]);
-                        // Fallback to local storage on error
+                        // On error, still use R2 URL structure
+                        $r2BaseUrl = 'https://assets.cahayaanbiya.com';
+                        $cleanPath = trim($imagePath, '/');
+                        $r2Url = $r2BaseUrl . '/public/images/' . $cleanPath;
                         $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                        $imageUrl = asset('storage/' . $imagePath) . '?v=' . $timestamp;
+                        $imageUrl = $r2Url . '?v=' . $timestamp;
                     }
                 } elseif (isset($defaults[$key])) {
                     try {

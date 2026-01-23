@@ -81,34 +81,68 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
         );
     } catch (error) {
         console.error('Error rendering VideoWithFallback:', error);
-        // Fallback to simple video element
-        return (
-            <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                className="absolute inset-0 h-full w-full"
-                style={{ 
-                    objectFit: 'cover',
-                    objectPosition: 'center center',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    minWidth: '100%',
-                    minHeight: '100%',
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    zIndex: 0
-                }}
-            >
-                <source src="/b2cherosectionvideo.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-            </video>
-        );
+        // Fallback to R2 URL, not local path
+        try {
+            const fallbackR2Url = getVideoUrl(fallbackUrl || '/b2cherosectionvideo.mp4');
+            return (
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="auto"
+                    className="absolute inset-0 h-full w-full"
+                    style={{ 
+                        objectFit: 'cover',
+                        objectPosition: 'center center',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        minWidth: '100%',
+                        minHeight: '100%',
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        zIndex: 0
+                    }}
+                >
+                    <source src={fallbackR2Url} type="video/mp4" />
+                    <source src={fallbackUrl || '/b2cherosectionvideo.mp4'} type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            );
+        } catch (fallbackError) {
+            console.error('Error in VideoWithFallback fallback:', fallbackError);
+            // Last resort: use R2 URL directly
+            return (
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="auto"
+                    className="absolute inset-0 h-full w-full"
+                    style={{ 
+                        objectFit: 'cover',
+                        objectPosition: 'center center',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        minWidth: '100%',
+                        minHeight: '100%',
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        zIndex: 0
+                    }}
+                >
+                    <source src="https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            );
+        }
     }
 }
 
@@ -401,18 +435,21 @@ export default function Home() {
                             {(() => {
                                 try {
                                     const r2VideoUrl = getVideoUrl('/b2cherosectionvideo.mp4');
+                                    // Always use R2 URL, never local path
                                     return (
                                         <VideoWithFallback 
-                                            r2Url={r2VideoUrl || '/b2cherosectionvideo.mp4'}
-                                            fallbackUrl="/b2cherosectionvideo.mp4"
+                                            r2Url={r2VideoUrl}
+                                            fallbackUrl={r2VideoUrl} // Use R2 URL as fallback too
                                         />
                                     );
                                 } catch (error) {
                                     console.error('Error getting video URL:', error);
+                                    // Even on error, use R2 URL structure
+                                    const fallbackR2Url = 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4';
                                     return (
                                         <VideoWithFallback 
-                                            r2Url="/b2cherosectionvideo.mp4"
-                                            fallbackUrl="/b2cherosectionvideo.mp4"
+                                            r2Url={fallbackR2Url}
+                                            fallbackUrl={fallbackR2Url}
                                         />
                                     );
                                 }
@@ -543,13 +580,20 @@ export default function Home() {
                                                     transition={{ duration: 0.8, ease }}
                                                     style={{ willChange: 'transform' }}
                                                     onError={(e) => {
-                                                        // Fallback to local asset if R2 image fails to load
+                                                        // Try alternative R2 path if current R2 URL fails
                                                         const target = e.currentTarget;
-                                                        // Try to get the original fallback path
-                                                        const fallbackLocal = item.image.startsWith('/') ? item.image : '/' + item.image;
-                                                        // Only change if current src is R2 URL
                                                         if (target.src.includes('assets.cahayaanbiya.com')) {
-                                                            target.src = fallbackLocal;
+                                                            // Try different R2 path variations
+                                                            const currentUrl = target.src;
+                                                            // If current path has /public/, try without it
+                                                            if (currentUrl.includes('/public/')) {
+                                                                const altPath = currentUrl.replace('/public/', '/');
+                                                                target.src = altPath;
+                                                            } else {
+                                                                // Try with /public/ prefix
+                                                                const altPath = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
+                                                                target.src = altPath;
+                                                            }
                                                         }
                                                     }}
                                                 />

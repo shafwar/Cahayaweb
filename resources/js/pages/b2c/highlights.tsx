@@ -450,11 +450,22 @@ export default function Highlights() {
                                         decoding="async"
                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 will-change-transform"
                                         onError={(e) => {
-                                            // Fallback to local image if R2 image fails
+                                            // Try alternative R2 paths, never fallback to local
                                             const target = e.currentTarget;
                                             if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
-                                                target.src = highlight.image.startsWith('/') ? highlight.image : '/' + highlight.image;
+                                                const currentUrl = target.src;
+                                                // Try different R2 path variations
+                                                if (currentUrl.includes('/public/')) {
+                                                    // Try without /public/
+                                                    const altPath = currentUrl.replace('/public/', '/');
+                                                    target.src = altPath;
+                                                } else {
+                                                    // Try with /public/ prefix
+                                                    const altPath = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
+                                                    target.src = altPath;
+                                                }
                                             } else {
+                                                // Hide image if not R2 URL
                                                 target.style.display = 'none';
                                                 const nextElement = target.nextElementSibling as HTMLElement;
                                                 if (nextElement) nextElement.style.display = 'block';
