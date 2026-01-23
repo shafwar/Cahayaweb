@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use App\Support\R2Helper;
 
 class SectionDefaults
@@ -53,7 +54,7 @@ class SectionDefaults
                         return $r2Url;
                     }
                 } catch (\Exception $e) {
-                    \Log::warning('Error getting R2 URL for default image', [
+                    Log::warning('Error getting R2 URL for default image', [
                         'key' => $key,
                         'path' => $r2ImagePath,
                         'error' => $e->getMessage()
@@ -66,7 +67,7 @@ class SectionDefaults
                         return $r2Url;
                     }
                 } catch (\Exception $e) {
-                    \Log::warning('Error getting R2 URL for default image', [
+                    Log::warning('Error getting R2 URL for default image', [
                         'key' => $key,
                         'path' => $r2Path,
                         'error' => $e->getMessage()
@@ -77,7 +78,7 @@ class SectionDefaults
             // Fallback to local asset if R2 not available
             return asset($path);
         } catch (\Exception $e) {
-            \Log::warning('Error in SectionDefaults::imageUrl', [
+            Log::warning('Error in SectionDefaults::imageUrl', [
                 'key' => $key,
                 'error' => $e->getMessage()
             ]);

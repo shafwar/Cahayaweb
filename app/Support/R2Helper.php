@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class R2Helper
 {
@@ -23,7 +24,7 @@ class R2Helper
             return Storage::disk($diskName);
         } catch (\Exception $e) {
             // Fallback to public disk on any error
-            \Log::warning('Failed to get R2 disk, using public disk', [
+            Log::warning('Failed to get R2 disk, using public disk', [
                 'error' => $e->getMessage()
             ]);
             return Storage::disk('public');
@@ -77,13 +78,13 @@ class R2Helper
                 return $url;
             }
         } catch (\Exception $e) {
-            \Log::warning('Failed to generate R2 URL', [
+            Log::warning('Failed to generate R2 URL', [
                 'path' => $path,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
         } catch (\Throwable $e) {
-            \Log::error('Fatal error generating R2 URL', [
+            Log::error('Fatal error generating R2 URL', [
                 'path' => $path,
                 'error' => $e->getMessage()
             ]);

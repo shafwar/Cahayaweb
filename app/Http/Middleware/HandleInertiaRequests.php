@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Section;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -70,18 +71,18 @@ class HandleInertiaRequests extends Middleware
                 'forceHttps' => true, // Add flag to force HTTPS
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'sections' => fn () => {
+            'sections' => function () {
                 try {
                     return Section::getAllSections();
                 } catch (\Exception $e) {
-                    \Log::error('Error getting sections in HandleInertiaRequests', [
+                    Log::error('Error getting sections in HandleInertiaRequests', [
                         'error' => $e->getMessage(),
                         'trace' => $e->getTraceAsString()
                     ]);
                     // Return empty array on error to prevent 500
                     return [];
                 } catch (\Throwable $e) {
-                    \Log::error('Fatal error getting sections in HandleInertiaRequests', [
+                    Log::error('Fatal error getting sections in HandleInertiaRequests', [
                         'error' => $e->getMessage()
                     ]);
                     return [];
