@@ -24,14 +24,17 @@ export function getImageUrl(
     
     // Check if it's already in images/ or videos/ folder
     if (cleanPath.startsWith('images/') || cleanPath.startsWith('videos/')) {
-        // Use R2 custom domain (should match AWS_URL in .env)
+        // Use R2 custom domain
+        // Custom domain might point to 'public' folder, so path 'images/file.jpg'
+        // should become URL: baseUrl/images/file.jpg (no 'public' prefix)
         const r2BaseUrl = 'https://assets.cahayaanbiya.com';
-        return `${r2BaseUrl}/public/${cleanPath}`;
+        return `${r2BaseUrl}/${cleanPath}`;
     }
 
     // Assume it's an image in the public root, try images folder
+    // Custom domain might point to 'public' folder, so 'file.jpg' becomes 'images/file.jpg'
     const r2BaseUrl = 'https://assets.cahayaanbiya.com';
-    const r2Path = `public/images/${cleanPath}`;
+    const r2Path = `images/${cleanPath}`;
     return `${r2BaseUrl}/${r2Path}`;
 }
 
@@ -42,9 +45,10 @@ export function getR2Url(path: string): string {
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
     const r2BaseUrl = 'https://assets.cahayaanbiya.com';
     
+    // Custom domain might point to 'public' folder, so don't include 'public' in URL
     if (cleanPath.startsWith('images/') || cleanPath.startsWith('videos/')) {
-        return `${r2BaseUrl}/public/${cleanPath}`;
+        return `${r2BaseUrl}/${cleanPath}`;
     }
     
-    return `${r2BaseUrl}/public/images/${cleanPath}`;
+    return `${r2BaseUrl}/images/${cleanPath}`;
 }

@@ -50,7 +50,7 @@ class SectionDefaults
                 $r2ImagePath = 'images/' . $r2Path;
                 try {
                     $r2Url = R2Helper::url($r2ImagePath);
-                    if ($r2Url) {
+                    if ($r2Url && filter_var($r2Url, FILTER_VALIDATE_URL)) {
                         return $r2Url;
                     }
                 } catch (\Exception $e) {
@@ -63,7 +63,7 @@ class SectionDefaults
             } else {
                 try {
                     $r2Url = R2Helper::url($r2Path);
-                    if ($r2Url) {
+                    if ($r2Url && filter_var($r2Url, FILTER_VALIDATE_URL)) {
                         return $r2Url;
                     }
                 } catch (\Exception $e) {

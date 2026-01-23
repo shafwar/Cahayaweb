@@ -65,15 +65,30 @@ class R2Helper
                 // Get root folder from config (default: 'public')
                 $root = trim($diskConfig['root'] ?? 'public', '/');
                 
-                // Build full URL: baseUrl/root/path
-                // Example: https://assets.cahayaanbiya.com/public/images/filename.jpg
-                if ($root && !str_starts_with($cleanPath, $root . '/')) {
-                    $fullPath = $root . '/' . $cleanPath;
+                // IMPORTANT: Custom domain R2 might already point to the root folder
+                // So we need to check if we should include root in the URL or not
+                // If custom domain points to 'public' folder, then path 'images/file.jpg' 
+                // should become URL: baseUrl/images/file.jpg (no 'public' prefix)
+                // If custom domain points to bucket root, then path 'images/file.jpg'
+                // should become URL: baseUrl/public/images/file.jpg
+                
+                // For now, assume custom domain points to the root folder
+                // So if root is 'public' and path is 'images/file.jpg',
+                // the file in R2 is at 'public/images/file.jpg' but URL should be 'baseUrl/images/file.jpg'
+                // because custom domain already points to 'public' folder
+                
+                // If path already includes root, remove it (custom domain handles root)
+                if ($root && str_starts_with($cleanPath, $root . '/')) {
+                    // Path: 'public/images/file.jpg' -> URL path: 'images/file.jpg'
+                    $urlPath = substr($cleanPath, strlen($root) + 1);
+                } elseif ($root && !str_starts_with($cleanPath, $root . '/')) {
+                    // Path: 'images/file.jpg' -> URL path: 'images/file.jpg' (root handled by custom domain)
+                    $urlPath = $cleanPath;
                 } else {
-                    $fullPath = $cleanPath;
+                    $urlPath = $cleanPath;
                 }
                 
-                $url = rtrim($baseUrl, '/') . '/' . ltrim($fullPath, '/');
+                $url = rtrim($baseUrl, '/') . '/' . ltrim($urlPath, '/');
                 
                 return $url;
             }
