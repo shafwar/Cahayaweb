@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Arr;
 
 class Section extends Model
@@ -52,12 +53,12 @@ class Section extends Model
             SectionSnapshot::savePayload($payload);
         } catch (\PDOException $e) {
             // Database connection issue - log but don't crash
-            \Log::warning('Database error during snapshot creation', [
+            Log::warning('Database error during snapshot creation', [
                 'error' => $e->getMessage()
             ]);
         } catch (\Exception $e) {
             // Any other error - log but don't crash
-            \Log::warning('Error creating snapshot', [
+            Log::warning('Error creating snapshot', [
                 'error' => $e->getMessage()
             ]);
         }
@@ -96,17 +97,17 @@ class Section extends Model
                 $live = static::all()->mapWithKeys(fn ($section) => [$section->key => $section]);
             }
         } catch (\PDOException $e) {
-            \Log::warning('Database error getting sections', [
+            Log::warning('Database error getting sections', [
                 'error' => $e->getMessage()
             ]);
             $live = collect([]);
         } catch (\Exception $e) {
-            \Log::warning('Error getting sections', [
+            Log::warning('Error getting sections', [
                 'error' => $e->getMessage()
             ]);
             $live = collect([]);
         } catch (\Throwable $e) {
-            \Log::error('Fatal error getting sections', [
+            Log::error('Fatal error getting sections', [
                 'error' => $e->getMessage()
             ]);
             $live = collect([]);
@@ -115,7 +116,7 @@ class Section extends Model
         try {
             $snapshot = SectionSnapshot::latestPayload();
         } catch (\Throwable $e) {
-            \Log::warning('Error getting snapshot', [
+            Log::warning('Error getting snapshot', [
                 'error' => $e->getMessage()
             ]);
             $snapshot = collect([]);
@@ -124,7 +125,7 @@ class Section extends Model
         try {
             $defaults = SectionDefaults::all();
         } catch (\Throwable $e) {
-            \Log::warning('Error getting defaults', [
+            Log::warning('Error getting defaults', [
                 'error' => $e->getMessage()
             ]);
             $defaults = [];
@@ -165,7 +166,7 @@ class Section extends Model
                             $imageUrl = asset('storage/' . $imagePath) . '?v=' . $timestamp;
                         }
                     } catch (\Exception $e) {
-                        \Log::warning('Error generating image URL for section', [
+                        Log::warning('Error generating image URL for section', [
                             'key' => $key,
                             'path' => $imagePath,
                             'error' => $e->getMessage()
@@ -181,7 +182,7 @@ class Section extends Model
                             $imageUrl = $url;
                         }
                     } catch (\Exception $e) {
-                        \Log::warning('Error getting default image URL', [
+                        Log::warning('Error getting default image URL', [
                             'key' => $key,
                             'error' => $e->getMessage()
                         ]);
@@ -193,7 +194,7 @@ class Section extends Model
                     'image' => $imageUrl,
                 ]];
             } catch (\Exception $e) {
-                \Log::warning('Error processing section', [
+                Log::warning('Error processing section', [
                     'key' => $key,
                     'error' => $e->getMessage()
                 ]);
@@ -208,7 +209,7 @@ class Section extends Model
                 return $value['content'] !== null || $value['image'] !== null;
             })->toArray();
         } catch (\Throwable $e) {
-            \Log::error('Fatal error in getAllSections mapWithKeys', [
+            Log::error('Fatal error in getAllSections mapWithKeys', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -227,7 +228,7 @@ class Section extends Model
                 try {
                     Section::where('key', $key)->delete();
                 } catch (\Exception $e) {
-                    \Log::warning('Failed to delete section during restore', [
+                    Log::warning('Failed to delete section during restore', [
                         'key' => $key,
                         'error' => $e->getMessage()
                     ]);
@@ -256,7 +257,7 @@ class Section extends Model
                 $restored = $contentMatch && $imageMatch;
                 
                 if (!$restored) {
-                    \Log::warning('Restore verification failed in restoreFromSnapshot', [
+                    Log::warning('Restore verification failed in restoreFromSnapshot', [
                         'key' => $key,
                         'expected_content' => $payload['content'] ?? null,
                         'actual_content' => $section->content,
@@ -271,13 +272,13 @@ class Section extends Model
 
             return $restored;
         } catch (\PDOException $e) {
-            \Log::error('Database error during restore from snapshot', [
+            Log::error('Database error during restore from snapshot', [
                 'key' => $key,
                 'error' => $e->getMessage()
             ]);
             return false;
         } catch (\Exception $e) {
-            \Log::error('Error restoring section from snapshot', [
+            Log::error('Error restoring section from snapshot', [
                 'key' => $key,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()

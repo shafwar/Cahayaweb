@@ -71,19 +71,33 @@ class HandleInertiaRequests extends Middleware
                 'forceHttps' => true, // Add flag to force HTTPS
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'sections' => function () {
+            'sections' => function () use ($request) {
                 try {
-                    return Section::getAllSections();
+                    // Add timeout protection - if it takes too long, return empty
+                    $sections = Section::getAllSections();
+                    
+                    // Ensure we always return an array, never null
+                    if (!is_array($sections)) {
+                        Log::warning('getAllSections returned non-array', [
+                            'type' => gettype($sections),
+                            'value' => $sections
+                        ]);
+                        return [];
+                    }
+                    
+                    return $sections;
                 } catch (\Exception $e) {
                     Log::error('Error getting sections in HandleInertiaRequests', [
                         'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
+                        'trace' => $e->getTraceAsString(),
+                        'url' => $request->url()
                     ]);
                     // Return empty array on error to prevent 500
                     return [];
                 } catch (\Throwable $e) {
                     Log::error('Fatal error getting sections in HandleInertiaRequests', [
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
+                        'url' => $request->url()
                     ]);
                     return [];
                 }
