@@ -57,6 +57,19 @@ const criticalPages: Record<string, React.ComponentType<PageProps>> = {
     'admin/agent-verification-detail': AdminAgentVerificationDetail,
 };
 
+// Add global error handler for unhandled errors
+if (typeof window !== 'undefined') {
+    window.addEventListener('error', (event) => {
+        console.error('Global error:', event.error);
+        // Don't prevent default to allow normal error handling
+    });
+    
+    window.addEventListener('unhandledrejection', (event) => {
+        console.error('Unhandled promise rejection:', event.reason);
+        // Don't prevent default to allow normal error handling
+    });
+}
+
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => {
@@ -133,12 +146,22 @@ createInertiaApp({
             });
     },
     setup({ el, App, props }) {
+        console.log('Inertia setup called', { el: !!el, hasApp: !!App, hasProps: !!props });
+        
+        if (!el) {
+            console.error('No element provided to Inertia setup');
+            return;
+        }
+        
         try {
+            console.log('Creating React root...');
             const root = createRoot(el);
             
             // Wrap in try-catch to prevent white screen on render errors
             try {
+                console.log('Rendering Inertia app...', { propsKeys: Object.keys(props || {}) });
                 root.render(<App {...props} />);
+                console.log('Inertia app rendered successfully');
             } catch (error) {
                 console.error('Error rendering Inertia app:', error);
                 // Render fallback UI
@@ -146,7 +169,23 @@ createInertiaApp({
                     <div style={{ padding: '2rem', textAlign: 'center' }}>
                         <h1>Application Error</h1>
                         <p>Something went wrong. Please refresh the page.</p>
-                        <button onClick={() => window.location.reload()}>Refresh</button>
+                        <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '1rem' }}>
+                            Error: {error instanceof Error ? error.message : String(error)}
+                        </p>
+                        <button 
+                            onClick={() => window.location.reload()}
+                            style={{ 
+                                marginTop: '1rem', 
+                                padding: '0.5rem 1rem', 
+                                backgroundColor: '#3b82f6', 
+                                color: 'white', 
+                                border: 'none', 
+                                borderRadius: '0.25rem',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Refresh
+                        </button>
                     </div>
                 );
             }
@@ -158,7 +197,15 @@ createInertiaApp({
                     <div style="padding: 2rem; text-align: center;">
                         <h1>Application Error</h1>
                         <p>Something went wrong. Please refresh the page.</p>
-                        <button onclick="window.location.reload()">Refresh</button>
+                        <p style="font-size: 0.875rem; color: #666; margin-top: 1rem;">
+                            Error: ${error instanceof Error ? error.message : String(error)}
+                        </p>
+                        <button 
+                            onclick="window.location.reload()"
+                            style="margin-top: 1rem; padding: 0.5rem 1rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.25rem; cursor: pointer;"
+                        >
+                            Refresh
+                        </button>
                     </div>
                 `;
             }
