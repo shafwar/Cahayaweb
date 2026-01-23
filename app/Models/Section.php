@@ -116,40 +116,72 @@ class Section extends Model
             ->unique();
 
         return $keys->mapWithKeys(function ($key) use ($live, $snapshot, $defaults) {
-            $section = $live->get($key);
-            $payload = $snapshot->get($key);
+            try {
+                $section = $live->get($key);
+                $payload = $snapshot->get($key);
 
-            // Priority: Live DB > Snapshot > Default
-            $content = $section?->content ?? Arr::get($payload, 'content');
-            $imagePath = $section?->image ?? Arr::get($payload, 'image');
+                // Priority: Live DB > Snapshot > Default
+                $content = $section?->content ?? Arr::get($payload, 'content');
+                $imagePath = $section?->image ?? Arr::get($payload, 'image');
 
-            // If no content from live/snapshot, try default
-            if (! $content && isset($defaults[$key]['content'])) {
-                $content = $defaults[$key]['content'];
-            }
-
-            // Handle image URL
-            $imageUrl = null;
-            if ($imagePath) {
-                // Image from DB or snapshot - use R2 URL
-                $r2Url = R2Helper::url($imagePath);
-                if ($r2Url) {
-                    $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                    $imageUrl = $r2Url . (str_contains($r2Url, '?') ? '&' : '?') . 'v=' . $timestamp;
-                } else {
-                    // Fallback to local storage if R2 not configured
-                    $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                    $imageUrl = asset('storage/' . $imagePath) . '?v=' . $timestamp;
+                // If no content from live/snapshot, try default
+                if (! $content && isset($defaults[$key]['content'])) {
+                    $content = $defaults[$key]['content'];
                 }
-            } elseif (isset($defaults[$key]) && ($url = SectionDefaults::imageUrl($key))) {
-                // Image from default
-                $imageUrl = $url;
-            }
 
-            return [$key => [
-                'content' => $content,
-                'image' => $imageUrl,
-            ]];
+                // Handle image URL with error handling
+                $imageUrl = null;
+                if ($imagePath) {
+                    try {
+                        // Image from DB or snapshot - use R2 URL
+                        $r2Url = R2Helper::url($imagePath);
+                        if ($r2Url) {
+                            $timestamp = optional($section?->updated_at)->timestamp ?? time();
+                            $imageUrl = $r2Url . (str_contains($r2Url, '?') ? '&' : '?') . 'v=' . $timestamp;
+                        } else {
+                            // Fallback to local storage if R2 not configured
+                            $timestamp = optional($section?->updated_at)->timestamp ?? time();
+                            $imageUrl = asset('storage/' . $imagePath) . '?v=' . $timestamp;
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning('Error generating image URL for section', [
+                            'key' => $key,
+                            'path' => $imagePath,
+                            'error' => $e->getMessage()
+                        ]);
+                        // Fallback to local storage on error
+                        $timestamp = optional($section?->updated_at)->timestamp ?? time();
+                        $imageUrl = asset('storage/' . $imagePath) . '?v=' . $timestamp;
+                    }
+                } elseif (isset($defaults[$key])) {
+                    try {
+                        $url = SectionDefaults::imageUrl($key);
+                        if ($url) {
+                            $imageUrl = $url;
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning('Error getting default image URL', [
+                            'key' => $key,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+
+                return [$key => [
+                    'content' => $content,
+                    'image' => $imageUrl,
+                ]];
+            } catch (\Exception $e) {
+                \Log::warning('Error processing section', [
+                    'key' => $key,
+                    'error' => $e->getMessage()
+                ]);
+                // Return empty section on error
+                return [$key => [
+                    'content' => null,
+                    'image' => null,
+                ]];
+            }
         })->filter(function ($value) {
             // Include if has content OR image (even if null, as long as key exists)
             return $value['content'] !== null || $value['image'] !== null;

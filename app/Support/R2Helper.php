@@ -11,8 +11,23 @@ class R2Helper
      */
     public static function disk()
     {
-        $diskName = config('filesystems.default', 'r2');
-        return Storage::disk($diskName);
+        try {
+            $diskName = config('filesystems.default', 'r2');
+            
+            // Check if disk exists in config
+            if (!config("filesystems.disks.{$diskName}")) {
+                // Fallback to 'public' disk if r2 not configured
+                return Storage::disk('public');
+            }
+            
+            return Storage::disk($diskName);
+        } catch (\Exception $e) {
+            // Fallback to public disk on any error
+            \Log::warning('Failed to get R2 disk, using public disk', [
+                'error' => $e->getMessage()
+            ]);
+            return Storage::disk('public');
+        }
     }
 
     /**
@@ -27,16 +42,16 @@ class R2Helper
             return null;
         }
 
-        $diskName = config('filesystems.default', 'r2');
-        
-        // If using R2 disk, generate URL from R2
-        if ($diskName === 'r2' || $diskName === 's3') {
-            try {
-                $disk = self::disk();
-                $config = config("filesystems.disks.{$diskName}");
-                
+        try {
+            $diskName = config('filesystems.default', 'r2');
+            
+            // Check if disk exists in config
+            $diskConfig = config("filesystems.disks.{$diskName}");
+            
+            // If using R2/S3 disk and config exists, generate URL from R2
+            if (($diskName === 'r2' || $diskName === 's3') && $diskConfig) {
                 // Get base URL from config
-                $baseUrl = $config['url'] ?? null;
+                $baseUrl = $diskConfig['url'] ?? null;
                 
                 if (!$baseUrl) {
                     // Fallback to local storage if R2 URL not configured
@@ -47,10 +62,10 @@ class R2Helper
                 $cleanPath = trim($path, '/');
                 
                 // Get root folder from config (default: 'public')
-                $root = trim($config['root'] ?? 'public', '/');
+                $root = trim($diskConfig['root'] ?? 'public', '/');
                 
                 // Build full URL: baseUrl/root/path
-                // Example: https://assets.cahayaanbiya.id/public/images/filename.jpg
+                // Example: https://assets.cahayaanbiya.com/public/images/filename.jpg
                 if ($root && !str_starts_with($cleanPath, $root . '/')) {
                     $fullPath = $root . '/' . $cleanPath;
                 } else {
@@ -60,17 +75,21 @@ class R2Helper
                 $url = rtrim($baseUrl, '/') . '/' . ltrim($fullPath, '/');
                 
                 return $url;
-            } catch (\Exception $e) {
-                \Log::warning('Failed to generate R2 URL', [
-                    'path' => $path,
-                    'error' => $e->getMessage()
-                ]);
-                // Fallback to local storage on error
-                return asset('storage/' . $path);
             }
+        } catch (\Exception $e) {
+            \Log::warning('Failed to generate R2 URL', [
+                'path' => $path,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Fatal error generating R2 URL', [
+                'path' => $path,
+                'error' => $e->getMessage()
+            ]);
         }
 
-        // Fallback to local storage
+        // Fallback to local storage on any error
         return asset('storage/' . $path);
     }
 

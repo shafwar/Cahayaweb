@@ -70,7 +70,23 @@ class HandleInertiaRequests extends Middleware
                 'forceHttps' => true, // Add flag to force HTTPS
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'sections' => fn () => Section::getAllSections(),
+            'sections' => fn () => {
+                try {
+                    return Section::getAllSections();
+                } catch (\Exception $e) {
+                    \Log::error('Error getting sections in HandleInertiaRequests', [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    // Return empty array on error to prevent 500
+                    return [];
+                } catch (\Throwable $e) {
+                    \Log::error('Fatal error getting sections in HandleInertiaRequests', [
+                        'error' => $e->getMessage()
+                    ]);
+                    return [];
+                }
+            },
         ];
     }
 }
