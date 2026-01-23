@@ -39,6 +39,47 @@
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx'])
         @inertiaHead
+        
+        <!-- Fallback script to show error if Inertia fails to load -->
+        <script>
+            // Wait for page to load, then check if Inertia app rendered
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    // Check if app element exists and has content
+                    const appElement = document.querySelector('[data-page]') || document.getElementById('app');
+                    const errorElement = document.getElementById('app-error');
+                    
+                    // If no app element and no error element, something is wrong
+                    if (!appElement && !errorElement) {
+                        console.error('[Fallback] No app element found after page load');
+                        const fallbackDiv = document.createElement('div');
+                        fallbackDiv.id = 'app-fallback';
+                        fallbackDiv.style.cssText = 'padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;';
+                        fallbackDiv.innerHTML = `
+                            <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Loading Application...</h1>
+                            <p style="color: #6b7280; margin-bottom: 0.5rem;">If this message persists, please refresh the page.</p>
+                            <button 
+                                onclick="window.location.reload()"
+                                style="margin-top: 1.5rem; padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;"
+                            >
+                                Refresh Page
+                            </button>
+                        `;
+                        document.body.appendChild(fallbackDiv);
+                    } else if (appElement && appElement.children.length === 0 && !errorElement) {
+                        // App element exists but is empty - might be loading
+                        console.warn('[Fallback] App element exists but is empty');
+                    } else {
+                        // App seems to be loading or loaded
+                        console.log('[Fallback] App element found, removing fallback if exists');
+                        const existingFallback = document.getElementById('app-fallback');
+                        if (existingFallback) {
+                            existingFallback.remove();
+                        }
+                    }
+                }, 3000); // Wait 3 seconds before showing fallback
+            });
+        </script>
 
         <!-- Force HTTPS for all requests -->
         <script>
