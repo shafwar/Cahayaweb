@@ -444,6 +444,14 @@ export default function Home() {
                                                     whileHover={{ scale: 1.1 }}
                                                     transition={{ duration: 0.8, ease }}
                                                     style={{ willChange: 'transform' }}
+                                                    onError={(e) => {
+                                                        // Fallback to local asset if R2 image fails to load
+                                                        const target = e.currentTarget;
+                                                        const fallbackSrc = target.src.replace('https://assets.cahayaanbiya.com', '');
+                                                        if (!fallbackSrc.startsWith('/')) {
+                                                            target.src = item.image.startsWith('/') ? item.image : '/' + item.image;
+                                                        }
+                                                    }}
                                                 />
 
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />

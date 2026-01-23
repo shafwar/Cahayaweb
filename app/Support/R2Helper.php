@@ -87,6 +87,8 @@ class R2Helper
                 
                 $url = rtrim($baseUrl, '/') . '/' . ltrim($fullPath, '/');
                 
+                // Return the URL - browser will handle 404 if file doesn't exist
+                // We can't check file existence here without making HTTP requests
                 return $url;
             }
         } catch (\Exception $e) {
