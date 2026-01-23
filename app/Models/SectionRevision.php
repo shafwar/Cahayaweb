@@ -42,9 +42,18 @@ class SectionRevision extends Model
             ->map(function ($revision) {
                 $imageUrl = null;
                 if ($revision->image) {
-                    $imageUrl = R2Helper::url($revision->image);
-                    if (!$imageUrl) {
-                        // Fallback to local storage
+                    try {
+                        $imageUrl = R2Helper::url($revision->image);
+                        if (!$imageUrl) {
+                            // Fallback to local storage
+                            $imageUrl = asset('storage/' . $revision->image);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning('Error generating revision image URL', [
+                            'revision_id' => $revision->id,
+                            'error' => $e->getMessage()
+                        ]);
+                        // Fallback to local storage on error
                         $imageUrl = asset('storage/' . $revision->image);
                     }
                 }

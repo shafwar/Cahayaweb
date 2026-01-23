@@ -38,7 +38,15 @@ class AdminController extends Controller
 
         // Use R2 disk instead of local 'public' disk
         $diskName = config('filesystems.default', 'r2');
-        $disk = Storage::disk($diskName);
+        try {
+            $disk = \App\Support\R2Helper::disk();
+        } catch (\Exception $e) {
+            \Log::warning('Failed to get R2 disk in AdminController::uploadImage', [
+                'error' => $e->getMessage()
+            ]);
+            // Fallback to public disk
+            $disk = Storage::disk('public');
+        }
         
         $filename = Str::uuid()->toString() . '.' . $validated['image']->getClientOriginalExtension();
         
@@ -201,38 +209,75 @@ class AdminController extends Controller
         $sections = Section::orderBy('updated_at', 'desc')->get();
         
         $diskName = config('filesystems.default', 'r2');
-        $disk = Storage::disk($diskName);
+        try {
+            $disk = \App\Support\R2Helper::disk();
+        } catch (\Exception $e) {
+            \Log::warning('Failed to get R2 disk in AdminController::getAllChanges', [
+                'error' => $e->getMessage()
+            ]);
+            $disk = Storage::disk('public');
+        }
 
-        $changes = $sections->map(function ($section) use ($disk) {
-            // Parse section key to extract metadata
-            $parts = explode('.', $section->key);
-            $page = $parts[0] ?? 'unknown';
-            $sectionName = $parts[1] ?? 'unknown';
-            $id = $parts[2] ?? null;
-            $field = $parts[3] ?? $parts[2] ?? 'unknown';
+        $changes = $sections->map(function ($section) {
+            try {
+                // Parse section key to extract metadata
+                $parts = explode('.', $section->key);
+                $page = $parts[0] ?? 'unknown';
+                $sectionName = $parts[1] ?? 'unknown';
+                $id = $parts[2] ?? null;
+                $field = $parts[3] ?? $parts[2] ?? 'unknown';
 
-            // Determine type
-            $type = $section->image ? 'image' : 'text';
-            
-            // Generate correct R2 URL
-            $imageUrl = null;
-            if ($section->image) {
-                // Image path is stored relative to disk root (e.g., 'images/uuid.jpg')
-                $imageUrl = $disk->url($section->image) . '?v=' . $section->updated_at->timestamp;
+                // Determine type
+                $type = $section->image ? 'image' : 'text';
+                
+                // Generate correct R2 URL using R2Helper
+                $imageUrl = null;
+                if ($section->image) {
+                    try {
+                        $r2Url = \App\Support\R2Helper::url($section->image);
+                        if ($r2Url) {
+                            $imageUrl = $r2Url . '?v=' . $section->updated_at->timestamp;
+                        } else {
+                            $imageUrl = asset('storage/' . $section->image) . '?v=' . $section->updated_at->timestamp;
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning('Error generating image URL in getAllChanges', [
+                            'error' => $e->getMessage()
+                        ]);
+                        $imageUrl = asset('storage/' . $section->image) . '?v=' . $section->updated_at->timestamp;
+                    }
+                }
+
+                return [
+                    'id' => $section->id,
+                    'key' => $section->key,
+                    'page' => ucfirst($page),
+                    'section' => $sectionName,
+                    'field' => ucfirst($field),
+                    'type' => $type,
+                    'content' => $section->content,
+                    'image' => $imageUrl,
+                    'updated_at' => $section->updated_at->format('Y-m-d H:i:s'),
+                    'updated_at_human' => $section->updated_at->diffForHumans(),
+                ];
+            } catch (\Exception $e) {
+                \Log::warning('Error processing section in getAllChanges', [
+                    'key' => $section->key ?? 'unknown',
+                    'error' => $e->getMessage()
+                ]);
+                return [
+                    'id' => $section->id ?? 0,
+                    'key' => $section->key ?? 'unknown',
+                    'page' => 'Unknown',
+                    'section' => 'unknown',
+                    'field' => 'unknown',
+                    'type' => 'text',
+                    'content' => $section->content ?? null,
+                    'image' => null,
+                    'updated_at' => $section->updated_at?->format('Y-m-d H:i:s') ?? now()->format('Y-m-d H:i:s'),
+                    'updated_at_human' => $section->updated_at?->diffForHumans() ?? 'just now',
+                ];
             }
-
-            return [
-                'id' => $section->id,
-                'key' => $section->key,
-                'page' => ucfirst($page),
-                'section' => $sectionName,
-                'field' => ucfirst($field),
-                'type' => $type,
-                'content' => $section->content,
-                'image' => $imageUrl,
-                'updated_at' => $section->updated_at->format('Y-m-d H:i:s'),
-                'updated_at_human' => $section->updated_at->diffForHumans(),
-            ];
         });
 
         return response()->json([
