@@ -159,14 +159,19 @@ createInertiaApp({
         
         if (!el) {
             console.error('[Inertia] No element provided to Inertia setup');
-            // Try to find the element
-            const fallbackEl = document.getElementById('app') || document.querySelector('[data-page]');
+            // Try to find the element - Inertia creates element with data-page attribute
+            const fallbackEl = document.querySelector('[data-page]') || document.getElementById('app');
             if (fallbackEl) {
                 console.log('[Inertia] Found fallback element, using it');
                 el = fallbackEl as HTMLElement;
             } else {
-                console.error('[Inertia] No fallback element found');
-                return;
+                console.error('[Inertia] No fallback element found, creating one');
+                // Last resort: create the element
+                const newEl = document.createElement('div');
+                newEl.id = 'app';
+                document.body.appendChild(newEl);
+                el = newEl;
+                console.log('[Inertia] Created new app element');
             }
         }
         
