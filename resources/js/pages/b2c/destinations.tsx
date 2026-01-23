@@ -2,8 +2,9 @@ import { EditableText } from '@/components/cms';
 import PlaceholderImage from '@/components/media/placeholder-image';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import PublicLayout from '@/layouts/public-layout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import axios from 'axios';
+import { getImageUrl } from '@/utils/imageHelper';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Camera, Check, Clock, Edit3, MapPin, Plus, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -599,7 +600,7 @@ export default function Destinations() {
                                             >
                                             <div className="relative aspect-video overflow-hidden">
                                                 <img
-                                                    src={destination.image}
+                                                    src={getImageSrc(`destinations.${destination.id}.image`, destination.image)}
                                                     alt={destination.title}
                                                     data-destination-id={destination.id}
                                                     loading="lazy"

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\R2Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -39,10 +40,19 @@ class SectionRevision extends Model
             ->limit($limit)
             ->get()
             ->map(function ($revision) {
+                $imageUrl = null;
+                if ($revision->image) {
+                    $imageUrl = R2Helper::url($revision->image);
+                    if (!$imageUrl) {
+                        // Fallback to local storage
+                        $imageUrl = asset('storage/' . $revision->image);
+                    }
+                }
+                
                 return [
                     'id' => $revision->id,
                     'content' => $revision->content,
-                    'image' => $revision->image ? asset('storage/' . $revision->image) : null,
+                    'image' => $imageUrl,
                     'changed_by' => $revision->changed_by,
                     'change_type' => $revision->change_type,
                     'created_at' => $revision->created_at->diffForHumans(),

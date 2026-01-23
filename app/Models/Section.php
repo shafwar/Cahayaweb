@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\SectionDefaults;
+use App\Support\R2Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
@@ -130,9 +131,16 @@ class Section extends Model
             // Handle image URL
             $imageUrl = null;
             if ($imagePath) {
-                // Image from DB or snapshot - use storage path
-                $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                $imageUrl = asset('storage/' . $imagePath) . '?v=' . $timestamp;
+                // Image from DB or snapshot - use R2 URL
+                $r2Url = R2Helper::url($imagePath);
+                if ($r2Url) {
+                    $timestamp = optional($section?->updated_at)->timestamp ?? time();
+                    $imageUrl = $r2Url . (str_contains($r2Url, '?') ? '&' : '?') . 'v=' . $timestamp;
+                } else {
+                    // Fallback to local storage if R2 not configured
+                    $timestamp = optional($section?->updated_at)->timestamp ?? time();
+                    $imageUrl = asset('storage/' . $imagePath) . '?v=' . $timestamp;
+                }
             } elseif (isset($defaults[$key]) && ($url = SectionDefaults::imageUrl($key))) {
                 // Image from default
                 $imageUrl = $url;

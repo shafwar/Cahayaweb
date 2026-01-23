@@ -60,6 +60,21 @@ return [
             'report' => false,
         ],
 
+        'r2' => [
+            'driver' => 's3',
+            // Support both R2_* and AWS_* variables for flexibility
+            'key' => env('R2_ACCESS_KEY_ID', env('AWS_ACCESS_KEY_ID')),
+            'secret' => env('R2_SECRET_ACCESS_KEY', env('AWS_SECRET_ACCESS_KEY')),
+            'region' => env('R2_REGION', env('AWS_DEFAULT_REGION', 'auto')),
+            'bucket' => env('R2_BUCKET', env('AWS_BUCKET')),
+            'url' => env('R2_URL', env('AWS_URL')), // Custom domain: https://assets.cahayaanbiya.id
+            'endpoint' => env('R2_ENDPOINT', env('AWS_ENDPOINT')), // Cloudflare R2 endpoint
+            'use_path_style_endpoint' => env('R2_USE_PATH_STYLE_ENDPOINT', env('AWS_USE_PATH_STYLE_ENDPOINT', true)),
+            'root' => env('R2_ROOT', 'public'), // Root folder in R2 bucket
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Illuminate\Support\Arr;
+use App\Support\R2Helper;
 
 class SectionDefaults
 {
@@ -37,6 +38,27 @@ class SectionDefaults
             return null;
         }
 
+        // Try to get image from R2 first
+        // If path is like '/arabsaudi.jpg', convert to 'images/arabsaudi.jpg' for R2
+        $r2Path = ltrim($path, '/');
+        
+        // Check if it's already in images/ folder format
+        if (!str_starts_with($r2Path, 'images/') && !str_starts_with($r2Path, 'videos/')) {
+            // Assume it's an image in the public root, check if exists in R2 images folder
+            $r2ImagePath = 'images/' . $r2Path;
+            $r2Url = R2Helper::url($r2ImagePath);
+            
+            if ($r2Url) {
+                return $r2Url;
+            }
+        } else {
+            $r2Url = R2Helper::url($r2Path);
+            if ($r2Url) {
+                return $r2Url;
+            }
+        }
+
+        // Fallback to local asset if R2 not available
         return asset($path);
     }
 }

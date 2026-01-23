@@ -6,6 +6,7 @@ import axios from 'axios';
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Camera, ChevronDown, Edit3, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { getImageUrl } from '@/utils/imageHelper';
 
 // Hero slides data
 const slides = [
@@ -207,6 +208,11 @@ export default function Home() {
     const [imagePreviewUrls, setImagePreviewUrls] = useState<Map<string, string>>(new Map());
 
     const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
+
+    // Helper function to get image URL with R2 support
+    const getImageSrc = (sectionKey: string, fallbackPath: string) => {
+        return getImageUrl(props.sections, sectionKey, fallbackPath);
+    };
 
     // Removed heroSlides state since we're using a single video now
 
@@ -419,7 +425,9 @@ export default function Home() {
                                 whileInView="show"
                                 viewport={{ once: true, margin: '-50px' }}
                             >
-                                {bestSellers.map((item) => (
+                                {bestSellers.map((item) => {
+                                    const imageSrc = getImageSrc(`home.bestsellers.${item.id}.image`, item.image);
+                                    return (
                                     <motion.div key={item.id} variants={fadeInUp} transition={{ duration: 0.7, ease }} className="group">
                                         <motion.div
                                             className="relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-slate-900/80 to-slate-900/60"
@@ -428,7 +436,7 @@ export default function Home() {
                                         >
                                             <div className="relative aspect-[16/10] overflow-hidden">
                                                 <motion.img
-                                                    src={item.image}
+                                                    src={imageSrc}
                                                     alt={item.title}
                                                     className="h-full w-full object-cover"
                                                     loading="lazy"
@@ -505,7 +513,8 @@ export default function Home() {
                                             <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500 group-hover:w-full" />
                                         </motion.div>
                                     </motion.div>
-                                ))}
+                                    );
+                                })}
                             </motion.div>
                         </div>
                     </section>
@@ -562,7 +571,7 @@ export default function Home() {
                                     >
                                         <div className="relative aspect-[4/3] overflow-hidden">
                                             <motion.img
-                                                src={newDestinations[0].image}
+                                                src={getImageSrc(`home.new.${newDestinations[0].id}.image`, newDestinations[0].image)}
                                                 alt={newDestinations[0].title}
                                                 className="h-full w-full object-cover"
                                                 whileHover={{ scale: 1.08 }}
@@ -650,7 +659,7 @@ export default function Home() {
                                     >
                                         <div className="relative aspect-[4/3] overflow-hidden">
                                             <motion.img
-                                                src={newDestinations[1].image}
+                                                src={getImageSrc(`home.new.${newDestinations[1].id}.image`, newDestinations[1].image)}
                                                 alt={newDestinations[1].title}
                                                 className="h-full w-full object-cover"
                                                 whileHover={{ scale: 1.08 }}
@@ -738,7 +747,7 @@ export default function Home() {
                                     >
                                         <div className="relative aspect-[4/3] overflow-hidden">
                                             <motion.img
-                                                src={newDestinations[2].image}
+                                                src={getImageSrc(`home.new.${newDestinations[2].id}.image`, newDestinations[2].image)}
                                                 alt={newDestinations[2].title}
                                                 className="h-full w-full object-cover"
                                                 whileHover={{ scale: 1.08 }}
@@ -826,7 +835,7 @@ export default function Home() {
                                     >
                                         <div className="relative aspect-[4/3] overflow-hidden">
                                             <motion.img
-                                                src={newDestinations[3].image}
+                                                src={getImageSrc(`home.new.${newDestinations[3].id}.image`, newDestinations[3].image)}
                                                 alt={newDestinations[3].title}
                                                 className="h-full w-full object-cover"
                                                 whileHover={{ scale: 1.08 }}
@@ -965,7 +974,7 @@ export default function Home() {
                                         >
                                             <div className="relative aspect-[16/10] overflow-hidden">
                                                 <motion.img
-                                                    src={item.image}
+                                                    src={getImageSrc(`home.highlights.${item.id}.image`, item.image)}
                                                     alt={item.title}
                                                     className="h-full w-full object-cover"
                                                     whileHover={{ scale: 1.15 }}
