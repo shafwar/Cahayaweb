@@ -146,68 +146,138 @@ createInertiaApp({
             });
     },
     setup({ el, App, props }) {
-        console.log('Inertia setup called', { el: !!el, hasApp: !!App, hasProps: !!props });
+        // Enhanced logging for debugging
+        if (typeof window !== 'undefined') {
+            console.log('[Inertia] Setup called', { 
+                hasEl: !!el, 
+                hasApp: !!App, 
+                hasProps: !!props,
+                elId: el?.id,
+                elTag: el?.tagName
+            });
+        }
         
         if (!el) {
-            console.error('No element provided to Inertia setup');
-            return;
+            console.error('[Inertia] No element provided to Inertia setup');
+            // Try to find the element
+            const fallbackEl = document.getElementById('app') || document.querySelector('[data-page]');
+            if (fallbackEl) {
+                console.log('[Inertia] Found fallback element, using it');
+                el = fallbackEl as HTMLElement;
+            } else {
+                console.error('[Inertia] No fallback element found');
+                return;
+            }
         }
         
         try {
-            console.log('Creating React root...');
+            if (typeof window !== 'undefined') {
+                console.log('[Inertia] Creating React root...');
+            }
             const root = createRoot(el);
             
             // Wrap in try-catch to prevent white screen on render errors
             try {
-                console.log('Rendering Inertia app...', { propsKeys: Object.keys(props || {}) });
-                root.render(<App {...props} />);
-                console.log('Inertia app rendered successfully');
+                if (typeof window !== 'undefined') {
+                    console.log('[Inertia] Rendering app...', { 
+                        propsKeys: Object.keys(props || {}),
+                        propsType: typeof props
+                    });
+                }
+                
+                // Ensure App and props are valid
+                if (!App) {
+                    throw new Error('App component is undefined');
+                }
+                
+                root.render(<App {...(props || {})} />);
+                
+                if (typeof window !== 'undefined') {
+                    console.log('[Inertia] App rendered successfully');
+                }
             } catch (error) {
-                console.error('Error rendering Inertia app:', error);
-                // Render fallback UI
-                root.render(
-                    <div style={{ padding: '2rem', textAlign: 'center' }}>
-                        <h1>Application Error</h1>
-                        <p>Something went wrong. Please refresh the page.</p>
-                        <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '1rem' }}>
-                            Error: {error instanceof Error ? error.message : String(error)}
-                        </p>
-                        <button 
-                            onClick={() => window.location.reload()}
-                            style={{ 
-                                marginTop: '1rem', 
-                                padding: '0.5rem 1rem', 
-                                backgroundColor: '#3b82f6', 
-                                color: 'white', 
-                                border: 'none', 
+                console.error('[Inertia] Error rendering app:', error);
+                console.error('[Inertia] Error stack:', error instanceof Error ? error.stack : 'No stack');
+                
+                // Render fallback UI with more details
+                try {
+                    root.render(
+                        <div style={{ 
+                            padding: '2rem', 
+                            textAlign: 'center',
+                            backgroundColor: '#f9fafb',
+                            minHeight: '100vh',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', color: '#111827' }}>
+                                Application Error
+                            </h1>
+                            <p style={{ color: '#6b7280', marginBottom: '0.5rem' }}>
+                                Something went wrong. Please refresh the page.
+                            </p>
+                            <p style={{ 
+                                fontSize: '0.875rem', 
+                                color: '#9ca3af', 
+                                marginTop: '1rem',
+                                fontFamily: 'monospace',
+                                backgroundColor: '#f3f4f6',
+                                padding: '0.5rem',
                                 borderRadius: '0.25rem',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Refresh
-                        </button>
-                    </div>
-                );
+                                maxWidth: '600px',
+                                wordBreak: 'break-word'
+                            }}>
+                                Error: {error instanceof Error ? error.message : String(error)}
+                            </p>
+                            <button 
+                                onClick={() => window.location.reload()}
+                                style={{ 
+                                    marginTop: '1.5rem', 
+                                    padding: '0.75rem 1.5rem', 
+                                    backgroundColor: '#3b82f6', 
+                                    color: 'white', 
+                                    border: 'none', 
+                                    borderRadius: '0.375rem',
+                                    cursor: 'pointer',
+                                    fontSize: '1rem',
+                                    fontWeight: '500'
+                                }}
+                            >
+                                Refresh Page
+                            </button>
+                        </div>
+                    );
+                } catch (renderError) {
+                    console.error('[Inertia] Error rendering fallback UI:', renderError);
+                }
             }
         } catch (error) {
-            console.error('Fatal error setting up Inertia app:', error);
-            // Last resort: show error in the element
+            console.error('[Inertia] Fatal error setting up app:', error);
+            console.error('[Inertia] Error stack:', error instanceof Error ? error.stack : 'No stack');
+            
+            // Last resort: show error in the element using innerHTML
             if (el) {
-                el.innerHTML = `
-                    <div style="padding: 2rem; text-align: center;">
-                        <h1>Application Error</h1>
-                        <p>Something went wrong. Please refresh the page.</p>
-                        <p style="font-size: 0.875rem; color: #666; margin-top: 1rem;">
-                            Error: ${error instanceof Error ? error.message : String(error)}
-                        </p>
-                        <button 
-                            onclick="window.location.reload()"
-                            style="margin-top: 1rem; padding: 0.5rem 1rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.25rem; cursor: pointer;"
-                        >
-                            Refresh
-                        </button>
-                    </div>
-                `;
+                try {
+                    el.innerHTML = `
+                        <div style="padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Application Error</h1>
+                            <p style="color: #6b7280; margin-bottom: 0.5rem;">Something went wrong. Please refresh the page.</p>
+                            <p style="font-size: 0.875rem; color: #9ca3af; margin-top: 1rem; font-family: monospace; background-color: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem; max-width: 600px; word-break: break-word;">
+                                Error: ${error instanceof Error ? error.message.replace(/</g, '&lt;').replace(/>/g, '&gt;') : String(error).replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                            </p>
+                            <button 
+                                onclick="window.location.reload()"
+                                style="margin-top: 1.5rem; padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;"
+                            >
+                                Refresh Page
+                            </button>
+                        </div>
+                    `;
+                } catch (innerHTMLError) {
+                    console.error('[Inertia] Error setting innerHTML:', innerHTMLError);
+                }
             }
         }
     },
