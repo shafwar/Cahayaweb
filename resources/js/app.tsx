@@ -133,8 +133,36 @@ createInertiaApp({
             });
     },
     setup({ el, App, props }) {
-        const root = createRoot(el);
-        root.render(<App {...props} />);
+        try {
+            const root = createRoot(el);
+            
+            // Wrap in try-catch to prevent white screen on render errors
+            try {
+                root.render(<App {...props} />);
+            } catch (error) {
+                console.error('Error rendering Inertia app:', error);
+                // Render fallback UI
+                root.render(
+                    <div style={{ padding: '2rem', textAlign: 'center' }}>
+                        <h1>Application Error</h1>
+                        <p>Something went wrong. Please refresh the page.</p>
+                        <button onClick={() => window.location.reload()}>Refresh</button>
+                    </div>
+                );
+            }
+        } catch (error) {
+            console.error('Fatal error setting up Inertia app:', error);
+            // Last resort: show error in the element
+            if (el) {
+                el.innerHTML = `
+                    <div style="padding: 2rem; text-align: center;">
+                        <h1>Application Error</h1>
+                        <p>Something went wrong. Please refresh the page.</p>
+                        <button onclick="window.location.reload()">Refresh</button>
+                    </div>
+                `;
+            }
+        }
     },
     progress: {
         color: '#BC8E2E',
