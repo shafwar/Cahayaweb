@@ -14,9 +14,11 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
         const videoRef = useRef<HTMLVideoElement>(null);
         const [videoSrc, setVideoSrc] = useState(() => {
             try {
-                return r2Url || fallbackUrl || '/b2cherosectionvideo.mp4';
+                // Always use R2 URL, never local path
+                return r2Url || fallbackUrl || 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4';
             } catch {
-                return '/b2cherosectionvideo.mp4';
+                // Even on error, use R2 URL structure
+                return 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4';
             }
         });
         const [hasError, setHasError] = useState(false);
@@ -30,7 +32,19 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
                     try {
                         if (!hasError && videoSrc && videoSrc.includes('assets.cahayaanbiya.com')) {
                             setHasError(true);
-                            setVideoSrc(fallbackUrl || '/b2cherosectionvideo.mp4');
+                            // Try alternative R2 path variations instead of local fallback
+                            const currentUrl = videoSrc;
+                            let altUrl = fallbackUrl;
+                            
+                            if (currentUrl.includes('/public/')) {
+                                // Try without /public/
+                                altUrl = currentUrl.replace('/public/', '/');
+                            } else {
+                                // Try with /public/ prefix
+                                altUrl = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
+                            }
+                            
+                            setVideoSrc(altUrl || 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4');
                             video.load();
                         }
                     } catch (err) {
