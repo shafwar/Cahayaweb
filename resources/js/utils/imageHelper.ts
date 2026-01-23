@@ -52,16 +52,25 @@ export function getImageUrl(
  * Get R2 URL for a given path
  */
 export function getR2Url(path: string): string {
-    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-    const r2BaseUrl = 'https://assets.cahayaanbiya.com';
-    
-    // R2 custom domain points to bucket root, files are at bucket/public/images/file.jpg
-    // So URL should be: baseUrl/public/images/file.jpg
-    if (cleanPath.startsWith('images/') || cleanPath.startsWith('videos/')) {
-        return `${r2BaseUrl}/public/${cleanPath}`;
+    try {
+        if (!path || typeof path !== 'string') {
+            return path || '';
+        }
+        
+        const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+        const r2BaseUrl = 'https://assets.cahayaanbiya.com';
+        
+        // R2 custom domain points to bucket root, files are at bucket/public/images/file.jpg
+        // So URL should be: baseUrl/public/images/file.jpg
+        if (cleanPath.startsWith('images/') || cleanPath.startsWith('videos/')) {
+            return `${r2BaseUrl}/public/${cleanPath}`;
+        }
+        
+        return `${r2BaseUrl}/public/images/${cleanPath}`;
+    } catch (error) {
+        console.error('Error in getR2Url:', error);
+        return path || '';
     }
-    
-    return `${r2BaseUrl}/public/images/${cleanPath}`;
 }
 
 /**
@@ -69,23 +78,32 @@ export function getR2Url(path: string): string {
  * Videos are typically stored in the videos/ folder or public root
  */
 export function getVideoUrl(path: string): string {
-    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-    const r2BaseUrl = 'https://assets.cahayaanbiya.com';
-    
-    // If path already includes videos/ folder
-    if (cleanPath.startsWith('videos/')) {
+    try {
+        if (!path || typeof path !== 'string') {
+            return path || '';
+        }
+        
+        const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+        const r2BaseUrl = 'https://assets.cahayaanbiya.com';
+        
+        // If path already includes videos/ folder
+        if (cleanPath.startsWith('videos/')) {
+            return `${r2BaseUrl}/public/${cleanPath}`;
+        }
+        
+        // Check if it's a video file (mp4, webm, etc.)
+        const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov'];
+        const isVideoFile = videoExtensions.some(ext => cleanPath.toLowerCase().endsWith(ext));
+        
+        if (isVideoFile) {
+            // Try videos folder first
+            return `${r2BaseUrl}/public/videos/${cleanPath}`;
+        }
+        
+        // Fallback: try public root
         return `${r2BaseUrl}/public/${cleanPath}`;
+    } catch (error) {
+        console.error('Error in getVideoUrl:', error);
+        return path || '';
     }
-    
-    // Check if it's a video file (mp4, webm, etc.)
-    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov'];
-    const isVideoFile = videoExtensions.some(ext => cleanPath.toLowerCase().endsWith(ext));
-    
-    if (isVideoFile) {
-        // Try videos folder first
-        return `${r2BaseUrl}/public/videos/${cleanPath}`;
-    }
-    
-    // Fallback: try public root
-    return `${r2BaseUrl}/public/${cleanPath}`;
 }
