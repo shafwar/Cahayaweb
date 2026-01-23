@@ -39,69 +39,121 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
+        try {
+            // Safe quote generation
+            $quote = ['message' => 'Welcome', 'author' => 'Cahaya Anbiya'];
+            try {
+                $quoteData = str(Inspiring::quotes()->random())->explode('-');
+                if (count($quoteData) >= 2) {
+                    $quote = ['message' => trim($quoteData[0]), 'author' => trim($quoteData[1])];
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Error getting quote', ['error' => $e->getMessage()]);
+            }
 
-        // Force HTTPS URL for Ziggy
-        $ziggy = new Ziggy();
-        $ziggyArray = $ziggy->toArray();
-        $ziggyArray['url'] = 'https://cahayaweb-production.up.railway.app';
+            // Safe Ziggy initialization
+            $ziggyArray = ['url' => 'https://cahayaanbiya.com', 'routes' => []];
+            try {
+                $ziggy = new Ziggy();
+                $ziggyArray = $ziggy->toArray();
+                $ziggyArray['url'] = 'https://cahayaanbiya.com';
+            } catch (\Throwable $e) {
+                Log::warning('Error initializing Ziggy', ['error' => $e->getMessage()]);
+            }
 
-        $user = $request->user();
-        $isAdmin = false;
-        if ($user) {
-            $isAdmin = ($user->role ?? null) === 'admin'
-                || in_array($user->email, config('app.admin_emails', []), true);
-        }
+            // Safe user data
+            $user = null;
+            $isAdmin = false;
+            try {
+                $user = $request->user();
+                if ($user) {
+                    $isAdmin = ($user->role ?? null) === 'admin'
+                        || in_array($user->email, config('app.admin_emails', []), true);
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Error getting user', ['error' => $e->getMessage()]);
+            }
 
-        return [
-            ...parent::share($request),
-            'name' => config('app.name'),
-            'quote' => ['message' => trim($message), 'author' => trim($author)],
-            'auth' => [
-                'user' => $user ? [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'is_admin' => $isAdmin,
-                ] : null,
-            ],
-            'ziggy' => fn (): array => [
-                ...$ziggyArray,
-                'location' => $request->url(),
-                'forceHttps' => true, // Add flag to force HTTPS
-            ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'sections' => function () use ($request) {
-                try {
-                    // Add timeout protection - if it takes too long, return empty
-                    $sections = Section::getAllSections();
-                    
-                    // Ensure we always return an array, never null
-                    if (!is_array($sections)) {
-                        Log::warning('getAllSections returned non-array', [
-                            'type' => gettype($sections),
-                            'value' => $sections
+            // Safe parent share
+            $parentShare = [];
+            try {
+                $parentShare = parent::share($request);
+            } catch (\Throwable $e) {
+                Log::warning('Error getting parent share', ['error' => $e->getMessage()]);
+            }
+
+            return [
+                ...$parentShare,
+                'name' => config('app.name', 'Cahaya Anbiya'),
+                'quote' => $quote,
+                'auth' => [
+                    'user' => $user ? [
+                        'id' => $user->id ?? null,
+                        'name' => $user->name ?? null,
+                        'email' => $user->email ?? null,
+                        'is_admin' => $isAdmin,
+                    ] : null,
+                ],
+                'ziggy' => function () use ($ziggyArray, $request) {
+                    try {
+                        return [
+                            ...$ziggyArray,
+                            'location' => $request->url(),
+                            'forceHttps' => true,
+                        ];
+                    } catch (\Throwable $e) {
+                        Log::warning('Error in ziggy closure', ['error' => $e->getMessage()]);
+                        return [
+                            'url' => 'https://cahayaanbiya.com',
+                            'location' => $request->url(),
+                            'routes' => [],
+                            'forceHttps' => true,
+                        ];
+                    }
+                },
+                'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+                'sections' => function () use ($request) {
+                    try {
+                        $sections = Section::getAllSections();
+                        
+                        if (!is_array($sections)) {
+                            Log::warning('getAllSections returned non-array', [
+                                'type' => gettype($sections),
+                            ]);
+                            return [];
+                        }
+                        
+                        return $sections;
+                    } catch (\Throwable $e) {
+                        Log::error('Error getting sections', [
+                            'error' => $e->getMessage(),
+                            'url' => $request->url()
                         ]);
                         return [];
                     }
-                    
-                    return $sections;
-                } catch (\Exception $e) {
-                    Log::error('Error getting sections in HandleInertiaRequests', [
-                        'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString(),
-                        'url' => $request->url()
-                    ]);
-                    // Return empty array on error to prevent 500
-                    return [];
-                } catch (\Throwable $e) {
-                    Log::error('Fatal error getting sections in HandleInertiaRequests', [
-                        'error' => $e->getMessage(),
-                        'url' => $request->url()
-                    ]);
-                    return [];
-                }
-            },
-        ];
+                },
+            ];
+        } catch (\Throwable $e) {
+            // Last resort: return minimal safe props
+            Log::error('Fatal error in HandleInertiaRequests::share', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'url' => $request->url()
+            ]);
+            
+            return [
+                'name' => 'Cahaya Anbiya',
+                'quote' => ['message' => 'Welcome', 'author' => 'Cahaya Anbiya'],
+                'auth' => ['user' => null],
+                'ziggy' => [
+                    'url' => 'https://cahayaanbiya.com',
+                    'location' => $request->url(),
+                    'routes' => [],
+                    'forceHttps' => true,
+                ],
+                'sidebarOpen' => true,
+                'sections' => [],
+            ];
+        }
     }
 }
