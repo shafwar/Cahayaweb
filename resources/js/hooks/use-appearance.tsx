@@ -39,12 +39,24 @@ const handleSystemThemeChange = () => {
 };
 
 export function initializeTheme() {
-    const savedAppearance = (localStorage.getItem('appearance') as Appearance) || 'system';
+    try {
+        if (typeof window === 'undefined' || typeof document === 'undefined') {
+            return; // SSR safety
+        }
+        
+        const savedAppearance = (localStorage.getItem('appearance') as Appearance) || 'system';
 
-    applyTheme(savedAppearance);
+        applyTheme(savedAppearance);
 
-    // Add the event listener for system theme changes...
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+        // Add the event listener for system theme changes...
+        const mq = mediaQuery();
+        if (mq) {
+            mq.addEventListener('change', handleSystemThemeChange);
+        }
+    } catch (error) {
+        console.error('[Theme] Error initializing theme:', error);
+        // Don't throw - theme initialization failure shouldn't break the app
+    }
 }
 
 export function useAppearance() {

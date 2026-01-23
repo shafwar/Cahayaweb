@@ -70,8 +70,18 @@ if (typeof window !== 'undefined') {
     });
 }
 
-createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
+// Wrap entire Inertia app creation in try-catch for safety
+let inertiaAppCreated = false;
+
+try {
+    createInertiaApp({
+    title: (title) => {
+        try {
+            return title ? `${title} - ${appName}` : appName;
+        } catch {
+            return appName;
+        }
+    },
     resolve: (name) => {
         // Try critical pages first (pre-imported for production reliability)
         if (criticalPages[name]) {
@@ -289,7 +299,45 @@ createInertiaApp({
     progress: {
         color: '#BC8E2E',
     },
-});
+    });
+    
+    inertiaAppCreated = true;
+    console.log('[App] Inertia app created successfully');
+} catch (error) {
+    console.error('[App] Fatal error creating Inertia app:', error);
+    console.error('[App] Error stack:', error instanceof Error ? error.stack : 'No stack');
+    
+    // Last resort: show error message
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'app-error';
+        errorDiv.style.cssText = 'padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;';
+        errorDiv.innerHTML = `
+            <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Application Error</h1>
+            <p style="color: #6b7280; margin-bottom: 0.5rem;">Failed to initialize application.</p>
+            <p style="font-size: 0.875rem; color: #9ca3af; margin-top: 1rem; font-family: monospace; background-color: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem; max-width: 600px; word-break: break-word;">
+                Error: ${error instanceof Error ? error.message.replace(/</g, '&lt;').replace(/>/g, '&gt;') : String(error).replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+            </p>
+            <button 
+                onclick="window.location.reload()"
+                style="margin-top: 1.5rem; padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;"
+            >
+                Refresh Page
+            </button>
+        `;
+        document.body.appendChild(errorDiv);
+    }
+}
 
 // This will set light / dark mode on load...
-initializeTheme();
+// Wrap in try-catch to prevent errors from breaking the app
+if (inertiaAppCreated) {
+    try {
+        if (typeof window !== 'undefined') {
+            initializeTheme();
+        }
+    } catch (error) {
+        console.error('[App] Error initializing theme:', error);
+        // Don't throw - theme initialization failure shouldn't break the app
+    }
+}
