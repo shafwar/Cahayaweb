@@ -2,6 +2,7 @@ import { RippleButton } from '@/components/ui/ripple-button';
 import { Head, Link } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
+import { getR2Url } from '@/utils/imageHelper';
 
 export default function SelectMode() {
     const [showSplash, setShowSplash] = useState(true);
@@ -236,11 +237,18 @@ export default function SelectMode() {
                             {/* Logo - Reduced size for mobile, proportional */}
                             <motion.div variants={logoVariants} initial="hidden" animate="visible" className="mb-6 sm:mb-8 md:mb-12">
                                 <motion.img
-                                    src="/cahayanbiyalogo.png"
+                                    src={getR2Url('/cahayanbiyalogo.png')}
                                     alt="Cahaya Anbiya Logo"
                                     className="h-auto w-[50vw] max-w-[280px] sm:h-40 sm:w-auto md:h-48 lg:h-56 xl:h-64"
                                     style={{
                                         filter: 'drop-shadow(0 0 40px rgba(254,201,1,0.3)) drop-shadow(0 0 60px rgba(0,84,255,0.15))',
+                                    }}
+                                    onError={(e) => {
+                                        // Fallback to local logo if R2 logo fails
+                                        const target = e.currentTarget;
+                                        if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                            target.src = '/cahayanbiyalogo.png';
+                                        }
                                     }}
                                 />
                             </motion.div>

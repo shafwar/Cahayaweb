@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Camera, Check, Edit3, Star, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { getR2Url } from '@/utils/imageHelper';
 
 // Enhanced Modal Component
 function HighlightEditorModal({
@@ -442,16 +443,22 @@ export default function Highlights() {
                             >
                                 <div className="relative aspect-video overflow-hidden">
                                     <img
-                                        src={highlight.image}
+                                        src={getR2Url(highlight.image)}
                                         alt={highlight.title}
                                         data-highlight-id={highlight.id}
                                         loading="lazy"
                                         decoding="async"
                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 will-change-transform"
                                         onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                            const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                            if (nextElement) nextElement.style.display = 'block';
+                                            // Fallback to local image if R2 image fails
+                                            const target = e.currentTarget;
+                                            if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                target.src = highlight.image.startsWith('/') ? highlight.image : '/' + highlight.image;
+                                            } else {
+                                                target.style.display = 'none';
+                                                const nextElement = target.nextElementSibling as HTMLElement;
+                                                if (nextElement) nextElement.style.display = 'block';
+                                            }
                                         }}
                                     />
                                     <PlaceholderImage className="hidden h-full w-full object-cover" />

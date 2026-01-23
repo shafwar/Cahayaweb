@@ -6,7 +6,7 @@ import axios from 'axios';
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Camera, ChevronDown, Edit3, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { getImageUrl } from '@/utils/imageHelper';
+import { getImageUrl, getVideoUrl } from '@/utils/imageHelper';
 
 // Hero slides data
 const slides = [
@@ -315,8 +315,15 @@ export default function Home() {
                                     maxHeight: '100%',
                                     zIndex: 0
                                 }}
+                                onError={(e) => {
+                                    // Fallback to local video if R2 video fails to load
+                                    const target = e.currentTarget;
+                                    if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                        target.src = '/b2cherosectionvideo.mp4';
+                                    }
+                                }}
                             >
-                                <source src="/b2cherosectionvideo.mp4" type="video/mp4" />
+                                <source src={getVideoUrl('/b2cherosectionvideo.mp4')} type="video/mp4" />
                                 Your browser does not support the video tag.
                             </video>
                         </motion.div>

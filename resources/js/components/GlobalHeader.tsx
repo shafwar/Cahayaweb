@@ -1,5 +1,6 @@
 import { useEditMode } from '@/components/cms';
 import { logout } from '@/utils/logout';
+import { getR2Url } from '@/utils/imageHelper';
 import { Link, router, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -135,7 +136,12 @@ const MobileMenuPortal: React.FC<{
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-white/5 p-5">
                         <div className="flex items-center gap-3">
-                            <img src="/cahayanbiyalogo.png" alt="Logo" className="h-10 w-auto" />
+                            <img src={getR2Url('/cahayanbiyalogo.png')} alt="Logo" className="h-10 w-auto" onError={(e) => {
+                                const target = e.currentTarget;
+                                if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                    target.src = '/cahayanbiyalogo.png';
+                                }
+                            }} />
                             <div>
                                 <div className="bg-gradient-to-r from-amber-200 to-amber-100 bg-clip-text text-base font-bold text-transparent">
                                     CAHAYA ANBIYA
@@ -473,9 +479,15 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                 <div className="relative">
                                     <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 blur-xl transition-all duration-500 group-hover:from-amber-500/30 group-hover:to-orange-500/30" />
                                     <img
-                                        src="/cahayanbiyalogo.png"
+                                        src={getR2Url('/cahayanbiyalogo.png')}
                                         alt="Cahaya Anbiya Logo"
                                         className="relative h-10 w-auto transition-transform duration-300 group-hover:rotate-3 lg:h-11"
+                                        onError={(e) => {
+                                            const target = e.currentTarget;
+                                            if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                target.src = '/cahayanbiyalogo.png';
+                                            }
+                                        }}
                                     />
                                 </div>
                                 <div className="hidden sm:block">

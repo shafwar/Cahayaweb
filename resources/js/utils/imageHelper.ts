@@ -63,3 +63,29 @@ export function getR2Url(path: string): string {
     
     return `${r2BaseUrl}/public/images/${cleanPath}`;
 }
+
+/**
+ * Get R2 URL for video files
+ * Videos are typically stored in the videos/ folder or public root
+ */
+export function getVideoUrl(path: string): string {
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    const r2BaseUrl = 'https://assets.cahayaanbiya.com';
+    
+    // If path already includes videos/ folder
+    if (cleanPath.startsWith('videos/')) {
+        return `${r2BaseUrl}/public/${cleanPath}`;
+    }
+    
+    // Check if it's a video file (mp4, webm, etc.)
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov'];
+    const isVideoFile = videoExtensions.some(ext => cleanPath.toLowerCase().endsWith(ext));
+    
+    if (isVideoFile) {
+        // Try videos folder first
+        return `${r2BaseUrl}/public/videos/${cleanPath}`;
+    }
+    
+    // Fallback: try public root
+    return `${r2BaseUrl}/public/${cleanPath}`;
+}

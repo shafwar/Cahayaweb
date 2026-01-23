@@ -8,6 +8,7 @@ import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Camera, CheckCircle2, Edit3, Save, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { getR2Url } from '@/utils/imageHelper';
 
 export default function Packages() {
     const [editMode, setEditModeUI] = useState<boolean>(false);
@@ -191,11 +192,17 @@ export default function Packages() {
                                 <DialogTrigger asChild>
                                     <motion.article variants={cardVariants} whileHover={{ scale: 1.05, y: -10, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }} className="group cursor-pointer overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl transition-all duration-300" style={{ willChange: 'transform' }}>
                                         <div className="relative aspect-video overflow-hidden">
-                                            <img src={pkg.image} alt={pkg.title} data-package-id={pkg.id} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 will-change-transform"
+                                            <img src={getR2Url(pkg.image)} alt={pkg.title} data-package-id={pkg.id} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 will-change-transform"
                                                 onError={(e) => {
-                                                    e.currentTarget.style.display = 'none';
-                                                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                                    if (nextElement) nextElement.style.display = 'block';
+                                                    // Fallback to local image if R2 image fails
+                                                    const target = e.currentTarget;
+                                                    if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                        target.src = pkg.image.startsWith('/') ? pkg.image : '/' + pkg.image;
+                                                    } else {
+                                                        target.style.display = 'none';
+                                                        const nextElement = target.nextElementSibling as HTMLElement;
+                                                        if (nextElement) nextElement.style.display = 'block';
+                                                    }
                                                 }}
                                             />
                                             <PlaceholderImage className="hidden h-full w-full object-cover" />
@@ -408,11 +415,17 @@ export default function Packages() {
                             ].map((destination) => (
                                 <motion.div key={destination.id} variants={cardVariants} whileHover={{ scale: 1.05, y: -8, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }} className="group relative overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl" style={{ willChange: 'transform' }}>
                                     <div className="relative aspect-[4/3] overflow-hidden">
-                                        <img src={destination.image} alt={destination.title} data-gallery-id={destination.id} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 will-change-transform"
+                                        <img src={getR2Url(destination.image)} alt={destination.title} data-gallery-id={destination.id} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 will-change-transform"
                                             onError={(e) => {
-                                                e.currentTarget.style.display = 'none';
-                                                const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                                if (nextElement) nextElement.style.display = 'block';
+                                                // Fallback to local image if R2 image fails
+                                                const target = e.currentTarget;
+                                                if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                    target.src = destination.image.startsWith('/') ? destination.image : '/' + destination.image;
+                                                } else {
+                                                    target.style.display = 'none';
+                                                    const nextElement = target.nextElementSibling as HTMLElement;
+                                                    if (nextElement) nextElement.style.display = 'block';
+                                                }
                                             }}
                                         />
                                         <PlaceholderImage className="hidden h-full w-full object-cover" />
