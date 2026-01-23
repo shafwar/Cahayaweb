@@ -247,7 +247,20 @@ export default function SelectMode() {
                                         // Fallback to local logo if R2 logo fails
                                         const target = e.currentTarget;
                                         if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
-                                            target.src = '/cahayanbiyalogo.png';
+                                            // Try alternative R2 path variations, never fallback to local
+                                            const currentUrl = target.src;
+                                            let altPath = currentUrl;
+                                            if (currentUrl.includes('/public/images/')) {
+                                                altPath = currentUrl.replace('/public/images/', '/images/');
+                                            } else if (currentUrl.includes('/public/')) {
+                                                altPath = currentUrl.replace('/public/', '/');
+                                            } else if (currentUrl.includes('/images/')) {
+                                                altPath = currentUrl.replace('/images/', '/public/images/');
+                                            } else {
+                                                altPath = 'https://assets.cahayaanbiya.com/public/images/cahayanbiyalogo.png';
+                                            }
+                                            console.log('[Select Mode Logo] Trying alternative R2 path:', altPath);
+                                            target.src = altPath;
                                         }
                                     }}
                                 />

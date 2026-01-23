@@ -106,7 +106,7 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
         console.error('Error rendering VideoWithFallback:', error);
         // Fallback to R2 URL, not local path
         try {
-            const fallbackR2Url = getVideoUrl(fallbackUrl || '/b2cherosectionvideo.mp4');
+            const fallbackR2Url = getVideoUrl(fallbackUrl || 'b2cherosectionvideo.mp4');
             return (
                 <video
                     autoPlay

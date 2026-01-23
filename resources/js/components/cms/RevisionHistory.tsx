@@ -251,7 +251,7 @@ export default function RevisionHistory({
                                                     <div className="mt-3">
                                                         <p className="mb-2 text-xs font-medium text-gray-400">Image:</p>
                                                         <img
-                                                            src={revision.image}
+                                                            src={revision.image ? (revision.image.startsWith('http') ? revision.image : `https://assets.cahayaanbiya.com/public/images/${revision.image.replace(/^\//, '')}`) : ''}
                                                             alt="Revision preview"
                                                             className="h-20 w-auto rounded border border-gray-700 object-cover"
                                                         />
