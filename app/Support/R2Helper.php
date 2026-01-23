@@ -65,37 +65,27 @@ class R2Helper
                 // Get root folder from config (default: 'public')
                 $root = trim($diskConfig['root'] ?? 'public', '/');
                 
-                // IMPORTANT: R2 custom domain behavior
-                // When using R2 custom domain, the domain typically points to the bucket root
-                // Files are stored at: bucket/public/images/file.jpg
-                // URL should be: customDomain/public/images/file.jpg
+                // IMPORTANT: R2 custom domain path construction
+                // Files in R2 are stored at: bucket/public/images/file.jpg (if root='public')
+                // Path stored in DB: 'images/file.jpg' (relative to root)
                 // 
-                // However, if custom domain is configured to point to 'public' folder,
-                // then URL should be: customDomain/images/file.jpg
+                // R2 custom domain typically points to bucket root, so:
+                // - File location: bucket/public/images/file.jpg
+                // - URL should be: customDomain/public/images/file.jpg
                 //
-                // For now, we'll use the standard approach: include root in URL
-                // If path already includes root, use as-is, otherwise prepend root
-                
-                // If path already starts with root, use it directly
+                // Build the full path including root
                 if ($root && str_starts_with($cleanPath, $root . '/')) {
+                    // Path already includes root: 'public/images/file.jpg'
                     $fullPath = $cleanPath;
                 } elseif ($root && !str_starts_with($cleanPath, $root . '/')) {
-                    // Path doesn't include root, add it
+                    // Path doesn't include root: 'images/file.jpg' -> 'public/images/file.jpg'
                     $fullPath = $root . '/' . $cleanPath;
                 } else {
+                    // No root configured
                     $fullPath = $cleanPath;
                 }
                 
                 $url = rtrim($baseUrl, '/') . '/' . ltrim($fullPath, '/');
-                
-                // Log for debugging (remove in production if needed)
-                Log::debug('R2 URL generated', [
-                    'original_path' => $path,
-                    'clean_path' => $cleanPath,
-                    'root' => $root,
-                    'full_path' => $fullPath,
-                    'final_url' => $url
-                ]);
                 
                 return $url;
             }
