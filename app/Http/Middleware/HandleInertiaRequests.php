@@ -82,6 +82,41 @@ class HandleInertiaRequests extends Middleware
                 Log::warning('Error getting parent share', ['error' => $e->getMessage()]);
             }
 
+            // Evaluate ziggy directly (not as closure) to avoid serialization issues
+            $ziggyData = [
+                'url' => 'https://cahayaanbiya.com',
+                'location' => $request->url(),
+                'routes' => [],
+                'forceHttps' => true,
+            ];
+            try {
+                $ziggyData = [
+                    ...$ziggyArray,
+                    'location' => $request->url(),
+                    'forceHttps' => true,
+                ];
+            } catch (\Throwable $e) {
+                Log::warning('Error building ziggy data', ['error' => $e->getMessage()]);
+            }
+
+            // Evaluate sections directly (not as closure) to avoid serialization issues
+            $sectionsData = [];
+            try {
+                $sectionsData = Section::getAllSections();
+                if (!is_array($sectionsData)) {
+                    Log::warning('getAllSections returned non-array', [
+                        'type' => gettype($sectionsData),
+                    ]);
+                    $sectionsData = [];
+                }
+            } catch (\Throwable $e) {
+                Log::error('Error getting sections', [
+                    'error' => $e->getMessage(),
+                    'url' => $request->url()
+                ]);
+                $sectionsData = [];
+            }
+
             return [
                 ...$parentShare,
                 'name' => config('app.name', 'Cahaya Anbiya'),
@@ -94,44 +129,9 @@ class HandleInertiaRequests extends Middleware
                         'is_admin' => $isAdmin,
                     ] : null,
                 ],
-                'ziggy' => function () use ($ziggyArray, $request) {
-                    try {
-                        return [
-                            ...$ziggyArray,
-                            'location' => $request->url(),
-                            'forceHttps' => true,
-                        ];
-                    } catch (\Throwable $e) {
-                        Log::warning('Error in ziggy closure', ['error' => $e->getMessage()]);
-                        return [
-                            'url' => 'https://cahayaanbiya.com',
-                            'location' => $request->url(),
-                            'routes' => [],
-                            'forceHttps' => true,
-                        ];
-                    }
-                },
+                'ziggy' => $ziggyData,
                 'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-                'sections' => function () use ($request) {
-                    try {
-                        $sections = Section::getAllSections();
-                        
-                        if (!is_array($sections)) {
-                            Log::warning('getAllSections returned non-array', [
-                                'type' => gettype($sections),
-                            ]);
-                            return [];
-                        }
-                        
-                        return $sections;
-                    } catch (\Throwable $e) {
-                        Log::error('Error getting sections', [
-                            'error' => $e->getMessage(),
-                            'url' => $request->url()
-                        ]);
-                        return [];
-                    }
-                },
+                'sections' => $sectionsData,
             ];
         } catch (\Throwable $e) {
             // Last resort: return minimal safe props
@@ -141,16 +141,19 @@ class HandleInertiaRequests extends Middleware
                 'url' => $request->url()
             ]);
             
+            // Last resort: return minimal safe props (all evaluated, no closures)
+            $fallbackZiggy = [
+                'url' => 'https://cahayaanbiya.com',
+                'location' => $request->url(),
+                'routes' => [],
+                'forceHttps' => true,
+            ];
+            
             return [
                 'name' => 'Cahaya Anbiya',
                 'quote' => ['message' => 'Welcome', 'author' => 'Cahaya Anbiya'],
                 'auth' => ['user' => null],
-                'ziggy' => [
-                    'url' => 'https://cahayaanbiya.com',
-                    'location' => $request->url(),
-                    'routes' => [],
-                    'forceHttps' => true,
-                ],
+                'ziggy' => $fallbackZiggy,
                 'sidebarOpen' => true,
                 'sections' => [],
             ];
