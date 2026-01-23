@@ -8,6 +8,58 @@ import { ArrowRight, Camera, ChevronDown, Edit3, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { getImageUrl, getVideoUrl } from '@/utils/imageHelper';
 
+// Video component with R2 fallback
+function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl: string }) {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [videoSrc, setVideoSrc] = useState(r2Url);
+    const [hasError, setHasError] = useState(false);
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        const handleError = () => {
+            if (!hasError && videoSrc.includes('assets.cahayaanbiya.com')) {
+                setHasError(true);
+                setVideoSrc(fallbackUrl);
+                video.load();
+            }
+        };
+
+        video.addEventListener('error', handleError);
+        return () => video.removeEventListener('error', handleError);
+    }, [videoSrc, fallbackUrl, hasError]);
+
+    return (
+        <video
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="absolute inset-0 h-full w-full"
+            style={{ 
+                objectFit: 'cover',
+                objectPosition: 'center center',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                minWidth: '100%',
+                minHeight: '100%',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                zIndex: 0
+            }}
+        >
+            <source src={videoSrc} type="video/mp4" />
+            Your browser does not support the video tag.
+        </video>
+    );
+}
+
 // Hero slides data
 const slides = [
     {
@@ -294,38 +346,10 @@ export default function Home() {
                                 willChange: 'transform', // GPU acceleration hint
                             }}
                         >
-                            <video
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                preload="auto"
-                                className="absolute inset-0 h-full w-full"
-                                style={{ 
-                                    objectFit: 'cover',
-                                    objectPosition: 'center center',
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    minWidth: '100%',
-                                    minHeight: '100%',
-                                    maxWidth: '100%',
-                                    maxHeight: '100%',
-                                    zIndex: 0
-                                }}
-                                onError={(e) => {
-                                    // Fallback to local video if R2 video fails to load
-                                    const target = e.currentTarget;
-                                    if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
-                                        target.src = '/b2cherosectionvideo.mp4';
-                                    }
-                                }}
-                            >
-                                <source src={getVideoUrl('/b2cherosectionvideo.mp4')} type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
+                            <VideoWithFallback 
+                                r2Url={getVideoUrl('/b2cherosectionvideo.mp4')}
+                                fallbackUrl="/b2cherosectionvideo.mp4"
+                            />
                         </motion.div>
 
                         {/* Enhanced gradient overlay - Lighter for better visibility */}
