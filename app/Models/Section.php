@@ -93,7 +93,7 @@ class Section extends Model
             if (! \Illuminate\Support\Facades\Schema::hasTable('sections')) {
                 $live = collect([]);
             } else {
-        $live = static::all()->mapWithKeys(fn ($section) => [$section->key => $section]);
+                $live = static::all()->mapWithKeys(fn ($section) => [$section->key => $section]);
             }
         } catch (\PDOException $e) {
             \Log::warning('Database error getting sections', [
@@ -105,17 +105,38 @@ class Section extends Model
                 'error' => $e->getMessage()
             ]);
             $live = collect([]);
+        } catch (\Throwable $e) {
+            \Log::error('Fatal error getting sections', [
+                'error' => $e->getMessage()
+            ]);
+            $live = collect([]);
         }
         
-        $snapshot = SectionSnapshot::latestPayload();
-        $defaults = SectionDefaults::all();
+        try {
+            $snapshot = SectionSnapshot::latestPayload();
+        } catch (\Throwable $e) {
+            \Log::warning('Error getting snapshot', [
+                'error' => $e->getMessage()
+            ]);
+            $snapshot = collect([]);
+        }
+        
+        try {
+            $defaults = SectionDefaults::all();
+        } catch (\Throwable $e) {
+            \Log::warning('Error getting defaults', [
+                'error' => $e->getMessage()
+            ]);
+            $defaults = [];
+        }
 
-        $keys = $snapshot->keys()
-            ->merge($live->keys())
-            ->merge(collect(array_keys($defaults)))
-            ->unique();
+        try {
+            $keys = $snapshot->keys()
+                ->merge($live->keys())
+                ->merge(collect(array_keys($defaults)))
+                ->unique();
 
-        return $keys->mapWithKeys(function ($key) use ($live, $snapshot, $defaults) {
+            return $keys->mapWithKeys(function ($key) use ($live, $snapshot, $defaults) {
             try {
                 $section = $live->get($key);
                 $payload = $snapshot->get($key);
@@ -182,10 +203,18 @@ class Section extends Model
                     'image' => null,
                 ]];
             }
-        })->filter(function ($value) {
-            // Include if has content OR image (even if null, as long as key exists)
-            return $value['content'] !== null || $value['image'] !== null;
-        })->toArray();
+            })->filter(function ($value) {
+                // Include if has content OR image (even if null, as long as key exists)
+                return $value['content'] !== null || $value['image'] !== null;
+            })->toArray();
+        } catch (\Throwable $e) {
+            \Log::error('Fatal error in getAllSections mapWithKeys', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            // Return empty array on fatal error to prevent 500
+            return [];
+        }
     }
 
     public static function restoreFromSnapshot(string $key): bool
