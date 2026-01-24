@@ -462,8 +462,9 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
     }, []);
 
     const handleModeSwitch = () => {
-        const target = variant === 'b2b' ? '/home' : '/b2b';
-        router.visit(target);
+        // Always redirect to select mode page (home route)
+        // This allows users to choose between B2C and B2B modes
+        router.visit(route('home'));
     };
 
     return (
