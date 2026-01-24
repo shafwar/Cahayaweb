@@ -116,8 +116,99 @@
                 }
             }
         </script>
+        <!-- Inline critical CSS for loading indicator -->
+        <style>
+            .initial-loader {
+                position: fixed;
+                inset: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, #000 0%, #0f172a 50%, #000 100%);
+                z-index: 99999;
+                transition: opacity 0.3s ease-out;
+            }
+            .initial-loader.fade-out {
+                opacity: 0;
+                pointer-events: none;
+            }
+            .loader-logo {
+                width: 120px;
+                height: auto;
+                margin-bottom: 24px;
+                animation: pulse 2s ease-in-out infinite;
+            }
+            .loader-text {
+                color: #fcd34d;
+                font-size: 14px;
+                font-weight: 500;
+                letter-spacing: 0.1em;
+            }
+            .loader-dots {
+                display: flex;
+                gap: 8px;
+                margin-top: 16px;
+            }
+            .loader-dot {
+                width: 8px;
+                height: 8px;
+                background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                border-radius: 50%;
+                animation: bounce 1.4s ease-in-out infinite;
+            }
+            .loader-dot:nth-child(1) { animation-delay: 0s; }
+            .loader-dot:nth-child(2) { animation-delay: 0.2s; }
+            .loader-dot:nth-child(3) { animation-delay: 0.4s; }
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.05); opacity: 0.8; }
+            }
+            @keyframes bounce {
+                0%, 80%, 100% { transform: translateY(0); }
+                40% { transform: translateY(-8px); }
+            }
+        </style>
     </head>
     <body class="font-sans antialiased">
+        <!-- Loading indicator - shows immediately while JS loads -->
+        <div id="initial-loader" class="initial-loader">
+            <img src="/cahayanbiyalogo.png" alt="Loading" class="loader-logo" />
+            <div class="loader-text">CAHAYA ANBIYA</div>
+            <div class="loader-dots">
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+            </div>
+        </div>
+        
         @inertia
+        
+        <!-- Hide loader once React app renders -->
+        <script>
+            // Remove loader as soon as possible after app starts rendering
+            (function() {
+                var checkCount = 0;
+                var maxChecks = 100; // 10 seconds max
+                function hideLoader() {
+                    var loader = document.getElementById('initial-loader');
+                    var app = document.getElementById('app');
+                    if (loader && app && app.children.length > 0) {
+                        loader.classList.add('fade-out');
+                        setTimeout(function() { 
+                            if (loader.parentNode) loader.parentNode.removeChild(loader); 
+                        }, 300);
+                    } else if (checkCount < maxChecks) {
+                        checkCount++;
+                        setTimeout(hideLoader, 100);
+                    }
+                }
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', hideLoader);
+                } else {
+                    hideLoader();
+                }
+            })();
+        </script>
     </body>
 </html>

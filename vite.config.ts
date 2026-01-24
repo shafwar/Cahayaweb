@@ -18,11 +18,26 @@ export default defineConfig({
         manifest: true,
         outDir: 'public/build',
         emptyOutDir: true,
+        // Optimize chunk size
+        chunkSizeWarningLimit: 500,
         rollupOptions: {
             output: {
                 manualChunks: {
+                    // Core React - loaded first
                     vendor: ['react', 'react-dom'],
+                    // Inertia - separate chunk
                     inertia: ['@inertiajs/react'],
+                    // Framer Motion - lazy loaded, separate chunk
+                    'framer-motion': ['framer-motion'],
+                    // UI Libraries - separate chunk
+                    'radix-ui': [
+                        '@radix-ui/react-dialog',
+                        '@radix-ui/react-dropdown-menu',
+                        '@radix-ui/react-select',
+                        '@radix-ui/react-tooltip',
+                    ],
+                    // Lucide icons - separate chunk
+                    'lucide': ['lucide-react'],
                 },
             },
         },

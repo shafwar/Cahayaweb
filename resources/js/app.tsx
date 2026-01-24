@@ -2,7 +2,6 @@ import '../css/app.css';
 
 import { createInertiaApp, type PageProps } from '@inertiajs/react';
 import axios from 'axios';
-import { AnimatePresence, motion } from 'framer-motion';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -44,29 +43,14 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
     };
 }
 
-// Pre-import critical admin pages to ensure they're always bundled in production
-// Using direct imports ensures these pages are always available, even if dynamic imports fail
-import AdminAgentVerificationDetail from './pages/admin/agent-verification-detail';
-import AdminAgentVerifications from './pages/admin/agent-verifications';
-import AdminDashboard from './pages/admin/dashboard';
-
-// Map of critical pages with their pre-imported components
-const criticalPages: Record<string, React.ComponentType<PageProps>> = {
-    'admin/dashboard': AdminDashboard,
-    'admin/agent-verifications': AdminAgentVerifications,
-    'admin/agent-verification-detail': AdminAgentVerificationDetail,
-};
-
 // Add global error handler for unhandled errors
 if (typeof window !== 'undefined') {
     window.addEventListener('error', (event) => {
         console.error('Global error:', event.error);
-        // Don't prevent default to allow normal error handling
     });
     
     window.addEventListener('unhandledrejection', (event) => {
         console.error('Unhandled promise rejection:', event.reason);
-        // Don't prevent default to allow normal error handling
     });
 }
 
@@ -83,33 +67,12 @@ try {
         }
     },
     resolve: (name) => {
-        // Try critical pages first (pre-imported for production reliability)
-        if (criticalPages[name]) {
-            const Page = criticalPages[name];
-            const Wrapped = (pageProps: PageProps) => (
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={(pageProps as Record<string, unknown>).ziggy?.location || location.pathname}
-                        initial={{ opacity: 0, y: 4, scale: 0.995, filter: 'blur(8px)' }}
-                        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-                        exit={{ opacity: 0, y: -4, scale: 0.995, filter: 'blur(8px)' }}
-                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                        style={{ willChange: 'transform, opacity, filter' }}
-                    >
-                        <Page {...pageProps} />
-                    </motion.div>
-                </AnimatePresence>
-            );
-            return Promise.resolve(Wrapped);
-        }
-
-        // Fallback to dynamic glob for other pages
+        // All pages use dynamic import for optimal code splitting
         const pages = import.meta.glob('./pages/**/*.tsx', { eager: false });
         return resolvePageComponent(`./pages/${name}.tsx`, pages)
             .then((module: unknown) => {
                 if (!module) {
                     console.error(`Module not found for page: ${name}`);
-                    console.error('Available pages:', Object.keys(pages));
                     throw new Error(`Page component not found: ${name}`);
                 }
                 const Page = (module as { default: React.ComponentType<PageProps> })?.default;
@@ -117,25 +80,12 @@ try {
                     console.error(`Page component default export not found for: ${name}`, module);
                     throw new Error(`Page component default export not found: ${name}`);
                 }
-                const Wrapped = (pageProps: PageProps) => (
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={(pageProps as Record<string, unknown>).ziggy?.location || location.pathname}
-                            initial={{ opacity: 0, y: 4, scale: 0.995, filter: 'blur(8px)' }}
-                            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-                            exit={{ opacity: 0, y: -4, scale: 0.995, filter: 'blur(8px)' }}
-                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                            style={{ willChange: 'transform, opacity, filter' }}
-                        >
-                            <Page {...pageProps} />
-                        </motion.div>
-                    </AnimatePresence>
-                );
-                return Wrapped;
+                // Return page directly without heavy animation wrapper
+                // Individual pages can add their own animations if needed
+                return Page;
             })
             .catch((error) => {
                 console.error(`Failed to load page component: ${name}`, error);
-                console.error('Available pages:', Object.keys(pages));
                 // Return a fallback error page
                 const ErrorPage = () => (
                     <div className="flex min-h-screen items-center justify-center bg-gray-50">
