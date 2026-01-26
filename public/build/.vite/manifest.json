@@ -223,7 +223,7 @@
     "name": "vendor"
   },
   "resources/css/app.css": {
-    "file": "assets/app-C0zNU7nj.css",
+    "file": "assets/app-CxLE9tAY.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
@@ -231,7 +231,7 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-BMZIJQP_.js",
+    "file": "assets/app-DS5cIZ3z.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -275,7 +275,7 @@
       "resources/js/pages/welcome.tsx"
     ],
     "css": [
-      "assets/app-C0zNU7nj.css"
+      "assets/app-CxLE9tAY.css"
     ]
   },
   "resources/js/pages/admin/agent-verification-detail.tsx": {
@@ -648,7 +648,7 @@
     ]
   },
   "resources/js/pages/b2c/destinations.tsx": {
-    "file": "assets/destinations-DVjSJUEu.js",
+    "file": "assets/destinations-DuC7_4Vs.js",
     "name": "destinations",
     "src": "resources/js/pages/b2c/destinations.tsx",
     "isDynamicEntry": true,
@@ -670,7 +670,7 @@
     ]
   },
   "resources/js/pages/b2c/highlights.tsx": {
-    "file": "assets/highlights-CBvm-sDF.js",
+    "file": "assets/highlights-B6j4t-KV.js",
     "name": "highlights",
     "src": "resources/js/pages/b2c/highlights.tsx",
     "isDynamicEntry": true,
@@ -812,7 +812,7 @@
     ]
   },
   "resources/js/pages/settings/appearance.tsx": {
-    "file": "assets/appearance-D0fumUlk.js",
+    "file": "assets/appearance-Csf_qdic.js",
     "name": "appearance",
     "src": "resources/js/pages/settings/appearance.tsx",
     "isDynamicEntry": true,
@@ -829,7 +829,7 @@
       "_radix-ui-BGF_4iPy.js"
     ],
     "css": [
-      "assets/app-C0zNU7nj.css"
+      "assets/app-CxLE9tAY.css"
     ]
   },
   "resources/js/pages/settings/password.tsx": {

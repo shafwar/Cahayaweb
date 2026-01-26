@@ -10,39 +10,7 @@ import { ArrowRight, Camera, Check, Clock, Edit3, MapPin, Plus, X } from 'lucide
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-// ✅ CRITICAL: Add passive touch event listeners on mount
-if (typeof window !== 'undefined') {
-    // Override default touch behavior for smooth scrolling
-    const enableSmoothScroll = () => {
-        document.documentElement.style.scrollBehavior = 'auto';
-        document.body.style.scrollBehavior = 'auto';
-
-        // Add CSS for smooth scroll
-        const style = document.createElement('style');
-        style.textContent = `
-            * {
-                -webkit-overflow-scrolling: touch !important;
-                scroll-behavior: auto !important;
-            }
-            body {
-                overflow-y: auto !important;
-                overflow-x: hidden !important;
-            }
-        `;
-        if (!document.querySelector('#smooth-scroll-fix')) {
-            style.id = 'smooth-scroll-fix';
-            document.head.appendChild(style);
-        }
-    };
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', enableSmoothScroll);
-    } else {
-        enableSmoothScroll();
-    }
-}
-
-// Enhanced Modal Component - WITHOUT body scroll lock
+// ✅ KEEP modal animations - they don't block scroll
 function DestinationEditorModal({
     destination,
     onClose,
@@ -90,11 +58,6 @@ function DestinationEditorModal({
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-4"
                 onClick={onClose}
-                style={{
-                    WebkitOverflowScrolling: 'touch',
-                    overflowY: 'auto',
-                    touchAction: 'pan-y' // ✅ Allow vertical scroll
-                }}
             >
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -103,9 +66,8 @@ function DestinationEditorModal({
                     transition={{ type: 'spring', damping: 25, stiffness: 400 }}
                     className="relative w-full max-w-4xl rounded-3xl border-2 border-blue-500/50 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
-                    style={{ touchAction: 'auto' }} // ✅ Allow all touch gestures inside
                 >
-                    <div className="max-h-[85vh] overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    <div className="max-h-[85vh] overflow-y-auto">
                         <div className="sticky top-0 z-10 border-b-2 border-white/10 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 px-8 py-6 backdrop-blur-sm">
                             <div className="flex items-start justify-between">
                                 <div>
@@ -282,7 +244,6 @@ function DestinationEditorModal({
 export default function Destinations() {
     const [editMode, setEditModeUI] = useState<boolean>(false);
     const [saving, setSaving] = useState(false);
-    const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
 
     useEffect(() => {
         const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
@@ -307,16 +268,6 @@ export default function Destinations() {
 
     const [imageTargetKey, setImageTargetKey] = useState<string | null>(null);
     const hiddenImageInputId = 'destinations-image-replacer';
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } }, // ✅ Faster stagger
-    };
-
-    const cardVariants = {
-        hidden: { opacity: 0, y: 20 }, // ✅ Reduced from y: 30
-        visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } }, // ✅ Faster from 0.6
-    };
 
     const destinations = [
         {
@@ -529,7 +480,7 @@ export default function Destinations() {
         <PublicLayout>
             <Head title="Destinations - Cahaya Anbiya Travel" />
 
-            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black" style={{ touchAction: 'pan-y' }}>
+            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
                 {/* Hero Section */}
                 <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
                     <div className="pointer-events-none absolute inset-0">
@@ -538,24 +489,14 @@ export default function Destinations() {
                     </div>
 
                     <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-                        <motion.div
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} // ✅ Faster
-                            className="mb-8 text-center md:mb-10"
-                        >
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.4 }} // ✅ Faster
-                                className="mb-4 inline-block"
-                            >
+                        <div className="mb-8 text-center md:mb-10">
+                            <div className="mb-4 inline-block">
                                 <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
                                     <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
                                         ✨ Explore Dream Destinations
                                     </span>
                                 </div>
-                            </motion.div>
+                            </div>
 
                             <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
                                 Discover Your Dream Destinations
@@ -580,19 +521,12 @@ export default function Destinations() {
                                     <span className="font-medium">Professional Service</span>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
 
-                        {/* Destinations Grid */}
-                        <motion.div
-                            variants={containerVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, amount: 0.1 }} // ✅ Trigger earlier
-                            className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3"
-                        >
-                            {destinations.map((destination, index) => {
+                        {/* Destinations Grid - ✅ NO SCROLL ANIMATIONS */}
+                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+                            {destinations.map((destination) => {
                                 const [dialogOpen, setDialogOpen] = React.useState(false);
-                                const isAboveFold = index < 3; // ✅ First 3 cards load eagerly
 
                                 return (
                                     <Dialog
@@ -601,42 +535,24 @@ export default function Destinations() {
                                         onOpenChange={setDialogOpen}
                                     >
                                         <DialogTrigger asChild>
-                                            <motion.article
-                                                variants={cardVariants}
-                                                whileHover={!editMode ? { scale: 1.03, y: -6 } : {}}
-                                                transition={{ duration: 0.2 }} // ✅ Faster hover
-                                                className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 ${!editMode ? 'cursor-pointer' : 'cursor-default'}`}
-                                                style={{ willChange: 'transform' }} // ✅ GPU acceleration
+                                            <article
+                                                className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1.5 ${!editMode ? 'cursor-pointer' : 'cursor-default'}`}
                                             >
-                                            <div className="relative aspect-video overflow-hidden bg-slate-800/50"> {/* ✅ Skeleton background */}
+                                            <div className="relative aspect-video overflow-hidden">
                                                 <img
                                                     src={getImageSrc(`destinations.${destination.id}.image`, destination.image)}
                                                     alt={destination.title}
                                                     data-destination-id={destination.id}
-                                                    loading={isAboveFold ? 'eager' : 'lazy'} // ✅ CRITICAL FIX!
+                                                    loading="lazy"
                                                     decoding="async"
-                                                    fetchPriority={isAboveFold ? 'high' : 'auto'} // ✅ Priority hint
-                                                    className={`h-full w-full object-cover transition-all duration-500 group-hover:scale-110 ${
-                                                        imagesLoaded[destination.id] ? 'opacity-100' : 'opacity-0'
-                                                    }`}
-                                                    style={{
-                                                        willChange: 'transform',
-                                                        contentVisibility: 'auto' // ✅ Browser optimization
-                                                    }}
-                                                    onLoad={() => setImagesLoaded(prev => ({ ...prev, [destination.id]: true }))}
+                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                     onError={(e) => {
-                                                        setImagesLoaded(prev => ({ ...prev, [destination.id]: true }));
                                                         e.currentTarget.style.display = 'none';
                                                         const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
                                                         if (nextElement) nextElement.style.display = 'block';
                                                     }}
                                                 />
                                                 <PlaceholderImage className="hidden h-full w-full object-cover" />
-
-                                                {/* ✅ Skeleton loader while image loading */}
-                                                {!imagesLoaded[destination.id] && (
-                                                    <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800" />
-                                                )}
 
                                                 <div className="absolute top-0 right-0 z-10">
                                                     <div className="flex h-9 items-center rounded-bl-xl bg-gradient-to-r from-amber-500 to-orange-600 px-3 py-1.5 text-xs font-bold text-white shadow-lg sm:px-4 sm:text-sm">
@@ -755,7 +671,7 @@ export default function Destinations() {
                                             </div>
 
                                             <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-transform duration-500 group-hover:scale-x-100" />
-                                        </motion.article>
+                                        </article>
                                     </DialogTrigger>
 
                                     <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto rounded-3xl border-2 border-white/20 bg-gradient-to-br from-black/98 to-slate-900/98 shadow-2xl">
@@ -834,42 +750,32 @@ export default function Destinations() {
                                             </div>
 
                                             <div className="flex gap-4">
-                                                <motion.a
+                                                <a
                                                     href="https://wa.me/6281234567890"
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                    className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-center text-lg font-bold text-white shadow-2xl transition-all hover:from-amber-400 hover:to-orange-400"
+                                                    className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-center text-lg font-bold text-white shadow-2xl transition-all hover:from-amber-400 hover:to-orange-400 hover:scale-105"
                                                 >
                                                     Book Now
-                                                </motion.a>
-                                                <motion.a
+                                                </a>
+                                                <a
                                                     href="https://wa.me/6281234567890"
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                    className="flex-1 rounded-xl border-2 border-amber-500 px-8 py-4 text-center text-lg font-bold text-amber-300 transition-all hover:bg-amber-500 hover:text-white"
+                                                    className="flex-1 rounded-xl border-2 border-amber-500 px-8 py-4 text-center text-lg font-bold text-amber-300 transition-all hover:bg-amber-500 hover:text-white hover:scale-105"
                                                 >
                                                     Ask Questions
-                                                </motion.a>
+                                                </a>
                                             </div>
                                         </div>
                                     </DialogContent>
                                     </Dialog>
                                 );
                             })}
-                        </motion.div>
+                        </div>
 
                         {/* CTA Section */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.3 }}
-                            transition={{ duration: 0.6 }}
-                            className="mt-20 text-center"
-                        >
+                        <div className="mt-20 text-center">
                             <div className="mb-8 inline-flex items-center rounded-full border-2 border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-8 py-4 shadow-xl">
                                 <span className="text-base font-bold text-amber-200">
                                     <EditableText sectionKey="destinations.cta.badge" value="✨ Custom Packages Available" tag="span" />
@@ -886,42 +792,32 @@ export default function Destinations() {
                                 />
                             </p>
                             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-                                <motion.a
+                                <a
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
                                     rel="noreferrer"
-                                    whileHover={{ scale: 1.05, y: -3 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-10 py-5 text-lg font-bold text-white shadow-2xl transition-all hover:from-amber-400 hover:to-orange-400"
+                                    className="inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-10 py-5 text-lg font-bold text-white shadow-2xl transition-all hover:from-amber-400 hover:to-orange-400 hover:scale-105"
                                 >
                                     Free Consultation
                                     <ArrowRight className="h-6 w-6" />
-                                </motion.a>
-                                <motion.a
+                                </a>
+                                <a
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
                                     rel="noreferrer"
-                                    whileHover={{ scale: 1.05, y: -3 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-amber-500 px-10 py-5 text-lg font-bold text-amber-300 transition-all hover:bg-amber-500 hover:text-white"
+                                    className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-amber-500 px-10 py-5 text-lg font-bold text-amber-300 transition-all hover:bg-amber-500 hover:text-white hover:scale-105"
                                 >
                                     Custom Package
                                     <Plus className="h-6 w-6" />
-                                </motion.a>
+                                </a>
                             </div>
-                        </motion.div>
+                        </div>
                     </div>
                 </section>
 
                 {/* Footer */}
                 <footer className="relative border-t border-white/10 bg-black/70">
-                    <motion.div
-                        className="mx-auto max-w-7xl px-4 py-12 sm:px-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                    >
+                    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
                         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
                             <div className="text-center text-base text-white/70 md:text-left">
                                 <div className="font-semibold">Email: hello@cahaya-anbiya.com</div>
@@ -931,17 +827,15 @@ export default function Destinations() {
 
                             <div className="flex items-center gap-8">
                                 {['Instagram', 'TikTok', 'YouTube'].map((social) => (
-                                    <motion.a
+                                    <a
                                         key={social}
                                         href={`https://${social.toLowerCase()}.com`}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="text-base font-semibold text-white/70 transition-colors hover:text-amber-400"
-                                        whileHover={{ scale: 1.1, y: -2 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        className="text-base font-semibold text-white/70 transition-all hover:text-amber-400 hover:scale-110"
                                     >
                                         {social}
-                                    </motion.a>
+                                    </a>
                                 ))}
                             </div>
                         </div>
@@ -949,7 +843,7 @@ export default function Destinations() {
                         <div className="mt-10 border-t border-white/10 pt-8 text-center">
                             <p className="text-sm text-white/50">© 2024 Cahaya Anbiya Travel. All rights reserved.</p>
                         </div>
-                    </motion.div>
+                    </div>
                 </footer>
             </div>
 

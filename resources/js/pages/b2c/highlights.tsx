@@ -9,37 +9,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { getR2Url } from '@/utils/imageHelper';
 
-// ✅ CRITICAL: Add passive touch event listeners on mount
-if (typeof window !== 'undefined') {
-    const enableSmoothScroll = () => {
-        document.documentElement.style.scrollBehavior = 'auto';
-        document.body.style.scrollBehavior = 'auto';
-
-        const style = document.createElement('style');
-        style.textContent = `
-            * {
-                -webkit-overflow-scrolling: touch !important;
-                scroll-behavior: auto !important;
-            }
-            body {
-                overflow-y: auto !important;
-                overflow-x: hidden !important;
-            }
-        `;
-        if (!document.querySelector('#smooth-scroll-fix')) {
-            style.id = 'smooth-scroll-fix';
-            document.head.appendChild(style);
-        }
-    };
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', enableSmoothScroll);
-    } else {
-        enableSmoothScroll();
-    }
-}
-
-// ✅ FIXED Modal Component - NO body scroll lock!
+// ✅ KEEP modal animations - they don't block scroll
 function HighlightEditorModal({
     highlight,
     onClose,
@@ -83,11 +53,6 @@ function HighlightEditorModal({
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-4"
                 onClick={onClose}
-                style={{
-                    WebkitOverflowScrolling: 'touch',
-                    overflowY: 'auto',
-                    touchAction: 'pan-y'
-                }}
             >
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -96,9 +61,8 @@ function HighlightEditorModal({
                     transition={{ type: 'spring', damping: 25, stiffness: 400 }}
                     className="relative w-full max-w-4xl rounded-3xl border-2 border-amber-500/50 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
-                    style={{ touchAction: 'auto' }}
                 >
-                    <div className="max-h-[85vh] overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    <div className="max-h-[85vh] overflow-y-auto">
                         <div className="sticky top-0 z-10 border-b-2 border-white/10 bg-gradient-to-r from-amber-600/20 to-orange-600/20 px-8 py-6 backdrop-blur-sm">
                             <div className="flex items-start justify-between">
                                 <div>
@@ -232,7 +196,6 @@ function HighlightEditorModal({
 
 export default function Highlights() {
     const [editMode, setEditModeUI] = useState<boolean>(false);
-    const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
 
     useEffect(() => {
         const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
@@ -252,16 +215,6 @@ export default function Highlights() {
     }>(null);
     const [imageTargetKey, setImageTargetKey] = useState<string | null>(null);
     const hiddenImageInputId = 'highlights-image-replacer';
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } },
-    };
-
-    const cardVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
-    };
 
     const highlights = [
         {
@@ -384,33 +337,23 @@ export default function Highlights() {
         <PublicLayout>
             <Head title="Highlights - Cahaya Anbiya Travel" />
 
-            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black" style={{ touchAction: 'pan-y' }}>
+            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
                 <section className="relative mx-auto max-w-7xl px-4 pt-12 pb-8 sm:px-6 md:pt-16 md:pb-10">
-                    {/* Ambient Effects - OPTIMIZED */}
+                    {/* Ambient Effects */}
                     <div className="pointer-events-none absolute inset-0">
                         <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.06),transparent_70%)] blur-3xl" />
                         <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_70%)] blur-3xl" />
                     </div>
 
                     {/* Hero Section */}
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                        className="relative mb-8 text-center md:mb-10"
-                    >
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.4 }}
-                            className="mb-4 inline-block"
-                        >
+                    <div className="relative mb-8 text-center md:mb-10">
+                        <div className="mb-4 inline-block">
                             <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
                                 <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
                                     ✨ Premium Travel Highlights
                                 </span>
                             </div>
-                        </motion.div>
+                        </div>
 
                         <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
                             Travel Highlights & Experiences
@@ -435,238 +378,190 @@ export default function Highlights() {
                                 <span className="font-medium">Unforgettable Memories</span>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
 
-                    {/* Highlights Grid */}
-                    <motion.div
-                        variants={containerVariants}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, amount: 0.1 }}
-                        className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3"
-                        style={{ gridAutoRows: '1fr' }}
-                    >
-                        {highlights.map((highlight, index) => {
-                            const isAboveFold = index < 3;
-
-                            return (
-                                <motion.article
-                                    key={highlight.id}
-                                    variants={cardVariants}
-                                    whileHover={{ scale: 1.03, y: -6 }}
-                                    transition={{ duration: 0.2 }}
-                                    className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300"
-                                    style={{ willChange: 'transform' }}
-                                >
-                                    <div className="relative aspect-video overflow-hidden bg-slate-800/50">
-                                        <img
-                                            src={getR2Url(highlight.image)}
-                                            alt={highlight.title}
-                                            data-highlight-id={highlight.id}
-                                            loading={isAboveFold ? 'eager' : 'lazy'}
-                                            decoding="async"
-                                            fetchPriority={isAboveFold ? 'high' : 'auto'}
-                                            className={`h-full w-full object-cover transition-all duration-500 group-hover:scale-110 ${
-                                                imagesLoaded[highlight.id] ? 'opacity-100' : 'opacity-0'
-                                            }`}
-                                            style={{
-                                                willChange: 'transform',
-                                                contentVisibility: 'auto'
-                                            }}
-                                            onLoad={() => setImagesLoaded(prev => ({ ...prev, [highlight.id]: true }))}
-                                            onError={(e) => {
-                                                setImagesLoaded(prev => ({ ...prev, [highlight.id]: true }));
-                                                const target = e.currentTarget;
-                                                if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
-                                                    const currentUrl = target.src;
-                                                    if (currentUrl.includes('/public/')) {
-                                                        target.src = currentUrl.replace('/public/', '/');
-                                                    } else {
-                                                        target.src = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
-                                                    }
+                    {/* Highlights Grid - ✅ NO SCROLL ANIMATIONS */}
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+                        {highlights.map((highlight) => (
+                            <article
+                                key={highlight.id}
+                                className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1.5"
+                            >
+                                <div className="relative aspect-video overflow-hidden">
+                                    <img
+                                        src={getR2Url(highlight.image)}
+                                        alt={highlight.title}
+                                        data-highlight-id={highlight.id}
+                                        loading="lazy"
+                                        decoding="async"
+                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                        onError={(e) => {
+                                            const target = e.currentTarget;
+                                            if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                const currentUrl = target.src;
+                                                if (currentUrl.includes('/public/')) {
+                                                    target.src = currentUrl.replace('/public/', '/');
                                                 } else {
-                                                    target.style.display = 'none';
-                                                    const nextElement = target.nextElementSibling as HTMLElement;
-                                                    if (nextElement) nextElement.style.display = 'block';
+                                                    target.src = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
                                                 }
-                                            }}
-                                        />
-                                        <PlaceholderImage className="hidden h-full w-full object-cover" />
+                                            } else {
+                                                target.style.display = 'none';
+                                                const nextElement = target.nextElementSibling as HTMLElement;
+                                                if (nextElement) nextElement.style.display = 'block';
+                                            }
+                                        }}
+                                    />
+                                    <PlaceholderImage className="hidden h-full w-full object-cover" />
 
-                                        {!imagesLoaded[highlight.id] && (
-                                            <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800" />
-                                        )}
-
-                                        <div className="absolute top-3 left-3">
-                                            <span className="rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white shadow-lg sm:text-sm">
-                                                {highlight.category}
-                                            </span>
-                                        </div>
-
-                                        {editMode && (
-                                            <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-                                                <button
-                                                    onClick={() => {
-                                                        setImageTargetKey(`highlights.${highlight.id}.image`);
-                                                        document.getElementById(hiddenImageInputId)?.click();
-                                                    }}
-                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
-                                                >
-                                                    <Camera className="h-5 w-5" strokeWidth={2.5} />
-                                                </button>
-                                                <button
-                                                    onClick={() =>
-                                                        setEditorOpen({
-                                                            id: highlight.id,
-                                                            title: highlight.title,
-                                                            subtitle: highlight.subtitle,
-                                                            description: highlight.description,
-                                                            category: highlight.category,
-                                                            badge: highlight.badge,
-                                                        })
-                                                    }
-                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
-                                                >
-                                                    <Edit3 className="h-5 w-5" strokeWidth={2.5} />
-                                                </button>
-                                            </div>
-                                        )}
-
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                    <div className="absolute top-3 left-3">
+                                        <span className="rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white shadow-lg sm:text-sm">
+                                            {highlight.category}
+                                        </span>
                                     </div>
 
-                                    <div className="flex flex-1 flex-col p-5 sm:p-6">
-                                        <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl">
-                                            <EditableText sectionKey={`highlights.${highlight.id}.title`} value={highlight.title} tag="span" />
-                                        </h3>
-                                        <p className="mb-3 text-sm font-semibold text-amber-300 sm:text-base">
-                                            <EditableText sectionKey={`highlights.${highlight.id}.subtitle`} value={highlight.subtitle} tag="span" />
-                                        </p>
-
-                                        <p className="mb-4 text-sm leading-relaxed text-white/80 sm:text-base">
-                                            <EditableText
-                                                sectionKey={`highlights.${highlight.id}.description`}
-                                                value={highlight.description}
-                                                tag="span"
-                                            />
-                                        </p>
-
-                                        <div className="mb-4 grid grid-cols-3 gap-3 rounded-xl border border-white/10 bg-white/5 p-4 shadow-lg">
-                                            <div className="text-center">
-                                                <div className="text-lg font-bold text-amber-300 sm:text-xl">
-                                                    <EditableText
-                                                        sectionKey={`highlights.${highlight.id}.stats.travelers`}
-                                                        value={highlight.stats.travelers}
-                                                        tag="span"
-                                                    />
-                                                </div>
-                                                <div className="text-xs font-medium text-white/70">Travelers</div>
-                                            </div>
-                                            <div className="text-center">
-                                                <div className="text-lg font-bold text-amber-300 sm:text-xl">
-                                                    <EditableText
-                                                        sectionKey={`highlights.${highlight.id}.stats.satisfaction`}
-                                                        value={highlight.stats.satisfaction}
-                                                        tag="span"
-                                                    />
-                                                </div>
-                                                <div className="text-xs font-medium text-white/70">Satisfaction</div>
-                                            </div>
-                                            <div className="text-center">
-                                                <div className="text-lg font-bold text-amber-300 sm:text-xl">
-                                                    <EditableText
-                                                        sectionKey={`highlights.${highlight.id}.stats.experience`}
-                                                        value={highlight.stats.experience}
-                                                        tag="span"
-                                                    />
-                                                </div>
-                                                <div className="text-xs font-medium text-white/70">Experience</div>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <h4 className="mb-2 text-sm font-bold text-white sm:text-base">Key Features:</h4>
-                                            <ul className="space-y-1.5 text-xs text-white/80 sm:text-sm">
-                                                {highlight.features.map((feature, idx) => (
-                                                    <li key={idx} className="flex items-center gap-2">
-                                                        <Check className="h-3.5 w-3.5 flex-shrink-0 text-green-400" />
-                                                        <span>
-                                                            <EditableText
-                                                                sectionKey={`highlights.${highlight.id}.features.${idx}`}
-                                                                value={feature}
-                                                                tag="span"
-                                                            />
-                                                        </span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-
-                                        <div className="mt-auto flex items-center justify-between">
-                                            <motion.button
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                                className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:from-amber-400 hover:to-orange-400 sm:px-6 sm:py-3 sm:text-base"
+                                    {editMode && (
+                                        <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+                                            <button
+                                                onClick={() => {
+                                                    setImageTargetKey(`highlights.${highlight.id}.image`);
+                                                    document.getElementById(hiddenImageInputId)?.click();
+                                                }}
+                                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
                                             >
-                                                Learn More
-                                            </motion.button>
-                                            <div className="text-xs font-semibold text-white/60 sm:text-sm">{highlight.features.length} features</div>
+                                                <Camera className="h-5 w-5" strokeWidth={2.5} />
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    setEditorOpen({
+                                                        id: highlight.id,
+                                                        title: highlight.title,
+                                                        subtitle: highlight.subtitle,
+                                                        description: highlight.description,
+                                                        category: highlight.category,
+                                                        badge: highlight.badge,
+                                                    })
+                                                }
+                                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                            >
+                                                <Edit3 className="h-5 w-5" strokeWidth={2.5} />
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                </div>
+
+                                <div className="flex flex-1 flex-col p-5 sm:p-6">
+                                    <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl">
+                                        <EditableText sectionKey={`highlights.${highlight.id}.title`} value={highlight.title} tag="span" />
+                                    </h3>
+                                    <p className="mb-3 text-sm font-semibold text-amber-300 sm:text-base">
+                                        <EditableText sectionKey={`highlights.${highlight.id}.subtitle`} value={highlight.subtitle} tag="span" />
+                                    </p>
+
+                                    <p className="mb-4 text-sm leading-relaxed text-white/80 sm:text-base">
+                                        <EditableText
+                                            sectionKey={`highlights.${highlight.id}.description`}
+                                            value={highlight.description}
+                                            tag="span"
+                                        />
+                                    </p>
+
+                                    <div className="mb-4 grid grid-cols-3 gap-3 rounded-xl border border-white/10 bg-white/5 p-4 shadow-lg">
+                                        <div className="text-center">
+                                            <div className="text-lg font-bold text-amber-300 sm:text-xl">
+                                                <EditableText
+                                                    sectionKey={`highlights.${highlight.id}.stats.travelers`}
+                                                    value={highlight.stats.travelers}
+                                                    tag="span"
+                                                />
+                                            </div>
+                                            <div className="text-xs font-medium text-white/70">Travelers</div>
+                                        </div>
+                                        <div className="text-center">
+                                            <div className="text-lg font-bold text-amber-300 sm:text-xl">
+                                                <EditableText
+                                                    sectionKey={`highlights.${highlight.id}.stats.satisfaction`}
+                                                    value={highlight.stats.satisfaction}
+                                                    tag="span"
+                                                />
+                                            </div>
+                                            <div className="text-xs font-medium text-white/70">Satisfaction</div>
+                                        </div>
+                                        <div className="text-center">
+                                            <div className="text-lg font-bold text-amber-300 sm:text-xl">
+                                                <EditableText
+                                                    sectionKey={`highlights.${highlight.id}.stats.experience`}
+                                                    value={highlight.stats.experience}
+                                                    tag="span"
+                                                />
+                                            </div>
+                                            <div className="text-xs font-medium text-white/70">Experience</div>
                                         </div>
                                     </div>
 
-                                    <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-transform duration-500 group-hover:scale-x-100" />
-                                </motion.article>
-                            );
-                        })}
-                    </motion.div>
+                                    <div className="mb-4">
+                                        <h4 className="mb-2 text-sm font-bold text-white sm:text-base">Key Features:</h4>
+                                        <ul className="space-y-1.5 text-xs text-white/80 sm:text-sm">
+                                            {highlight.features.map((feature, idx) => (
+                                                <li key={idx} className="flex items-center gap-2">
+                                                    <Check className="h-3.5 w-3.5 flex-shrink-0 text-green-400" />
+                                                    <span>
+                                                        <EditableText
+                                                            sectionKey={`highlights.${highlight.id}.features.${idx}`}
+                                                            value={feature}
+                                                            tag="span"
+                                                        />
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+
+                                    <div className="mt-auto flex items-center justify-between">
+                                        <button className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:from-amber-400 hover:to-orange-400 hover:scale-105 sm:px-6 sm:py-3 sm:text-base">
+                                            Learn More
+                                        </button>
+                                        <div className="text-xs font-semibold text-white/60 sm:text-sm">{highlight.features.length} features</div>
+                                    </div>
+                                </div>
+
+                                <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-transform duration-500 group-hover:scale-x-100" />
+                            </article>
+                        ))}
+                    </div>
 
                     {/* CTA Section */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.6 }}
-                        className="mt-12 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-8 text-center shadow-xl md:mt-16"
-                    >
-                        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-black/20 via-transparent to-black/10" />
+                    <div className="relative mt-12 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-8 text-center shadow-xl md:mt-16">
+                        <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/10" />
                         <div className="relative mx-auto max-w-3xl">
                             <h3 className="mb-4 text-2xl font-bold text-white sm:text-3xl md:text-4xl">Ready to Experience These Highlights?</h3>
                             <p className="mb-6 text-sm text-white/95 sm:text-base md:text-lg">
                                 Join thousands of satisfied travelers who have experienced the magic of our carefully curated destinations.
                             </p>
                             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-                                <motion.a
+                                <a
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
                                     rel="noreferrer"
-                                    whileHover={{ scale: 1.05, y: -3 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black shadow-xl transition-all hover:bg-white/95 sm:px-8 sm:py-4 sm:text-base"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black shadow-xl transition-all hover:bg-white/95 hover:scale-105 sm:px-8 sm:py-4 sm:text-base"
                                 >
                                     Start Your Journey
                                     <ArrowRight className="h-5 w-5" />
-                                </motion.a>
-                                <motion.a
+                                </a>
+                                <a
                                     href="/destinations"
-                                    whileHover={{ scale: 1.05, y: -3 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white px-6 py-3 text-sm font-bold text-white transition-all hover:bg-white hover:text-black sm:px-8 sm:py-4 sm:text-base"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white px-6 py-3 text-sm font-bold text-white transition-all hover:bg-white hover:text-black hover:scale-105 sm:px-8 sm:py-4 sm:text-base"
                                 >
                                     View All Destinations
                                     <ArrowRight className="h-5 w-5" />
-                                </motion.a>
+                                </a>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
 
                     {/* Testimonials */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.6 }}
-                        className="mt-12 md:mt-16"
-                    >
+                    <div className="mt-12 md:mt-16">
                         <h3 className="mb-8 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-center text-2xl font-bold text-transparent sm:text-3xl md:text-4xl">
                             What Our Travelers Say
                         </h3>
@@ -694,12 +589,8 @@ export default function Highlights() {
                                     trip: 'Dubai Luxury',
                                 },
                             ].map((testimonial, index) => (
-                                <motion.div
+                                <div
                                     key={index}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.4, delay: index * 0.1 }}
                                     className="rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-xl sm:p-6"
                                 >
                                     <div className="mb-4 flex items-center gap-1">
@@ -712,21 +603,15 @@ export default function Highlights() {
                                         <div className="text-xs text-white/60 sm:text-sm">{testimonial.location}</div>
                                         <div className="text-xs font-bold text-amber-300 sm:text-sm">{testimonial.trip}</div>
                                     </div>
-                                </motion.div>
+                                </div>
                             ))}
                         </div>
-                    </motion.div>
+                    </div>
                 </section>
 
                 {/* Footer */}
                 <footer className="relative border-t border-white/10 bg-black/70">
-                    <motion.div
-                        className="mx-auto max-w-7xl px-4 py-12 sm:px-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                    >
+                    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
                         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
                             <div className="text-center text-base text-white/70 md:text-left">
                                 <div className="font-semibold">Email: hello@cahaya-anbiya.com</div>
@@ -735,24 +620,22 @@ export default function Highlights() {
                             </div>
                             <div className="flex items-center gap-8">
                                 {['Instagram', 'TikTok', 'YouTube'].map((social) => (
-                                    <motion.a
+                                    <a
                                         key={social}
                                         href={`https://${social.toLowerCase()}.com`}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="text-base font-semibold text-white/70 transition-colors hover:text-amber-400"
-                                        whileHover={{ scale: 1.1, y: -2 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        className="text-base font-semibold text-white/70 transition-all hover:text-amber-400 hover:scale-110"
                                     >
                                         {social}
-                                    </motion.a>
+                                    </a>
                                 ))}
                             </div>
                         </div>
                         <div className="mt-10 border-t border-white/10 pt-8 text-center">
                             <p className="text-sm text-white/50">© 2024 Cahaya Anbiya Travel. All rights reserved.</p>
                         </div>
-                    </motion.div>
+                    </div>
                 </footer>
             </div>
 
