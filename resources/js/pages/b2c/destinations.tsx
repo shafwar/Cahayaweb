@@ -10,6 +10,38 @@ import { ArrowRight, Camera, Check, Clock, Edit3, MapPin, Plus, X } from 'lucide
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+// ✅ CRITICAL: Add passive touch event listeners on mount
+if (typeof window !== 'undefined') {
+    // Override default touch behavior for smooth scrolling
+    const enableSmoothScroll = () => {
+        document.documentElement.style.scrollBehavior = 'auto';
+        document.body.style.scrollBehavior = 'auto';
+
+        // Add CSS for smooth scroll
+        const style = document.createElement('style');
+        style.textContent = `
+            * {
+                -webkit-overflow-scrolling: touch !important;
+                scroll-behavior: auto !important;
+            }
+            body {
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+            }
+        `;
+        if (!document.querySelector('#smooth-scroll-fix')) {
+            style.id = 'smooth-scroll-fix';
+            document.head.appendChild(style);
+        }
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', enableSmoothScroll);
+    } else {
+        enableSmoothScroll();
+    }
+}
+
 // Enhanced Modal Component - WITHOUT body scroll lock
 function DestinationEditorModal({
     destination,
@@ -34,7 +66,6 @@ function DestinationEditorModal({
     const [formData, setFormData] = useState(destination);
     const [isSaving, setIsSaving] = useState(false);
 
-    // ✅ CRITICAL FIX: NO body scroll manipulation!
     useEffect(() => {
         setFormData(destination);
     }, [destination]);
@@ -61,7 +92,8 @@ function DestinationEditorModal({
                 onClick={onClose}
                 style={{
                     WebkitOverflowScrolling: 'touch',
-                    overflowY: 'auto'
+                    overflowY: 'auto',
+                    touchAction: 'pan-y' // ✅ Allow vertical scroll
                 }}
             >
                 <motion.div
@@ -71,8 +103,9 @@ function DestinationEditorModal({
                     transition={{ type: 'spring', damping: 25, stiffness: 400 }}
                     className="relative w-full max-w-4xl rounded-3xl border-2 border-blue-500/50 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
+                    style={{ touchAction: 'auto' }} // ✅ Allow all touch gestures inside
                 >
-                    <div className="max-h-[85vh] overflow-y-auto">
+                    <div className="max-h-[85vh] overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
                         <div className="sticky top-0 z-10 border-b-2 border-white/10 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 px-8 py-6 backdrop-blur-sm">
                             <div className="flex items-start justify-between">
                                 <div>
@@ -249,6 +282,7 @@ function DestinationEditorModal({
 export default function Destinations() {
     const [editMode, setEditModeUI] = useState<boolean>(false);
     const [saving, setSaving] = useState(false);
+    const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
 
     useEffect(() => {
         const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
@@ -276,12 +310,12 @@ export default function Destinations() {
 
     const containerVariants = {
         hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+        visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } }, // ✅ Faster stagger
     };
 
     const cardVariants = {
-        hidden: { opacity: 0, y: 30, scale: 0.95 },
-        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } },
+        hidden: { opacity: 0, y: 20 }, // ✅ Reduced from y: 30
+        visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } }, // ✅ Faster from 0.6
     };
 
     const destinations = [
@@ -495,25 +529,25 @@ export default function Destinations() {
         <PublicLayout>
             <Head title="Destinations - Cahaya Anbiya Travel" />
 
-            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
+            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black" style={{ touchAction: 'pan-y' }}>
                 {/* Hero Section */}
                 <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
                     <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.08),transparent_70%)] blur-xl" />
-                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.08),transparent_70%)] blur-xl" />
+                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.06),transparent_70%)] blur-3xl" />
+                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_70%)] blur-3xl" />
                     </div>
 
                     <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
                         <motion.div
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} // ✅ Faster
                             className="mb-8 text-center md:mb-10"
                         >
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.6 }}
+                                transition={{ duration: 0.4 }} // ✅ Faster
                                 className="mb-4 inline-block"
                             >
                                 <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
@@ -553,11 +587,12 @@ export default function Destinations() {
                             variants={containerVariants}
                             initial="hidden"
                             whileInView="visible"
-                            viewport={{ once: true, margin: '-100px' }}
+                            viewport={{ once: true, amount: 0.1 }} // ✅ Trigger earlier
                             className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3"
                         >
-                            {destinations.map((destination) => {
+                            {destinations.map((destination, index) => {
                                 const [dialogOpen, setDialogOpen] = React.useState(false);
+                                const isAboveFold = index < 3; // ✅ First 3 cards load eagerly
 
                                 return (
                                     <Dialog
@@ -569,24 +604,39 @@ export default function Destinations() {
                                             <motion.article
                                                 variants={cardVariants}
                                                 whileHover={!editMode ? { scale: 1.03, y: -6 } : {}}
-                                                transition={{ duration: 0.3 }}
+                                                transition={{ duration: 0.2 }} // ✅ Faster hover
                                                 className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 ${!editMode ? 'cursor-pointer' : 'cursor-default'}`}
+                                                style={{ willChange: 'transform' }} // ✅ GPU acceleration
                                             >
-                                            <div className="relative aspect-video overflow-hidden">
+                                            <div className="relative aspect-video overflow-hidden bg-slate-800/50"> {/* ✅ Skeleton background */}
                                                 <img
                                                     src={getImageSrc(`destinations.${destination.id}.image`, destination.image)}
                                                     alt={destination.title}
                                                     data-destination-id={destination.id}
-                                                    loading="lazy"
+                                                    loading={isAboveFold ? 'eager' : 'lazy'} // ✅ CRITICAL FIX!
                                                     decoding="async"
-                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                    fetchPriority={isAboveFold ? 'high' : 'auto'} // ✅ Priority hint
+                                                    className={`h-full w-full object-cover transition-all duration-500 group-hover:scale-110 ${
+                                                        imagesLoaded[destination.id] ? 'opacity-100' : 'opacity-0'
+                                                    }`}
+                                                    style={{
+                                                        willChange: 'transform',
+                                                        contentVisibility: 'auto' // ✅ Browser optimization
+                                                    }}
+                                                    onLoad={() => setImagesLoaded(prev => ({ ...prev, [destination.id]: true }))}
                                                     onError={(e) => {
+                                                        setImagesLoaded(prev => ({ ...prev, [destination.id]: true }));
                                                         e.currentTarget.style.display = 'none';
                                                         const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
                                                         if (nextElement) nextElement.style.display = 'block';
                                                     }}
                                                 />
                                                 <PlaceholderImage className="hidden h-full w-full object-cover" />
+
+                                                {/* ✅ Skeleton loader while image loading */}
+                                                {!imagesLoaded[destination.id] && (
+                                                    <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800" />
+                                                )}
 
                                                 <div className="absolute top-0 right-0 z-10">
                                                     <div className="flex h-9 items-center rounded-bl-xl bg-gradient-to-r from-amber-500 to-orange-600 px-3 py-1.5 text-xs font-bold text-white shadow-lg sm:px-4 sm:text-sm">
@@ -816,8 +866,8 @@ export default function Destinations() {
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: '-100px' }}
-                            transition={{ duration: 0.8, delay: 0.3 }}
+                            viewport={{ once: true, amount: 0.3 }}
+                            transition={{ duration: 0.6 }}
                             className="mt-20 text-center"
                         >
                             <div className="mb-8 inline-flex items-center rounded-full border-2 border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-8 py-4 shadow-xl">
@@ -869,7 +919,7 @@ export default function Destinations() {
                         className="mx-auto max-w-7xl px-4 py-12 sm:px-6"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: '-100px' }}
+                        viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
                     >
                         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
