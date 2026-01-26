@@ -1,37 +1,6 @@
 import PublicLayout from '@/layouts/public-layout';
 import { Head } from '@inertiajs/react';
-import { motion } from 'framer-motion';
 import { Award, Globe, Heart, Shield, Star, TrendingUp, Users } from 'lucide-react';
-
-// Animation variants
-const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0 },
-};
-
-const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.12,
-        },
-    },
-};
-
-const scaleIn = {
-    hidden: { opacity: 0, scale: 0.8 },
-    show: {
-        opacity: 1,
-        scale: 1,
-        transition: {
-            duration: 0.6,
-            ease: [0.22, 1, 0.36, 1],
-        },
-    },
-};
-
-const ease = [0.22, 1, 0.36, 1];
 
 export default function About() {
     const coreValues = [
@@ -65,26 +34,10 @@ export default function About() {
     ];
 
     const stats = [
-        {
-            number: '100+',
-            label: 'Happy Travelers',
-            icon: Users,
-        },
-        {
-            number: '15+',
-            label: 'Destinations',
-            icon: Globe,
-        },
-        {
-            number: '2025',
-            label: 'Established',
-            icon: Award,
-        },
-        {
-            number: '95%',
-            label: 'Satisfaction Rate',
-            icon: TrendingUp,
-        },
+        { number: '100+', label: 'Happy Travelers', icon: Users },
+        { number: '15+', label: 'Destinations', icon: Globe },
+        { number: '2025', label: 'Established', icon: Award },
+        { number: '95%', label: 'Satisfaction Rate', icon: TrendingUp },
     ];
 
     return (
@@ -94,64 +47,41 @@ export default function About() {
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
                 {/* Hero Section */}
                 <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
-                    {/* Ambient Background Effects - OPTIMIZED */}
+                    {/* Ambient Background */}
                     <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.08),transparent_70%)] blur-xl" />
-                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.08),transparent_70%)] blur-xl" />
+                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.06),transparent_70%)] blur-3xl" />
+                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_70%)] blur-3xl" />
                     </div>
 
                     <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
                         {/* Header */}
-                        <motion.div
-                            initial="hidden"
-                            animate="show"
-                            variants={fadeInUp}
-                            transition={{ duration: 0.8, ease }}
-                            className="mb-8 text-center md:mb-10"
-                        >
-                            {/* Badge */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.6 }}
-                                className="mb-4 inline-block"
-                            >
+                        <div className="mb-8 text-center md:mb-10">
+                            <div className="mb-4 inline-block">
                                 <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
                                     <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
                                         ✨ Cahaya Anbiya Travel
                                     </span>
                                 </div>
-                            </motion.div>
+                            </div>
 
-                            {/* Title */}
                             <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
                                 About Us
                             </h1>
 
-                            {/* Subtitle */}
                             <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
                                 Creating unforgettable travel experiences with exceptional service, cultural authenticity, and unwavering commitment
                                 to excellence
                             </p>
-                        </motion.div>
+                        </div>
 
                         {/* Stats Grid */}
-                        <motion.div
-                            variants={staggerContainer}
-                            initial="hidden"
-                            whileInView="show"
-                            viewport={{ once: true, margin: '-100px' }}
-                            className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4"
-                        >
+                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
                             {stats.map((stat, index) => {
                                 const IconComponent = stat.icon;
                                 return (
-                                    <motion.div
+                                    <div
                                         key={index}
-                                        variants={scaleIn}
-                                        whileHover={{ y: -6, scale: 1.02 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-4 text-center shadow-lg sm:p-5 md:p-6"
+                                        className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-4 text-center shadow-lg sm:p-5 md:p-6 transition-transform duration-300 hover:-translate-y-1.5"
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-orange-500/0 transition-all duration-500 group-hover:from-amber-500/15 group-hover:to-orange-500/15" />
 
@@ -167,10 +97,10 @@ export default function About() {
                                             <div className="text-xs font-semibold text-white/90 sm:text-sm">{stat.label}</div>
                                         </div>
                                         <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-all duration-500 group-hover:w-full" />
-                                    </motion.div>
+                                    </div>
                                 );
                             })}
-                        </motion.div>
+                        </div>
                     </div>
                 </section>
 
@@ -179,20 +109,9 @@ export default function About() {
                     <div className="mx-auto max-w-7xl px-4 sm:px-6">
                         <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
                             {/* Left Column */}
-                            <motion.div
-                                initial={{ opacity: 0, x: -30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true, margin: '-100px' }}
-                                transition={{ duration: 0.8, ease }}
-                                className="space-y-6"
-                            >
+                            <div className="space-y-6">
                                 <div className="space-y-3">
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true, margin: '-50px' }}
-                                        transition={{ duration: 0.6 }}
-                                    >
+                                    <div>
                                         <h2 className="mb-3 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-xl font-bold text-transparent sm:text-2xl lg:text-3xl">
                                             Company Profile
                                         </h2>
@@ -201,18 +120,11 @@ export default function About() {
                                             travel experiences. We prioritize service quality with a friendly and professional approach, ensuring
                                             every journey is both spiritually fulfilling and culturally enriching.
                                         </p>
-                                    </motion.div>
+                                    </div>
                                 </div>
 
                                 {/* Vision Card */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true, margin: '-50px' }}
-                                    transition={{ duration: 0.6, delay: 0.1 }}
-                                    whileHover={{ y: -4 }}
-                                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm sm:p-6"
-                                >
+                                <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm sm:p-6 transition-transform duration-300 hover:-translate-y-1">
                                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-indigo-500/0 transition-all duration-500 group-hover:from-blue-500/10 group-hover:to-indigo-500/10" />
                                     <div className="relative">
                                         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-500/40 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 px-3 py-1.5">
@@ -225,17 +137,10 @@ export default function About() {
                                         </p>
                                     </div>
                                     <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-blue-400 to-indigo-400 shadow-md transition-all duration-500 group-hover:w-full" />
-                                </motion.div>
+                                </div>
 
                                 {/* Mission Card */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true, margin: '-50px' }}
-                                    transition={{ duration: 0.6, delay: 0.2 }}
-                                    whileHover={{ y: -4 }}
-                                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm sm:p-6"
-                                >
+                                <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm sm:p-6 transition-transform duration-300 hover:-translate-y-1">
                                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-500/0 transition-all duration-500 group-hover:from-purple-500/10 group-hover:to-pink-500/10" />
                                     <div className="relative">
                                         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-purple-500/40 bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-3 py-1.5">
@@ -258,17 +163,11 @@ export default function About() {
                                         </ul>
                                     </div>
                                     <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-purple-400 to-pink-400 shadow-md transition-all duration-500 group-hover:w-full" />
-                                </motion.div>
-                            </motion.div>
+                                </div>
+                            </div>
 
                             {/* Right Column */}
-                            <motion.div
-                                initial={{ opacity: 0, x: 30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true, margin: '-100px' }}
-                                transition={{ duration: 0.8, ease, delay: 0.2 }}
-                                className="space-y-6"
-                            >
+                            <div className="space-y-6">
                                 <div>
                                     <h2 className="mb-5 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-xl font-bold text-transparent sm:text-2xl lg:text-3xl">
                                         Our Core Values
@@ -277,18 +176,13 @@ export default function About() {
                                         {coreValues.map((value, index) => {
                                             const IconComponent = value.icon;
                                             return (
-                                                <motion.div
+                                                <div
                                                     key={index}
-                                                    initial={{ opacity: 0, y: 20 }}
-                                                    whileInView={{ opacity: 1, y: 0 }}
-                                                    viewport={{ once: true, margin: '-50px' }}
-                                                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                                                    whileHover={{ y: -4, x: 1 }}
-                                                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm sm:p-6"
+                                                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm sm:p-6 transition-transform duration-300 hover:-translate-y-1"
                                                 >
                                                     <div className={`absolute inset-0 bg-gradient-to-br ${value.color} opacity-0 transition-all duration-500 group-hover:opacity-100`} />
                                                     <div className="relative flex items-start gap-3.5">
-                                                        <div className={`flex-shrink-0 rounded-lg border ${value.borderColor} bg-gradient-to-br ${value.color} p-2.5 shadow-md transition-all duration-300 group-hover:scale-105 group-hover:rotate-2 sm:p-3`}>
+                                                        <div className={`flex-shrink-0 rounded-lg border ${value.borderColor} bg-gradient-to-br ${value.color} p-2.5 shadow-md transition-all duration-300 group-hover:scale-105 sm:p-3`}>
                                                             <IconComponent className={`h-5 w-5 ${value.iconColor} sm:h-6 sm:w-6`} />
                                                         </div>
                                                         <div className="flex-1">
@@ -301,55 +195,41 @@ export default function About() {
                                                         </div>
                                                     </div>
                                                     <div className={`absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r ${value.accentGradient} shadow-md transition-all duration-500 group-hover:w-full`} />
-                                                </motion.div>
+                                                </div>
                                             );
                                         })}
                                     </div>
                                 </div>
 
                                 {/* CTA Card */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true, margin: '-50px' }}
-                                    transition={{ duration: 0.6, delay: 0.4 }}
-                                    className="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-6 shadow-xl sm:p-8"
-                                >
+                                <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-6 shadow-xl sm:p-8">
                                     <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/10" />
                                     <div className="relative text-center">
                                         <h3 className="mb-2.5 text-xl font-bold text-white sm:text-2xl">Ready to Start Your Journey?</h3>
                                         <p className="mb-5 text-sm text-white/95 sm:text-base">
                                             Contact us today for a free consultation and let us help you plan your perfect travel experience
                                         </p>
-                                        <motion.a
+                                        <a
                                             href="https://wa.me/6281234567890"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            whileHover={{ scale: 1.05, y: -2 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black shadow-xl transition-all hover:bg-white/95 hover:shadow-2xl sm:px-8 sm:py-4 sm:text-base"
+                                            className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black shadow-xl transition-all hover:bg-white/95 hover:shadow-2xl hover:scale-105 sm:px-8 sm:py-4 sm:text-base"
                                         >
                                             <span>Free Consultation</span>
                                             <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                             </svg>
-                                        </motion.a>
+                                        </a>
                                     </div>
-                                </motion.div>
-                            </motion.div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 {/* Footer */}
                 <footer className="relative border-t border-white/10 bg-black/70">
-                    <motion.div
-                        className="mx-auto max-w-7xl px-4 py-12 sm:px-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: '-100px' }}
-                        transition={{ duration: 0.6 }}
-                    >
+                    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
                         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
                             <div className="text-center text-base text-white/70 md:text-left">
                                 <div className="font-semibold">Email: hello@cahaya-anbiya.com</div>
@@ -361,24 +241,22 @@ export default function About() {
                                     { name: 'TikTok', url: 'https://tiktok.com' },
                                     { name: 'YouTube', url: 'https://youtube.com' },
                                 ].map((social) => (
-                                    <motion.a
+                                    <a
                                         key={social.name}
                                         href={social.url}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="text-base font-semibold text-white/70 transition-colors hover:text-amber-400"
-                                        whileHover={{ scale: 1.1, y: -2 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        className="text-base font-semibold text-white/70 transition-all hover:text-amber-400 hover:scale-110"
                                     >
                                         {social.name}
-                                    </motion.a>
+                                    </a>
                                 ))}
                             </div>
                         </div>
                         <div className="mt-10 border-t border-white/10 pt-8 text-center">
                             <p className="text-sm text-white/50">© 2024 Cahaya Anbiya Travel. All rights reserved.</p>
                         </div>
-                    </motion.div>
+                    </div>
                 </footer>
             </div>
         </PublicLayout>
