@@ -10,7 +10,7 @@ import { ArrowRight, Camera, Check, Clock, Edit3, MapPin, Plus, X } from 'lucide
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-// Enhanced Modal Component
+// Enhanced Modal Component - WITHOUT body scroll lock
 function DestinationEditorModal({
     destination,
     onClose,
@@ -29,18 +29,12 @@ function DestinationEditorModal({
         badge: string;
     };
     onClose: () => void;
-    onSave: (data: { name: string; description: string; image: string; badge: string }) => Promise<void>;
+    onSave: (data: any) => Promise<void>;
 }) {
     const [formData, setFormData] = useState(destination);
     const [isSaving, setIsSaving] = useState(false);
 
-    useEffect(() => {
-        document.body.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, []);
-
+    // ✅ CRITICAL FIX: NO body scroll manipulation!
     useEffect(() => {
         setFormData(destination);
     }, [destination]);
@@ -63,201 +57,186 @@ function DestinationEditorModal({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90"
+                className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-4"
                 onClick={onClose}
+                style={{
+                    WebkitOverflowScrolling: 'touch',
+                    overflowY: 'auto'
+                }}
             >
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                    className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border-2 border-blue-500/50 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl"
+                    className="relative w-full max-w-4xl rounded-3xl border-2 border-blue-500/50 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="flex-shrink-0 border-b-2 border-white/10 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 px-8 py-6">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <h2 className="mb-2 text-3xl font-bold text-white">✏️ Edit Destination</h2>
-                                <p className="text-base text-gray-300">Update all destination information</p>
+                    <div className="max-h-[85vh] overflow-y-auto">
+                        <div className="sticky top-0 z-10 border-b-2 border-white/10 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 px-8 py-6 backdrop-blur-sm">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <h2 className="mb-2 text-3xl font-bold text-white">✏️ Edit Destination</h2>
+                                    <p className="text-base text-gray-300">Update all destination information</p>
+                                </div>
+                                <button
+                                    onClick={onClose}
+                                    className="rounded-xl p-3 text-gray-400 transition-all hover:rotate-90 hover:bg-white/10 hover:text-white"
+                                >
+                                    <X className="h-6 w-6" />
+                                </button>
                             </div>
-                            <button
-                                onClick={onClose}
-                                className="rounded-xl p-3 text-gray-400 transition-all hover:rotate-90 hover:bg-white/10 hover:text-white"
-                            >
-                                <X className="h-6 w-6" />
-                            </button>
                         </div>
-                    </div>
 
-                    <div className="flex-1 overflow-y-auto px-8 py-8">
-                        <div className="space-y-6">
-                            <div>
-                                <label className="mb-3 block text-base font-bold text-gray-200">Title</label>
-                                <input
-                                    type="text"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                    placeholder="Destination title"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-3 block text-base font-bold text-gray-200">Subtitle</label>
-                                <input
-                                    type="text"
-                                    value={formData.subtitle}
-                                    onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                    placeholder="Short description"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-3 block text-base font-bold text-gray-200">Location</label>
-                                <input
-                                    type="text"
-                                    value={formData.location}
-                                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                    placeholder="e.g., Dubai, UAE"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-6">
+                        <div className="px-8 py-8">
+                            <div className="space-y-6">
                                 <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Duration</label>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Title</label>
                                     <input
                                         type="text"
-                                        value={formData.duration}
-                                        onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                                        value={formData.title}
+                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                         className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                        placeholder="e.g., 5D4N"
+                                        placeholder="Destination title"
                                     />
                                 </div>
                                 <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Price</label>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Subtitle</label>
                                     <input
                                         type="text"
-                                        value={formData.price}
-                                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                        value={formData.subtitle}
+                                        onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
                                         className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                        placeholder="e.g., Rp 15M"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="mb-3 block text-base font-bold text-gray-200">Highlights</label>
-                                <textarea
-                                    value={formData.highlights}
-                                    onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
-                                    rows={3}
-                                    className="w-full resize-none rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                    placeholder="Key features"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-3 block text-base font-bold text-gray-200">Description</label>
-                                <textarea
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    rows={4}
-                                    className="w-full resize-none rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                    placeholder="Detailed description"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Category</label>
-                                    <input
-                                        type="text"
-                                        value={formData.category}
-                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                        placeholder="e.g., Premium"
+                                        placeholder="Short description"
                                     />
                                 </div>
                                 <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Badge</label>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Location</label>
                                     <input
                                         type="text"
-                                        value={formData.badge}
-                                        onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+                                        value={formData.location}
+                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                         className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                        placeholder="e.g., Best Seller"
+                                        placeholder="e.g., Dubai, UAE"
                                     />
                                 </div>
-                            </div>
-                            <div>
-                                <label className="mb-3 block text-base font-bold text-gray-200">Replace Image</label>
-                                <input
-                                    type="file"
-                                    accept="image/jpeg,image/png,image/webp"
-                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-base text-white transition-all file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-amber-500 file:to-orange-500 file:px-5 file:py-3 file:font-bold file:text-white hover:file:from-amber-400 hover:file:to-orange-400"
-                                    onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (!file) return;
-                                        setIsSaving(true);
-                                        try {
-                                            const formData = new FormData();
-                                            formData.append('key', `destinations.${destination.id}.image`);
-                                            formData.append('image', file);
-                                            const response = await axios.post('/admin/upload-image', formData, {
-                                                headers: { 'Content-Type': 'multipart/form-data' },
-                                            });
-                                            if (response.data.success && response.data.imageUrl) {
-                                                const img = document.querySelector(
-                                                    `img[data-destination-id="${destination.id}"]`,
-                                                ) as HTMLImageElement | null;
-                                                if (img) img.src = response.data.imageUrl;
-                                                const notification = document.createElement('div');
-                                                notification.className =
-                                                    'fixed top-20 right-4 z-[99999] rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 px-8 py-5 text-white shadow-2xl';
-                                                notification.innerHTML =
-                                                    '<div class="flex items-center gap-4"><svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><div><div class="font-bold text-lg">📸 Image Updated!</div><div class="text-sm opacity-90">Successfully saved</div></div></div>';
-                                                document.body.appendChild(notification);
-                                                setTimeout(() => notification.remove(), 3000);
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="mb-3 block text-base font-bold text-gray-200">Duration</label>
+                                        <input
+                                            type="text"
+                                            value={formData.duration}
+                                            onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                            placeholder="e.g., 5D4N"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="mb-3 block text-base font-bold text-gray-200">Price</label>
+                                        <input
+                                            type="text"
+                                            value={formData.price}
+                                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                            placeholder="e.g., Rp 15M"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Highlights</label>
+                                    <textarea
+                                        value={formData.highlights}
+                                        onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
+                                        rows={3}
+                                        className="w-full resize-none rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                        placeholder="Key features"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Description</label>
+                                    <textarea
+                                        value={formData.description}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        rows={4}
+                                        className="w-full resize-none rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                        placeholder="Detailed description"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="mb-3 block text-base font-bold text-gray-200">Category</label>
+                                        <input
+                                            type="text"
+                                            value={formData.category}
+                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                            placeholder="e.g., Premium"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="mb-3 block text-base font-bold text-gray-200">Badge</label>
+                                        <input
+                                            type="text"
+                                            value={formData.badge}
+                                            onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                            placeholder="e.g., Best Seller"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Replace Image</label>
+                                    <input
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-base text-white transition-all file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-amber-500 file:to-orange-500 file:px-5 file:py-3 file:font-bold file:text-white hover:file:from-amber-400 hover:file:to-orange-400"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+                                            setIsSaving(true);
+                                            try {
+                                                const formData = new FormData();
+                                                formData.append('key', `destinations.${destination.id}.image`);
+                                                formData.append('image', file);
+                                                const response = await axios.post('/admin/upload-image', formData, {
+                                                    headers: { 'Content-Type': 'multipart/form-data' },
+                                                });
+                                                if (response.data.success && response.data.imageUrl) {
+                                                    const img = document.querySelector(
+                                                        `img[data-destination-id="${destination.id}"]`,
+                                                    ) as HTMLImageElement | null;
+                                                    if (img) img.src = response.data.imageUrl;
+                                                }
+                                            } catch (error) {
+                                                console.error('Upload failed:', error);
+                                                alert('Failed to upload image');
+                                            } finally {
+                                                setIsSaving(false);
+                                                e.target.value = '';
                                             }
-                                        } catch (error) {
-                                            console.error('Upload failed:', error);
-                                            alert('Failed to upload image');
-                                        } finally {
-                                            setIsSaving(false);
-                                            e.target.value = '';
-                                        }
-                                    }}
-                                />
-                                <p className="mt-3 text-sm text-gray-400">Supported: JPEG, PNG, WebP • Max 5MB</p>
+                                        }}
+                                    />
+                                    <p className="mt-3 text-sm text-gray-400">Supported: JPEG, PNG, WebP • Max 5MB</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="flex-shrink-0 border-t-2 border-white/10 bg-gray-900/50 px-8 py-5">
-                        <div className="flex items-center justify-end gap-4">
-                            <button
-                                onClick={onClose}
-                                className="rounded-xl border-2 border-white/10 px-6 py-3 text-base font-semibold text-gray-300 transition-all hover:bg-white/5"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className="hover:shadow-3xl rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-base font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50"
-                            >
-                                {isSaving ? (
-                                    <span className="flex items-center gap-2">
-                                        <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                            <path
-                                                className="opacity-75"
-                                                fill="currentColor"
-                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                            />
-                                        </svg>
-                                        Saving...
-                                    </span>
-                                ) : (
-                                    '💾 Save All Changes'
-                                )}
-                            </button>
+                        <div className="sticky bottom-0 border-t-2 border-white/10 bg-gray-900/95 px-8 py-5 backdrop-blur-sm">
+                            <div className="flex items-center justify-end gap-4">
+                                <button
+                                    onClick={onClose}
+                                    className="rounded-xl border-2 border-white/10 px-6 py-3 text-base font-semibold text-gray-300 transition-all hover:bg-white/5"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={isSaving}
+                                    className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-base font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50"
+                                >
+                                    {isSaving ? 'Saving...' : '💾 Save All Changes'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
@@ -269,6 +248,8 @@ function DestinationEditorModal({
 
 export default function Destinations() {
     const [editMode, setEditModeUI] = useState<boolean>(false);
+    const [saving, setSaving] = useState(false);
+
     useEffect(() => {
         const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
         check();
@@ -289,19 +270,9 @@ export default function Destinations() {
         category: string;
         badge: string;
     }>(null);
+
     const [imageTargetKey, setImageTargetKey] = useState<string | null>(null);
     const hiddenImageInputId = 'destinations-image-replacer';
-
-    useEffect(() => {
-        if (editorOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, [editorOpen]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -514,16 +485,22 @@ export default function Destinations() {
         },
     ];
 
+    const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
+
+    const getImageSrc = (sectionKey: string, fallbackPath: string) => {
+        return getImageUrl(props.sections, sectionKey, fallbackPath);
+    };
+
     return (
         <PublicLayout>
             <Head title="Destinations - Cahaya Anbiya Travel" />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
-                {/* Hero Section - Compact */}
+                {/* Hero Section */}
                 <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
                     <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.1),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
-                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.1),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
+                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.08),transparent_70%)] blur-xl" />
+                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.08),transparent_70%)] blur-xl" />
                     </div>
 
                     <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
@@ -571,7 +548,7 @@ export default function Destinations() {
                             </div>
                         </motion.div>
 
-                        {/* Destinations Grid - Compact */}
+                        {/* Destinations Grid */}
                         <motion.div
                             variants={containerVariants}
                             initial="hidden"
@@ -581,21 +558,18 @@ export default function Destinations() {
                         >
                             {destinations.map((destination) => {
                                 const [dialogOpen, setDialogOpen] = React.useState(false);
-                                
+
                                 return (
-                                    <Dialog 
+                                    <Dialog
                                         key={destination.id}
                                         open={dialogOpen}
-                                        onOpenChange={(open) => {
-                                            // Allow dialog to open in both edit mode and normal mode
-                                            // This allows editing description in the dialog
-                                            setDialogOpen(open);
-                                        }}
+                                        onOpenChange={setDialogOpen}
                                     >
                                         <DialogTrigger asChild>
                                             <motion.article
                                                 variants={cardVariants}
-                                                whileHover={!editMode ? { scale: 1.03, y: -6, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } } : {}}
+                                                whileHover={!editMode ? { scale: 1.03, y: -6 } : {}}
+                                                transition={{ duration: 0.3 }}
                                                 className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 ${!editMode ? 'cursor-pointer' : 'cursor-default'}`}
                                             >
                                             <div className="relative aspect-video overflow-hidden">
@@ -605,7 +579,7 @@ export default function Destinations() {
                                                     data-destination-id={destination.id}
                                                     loading="lazy"
                                                     decoding="async"
-                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 will-change-transform"
+                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                     onError={(e) => {
                                                         e.currentTarget.style.display = 'none';
                                                         const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
@@ -641,7 +615,6 @@ export default function Destinations() {
                                                                 document.getElementById(hiddenImageInputId)?.click();
                                                             }}
                                                             className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
-                                                            title="Replace image"
                                                         >
                                                             <Camera className="h-5 w-5" strokeWidth={2.5} />
                                                         </button>
@@ -663,19 +636,9 @@ export default function Destinations() {
                                                                 });
                                                             }}
                                                             className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
-                                                            title="Edit card details (all fields)"
                                                         >
                                                             <Edit3 className="h-5 w-5" strokeWidth={2.5} />
                                                         </button>
-                                                    </div>
-                                                )}
-                                                
-                                                {/* Visual indicator for edit mode - shows which areas are editable */}
-                                                {editMode && (
-                                                    <div className="absolute top-3 right-3 z-10">
-                                                        <div className="rounded-lg bg-blue-500/20 px-2 py-1 text-[10px] font-semibold text-blue-300 ring-1 ring-blue-400/30">
-                                                            EDIT MODE
-                                                        </div>
                                                     </div>
                                                 )}
 
@@ -683,13 +646,6 @@ export default function Destinations() {
                                             </div>
 
                                             <div className="p-5 sm:p-6">
-                                                {/* Edit mode indicator for card fields */}
-                                                {editMode && (
-                                                    <div className="mb-2 rounded-md bg-blue-500/10 px-2 py-1 text-[10px] font-medium text-blue-300">
-                                                        💡 Click blue button above to edit all card data
-                                                    </div>
-                                                )}
-                                                
                                                 <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl">
                                                     <EditableText
                                                         sectionKey={`destinations.${destination.id}.title`}
@@ -736,7 +692,6 @@ export default function Destinations() {
                                                     </span>
                                                 </div>
 
-                                                {/* Highlights - Read-only display in card */}
                                                 <div className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm">
                                                     {destination.highlights}
                                                 </div>
@@ -763,11 +718,6 @@ export default function Destinations() {
                                                 />
                                             </DialogTitle>
                                             <DialogDescription className="text-lg leading-relaxed text-white/80">
-                                                {editMode && (
-                                                    <div className="mb-3 rounded-md bg-blue-500/10 px-3 py-2 text-sm font-medium text-blue-300 ring-1 ring-blue-400/30">
-                                                        📝 Edit description below
-                                                    </div>
-                                                )}
                                                 <EditableText
                                                     sectionKey={`destinations.${destination.id}.description`}
                                                     value={destination.description}
@@ -862,7 +812,7 @@ export default function Destinations() {
                             })}
                         </motion.div>
 
-                        {/* CTA Section - Enhanced */}
+                        {/* CTA Section */}
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -913,7 +863,7 @@ export default function Destinations() {
                     </div>
                 </section>
 
-                {/* Footer - Enhanced */}
+                {/* Footer */}
                 <footer className="relative border-t border-white/10 bg-black/70">
                     <motion.div
                         className="mx-auto max-w-7xl px-4 py-12 sm:px-6"
@@ -975,7 +925,6 @@ export default function Destinations() {
                                 window.dispatchEvent(new CustomEvent('cms:flush-save'));
                             }
                         })
-                        .catch(() => {})
                         .finally(() => {
                             setSaving(false);
                             setImageTargetKey(null);
@@ -1002,13 +951,6 @@ export default function Destinations() {
                         ];
                         await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
                         window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                        const notification = document.createElement('div');
-                        notification.className =
-                            'fixed top-20 right-4 z-[99999] rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-8 py-5 text-white shadow-2xl';
-                        notification.innerHTML =
-                            '<div class="flex items-center gap-4"><svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg><div><div class="font-bold text-lg">✅ Successfully Saved!</div><div class="text-sm opacity-90">All changes saved</div></div></div>';
-                        document.body.appendChild(notification);
-                        setTimeout(() => notification.remove(), 3000);
                         setEditorOpen(null);
                     }}
                 />

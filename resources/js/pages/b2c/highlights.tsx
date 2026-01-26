@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { getR2Url } from '@/utils/imageHelper';
 
-// Enhanced Modal Component
+// ✅ FIXED Modal Component - NO body scroll lock!
 function HighlightEditorModal({
     highlight,
     onClose,
@@ -29,13 +29,7 @@ function HighlightEditorModal({
     const [formData, setFormData] = useState(highlight);
     const [isSaving, setIsSaving] = useState(false);
 
-    useEffect(() => {
-        document.body.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, []);
-
+    // ✅ CRITICAL FIX: NO body scroll manipulation!
     useEffect(() => {
         setFormData(highlight);
     }, [highlight]);
@@ -58,159 +52,165 @@ function HighlightEditorModal({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90"
+                className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-4"
                 onClick={onClose}
+                style={{
+                    WebkitOverflowScrolling: 'touch',
+                    overflowY: 'auto'
+                }}
             >
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                    className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border-2 border-amber-500/50 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl"
+                    className="relative w-full max-w-4xl rounded-3xl border-2 border-amber-500/50 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="flex-shrink-0 border-b-2 border-white/10 bg-gradient-to-r from-amber-600/20 to-orange-600/20 px-8 py-6">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <h2 className="mb-2 text-3xl font-bold text-white">✨ Edit Highlight</h2>
-                                <p className="text-base text-gray-300">Update highlight information</p>
+                    <div className="max-h-[85vh] overflow-y-auto">
+                        <div className="sticky top-0 z-10 border-b-2 border-white/10 bg-gradient-to-r from-amber-600/20 to-orange-600/20 px-8 py-6 backdrop-blur-sm">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <h2 className="mb-2 text-3xl font-bold text-white">✨ Edit Highlight</h2>
+                                    <p className="text-base text-gray-300">Update highlight information</p>
+                                </div>
+                                <button
+                                    onClick={onClose}
+                                    className="rounded-xl p-3 text-gray-400 transition-all hover:rotate-90 hover:bg-white/10 hover:text-white"
+                                >
+                                    <X className="h-6 w-6" />
+                                </button>
                             </div>
-                            <button
-                                onClick={onClose}
-                                className="rounded-xl p-3 text-gray-400 transition-all hover:rotate-90 hover:bg-white/10 hover:text-white"
-                            >
-                                <X className="h-6 w-6" />
-                            </button>
                         </div>
-                    </div>
 
-                    <div className="flex-1 overflow-y-auto px-8 py-8">
-                        <div className="space-y-6">
-                            <div>
-                                <label className="mb-3 block text-base font-bold text-gray-200">Title</label>
-                                <input
-                                    type="text"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                                    placeholder="Highlight title"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-3 block text-base font-bold text-gray-200">Subtitle</label>
-                                <input
-                                    type="text"
-                                    value={formData.subtitle}
-                                    onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                                    placeholder="Short description"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-3 block text-base font-bold text-gray-200">Description</label>
-                                <textarea
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    rows={5}
-                                    className="w-full resize-none rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                                    placeholder="Detailed description"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-6">
+                        <div className="px-8 py-8">
+                            <div className="space-y-6">
                                 <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Category</label>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Title</label>
                                     <input
                                         type="text"
-                                        value={formData.category}
-                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                        value={formData.title}
+                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                         className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                                        placeholder="e.g., Premium"
+                                        placeholder="Highlight title"
                                     />
                                 </div>
                                 <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Badge</label>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Subtitle</label>
                                     <input
                                         type="text"
-                                        value={formData.badge}
-                                        onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+                                        value={formData.subtitle}
+                                        onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
                                         className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                                        placeholder="e.g., Featured"
+                                        placeholder="Short description"
                                     />
                                 </div>
-                            </div>
-                            <div>
-                                <label className="mb-3 block text-base font-bold text-gray-200">Replace Image</label>
-                                <input
-                                    type="file"
-                                    accept="image/jpeg,image/png,image/webp"
-                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-base text-white transition-all file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-amber-500 file:to-orange-500 file:px-5 file:py-3 file:font-bold file:text-white hover:file:from-amber-400 hover:file:to-orange-400"
-                                    onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (!file) return;
-                                        setIsSaving(true);
-                                        try {
-                                            const formData = new FormData();
-                                            formData.append('key', `highlights.${highlight.id}.image`);
-                                            formData.append('image', file);
-                                            const response = await axios.post('/admin/upload-image', formData, {
-                                                headers: { 'Content-Type': 'multipart/form-data' },
-                                            });
-                                            if (response.data.success && response.data.imageUrl) {
-                                                const img = document.querySelector(
-                                                    `img[data-highlight-id="${highlight.id}"]`,
-                                                ) as HTMLImageElement | null;
-                                                if (img) img.src = response.data.imageUrl;
-                                                const notification = document.createElement('div');
-                                                notification.className =
-                                                    'fixed top-20 right-4 z-[99999] rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 px-8 py-5 text-white shadow-2xl';
-                                                notification.innerHTML =
-                                                    '<div class="flex items-center gap-4"><svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><div><div class="font-bold text-lg">📸 Image Updated!</div><div class="text-sm opacity-90">Successfully saved</div></div></div>';
-                                                document.body.appendChild(notification);
-                                                setTimeout(() => notification.remove(), 3000);
+                                <div>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Description</label>
+                                    <textarea
+                                        value={formData.description}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        rows={5}
+                                        className="w-full resize-none rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                                        placeholder="Detailed description"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="mb-3 block text-base font-bold text-gray-200">Category</label>
+                                        <input
+                                            type="text"
+                                            value={formData.category}
+                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                                            placeholder="e.g., Premium"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="mb-3 block text-base font-bold text-gray-200">Badge</label>
+                                        <input
+                                            type="text"
+                                            value={formData.badge}
+                                            onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                                            placeholder="e.g., Featured"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="mb-3 block text-base font-bold text-gray-200">Replace Image</label>
+                                    <input
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-base text-white transition-all file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-amber-500 file:to-orange-500 file:px-5 file:py-3 file:font-bold file:text-white hover:file:from-amber-400 hover:file:to-orange-400"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+                                            setIsSaving(true);
+                                            try {
+                                                const formData = new FormData();
+                                                formData.append('key', `highlights.${highlight.id}.image`);
+                                                formData.append('image', file);
+                                                const response = await axios.post('/admin/upload-image', formData, {
+                                                    headers: { 'Content-Type': 'multipart/form-data' },
+                                                });
+                                                if (response.data.success && response.data.imageUrl) {
+                                                    const img = document.querySelector(
+                                                        `img[data-highlight-id="${highlight.id}"]`,
+                                                    ) as HTMLImageElement | null;
+                                                    if (img) img.src = response.data.imageUrl;
+                                                    const notification = document.createElement('div');
+                                                    notification.className =
+                                                        'fixed top-20 right-4 z-[99999] rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 px-8 py-5 text-white shadow-2xl';
+                                                    notification.innerHTML =
+                                                        '<div class="flex items-center gap-4"><svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><div><div class="font-bold text-lg">📸 Image Updated!</div><div class="text-sm opacity-90">Successfully saved</div></div></div>';
+                                                    document.body.appendChild(notification);
+                                                    setTimeout(() => notification.remove(), 3000);
+                                                }
+                                            } catch (error) {
+                                                console.error('Upload failed:', error);
+                                                alert('Failed to upload image');
+                                            } finally {
+                                                setIsSaving(false);
+                                                e.target.value = '';
                                             }
-                                        } catch (error) {
-                                            console.error('Upload failed:', error);
-                                            alert('Failed to upload image');
-                                        } finally {
-                                            setIsSaving(false);
-                                            e.target.value = '';
-                                        }
-                                    }}
-                                />
-                                <p className="mt-3 text-sm text-gray-400">Supported: JPEG, PNG, WebP • Max 5MB</p>
+                                        }}
+                                    />
+                                    <p className="mt-3 text-sm text-gray-400">Supported: JPEG, PNG, WebP • Max 5MB</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="flex-shrink-0 border-t-2 border-white/10 bg-gray-900/50 px-8 py-5">
-                        <div className="flex items-center justify-end gap-4">
-                            <button
-                                onClick={onClose}
-                                className="rounded-xl border-2 border-white/10 px-6 py-3 text-base font-semibold text-gray-300 transition-all hover:bg-white/5"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className="hover:shadow-3xl rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-base font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50"
-                            >
-                                {isSaving ? (
-                                    <span className="flex items-center gap-2">
-                                        <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                            <path
-                                                className="opacity-75"
-                                                fill="currentColor"
-                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                            />
-                                        </svg>
-                                        Saving...
-                                    </span>
-                                ) : (
-                                    '💾 Save All Changes'
-                                )}
-                            </button>
+                        <div className="sticky bottom-0 border-t-2 border-white/10 bg-gray-900/95 px-8 py-5 backdrop-blur-sm">
+                            <div className="flex items-center justify-end gap-4">
+                                <button
+                                    onClick={onClose}
+                                    className="rounded-xl border-2 border-white/10 px-6 py-3 text-base font-semibold text-gray-300 transition-all hover:bg-white/5"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={isSaving}
+                                    className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-base font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50"
+                                >
+                                    {isSaving ? (
+                                        <span className="flex items-center gap-2">
+                                            <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                <path
+                                                    className="opacity-75"
+                                                    fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                />
+                                            </svg>
+                                            Saving...
+                                        </span>
+                                    ) : (
+                                        '💾 Save All Changes'
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
@@ -374,13 +374,13 @@ export default function Highlights() {
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
                 <section className="relative mx-auto max-w-7xl px-4 pt-12 pb-8 sm:px-6 md:pt-16 md:pb-10">
-                    {/* Ambient Effects */}
+                    {/* Ambient Effects - OPTIMIZED */}
                     <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.1),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
-                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.1),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
+                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.08),transparent_70%)] blur-xl" />
+                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.08),transparent_70%)] blur-xl" />
                     </div>
 
-                    {/* Hero Section - Compact */}
+                    {/* Hero Section */}
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -425,7 +425,7 @@ export default function Highlights() {
                         </div>
                     </motion.div>
 
-                    {/* Highlights Grid - Compact */}
+                    {/* Highlights Grid */}
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
@@ -448,24 +448,19 @@ export default function Highlights() {
                                         data-highlight-id={highlight.id}
                                         loading="lazy"
                                         decoding="async"
-                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 will-change-transform"
+                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                         onError={(e) => {
-                                            // Try alternative R2 paths, never fallback to local
                                             const target = e.currentTarget;
                                             if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
                                                 const currentUrl = target.src;
-                                                // Try different R2 path variations
                                                 if (currentUrl.includes('/public/')) {
-                                                    // Try without /public/
                                                     const altPath = currentUrl.replace('/public/', '/');
                                                     target.src = altPath;
                                                 } else {
-                                                    // Try with /public/ prefix
                                                     const altPath = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
                                                     target.src = altPath;
                                                 }
                                             } else {
-                                                // Hide image if not R2 URL
                                                 target.style.display = 'none';
                                                 const nextElement = target.nextElementSibling as HTMLElement;
                                                 if (nextElement) nextElement.style.display = 'block';
@@ -598,7 +593,7 @@ export default function Highlights() {
                         ))}
                     </motion.div>
 
-                    {/* CTA Section - Compact */}
+                    {/* CTA Section */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -638,7 +633,7 @@ export default function Highlights() {
                         </div>
                     </motion.div>
 
-                    {/* Testimonials - Compact */}
+                    {/* Testimonials */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -702,7 +697,7 @@ export default function Highlights() {
                     </motion.div>
                 </section>
 
-                {/* Footer - Enhanced */}
+                {/* Footer */}
                 <footer className="relative border-t border-white/10 bg-black/70">
                     <motion.div
                         className="mx-auto max-w-7xl px-4 py-12 sm:px-6"
