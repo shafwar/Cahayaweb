@@ -5,12 +5,9 @@ import React, { useEffect, useState } from 'react';
 import { getR2Url } from '@/utils/imageHelper';
 
 export default function SelectMode() {
-    const [showSplash, setShowSplash] = useState(false); // Disabled by default for better performance
+    const [showSplash, setShowSplash] = useState(true);
 
     useEffect(() => {
-        // Skip splash screen for better performance
-        // If you want to enable it, uncomment below:
-        /*
         const visited = localStorage.getItem('cahaya-anbiya-visited');
         const sessionVisited = sessionStorage.getItem('cahaya-anbiya-session');
 
@@ -20,17 +17,16 @@ export default function SelectMode() {
             const timer = setTimeout(() => {
                 setShowSplash(false);
                 sessionStorage.setItem('cahaya-anbiya-session', 'true');
-            }, 1500); // Reduced from 2800ms
+            }, 2800);
             return () => clearTimeout(timer);
         } else {
             const timer = setTimeout(() => {
                 setShowSplash(false);
                 localStorage.setItem('cahaya-anbiya-visited', 'true');
                 sessionStorage.setItem('cahaya-anbiya-session', 'true');
-            }, 2000); // Reduced from 3500ms
+            }, 3500);
             return () => clearTimeout(timer);
         }
-        */
     }, []);
 
     // Premium easing curves
