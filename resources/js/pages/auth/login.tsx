@@ -29,6 +29,7 @@ interface LoginProps {
 export default function Login({ status, canResetPassword, mode, redirect, error }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false);
     const [csrfTokenRefreshed, setCsrfTokenRefreshed] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false); // Local loading state for better control
     const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
         email: '',
         password: '',
@@ -36,6 +37,11 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
         mode: typeof mode === 'string' ? mode : undefined,
         redirect: redirect ?? undefined,
     });
+    
+    // Sync local loading state with Inertia processing state
+    useEffect(() => {
+        setIsSubmitting(processing);
+    }, [processing]);
 
     // CRITICAL: Refresh CSRF token when login page loads (without causing reload loop)
     // Server already regenerates token on page load, so we just need to update axios header
@@ -78,6 +84,12 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        
+        // CRITICAL: Prevent multiple submissions
+        if (processing || isSubmitting) {
+            console.warn('[Login] Form is already submitting, ignoring duplicate submission');
+            return;
+        }
 
         // Get CSRF token from meta tag (guaranteed fresh from server-side regeneration)
         // Server always regenerates token on page load, so token is always fresh
@@ -97,6 +109,9 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
             (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
         }
 
+        // CRITICAL: Set loading state IMMEDIATELY before any async operations
+        setIsSubmitting(true);
+
         // CRITICAL: Use RELATIVE URL to let browser resolve HTTPS automatically
         // Absolute URLs can cause Mixed Content if Inertia caches HTTP URL
         // Relative URLs are always resolved relative to current page (which is HTTPS)
@@ -109,13 +124,21 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
         // Submit login form with error handling
         // Using relative URL ensures browser resolves it to HTTPS automatically
         post(loginUrl, {
-            preserveState: false,
+            preserveState: true, // CRITICAL: Preserve state to keep loading visible
             preserveScroll: false,
+            only: [], // Don't limit what gets updated - allow full page update
             onStart: () => {
                 // Loading state is handled by processing state from useForm
+                setIsSubmitting(true); // Ensure loading state is set
                 console.log('[Login] Form submission started - validating credentials...');
             },
+            onProgress: () => {
+                // Keep loading state active during progress
+                setIsSubmitting(true);
+            },
             onFinish: () => {
+                // CRITICAL: Only reset loading state after everything is done
+                setIsSubmitting(false);
                 reset('password');
                 console.log('[Login] Form submission finished');
             },
@@ -125,10 +148,17 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                     url: page.url,
                     component: page.component,
                 });
+                // Loading state will be reset by onFinish
             },
             onError: (errors) => {
                 // Log errors for debugging
                 console.error('[Login] Error occurred:', errors);
+                
+                // CRITICAL: Reset loading state on error so user can see error message
+                // But delay slightly to ensure error message is rendered
+                setTimeout(() => {
+                    setIsSubmitting(false);
+                }, 100);
                 
                 // CRITICAL: On ANY error (including validation errors), refresh CSRF token
                 // This ensures fresh token for next attempt, preventing stale token issues
@@ -147,6 +177,7 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                 
                 if (isCsrfError) {
                     // CSRF error - reload page immediately to refresh token
+                    // But show loading until reload happens
                     console.warn('[Login] CSRF token expired, reloading page to refresh...');
                     setTimeout(() => {
                         window.location.reload();
@@ -169,6 +200,7 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                     }
                     
                     // Still display validation errors to user
+                    // Loading state already reset above
                     return;
                 }
                 
@@ -201,19 +233,25 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
 
             <form method="POST" className="flex flex-col gap-6 relative" onSubmit={submit}>
                 {/* Loading overlay - shows when form is submitting */}
-                {processing && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-black/40 backdrop-blur-sm">
-                        <div className="flex flex-col items-center gap-3 rounded-lg bg-gray-900/95 px-6 py-4 shadow-xl">
-                            <LoaderCircle className="h-8 w-8 animate-spin text-amber-500" />
-                            <p className="text-sm font-medium text-white">Validating credentials...</p>
-                            <p className="text-xs text-gray-400">Please wait</p>
+                {/* Use both processing and isSubmitting for maximum reliability */}
+                {(processing || isSubmitting) && (
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                        <div className="flex flex-col items-center gap-4 rounded-xl bg-gray-900/98 px-8 py-6 shadow-2xl border border-amber-500/20">
+                            <LoaderCircle className="h-10 w-10 animate-spin text-amber-500" />
+                            <div className="text-center">
+                                <p className="text-base font-semibold text-white">Validating credentials...</p>
+                                <p className="text-xs text-gray-400 mt-1">Please wait while we verify your information</p>
+                            </div>
+                            <div className="w-48 h-1 bg-gray-700 rounded-full overflow-hidden mt-2">
+                                <div className="h-full bg-gradient-to-r from-amber-500 to-orange-500 animate-pulse" style={{ width: '60%' }}></div>
+                            </div>
                         </div>
                     </div>
                 )}
                 
                 {data.mode && <input type="hidden" name="mode" value={data.mode} />}
                 {data.redirect && <input type="hidden" name="redirect" value={data.redirect} />}
-                <div className={`grid gap-6 ${processing ? 'opacity-60 pointer-events-none' : ''}`}>
+                <div className={`grid gap-6 transition-opacity duration-200 ${(processing || isSubmitting) ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email address</Label>
                         <Input
@@ -226,8 +264,8 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             placeholder="email@example.com"
-                            disabled={processing}
-                            className={processing ? 'opacity-60 cursor-not-allowed' : ''}
+                            disabled={processing || isSubmitting}
+                            className={(processing || isSubmitting) ? 'opacity-60 cursor-not-allowed' : ''}
                         />
                         <InputError message={errors.email} />
                         {errors.email && (
@@ -306,19 +344,19 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                             checked={data.remember}
                             onClick={() => setData('remember', !data.remember)}
                             tabIndex={3}
-                            disabled={processing}
-                            className={processing ? 'opacity-60 cursor-not-allowed' : ''}
+                            disabled={processing || isSubmitting}
+                            className={(processing || isSubmitting) ? 'opacity-60 cursor-not-allowed' : ''}
                         />
-                        <Label htmlFor="remember" className={processing ? 'opacity-60 cursor-not-allowed' : ''}>Remember me</Label>
+                        <Label htmlFor="remember" className={(processing || isSubmitting) ? 'opacity-60 cursor-not-allowed' : ''}>Remember me</Label>
                     </div>
 
                     <Button 
                         type="submit" 
                         className="mt-4 w-full relative min-h-[44px]" 
                         tabIndex={4} 
-                        disabled={processing}
+                        disabled={processing || isSubmitting}
                     >
-                        {processing ? (
+                        {(processing || isSubmitting) ? (
                             <span className="flex items-center justify-center gap-2">
                                 <LoaderCircle className="h-4 w-4 animate-spin" />
                                 <span>Validating credentials...</span>
