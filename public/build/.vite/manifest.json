@@ -234,7 +234,7 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-Ddm1LnSv.js",
+    "file": "assets/app-D1cYX50E.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -815,7 +815,7 @@
     ]
   },
   "resources/js/pages/settings/appearance.tsx": {
-    "file": "assets/appearance-B5BPevWS.js",
+    "file": "assets/appearance-BrXluTE8.js",
     "name": "appearance",
     "src": "resources/js/pages/settings/appearance.tsx",
     "isDynamicEntry": true,

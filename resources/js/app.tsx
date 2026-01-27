@@ -250,17 +250,26 @@ try {
         color: '#BC8E2E',
     },
     onError: (error) => {
-        // Handle 419 Page Expired errors
+        // Don't handle validation errors here - they should be displayed in the form
+        // Validation errors (422) are handled by Inertia automatically and displayed via InputError components
+        const errorStatus = (error as any)?.status;
         const errorMessage = error?.message || (typeof error === 'string' ? error : '') || '';
         const errorString = JSON.stringify(error || {});
         
+        // Skip handling for validation errors (422) - let them display in form
+        if (errorStatus === 422 || errorString.includes('422')) {
+            console.log('[Inertia] Validation error - will be displayed in form');
+            return; // Let Inertia handle validation errors normally
+        }
+        
+        // Handle 419 Page Expired errors
         if (
+            errorStatus === 419 ||
             errorMessage.includes('419') || 
             errorMessage.includes('expired') || 
             errorMessage.includes('PAGE EXPIRED') ||
             errorString.includes('419') ||
-            errorString.includes('expired') ||
-            (error as any)?.status === 419
+            errorString.includes('expired')
         ) {
             console.warn('[Inertia] CSRF token expired, reloading page...');
             // Reload page to refresh CSRF token
@@ -272,7 +281,7 @@ try {
         
         // Handle 500 Server Errors
         if (
-            (error as any)?.status === 500 ||
+            errorStatus === 500 ||
             errorMessage.includes('500') ||
             errorMessage.includes('SERVER ERROR') ||
             errorString.includes('500')

@@ -27,6 +27,31 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        // CRITICAL: Handle ValidationException FIRST before other handlers
+        // This ensures login validation errors are properly converted to Inertia response
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, \Illuminate\Http\Request $request) {
+            // For Inertia requests, Laravel automatically converts ValidationException to proper Inertia response
+            // But we need to ensure it's handled correctly
+            if ($request->header('X-Inertia')) {
+                // Return proper Inertia response with validation errors
+                // Laravel's default handler will do this, but we ensure it works
+                return back()->withErrors($e->errors())->withInput();
+            }
+            
+            // For AJAX/JSON requests, return JSON with validation errors
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => 'The given data was invalid.',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+            
+            // For regular requests, redirect back with errors (Laravel default)
+            return redirect()->back()
+                ->withInput()
+                ->withErrors($e->errors());
+        });
+
         // Handle 419 Page Expired (CSRF Token Mismatch) errors
         $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
             // For Inertia requests, return a clean error response
@@ -79,17 +104,17 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        // CRITICAL: Don't handle ValidationException - let Laravel handle it properly
-        // ValidationException should return proper Inertia response with validation errors
-        // This ensures login errors are displayed correctly instead of showing JSON error
-        
-        // Handle 500 Internal Server Errors gracefully (but exclude ValidationException)
+        // Handle 500 Internal Server Errors gracefully (but exclude ValidationException and TokenMismatchException)
+        // These are already handled above
         $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
-            // CRITICAL: Don't handle ValidationException - Laravel handles it correctly
-            // ValidationException will be converted to proper Inertia response automatically
+            // CRITICAL: Don't handle ValidationException - already handled above
             if ($e instanceof \Illuminate\Validation\ValidationException) {
-                // Let Laravel handle ValidationException - it will return proper Inertia response
-                return null; // Return null to let Laravel handle it
+                return null; // Already handled above
+            }
+            
+            // CRITICAL: Don't handle TokenMismatchException - already handled above
+            if ($e instanceof \Illuminate\Session\TokenMismatchException) {
+                return null; // Already handled above
             }
 
             // Log the error for debugging
