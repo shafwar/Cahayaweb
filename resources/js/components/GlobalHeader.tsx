@@ -362,21 +362,27 @@ const MobileMenuPortal: React.FC<{
                     <div className="border-t border-white/5 p-5">
                         {/* Only show login button for B2B variant, not for admin */}
                         {variant === 'b2b' && !isAdmin && (
-                            <button
-                                onClick={() => {
-                                    if (user) logout();
-                                    else router.visit('/login?mode=b2b&redirect=/b2b');
-                                    onClose();
-                                }}
-                                className={`mb-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${
-                                    user
-                                        ? 'border border-red-500/30 bg-red-500/10 text-red-300'
-                                        : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                                }`}
-                            >
-                                {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
-                                {user ? 'Logout' : 'Login'}
-                            </button>
+                            user ? (
+                                <button
+                                    onClick={() => {
+                                        logout();
+                                        onClose();
+                                    }}
+                                    className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300"
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                    Logout
+                                </button>
+                            ) : (
+                                <a
+                                    href="/login?mode=b2b&redirect=/b2b"
+                                    className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white"
+                                    onClick={onClose}
+                                >
+                                    <LogIn className="h-4 w-4" />
+                                    Login
+                                </a>
+                            )
                         )}
                         <p className="text-center text-xs text-white/40">© 2024 Cahaya Anbiya Travel</p>
                     </div>
@@ -672,23 +678,27 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
 
                             {/* Only show login button for B2B variant, not for admin */}
                             {variant === 'b2b' && !isAdmin && (
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => {
-                                        if (user) {
-                                            logout();
-                                        } else {
-                                            router.visit('/login?mode=b2b&redirect=/b2b');
-                                        }
-                                    }}
-                                    className={`hidden rounded-xl px-3 py-2 text-sm font-semibold md:flex ${user ? 'border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20' : 'border-none bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400'}`}
-                                >
-                                    <span className="flex items-center gap-2">
-                                        {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
-                                        <span>{user ? 'Logout' : 'Login'}</span>
-                                    </span>
-                                </motion.button>
+                                user ? (
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => logout()}
+                                        className="hidden rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20 md:flex"
+                                    >
+                                        <span className="flex items-center gap-2">
+                                            <LogOut className="h-4 w-4" />
+                                            <span>Logout</span>
+                                        </span>
+                                    </motion.button>
+                                ) : (
+                                    <a
+                                        href="/login?mode=b2b&redirect=/b2b"
+                                        className="hidden items-center gap-2 rounded-xl border-none bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-2 text-sm font-semibold text-white hover:from-amber-400 hover:to-orange-400 md:flex"
+                                    >
+                                        <LogIn className="h-4 w-4" />
+                                        <span>Login</span>
+                                    </a>
+                                )
                             )}
 
                             <button
