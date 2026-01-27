@@ -19,9 +19,38 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(Request $request)
     {
-        // Regenerate CSRF token to prevent 419 errors
+        // CRITICAL: Regenerate CSRF token to prevent 419 errors
         // This ensures a fresh token is available for login
-        $request->session()->regenerateToken();
+        // Also regenerate session if it's about to expire (within 10 minutes)
+        try {
+            $sessionLifetime = config('session.lifetime', 120); // minutes
+            $sessionLastActivity = $request->session()->get('_token_last_activity', 0);
+            $minutesSinceActivity = $sessionLastActivity > 0 
+                ? (time() - $sessionLastActivity) / 60 
+                : $sessionLifetime + 1; // Force regenerate if no activity recorded
+            
+            // Regenerate token if session is about to expire (within 10 minutes)
+            // or if it's been more than 50% of lifetime
+            if ($minutesSinceActivity > ($sessionLifetime * 0.5) || $minutesSinceActivity > ($sessionLifetime - 10)) {
+                $request->session()->regenerate();
+            }
+            
+            // Always regenerate CSRF token for fresh token
+            $request->session()->regenerateToken();
+            
+            // Record activity time
+            $request->session()->put('_token_last_activity', time());
+        } catch (\Throwable $e) {
+            // If regeneration fails, still try to regenerate token
+            // This ensures we always have a token, even if session operations fail
+            try {
+                $request->session()->regenerateToken();
+            } catch (\Throwable $tokenError) {
+                \Log::warning('Failed to regenerate CSRF token in login page', [
+                    'error' => $tokenError->getMessage()
+                ]);
+            }
+        }
 
         // If user is already logged in and trying to access B2B login, redirect them
         $user = $request->user();
