@@ -484,9 +484,15 @@ class AgentVerificationController extends Controller
                 'contact_person_position' => $verification->contact_person_position,
                 'contact_person_phone' => $verification->contact_person_phone,
                 'contact_person_email' => $verification->contact_person_email,
-                'business_license_file' => $this->getFileUrl($verification->business_license_file),
-                'tax_certificate_file' => $this->getFileUrl($verification->tax_certificate_file),
-                'company_profile_file' => $this->getFileUrl($verification->company_profile_file),
+                'business_license_file' => $verification->business_license_file 
+                    ? route('admin.agent-verifications.download', ['verification' => $verification->id, 'documentType' => 'business-license'])
+                    : null,
+                'tax_certificate_file' => $verification->tax_certificate_file 
+                    ? route('admin.agent-verifications.download', ['verification' => $verification->id, 'documentType' => 'tax-certificate'])
+                    : null,
+                'company_profile_file' => $verification->company_profile_file 
+                    ? route('admin.agent-verifications.download', ['verification' => $verification->id, 'documentType' => 'company-profile'])
+                    : null,
                 'status' => $verification->status,
                 'admin_notes' => $verification->admin_notes,
                 'reviewed_by' => $verification->reviewer ? $verification->reviewer->name : null,
@@ -655,63 +661,87 @@ class AgentVerificationController extends Controller
      * @param string|null $path File path stored in database
      * @return string|null Full URL to the file or null if path is empty
      */
-    private function getFileUrl(?string $path): ?string
+    /**
+     * Download agent verification document (proxy through Laravel)
+     * This ensures files are accessible even if R2 bucket is not publicly accessible
+     */
+    public function downloadDocument(Request $request, AgentVerification $verification, string $documentType)
     {
-        if (empty($path)) {
-            return null;
+        // Verify user is admin
+        $user = $request->user();
+        if (!$user) {
+            abort(403, 'Unauthorized');
+        }
+
+        $isAdmin = ($user->role ?? null) === 'admin' ||
+            in_array($user->email, config('app.admin_emails', []), true);
+
+        if (!$isAdmin) {
+            abort(403, 'Unauthorized - Admin access required');
+        }
+
+        // Map document type to file path
+        $filePath = null;
+        $fileName = null;
+        
+        switch ($documentType) {
+            case 'business-license':
+                $filePath = $verification->business_license_file;
+                $fileName = 'business-license-' . $verification->id . '.pdf';
+                break;
+            case 'tax-certificate':
+                $filePath = $verification->tax_certificate_file;
+                $fileName = 'tax-certificate-' . $verification->id . '.pdf';
+                break;
+            case 'company-profile':
+                $filePath = $verification->company_profile_file;
+                $fileName = 'company-profile-' . $verification->id . '.pdf';
+                break;
+            default:
+                abort(404, 'Document type not found');
+        }
+
+        if (empty($filePath)) {
+            abort(404, 'Document not found');
         }
 
         try {
-            // First, try to generate R2 URL directly without checking existence
-            // This is faster and avoids potential errors from storage checks
-            $r2Url = R2Helper::url($path);
-            
-            // If R2 URL generation succeeds, return it
-            // We don't check file existence to avoid 500 errors
-            // The browser will handle 404 if file doesn't exist
-            if ($r2Url) {
-                return $r2Url;
+            // Try R2 storage first
+            $disk = R2Helper::disk();
+            if ($disk->exists($filePath)) {
+                $fileContent = $disk->get($filePath);
+                $mimeType = $disk->mimeType($filePath) ?? 'application/pdf';
+                
+                return response($fileContent, 200)
+                    ->header('Content-Type', $mimeType)
+                    ->header('Content-Disposition', 'inline; filename="' . $fileName . '"')
+                    ->header('Cache-Control', 'public, max-age=3600');
             }
-            
-        } catch (\Exception $e) {
-            // Log but don't fail - we'll try fallback
-            \Log::debug('R2Helper::url() failed, trying fallback', [
-                'path' => $path,
-                'error' => $e->getMessage()
-            ]);
-        }
 
-        // Fallback: Generate R2 URL structure manually
-        // This ensures we always return a valid URL format
-        // Don't check file existence to avoid 500 errors
-        try {
-            $cleanPath = trim($path, '/');
-            $baseUrl = config('filesystems.disks.r2.url', 'https://assets.cahayaanbiya.com');
-            
-            // Handle agent-verifications folder
-            if (str_contains($cleanPath, 'agent-verification')) {
-                // Remove 'public/' prefix if present
-                if (str_starts_with($cleanPath, 'public/')) {
-                    $cleanPath = substr($cleanPath, 7);
-                }
-                return rtrim($baseUrl, '/') . '/public/' . ltrim($cleanPath, '/');
+            // Fallback to local storage
+            if (Storage::disk('public')->exists($filePath)) {
+                $fileContent = Storage::disk('public')->get($filePath);
+                $mimeType = Storage::disk('public')->mimeType($filePath) ?? 'application/pdf';
+                
+                return response($fileContent, 200)
+                    ->header('Content-Type', $mimeType)
+                    ->header('Content-Disposition', 'inline; filename="' . $fileName . '"')
+                    ->header('Cache-Control', 'public, max-age=3600');
             }
-            
-            // Default: assume it's in public folder
-            if (!str_starts_with($cleanPath, 'public/')) {
-                $cleanPath = 'public/' . $cleanPath;
-            }
-            return rtrim($baseUrl, '/') . '/' . ltrim($cleanPath, '/');
+
+            // If file doesn't exist in either storage, return 404
+            abort(404, 'File not found in storage');
             
         } catch (\Exception $e) {
-            \Log::error('All file URL generation methods failed', [
-                'path' => $path,
-                'error' => $e->getMessage()
+            \Log::error('Error downloading agent verification document', [
+                'verification_id' => $verification->id,
+                'document_type' => $documentType,
+                'file_path' => $filePath,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
             
-            // Absolute last resort: return null to prevent 500 error
-            // Frontend should handle null gracefully
-            return null;
+            abort(500, 'Error retrieving document: ' . $e->getMessage());
         }
     }
 }

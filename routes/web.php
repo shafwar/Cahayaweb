@@ -68,6 +68,7 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
 
     Route::get('/admin/agent-verifications', [AgentVerificationController::class, 'index'])->name('admin.agent-verifications');
     Route::get('/admin/agent-verifications/{verification}', [AgentVerificationController::class, 'show'])->name('admin.agent-verification.show');
+    Route::get('/admin/agent-verifications/{verification}/download/{documentType}', [AgentVerificationController::class, 'downloadDocument'])->name('admin.agent-verification.download');
     Route::post('/admin/agent-verifications/{verification}/approve', [AgentVerificationController::class, 'approve'])->name('admin.agent-verification.approve');
     Route::post('/admin/agent-verifications/{verification}/reject', [AgentVerificationController::class, 'reject'])->name('admin.agent-verification.reject');
     Route::post('/admin/agent-verifications/{verification}/update', [AgentVerificationController::class, 'update'])->name('admin.agent-verification.update');
