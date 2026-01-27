@@ -33,59 +33,54 @@ export default function SelectMode() {
     const ease = [0.22, 1, 0.36, 1];
     const smoothEase = [0.25, 0.46, 0.45, 0.94];
 
-    // Cinematic splash screen animation - Smoother transitions
+    // Optimized splash screen animation - GPU accelerated, no blur
     const splashVariants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
             transition: {
-                duration: 0.8,
+                duration: 0.6,
                 ease: smoothEase,
             },
         },
         exit: {
             opacity: 0,
             scale: 0.98,
-            filter: 'blur(8px)',
             transition: {
-                duration: 1,
+                duration: 0.5,
                 ease: smoothEase,
             },
         },
     };
 
-    // Powerful logo reveal with blur-fade - Smoother animation
+    // Optimized logo reveal - GPU accelerated, no blur filter
     const logoVariants = {
         hidden: {
             opacity: 0,
-            scale: 0.9,
-            filter: 'blur(15px)',
+            scale: 0.95,
         },
         visible: {
             opacity: 1,
             scale: 1,
-            filter: 'blur(0px)',
             transition: {
-                duration: 1,
+                duration: 0.8,
                 ease: smoothEase,
-                delay: 0.2,
+                delay: 0.1,
             },
         },
     };
 
-    // Dramatic text reveal with blur-fade-up - Smoother animation
+    // Optimized text reveal - GPU accelerated, no blur filter
     const textRevealVariants = {
         hidden: {
             opacity: 0,
-            y: 30,
-            filter: 'blur(8px)',
+            y: 20,
         },
         visible: (delay: number) => ({
             opacity: 1,
             y: 0,
-            filter: 'blur(0px)',
             transition: {
-                duration: 0.9,
+                duration: 0.7,
                 ease: smoothEase,
                 delay,
             },
@@ -106,32 +101,30 @@ export default function SelectMode() {
         },
     };
 
-    // Enhanced ambient glow with pulsing
+    // Optimized ambient glow - simplified for better performance
     const glowVariants = {
-        hidden: { opacity: 0, scale: 0.8 },
+        hidden: { opacity: 0 },
         visible: {
-            opacity: [0, 0.5, 0.3, 0.5, 0.3],
-            scale: [0.8, 1.2, 1, 1.15, 1],
+            opacity: [0.3, 0.5, 0.3],
             transition: {
-                duration: 6,
+                duration: 4,
                 repeat: Infinity,
                 ease: 'easeInOut',
             },
         },
     };
 
-    // Particles floating animation
+    // Optimized particles - reduced complexity for smooth animation
     const particleVariants = {
-        hidden: { opacity: 0, y: 0 },
+        hidden: { opacity: 0 },
         visible: (i: number) => ({
-            opacity: [0, 0.4, 0.2, 0.4, 0],
-            y: [-20, -60, -40, -80, -100],
-            x: [0, i * 10, i * -5, i * 15, i * 5],
+            opacity: [0, 0.3, 0],
+            y: [-20, -80],
             transition: {
-                duration: 4 + i * 0.5,
+                duration: 3,
                 repeat: Infinity,
-                ease: 'easeInOut',
-                delay: i * 0.3,
+                ease: 'easeOut',
+                delay: i * 0.2,
             },
         }),
     };
@@ -192,56 +185,68 @@ export default function SelectMode() {
                         initial="hidden"
                         animate="visible"
                         exit="exit"
+                        style={{
+                            willChange: 'opacity, transform',
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden',
+                            transform: 'translateZ(0)',
+                        }}
                     >
-                        {/* Multi-layer ambient glow with pulsing */}
+                        {/* Optimized ambient glow - single layer for better performance */}
                         <motion.div
-                            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.15),transparent_50%)]"
+                            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.12),transparent_60%)]"
                             variants={glowVariants}
                             initial="hidden"
                             animate="visible"
-                        />
-                        <motion.div
-                            className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,84,255,0.1),transparent_40%)]"
-                            variants={glowVariants}
-                            initial="hidden"
-                            animate="visible"
-                            style={{ animationDelay: '0.5s' }}
-                        />
-                        <motion.div
-                            className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(255,82,0,0.08),transparent_50%)]"
-                            variants={glowVariants}
-                            initial="hidden"
-                            animate="visible"
-                            style={{ animationDelay: '1s' }}
+                            style={{
+                                willChange: 'opacity',
+                                backfaceVisibility: 'hidden',
+                                transform: 'translateZ(0)',
+                            }}
                         />
 
-                        {/* Floating particles for ambience */}
-                        <div className="absolute inset-0 overflow-hidden">
-                            {[...Array(8)].map((_, i) => (
+                        {/* Optimized floating particles - reduced count for performance */}
+                        <div className="absolute inset-0 overflow-hidden" style={{ willChange: 'transform', transform: 'translateZ(0)' }}>
+                            {[...Array(4)].map((_, i) => (
                                 <motion.div
                                     key={i}
                                     custom={i}
                                     variants={particleVariants}
                                     initial="hidden"
                                     animate="visible"
-                                    className="absolute h-1 w-1 rounded-full bg-gradient-to-r from-amber-400/40 to-orange-400/20"
+                                    className="absolute h-1 w-1 rounded-full bg-gradient-to-r from-amber-400/30 to-orange-400/15"
                                     style={{
-                                        left: `${10 + i * 12}%`,
-                                        top: `${30 + (i % 3) * 20}%`,
+                                        left: `${15 + i * 20}%`,
+                                        top: `${40 + (i % 2) * 20}%`,
+                                        willChange: 'transform, opacity',
+                                        backfaceVisibility: 'hidden',
+                                        transform: 'translateZ(0)',
                                     }}
                                 />
                             ))}
                         </div>
 
                         <div className="relative z-10 flex flex-col items-center justify-center px-4 text-center">
-                            {/* Logo - Reduced size for mobile, proportional */}
-                            <motion.div variants={logoVariants} initial="hidden" animate="visible" className="mb-6 sm:mb-8 md:mb-12">
+                            {/* Logo - Optimized with GPU acceleration */}
+                            <motion.div 
+                                variants={logoVariants} 
+                                initial="hidden" 
+                                animate="visible" 
+                                className="mb-6 sm:mb-8 md:mb-12"
+                                style={{
+                                    willChange: 'transform, opacity',
+                                    backfaceVisibility: 'hidden',
+                                    transform: 'translateZ(0)',
+                                }}
+                            >
                                 <motion.img
                                     src={getR2Url('/cahayanbiyalogo.png')}
                                     alt="Cahaya Anbiya Logo"
                                     className="h-auto w-[50vw] max-w-[280px] sm:h-40 sm:w-auto md:h-48 lg:h-56 xl:h-64"
                                     style={{
-                                        filter: 'drop-shadow(0 0 40px rgba(254,201,1,0.3)) drop-shadow(0 0 60px rgba(0,84,255,0.15))',
+                                        filter: 'drop-shadow(0 0 30px rgba(254,201,1,0.25))',
+                                        willChange: 'transform',
+                                        backfaceVisibility: 'hidden',
                                     }}
                                     onError={(e) => {
                                         // Fallback to local logo if R2 logo fails
@@ -266,26 +271,36 @@ export default function SelectMode() {
                                 />
                             </motion.div>
 
-                            {/* "Welcome to" text - Reduced size for mobile */}
+                            {/* "Welcome to" text - GPU accelerated */}
                             <motion.h1
-                                custom={0.6}
+                                custom={0.4}
                                 variants={textRevealVariants}
                                 initial="hidden"
                                 animate="visible"
                                 className="mb-3 text-xl font-light tracking-wide text-white/90 sm:mb-4 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
-                                style={{ fontFamily: 'Poppins, sans-serif' }}
+                                style={{ 
+                                    fontFamily: 'Poppins, sans-serif',
+                                    willChange: 'transform, opacity',
+                                    backfaceVisibility: 'hidden',
+                                    transform: 'translateZ(0)',
+                                }}
                             >
                                 Welcome to
                             </motion.h1>
 
-                            {/* Brand name - Reduced size for mobile */}
+                            {/* Brand name - GPU accelerated */}
                             <motion.h2
-                                custom={0.8}
+                                custom={0.6}
                                 variants={textRevealVariants}
                                 initial="hidden"
                                 animate="visible"
                                 className="relative mb-3 text-[32px] leading-[1.1] font-semibold tracking-tight sm:mb-3 sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
-                                style={{ fontFamily: 'Poppins, sans-serif' }}
+                                style={{ 
+                                    fontFamily: 'Poppins, sans-serif',
+                                    willChange: 'transform, opacity',
+                                    backfaceVisibility: 'hidden',
+                                    transform: 'translateZ(0)',
+                                }}
                             >
                                 <motion.span
                                     className="bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 bg-clip-text text-transparent"
@@ -300,36 +315,54 @@ export default function SelectMode() {
                                 </motion.span>
                             </motion.h2>
 
-                            {/* Subtitle - Reduced size for mobile */}
+                            {/* Subtitle - GPU accelerated */}
                             <motion.p
-                                custom={1}
+                                custom={0.8}
                                 variants={textRevealVariants}
                                 initial="hidden"
                                 animate="visible"
                                 className="text-sm font-light tracking-widest text-white/50 sm:text-base md:text-lg lg:text-xl"
-                                style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '0.25em' }}
+                                style={{ 
+                                    fontFamily: 'Poppins, sans-serif', 
+                                    letterSpacing: '0.25em',
+                                    willChange: 'transform, opacity',
+                                    backfaceVisibility: 'hidden',
+                                    transform: 'translateZ(0)',
+                                }}
                             >
                                 WISATA INDONESIA
                             </motion.p>
 
-                            {/* Loading dots - Reduced size for mobile */}
-                            <motion.div variants={dotVariants} initial="hidden" animate="visible" className="mt-8 flex gap-2.5 sm:mt-10 md:mt-12">
+                            {/* Loading dots - Optimized with GPU acceleration */}
+                            <motion.div 
+                                variants={dotVariants} 
+                                initial="hidden" 
+                                animate="visible" 
+                                className="mt-8 flex gap-2.5 sm:mt-10 md:mt-12"
+                                style={{
+                                    willChange: 'transform, opacity',
+                                    backfaceVisibility: 'hidden',
+                                }}
+                            >
                                 {[0, 1, 2].map((i) => (
                                     <motion.div
                                         key={i}
                                         className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 sm:h-2 sm:w-2"
                                         animate={{
-                                            opacity: [0.3, 1, 0.3],
-                                            scale: [1, 1.2, 1],
+                                            opacity: [0.4, 1, 0.4],
+                                            scale: [1, 1.15, 1],
                                         }}
                                         transition={{
-                                            duration: 1.2,
+                                            duration: 1,
                                             repeat: Infinity,
-                                            delay: i * 0.15,
+                                            delay: i * 0.2,
                                             ease: 'easeInOut',
                                         }}
                                         style={{
-                                            boxShadow: '0 0 12px rgba(254,201,1,0.5)',
+                                            boxShadow: '0 0 8px rgba(254,201,1,0.4)',
+                                            willChange: 'transform, opacity',
+                                            backfaceVisibility: 'hidden',
+                                            transform: 'translateZ(0)',
                                         }}
                                     />
                                 ))}
@@ -342,12 +375,10 @@ export default function SelectMode() {
                 )}
             </AnimatePresence>
 
-            {/* Premium gradient background - Optimized for mobile */}
-            <div className="pointer-events-none absolute inset-0">
-                <div className="absolute -top-20 left-1/2 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.06),transparent_70%)] blur-2xl sm:-top-40 sm:h-[600px] sm:w-[800px]" />
-                <div className="absolute right-0 -bottom-20 h-[300px] w-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,84,255,0.05),transparent_70%)] blur-2xl sm:-bottom-40 sm:h-[500px] sm:w-[600px]" />
-                <div className="absolute -bottom-10 left-0 h-[250px] w-[350px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.04),transparent_70%)] blur-2xl sm:-bottom-20 sm:h-[400px] sm:w-[500px]" />
-                <div className="absolute -top-10 right-10 h-[200px] w-[300px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.03),transparent_80%)] blur-xl sm:-top-20 sm:right-20 sm:h-[300px] sm:w-[400px]" />
+            {/* Optimized gradient background - Reduced blur for better performance */}
+            <div className="pointer-events-none absolute inset-0" style={{ willChange: 'transform', transform: 'translateZ(0)' }}>
+                <div className="absolute -top-20 left-1/2 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.05),transparent_70%)] blur-xl sm:-top-40 sm:h-[600px] sm:w-[800px]" style={{ willChange: 'transform', transform: 'translateZ(0)' }} />
+                <div className="absolute right-0 -bottom-20 h-[300px] w-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,84,255,0.04),transparent_70%)] blur-xl sm:-bottom-40 sm:h-[500px] sm:w-[600px]" style={{ willChange: 'transform', transform: 'translateZ(0)' }} />
             </div>
 
             {/* Main content */}
