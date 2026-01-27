@@ -114,7 +114,9 @@ class AuthenticatedSessionController extends Controller
             }
 
             // Render Inertia page
-            $inertiaResponse = Inertia::render('auth/login', [
+            // Inertia::render() returns a Response object that extends Symfony Response
+            /** @var \Symfony\Component\HttpFoundation\Response $response */
+            $response = Inertia::render('auth/login', [
                 'canResetPassword' => $canResetPassword,
                 'status' => $request->session()->get('status'),
                 'mode' => $request->query('mode'),
@@ -123,7 +125,7 @@ class AuthenticatedSessionController extends Controller
             ]);
 
             // Add cache-control headers to prevent caching
-            // Inertia::render() returns a Response object, so we can set headers
+            // Inertia Response extends Symfony Response, so headers can be set directly
             try {
                 // Get CSRF token for header
                 $csrfToken = null;
@@ -135,13 +137,12 @@ class AuthenticatedSessionController extends Controller
                     ]);
                 }
 
-                // Set headers - Inertia Response extends Symfony Response
-                /** @var \Symfony\Component\HttpFoundation\Response $inertiaResponse */
-                $inertiaResponse->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
-                $inertiaResponse->headers->set('Pragma', 'no-cache');
-                $inertiaResponse->headers->set('Expires', '0');
+                // Set headers directly on Response object
+                $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+                $response->headers->set('Pragma', 'no-cache');
+                $response->headers->set('Expires', '0');
                 if ($csrfToken) {
-                    $inertiaResponse->headers->set('X-CSRF-Token', $csrfToken);
+                    $response->headers->set('X-CSRF-Token', $csrfToken);
                 }
             } catch (\Throwable $e) {
                 \Log::warning('Failed to set cache headers', [
@@ -150,7 +151,7 @@ class AuthenticatedSessionController extends Controller
                 // Continue without headers - response is still valid
             }
 
-            return $inertiaResponse;
+            return $response;
         } catch (\Throwable $e) {
             // Last resort: log error and return basic response
             \Log::error('Fatal error rendering login page', [
