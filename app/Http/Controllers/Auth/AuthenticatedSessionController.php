@@ -19,6 +19,10 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(Request $request)
     {
+        // Regenerate CSRF token to prevent 419 errors
+        // This ensures a fresh token is available for login
+        $request->session()->regenerateToken();
+
         // If user is already logged in and trying to access B2B login, redirect them
         $user = $request->user();
         $mode = $request->query('mode');

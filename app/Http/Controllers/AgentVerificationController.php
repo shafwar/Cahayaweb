@@ -681,21 +681,9 @@ class AgentVerificationController extends Controller
             ]);
         }
 
-        // Fallback: Try local storage if R2 fails
-        try {
-            $publicDisk = Storage::disk('public');
-            if ($publicDisk->exists($path)) {
-                return asset('storage/' . $path);
-            }
-        } catch (\Exception $e) {
-            \Log::debug('Local storage check failed', [
-                'path' => $path,
-                'error' => $e->getMessage()
-            ]);
-        }
-
-        // Last resort: Generate R2 URL structure manually
+        // Fallback: Generate R2 URL structure manually
         // This ensures we always return a valid URL format
+        // Don't check file existence to avoid 500 errors
         try {
             $cleanPath = trim($path, '/');
             $baseUrl = config('filesystems.disks.r2.url', 'https://assets.cahayaanbiya.com');
