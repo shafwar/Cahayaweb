@@ -81,40 +81,83 @@
             });
         </script>
 
-        <!-- Force HTTPS for all requests -->
+        <!-- Force HTTPS for all requests - CRITICAL: Must run BEFORE any scripts -->
         <script>
-            // Force HTTPS for all requests to prevent Mixed Content errors
-            if (window.location.protocol === 'https:') {
-                // Override fetch to force HTTPS
-                const originalFetch = window.fetch;
-                window.fetch = function(url, options) {
-                    if (typeof url === 'string' && url.startsWith('http://')) {
-                        url = url.replace('http://', 'https://');
-                    }
-                    return originalFetch(url, options);
-                };
-
-                // Override XMLHttpRequest to force HTTPS
-                const originalXHROpen = XMLHttpRequest.prototype.open;
-                XMLHttpRequest.prototype.open = function(method, url, ...args) {
-                    if (typeof url === 'string' && url.startsWith('http://')) {
-                        url = url.replace('http://', 'https://');
-                    }
-                    return originalXHROpen.call(this, method, url, ...args);
-                };
-
-                // Override Ziggy URL to force HTTPS
-                if (typeof Ziggy !== 'undefined') {
-                    Ziggy.url = Ziggy.url.replace('http://', 'https://');
-
-                    // Override route function to force HTTPS
-                    const originalRoute = window.route;
-                    window.route = function(name, params, absolute, config) {
-                        const url = originalRoute(name, params, absolute, config);
-                        return url.replace('http://', 'https://');
+            // CRITICAL: Force HTTPS IMMEDIATELY before any other scripts run
+            // This prevents Mixed Content errors where HTTPS page tries to make HTTP requests
+            (function() {
+                if (window.location.protocol === 'https:') {
+                    // 1. Override XMLHttpRequest FIRST - most critical for Inertia
+                    const originalXHROpen = XMLHttpRequest.prototype.open;
+                    XMLHttpRequest.prototype.open = function(method, url, ...args) {
+                        if (typeof url === 'string') {
+                            if (url.startsWith('http://')) {
+                                url = url.replace('http://', 'https://');
+                                console.log('[HTTPS] app.blade.php: XMLHttpRequest converted to HTTPS:', url);
+                            }
+                            if (url.startsWith('//')) {
+                                url = 'https:' + url;
+                                console.log('[HTTPS] app.blade.php: Added https protocol:', url);
+                            }
+                        } else if (url instanceof URL && url.protocol === 'http:') {
+                            url.protocol = 'https:';
+                            console.log('[HTTPS] app.blade.php: URL object converted to HTTPS');
+                        }
+                        return originalXHROpen.call(this, method, url, ...args);
                     };
+                    
+                    // 2. Override fetch
+                    const originalFetch = window.fetch;
+                    window.fetch = function(url, options) {
+                        if (typeof url === 'string' && url.startsWith('http://')) {
+                            url = url.replace('http://', 'https://');
+                            console.log('[HTTPS] app.blade.php: fetch() converted to HTTPS');
+                        } else if (url instanceof Request && url.url.startsWith('http://')) {
+                            url = new Request(url.url.replace('http://', 'https://'), url);
+                            console.log('[HTTPS] app.blade.php: Request object converted to HTTPS');
+                        }
+                        return originalFetch(url, options);
+                    };
+
+                    // 3. Override Ziggy and route() when available
+                    const overrideZiggy = function() {
+                        if (typeof Ziggy !== 'undefined') {
+                            if (Ziggy.url && Ziggy.url.startsWith('http://')) {
+                                Ziggy.url = Ziggy.url.replace('http://', 'https://');
+                                console.log('[HTTPS] app.blade.php: Ziggy.url updated to HTTPS:', Ziggy.url);
+                            }
+
+                            // Override route function to force HTTPS
+                            if (typeof window.route === 'function') {
+                                const originalRoute = window.route;
+                                window.route = function(name, params, absolute, config) {
+                                    const url = originalRoute(name, params, absolute, config);
+                                    if (typeof url === 'string' && url.startsWith('http://')) {
+                                        const httpsUrl = url.replace('http://', 'https://');
+                                        console.log('[HTTPS] app.blade.php: route() converted:', url, '→', httpsUrl);
+                                        return httpsUrl;
+                                    }
+                                    return url;
+                                };
+                                console.log('[HTTPS] app.blade.php: route() function overridden');
+                            }
+                        } else {
+                            // Ziggy not loaded yet, try again
+                            setTimeout(overrideZiggy, 50);
+                        }
+                    };
+                    
+                    // Try immediately and on DOMContentLoaded
+                    overrideZiggy();
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', overrideZiggy);
+                    }
+                    setTimeout(overrideZiggy, 100);
+                    setTimeout(overrideZiggy, 500);
+                    
+                    console.log('[HTTPS] app.blade.php: All HTTPS overrides installed');
                 }
-            }
+            })();
         </script>
     </head>
     <body class="font-sans antialiased">

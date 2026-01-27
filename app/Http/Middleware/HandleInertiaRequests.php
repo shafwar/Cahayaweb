@@ -52,11 +52,29 @@ class HandleInertiaRequests extends Middleware
             }
 
             // Safe Ziggy initialization
-            // CRITICAL: Always use HTTPS URL to prevent Mixed Content errors
+            // CRITICAL: ALWAYS use HTTPS URL to prevent Mixed Content errors
+            // Force HTTPS regardless of request detection - if page is HTTPS, all URLs must be HTTPS
             $baseUrl = $request->getSchemeAndHttpHost();
-            // Force HTTPS if request is HTTPS
-            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
+            
+            // CRITICAL: Always force HTTPS if current request URL is HTTPS
+            // This prevents Mixed Content errors where HTTPS page tries to make HTTP requests
+            $currentUrl = $request->url();
+            if (str_starts_with($currentUrl, 'https://')) {
+                // Current page is HTTPS - force all URLs to HTTPS
                 $baseUrl = str_replace('http://', 'https://', $baseUrl);
+                // Also ensure baseUrl starts with https://
+                if (!str_starts_with($baseUrl, 'https://')) {
+                    $baseUrl = 'https://' . str_replace(['http://', 'https://'], '', $baseUrl);
+                }
+            } elseif ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
+                // Request detected as secure - force HTTPS
+                $baseUrl = str_replace('http://', 'https://', $baseUrl);
+            }
+            
+            // Final safety check: if baseUrl still starts with http://, force to https://
+            if (str_starts_with($baseUrl, 'http://')) {
+                $baseUrl = str_replace('http://', 'https://', $baseUrl);
+                Log::warning('Forced baseUrl to HTTPS as fallback', ['original' => $request->getSchemeAndHttpHost(), 'forced' => $baseUrl]);
             }
             
             $ziggyArray = ['url' => $baseUrl, 'routes' => []];
@@ -90,16 +108,35 @@ class HandleInertiaRequests extends Middleware
             }
 
             // Evaluate ziggy directly (not as closure) to avoid serialization issues
-            // CRITICAL: Always use HTTPS URL to prevent Mixed Content errors
+            // CRITICAL: ALWAYS use HTTPS URL to prevent Mixed Content errors
+            // Re-check baseUrl to ensure it's HTTPS
             $baseUrl = $request->getSchemeAndHttpHost();
-            // Force HTTPS if request is HTTPS
-            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
+            $currentUrl = $request->url();
+            
+            // CRITICAL: Always force HTTPS if current request URL is HTTPS
+            if (str_starts_with($currentUrl, 'https://')) {
                 $baseUrl = str_replace('http://', 'https://', $baseUrl);
+                if (!str_starts_with($baseUrl, 'https://')) {
+                    $baseUrl = 'https://' . str_replace(['http://', 'https://'], '', $baseUrl);
+                }
+            } elseif ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
+                $baseUrl = str_replace('http://', 'https://', $baseUrl);
+            }
+            
+            // Final safety check: force HTTPS if still HTTP
+            if (str_starts_with($baseUrl, 'http://')) {
+                $baseUrl = str_replace('http://', 'https://', $baseUrl);
+            }
+            
+            // Ensure location URL is also HTTPS
+            $locationUrl = $request->url();
+            if (str_starts_with($locationUrl, 'http://')) {
+                $locationUrl = str_replace('http://', 'https://', $locationUrl);
             }
             
             $ziggyData = [
                 'url' => $baseUrl,
-                'location' => $request->url(),
+                'location' => $locationUrl,
                 'routes' => [],
                 'forceHttps' => true,
             ];
@@ -107,7 +144,7 @@ class HandleInertiaRequests extends Middleware
                 $ziggyData = [
                     ...$ziggyArray,
                     'url' => $baseUrl, // Override with forced HTTPS URL
-                    'location' => $request->url(),
+                    'location' => $locationUrl, // Use HTTPS location URL
                     'forceHttps' => true,
                 ];
             } catch (\Throwable $e) {
@@ -157,15 +194,33 @@ class HandleInertiaRequests extends Middleware
             ]);
             
             // Last resort: return minimal safe props (all evaluated, no closures)
-            // CRITICAL: Always use HTTPS URL to prevent Mixed Content errors
+            // CRITICAL: ALWAYS use HTTPS URL to prevent Mixed Content errors
             $baseUrl = $request->getSchemeAndHttpHost();
-            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
+            $currentUrl = $request->url();
+            
+            // Always force HTTPS if current URL is HTTPS
+            if (str_starts_with($currentUrl, 'https://')) {
                 $baseUrl = str_replace('http://', 'https://', $baseUrl);
+                if (!str_starts_with($baseUrl, 'https://')) {
+                    $baseUrl = 'https://' . str_replace(['http://', 'https://'], '', $baseUrl);
+                }
+            } elseif ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
+                $baseUrl = str_replace('http://', 'https://', $baseUrl);
+            }
+            
+            // Final safety check
+            if (str_starts_with($baseUrl, 'http://')) {
+                $baseUrl = str_replace('http://', 'https://', $baseUrl);
+            }
+            
+            $locationUrl = $request->url();
+            if (str_starts_with($locationUrl, 'http://')) {
+                $locationUrl = str_replace('http://', 'https://', $locationUrl);
             }
             
             $fallbackZiggy = [
                 'url' => $baseUrl,
-                'location' => $request->url(),
+                'location' => $locationUrl,
                 'routes' => [],
                 'forceHttps' => true,
             ];

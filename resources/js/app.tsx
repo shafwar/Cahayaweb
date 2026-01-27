@@ -49,39 +49,74 @@ if (typeof window !== 'undefined') {
             return originalFetch(url, options);
         };
         
-        // 3. Override XMLHttpRequest to force HTTPS
+        // 3. Override XMLHttpRequest to force HTTPS - MOST CRITICAL!
+        // This intercepts ALL AJAX requests including Inertia requests
         const originalXHROpen = XMLHttpRequest.prototype.open;
         XMLHttpRequest.prototype.open = function(method: string, url: string | URL, ...args: any[]) {
-            if (typeof url === 'string' && url.startsWith('http://')) {
-                url = url.replace('http://', 'https://');
-                console.log('[HTTPS] XMLHttpRequest converted to HTTPS');
+            if (typeof url === 'string') {
+                // Convert HTTP to HTTPS
+                if (url.startsWith('http://')) {
+                    url = url.replace('http://', 'https://');
+                    console.log('[HTTPS] XMLHttpRequest.open() converted:', url);
+                }
+                // Also handle relative URLs that might be resolved to HTTP
+                if (url.startsWith('//') && window.location.protocol === 'https:') {
+                    url = 'https:' + url;
+                    console.log('[HTTPS] XMLHttpRequest.open() added https protocol:', url);
+                }
+            } else if (url instanceof URL && url.protocol === 'http:') {
+                url.protocol = 'https:';
+                console.log('[HTTPS] XMLHttpRequest.open() URL object converted to HTTPS');
             }
             return originalXHROpen.call(this, method, url, ...args);
         };
         
-        console.log('[HTTPS] All URL overrides installed');
+        // 4. Also override XMLHttpRequest send to catch any URLs set after open()
+        const originalXHRSend = XMLHttpRequest.prototype.send;
+        XMLHttpRequest.prototype.send = function(body?: Document | XMLHttpRequestBodyInit | null) {
+            // Check if URL was set and convert if needed
+            if (this.responseURL && this.responseURL.startsWith('http://')) {
+                console.warn('[HTTPS] XMLHttpRequest.responseURL is HTTP, but request should be HTTPS');
+            }
+            return originalXHRSend.call(this, body);
+        };
+        
+        console.log('[HTTPS] All URL overrides installed (including XMLHttpRequest)');
     }
 }
 
 // Force HTTPS for all requests to prevent Mixed Content errors
+// This is a duplicate override to ensure it runs even if first one fails
 if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
     // Override fetch to force HTTPS
     const originalFetch = window.fetch;
     window.fetch = function (url, options) {
         if (typeof url === 'string' && url.startsWith('http://')) {
             url = url.replace('http://', 'https://');
+            console.log('[HTTPS] fetch() duplicate override converted to HTTPS');
         } else if (url instanceof Request && url.url.startsWith('http://')) {
             url = new Request(url.url.replace('http://', 'https://'), url);
+            console.log('[HTTPS] fetch() Request object converted to HTTPS');
         }
 
         return originalFetch(url as RequestInfo | URL, options);
     };
 
-    // Override XMLHttpRequest to force HTTPS
+    // Override XMLHttpRequest to force HTTPS - CRITICAL for Inertia!
     const originalXHROpen = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function (method, url, ...args) {
-        if (typeof url === 'string' && url.startsWith('http://')) {
-            url = url.replace('http://', 'https://');
+        if (typeof url === 'string') {
+            if (url.startsWith('http://')) {
+                url = url.replace('http://', 'https://');
+                console.log('[HTTPS] XMLHttpRequest.open() duplicate override converted:', url);
+            }
+            if (url.startsWith('//') && window.location.protocol === 'https:') {
+                url = 'https:' + url;
+                console.log('[HTTPS] XMLHttpRequest.open() added https protocol');
+            }
+        } else if (url instanceof URL && url.protocol === 'http:') {
+            url.protocol = 'https:';
+            console.log('[HTTPS] XMLHttpRequest.open() URL object converted');
         }
         return originalXHROpen.call(this, method, url, ...args);
     };
@@ -159,12 +194,6 @@ let inertiaAppCreated = false;
 
 try {
     createInertiaApp({
-    // CRITICAL: Intercept Inertia router to force HTTPS URLs
-    // This ensures all Inertia requests use HTTPS, preventing Mixed Content errors
-    ...(typeof window !== 'undefined' && window.location.protocol === 'https:' ? {
-        // Override Inertia's internal URL handling if possible
-        // Note: Inertia doesn't expose router directly, but we intercept at request level
-    } : {}),
     title: (title) => {
         try {
             return title ? `${title} - ${appName}` : appName;
