@@ -144,20 +144,41 @@ class AuthenticatedSessionController extends Controller
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request): RedirectResponse|SymfonyResponse
     {
         try {
             // Logout user first (before invalidating session)
-            Auth::guard('web')->logout();
+            // This is safe even if user is already logged out
+            if (Auth::check()) {
+                Auth::guard('web')->logout();
+            }
 
             // Invalidate session (this will clear all session data)
-            $request->session()->invalidate();
+            // Use try-catch to handle cases where session might already be invalid
+            try {
+                $request->session()->invalidate();
+            } catch (\Exception $sessionError) {
+                // Session might already be invalid - that's okay
+                \Log::debug('Session already invalid during logout: ' . $sessionError->getMessage());
+            }
 
             // Regenerate session ID for security (creates new empty session)
-            $request->session()->regenerate();
+            // Use try-catch to handle edge cases
+            try {
+                $request->session()->regenerate();
+            } catch (\Exception $regenerateError) {
+                // Session regeneration might fail if session was already invalidated
+                \Log::debug('Session regeneration failed during logout: ' . $regenerateError->getMessage());
+            }
 
             // Regenerate CSRF token after session regeneration
-            $request->session()->regenerateToken();
+            // This ensures a fresh token for the next request
+            try {
+                $request->session()->regenerateToken();
+            } catch (\Exception $tokenError) {
+                // Token regeneration might fail - that's okay, new session will have new token
+                \Log::debug('Token regeneration failed during logout: ' . $tokenError->getMessage());
+            }
         } catch (\Exception $e) {
             // Log error for debugging but don't expose to user
             \Log::error('Logout error: ' . $e->getMessage(), [
@@ -173,16 +194,19 @@ class AuthenticatedSessionController extends Controller
                 }
             } catch (\Exception $logoutError) {
                 // Ignore logout errors - user might already be logged out
-                \Log::warning('Fallback logout also failed: ' . $logoutError->getMessage());
+                \Log::debug('Fallback logout also failed (this is usually okay): ' . $logoutError->getMessage());
             }
         }
 
         // For Inertia requests, use location redirect to ensure clean state
+        // This prevents any Page Expired errors by doing a full page redirect
         if ($request->header('X-Inertia')) {
+            // Use Inertia::location for a clean redirect without any error pages
             return Inertia::location('/');
         }
 
-        // Always redirect to home
+        // Always redirect to home - this ensures logout always succeeds
+        // even if there were minor errors during session cleanup
         return redirect('/');
     }
 
