@@ -50,45 +50,127 @@ class AuthenticatedSessionController extends Controller
         }
 
         // If user is already logged in and trying to access B2B login, redirect them
-        $user = $request->user();
-        $mode = $request->query('mode');
+        try {
+            $user = $request->user();
+            $mode = $request->query('mode');
 
-        if ($user && $mode === 'b2b') {
-            // Check if user is admin
-            $isAdmin = ($user->role ?? null) === 'admin' ||
-                in_array($user->email, config('app.admin_emails', []), true);
+            if ($user && $mode === 'b2b') {
+                // Check if user is admin - wrap in try-catch for safety
+                $isAdmin = false;
+                try {
+                    $isAdmin = ($user->role ?? null) === 'admin' ||
+                        in_array($user->email, config('app.admin_emails', []), true);
+                } catch (\Throwable $e) {
+                    \Log::warning('Error checking admin status in login page', [
+                        'error' => $e->getMessage()
+                    ]);
+                }
 
-            if ($isAdmin) {
-                // Redirect admin away from B2B login
-                return redirect('/admin')->with('error', 'Admin accounts cannot access B2B portal. Please use the admin dashboard.');
+                if ($isAdmin) {
+                    // Redirect admin away from B2B login
+                    return redirect('/admin')->with('error', 'Admin accounts cannot access B2B portal. Please use the admin dashboard.');
+                }
+
+                // If user already has B2B access, redirect to B2B index
+                // Wrap in try-catch to prevent errors if method doesn't exist or relation fails
+                try {
+                    if (method_exists($user, 'hasB2BAccess') && $user->hasB2BAccess()) {
+                        return redirect()->route('b2b.index');
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('Error checking B2B access in login page', [
+                        'user_id' => $user->id ?? null,
+                        'error' => $e->getMessage()
+                    ]);
+                    // Continue to registration if check fails
+                }
+
+                // If user doesn't have B2B access, redirect to registration
+                try {
+                    return redirect()->route('b2b.register');
+                } catch (\Throwable $e) {
+                    \Log::error('Error redirecting to B2B register', [
+                        'error' => $e->getMessage()
+                    ]);
+                    // Fall through to render login page if route doesn't exist
+                }
             }
-
-            // If user already has B2B access, redirect to B2B index
-            if ($user->hasB2BAccess()) {
-                return redirect()->route('b2b.index');
-            }
-
-            // If user doesn't have B2B access, redirect to registration
-            return redirect()->route('b2b.register');
+        } catch (\Throwable $e) {
+            // Log error but continue to render login page
+            \Log::error('Error in login page user check', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
 
         // CRITICAL: Set no-cache headers to prevent browser from caching login page
         // This ensures user always gets fresh CSRF token, simulating "hard refresh"
-        $response = Inertia::render('auth/login', [
-            'canResetPassword' => Route::has('password.request'),
-            'status' => $request->session()->get('status'),
-            'mode' => $request->query('mode'),
-            'redirect' => $request->query('redirect'),
-            'error' => $request->session()->get('error'),
-        ]);
+        try {
+            $canResetPassword = false;
+            try {
+                $canResetPassword = Route::has('password.request');
+            } catch (\Throwable $e) {
+                \Log::debug('Route::has() check failed', ['error' => $e->getMessage()]);
+            }
 
-        // Add cache-control headers to prevent caching
-        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
-        $response->headers->set('Pragma', 'no-cache');
-        $response->headers->set('Expires', '0');
-        $response->headers->set('X-CSRF-Token', csrf_token()); // Also send token in header for extra safety
+            $response = Inertia::render('auth/login', [
+                'canResetPassword' => $canResetPassword,
+                'status' => $request->session()->get('status'),
+                'mode' => $request->query('mode'),
+                'redirect' => $request->query('redirect'),
+                'error' => $request->session()->get('error'),
+            ]);
 
-        return $response;
+            // Add cache-control headers to prevent caching
+            try {
+                $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+                $response->headers->set('Pragma', 'no-cache');
+                $response->headers->set('Expires', '0');
+                
+                // Try to get CSRF token - wrap in try-catch
+                try {
+                    $csrfToken = csrf_token();
+                    if ($csrfToken) {
+                        $response->headers->set('X-CSRF-Token', $csrfToken);
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('Failed to set X-CSRF-Token header', [
+                        'error' => $e->getMessage()
+                    ]);
+                    // Continue without header - meta tag should still work
+                }
+            } catch (\Throwable $e) {
+                \Log::warning('Failed to set cache headers', [
+                    'error' => $e->getMessage()
+                ]);
+                // Continue without headers - response is still valid
+            }
+
+            return $response;
+        } catch (\Throwable $e) {
+            // Last resort: log error and return basic response
+            \Log::error('Fatal error rendering login page', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Try to return basic Inertia response without extra data
+            try {
+                return Inertia::render('auth/login', [
+                    'canResetPassword' => false,
+                    'status' => null,
+                    'mode' => $request->query('mode'),
+                    'redirect' => $request->query('redirect'),
+                    'error' => 'An error occurred. Please try again.',
+                ]);
+            } catch (\Throwable $fallbackError) {
+                // Absolute last resort: return error response
+                \Log::critical('Cannot render login page at all', [
+                    'error' => $fallbackError->getMessage()
+                ]);
+                abort(500, 'Unable to load login page. Please try again later.');
+            }
+        }
     }
 
     /**
