@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import { Eye, EyeOff, LoaderCircle } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -28,6 +28,7 @@ interface LoginProps {
 
 export default function Login({ status, canResetPassword, mode, redirect, error }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false);
+    const [csrfTokenRefreshed, setCsrfTokenRefreshed] = useState(false);
     const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
         email: '',
         password: '',
@@ -35,6 +36,64 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
         mode: typeof mode === 'string' ? mode : undefined,
         redirect: redirect ?? undefined,
     });
+
+    // CRITICAL: Force refresh CSRF token when login page loads
+    // This simulates a "hard refresh" to ensure fresh token and no stale cache
+    useEffect(() => {
+        const refreshCsrfToken = async () => {
+            try {
+                console.log('[Login] Refreshing CSRF token on page load...');
+                
+                // Fetch fresh CSRF token from server
+                // Use HEAD request to avoid unnecessary data transfer
+                const response = await fetch('/sanctum/csrf-cookie', {
+                    method: 'HEAD',
+                    credentials: 'include',
+                    cache: 'no-store', // Force no cache
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0',
+                    },
+                });
+
+                if (response.ok) {
+                    // After fetching CSRF cookie, reload meta tag token
+                    // Small delay to ensure cookie is set
+                    setTimeout(() => {
+                        const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
+                        if (metaToken) {
+                            // Force browser to re-read meta tag by removing and re-adding
+                            const token = metaToken.content;
+                            console.log('[Login] CSRF token refreshed:', token ? 'Token available' : 'Token missing');
+                            
+                            // Update axios default header if available
+                            if (token && typeof window !== 'undefined' && (window as any).axios) {
+                                (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+                            }
+                            
+                            setCsrfTokenRefreshed(true);
+                        } else {
+                            console.warn('[Login] CSRF meta tag not found after refresh');
+                            // If meta tag missing, reload page to get fresh token
+                            window.location.reload();
+                        }
+                    }, 100);
+                } else {
+                    console.warn('[Login] Failed to refresh CSRF token, reloading page...');
+                    // If refresh fails, reload page to get fresh token
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('[Login] Error refreshing CSRF token:', error);
+                // On error, reload page to ensure fresh token
+                window.location.reload();
+            }
+        };
+
+        // Only refresh on initial mount, not on every render
+        refreshCsrfToken();
+    }, []); // Empty dependency array = run once on mount
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -81,32 +140,75 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                 // Log errors for debugging
                 console.error('[Login] Error occurred:', errors);
                 
-                // Handle validation errors (422) - display in form
-                // These errors will be displayed automatically by InputError components
-                if (errors.email || errors.password) {
-                    // Validation errors are handled by Inertia automatically
-                    console.log('[Login] Validation errors:', errors.email || errors.password);
-                    return;
-                }
-                
-                // Handle 419 PAGE EXPIRED errors
+                // CRITICAL: On ANY error (including validation errors), refresh CSRF token
+                // This ensures fresh token for next attempt, preventing stale token issues
                 const errorMessage = errors?.message || (typeof errors === 'string' ? errors : '') || '';
                 const errorString = JSON.stringify(errors || {});
                 
-                if (
+                // Check if this is a CSRF/419 error
+                const isCsrfError = 
                     errorMessage.includes('419') || 
                     errorMessage.includes('expired') || 
                     errorMessage.includes('PAGE EXPIRED') ||
                     errorString.includes('419') ||
                     errorString.includes('expired') ||
-                    errorString.includes('csrf')
-                ) {
-                    // Reload page to refresh CSRF token
+                    errorString.includes('csrf') ||
+                    errorString.includes('token');
+                
+                if (isCsrfError) {
+                    // CSRF error - reload page immediately to refresh token
                     console.warn('[Login] CSRF token expired, reloading page to refresh...');
                     setTimeout(() => {
                         window.location.reload();
                     }, 500);
+                    return;
                 }
+                
+                // For validation errors (email/password wrong), refresh CSRF token after showing error
+                // This ensures fresh token for next attempt
+                if (errors.email || errors.password) {
+                    console.log('[Login] Validation errors - refreshing CSRF token for next attempt...');
+                    
+                    // Refresh CSRF token in background
+                    fetch('/sanctum/csrf-cookie', {
+                        method: 'HEAD',
+                        credentials: 'include',
+                        cache: 'no-store',
+                    }).then(() => {
+                        // Update meta tag token
+                        setTimeout(() => {
+                            const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
+                            if (metaToken && metaToken.content) {
+                                if (typeof window !== 'undefined' && (window as any).axios) {
+                                    (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = metaToken.content;
+                                }
+                                console.log('[Login] CSRF token refreshed after validation error');
+                            }
+                        }, 100);
+                    }).catch((err) => {
+                        console.error('[Login] Failed to refresh CSRF token after validation error:', err);
+                        // If refresh fails, reload page
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    });
+                    
+                    // Still display validation errors to user
+                    return;
+                }
+                
+                // For any other errors, also refresh token
+                console.warn('[Login] Unknown error - refreshing CSRF token as precaution...');
+                fetch('/sanctum/csrf-cookie', {
+                    method: 'HEAD',
+                    credentials: 'include',
+                    cache: 'no-store',
+                }).catch(() => {
+                    // If refresh fails, reload page
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                });
             },
         });
     };

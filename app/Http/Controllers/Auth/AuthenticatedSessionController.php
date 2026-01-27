@@ -72,12 +72,23 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('b2b.register');
         }
 
-        return Inertia::render('auth/login', [
+        // CRITICAL: Set no-cache headers to prevent browser from caching login page
+        // This ensures user always gets fresh CSRF token, simulating "hard refresh"
+        $response = Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
             'mode' => $request->query('mode'),
             'redirect' => $request->query('redirect'),
+            'error' => $request->session()->get('error'),
         ]);
+
+        // Add cache-control headers to prevent caching
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
+        $response->headers->set('X-CSRF-Token', csrf_token()); // Also send token in header for extra safety
+
+        return $response;
     }
 
     /**
