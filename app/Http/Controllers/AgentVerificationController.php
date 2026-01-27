@@ -461,6 +461,10 @@ class AgentVerificationController extends Controller
         $verification->load(['user', 'reviewer']);
 
         return Inertia::render('admin/agent-verification-detail', [
+            'flash' => [
+                'error' => $request->session()->get('error'),
+                'success' => $request->session()->get('success'),
+            ],
             'verification' => [
                 'id' => $verification->id,
                 'user_id' => $verification->user_id,
@@ -662,13 +666,16 @@ class AgentVerificationController extends Controller
      * @return string|null Full URL to the file or null if path is empty
      */
     /**
-     * Download agent verification document (proxy through Laravel)
-     * This ensures files are accessible even if R2 bucket is not publicly accessible
+     * Download agent verification document (proxy through Laravel).
+     * Tries public disk first (where uploads are stored), then R2. Never returns 500.
      */
     public function downloadDocument(Request $request, AgentVerification $verification, string $documentType)
     {
+        $filePath = null;
+        $baseFileName = null;
+        $verificationId = $verification->id;
+
         try {
-            // Verify user is admin
             $user = $request->user();
             if (!$user) {
                 abort(403, 'Unauthorized');
@@ -681,22 +688,18 @@ class AgentVerificationController extends Controller
                 abort(403, 'Unauthorized - Admin access required');
             }
 
-            // Map document type to file path
-            $filePath = null;
-            $baseFileName = null;
-
             switch ($documentType) {
                 case 'business-license':
                     $filePath = $verification->business_license_file;
-                    $baseFileName = 'business-license-' . $verification->id;
+                    $baseFileName = 'business-license-' . $verificationId;
                     break;
                 case 'tax-certificate':
                     $filePath = $verification->tax_certificate_file;
-                    $baseFileName = 'tax-certificate-' . $verification->id;
+                    $baseFileName = 'tax-certificate-' . $verificationId;
                     break;
                 case 'company-profile':
                     $filePath = $verification->company_profile_file;
-                    $baseFileName = 'company-profile-' . $verification->id;
+                    $baseFileName = 'company-profile-' . $verificationId;
                     break;
                 default:
                     abort(404, 'Document type not found');
@@ -704,128 +707,129 @@ class AgentVerificationController extends Controller
 
             if (empty($filePath)) {
                 \Log::warning('Agent verification document path is empty', [
-                    'verification_id' => $verification->id,
+                    'verification_id' => $verificationId,
                     'document_type' => $documentType,
                 ]);
-                abort(404, 'Document not found - file path is empty');
+                abort(404, 'Document not found');
             }
 
-            // Get file extension from path
+            $filePath = ltrim((string) $filePath, '/');
             $extension = pathinfo($filePath, PATHINFO_EXTENSION);
             $fileName = $baseFileName . '.' . ($extension ?: 'pdf');
+            $mimeType = $this->getMimeType($extension);
 
-            // Normalize file path - remove leading slashes
-            $filePath = ltrim($filePath, '/');
+            // Paths to try: uploads go to public disk as "agent-verifications/..."
+            $pathsToTry = [
+                $filePath,
+                'public/' . $filePath,
+                str_replace('public/', '', $filePath),
+            ];
 
-            \Log::info('Attempting to download agent verification document', [
-                'verification_id' => $verification->id,
-                'document_type' => $documentType,
-                'file_path' => $filePath,
-            ]);
+            // 1) Try public disk first (where storeAs(..., 'public') saves files)
+            $publicDisk = Storage::disk('public');
+            foreach ($pathsToTry as $path) {
+                try {
+                    if ($publicDisk->exists($path)) {
+                        \Log::info('Serving file from public disk', [
+                            'path' => $path,
+                            'verification_id' => $verificationId,
+                        ]);
 
-            // Try R2 storage first
+                        return response()->stream(function () use ($publicDisk, $path) {
+                            $stream = $publicDisk->readStream($path);
+                            if ($stream) {
+                                fpassthru($stream);
+                                fclose($stream);
+                            }
+                        }, 200, [
+                            'Content-Type' => $mimeType,
+                            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                            'Cache-Control' => 'public, max-age=3600',
+                        ]);
+                    }
+                } catch (\Throwable $e) {
+                    \Log::debug('Public disk check failed for path', [
+                        'path' => $path,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            // 2) Try R2 disk only if public disk didn't have the file
             try {
                 $disk = R2Helper::disk();
-                
-                // Check multiple possible paths
-                $possiblePaths = [
-                    $filePath, // Original path
-                    'public/' . $filePath, // With public prefix
-                    str_replace('public/', '', $filePath), // Without public prefix if it exists
-                ];
-
-                foreach ($possiblePaths as $checkPath) {
+                foreach ($pathsToTry as $path) {
                     try {
-                        if ($disk->exists($checkPath)) {
-                            \Log::info('File found in R2 storage', [
-                                'path' => $checkPath,
-                                'verification_id' => $verification->id,
+                        if ($disk->exists($path)) {
+                            \Log::info('Serving file from R2', [
+                                'path' => $path,
+                                'verification_id' => $verificationId,
                             ]);
 
-                            $fileContent = $disk->get($checkPath);
-                            
-                            // Determine MIME type from extension
-                            $mimeType = $this->getMimeType($extension);
-
-                            return response($fileContent, 200)
-                                ->header('Content-Type', $mimeType)
-                                ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
-                                ->header('Cache-Control', 'public, max-age=3600')
-                                ->header('Content-Length', strlen($fileContent));
+                            return response()->stream(function () use ($disk, $path) {
+                                $stream = $disk->readStream($path);
+                                if ($stream) {
+                                    fpassthru($stream);
+                                    fclose($stream);
+                                }
+                            }, 200, [
+                                'Content-Type' => $mimeType,
+                                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                                'Cache-Control' => 'public, max-age=3600',
+                            ]);
                         }
-                    } catch (\Exception $e) {
-                        \Log::debug('File not found at path in R2', [
-                            'path' => $checkPath,
+                    } catch (\Throwable $e) {
+                        \Log::debug('R2 check failed for path', [
+                            'path' => $path,
                             'error' => $e->getMessage(),
                         ]);
-                        continue;
                     }
                 }
-            } catch (\Exception $e) {
-                \Log::warning('Error accessing R2 storage', [
+            } catch (\Throwable $e) {
+                \Log::warning('R2 disk unavailable', [
                     'error' => $e->getMessage(),
-                    'verification_id' => $verification->id,
+                    'verification_id' => $verificationId,
                 ]);
-                // Continue to local storage fallback
             }
 
-            // Fallback to local storage
+            // 3) Optional: redirect to R2 public URL if file might be there
             try {
-                $localPaths = [
-                    $filePath,
-                    'public/' . $filePath,
-                    str_replace('public/', '', $filePath),
-                ];
-
-                foreach ($localPaths as $checkPath) {
-                    if (Storage::disk('public')->exists($checkPath)) {
-                        \Log::info('File found in local storage', [
-                            'path' => $checkPath,
-                            'verification_id' => $verification->id,
-                        ]);
-
-                        $fileContent = Storage::disk('public')->get($checkPath);
-                        
-                        // Determine MIME type from extension
-                        $mimeType = $this->getMimeType($extension);
-
-                        return response($fileContent, 200)
-                            ->header('Content-Type', $mimeType)
-                            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
-                            ->header('Cache-Control', 'public, max-age=3600')
-                            ->header('Content-Length', strlen($fileContent));
-                    }
+                $r2Url = R2Helper::url($filePath);
+                if ($r2Url) {
+                    \Log::info('Redirecting to R2 URL', [
+                        'url' => $r2Url,
+                        'verification_id' => $verificationId,
+                    ]);
+                    return redirect($r2Url);
                 }
-            } catch (\Exception $e) {
-                \Log::warning('Error accessing local storage', [
-                    'error' => $e->getMessage(),
-                    'verification_id' => $verification->id,
-                ]);
+            } catch (\Throwable $e) {
+                \Log::debug('R2 URL generation failed', ['error' => $e->getMessage()]);
             }
 
-            // If file doesn't exist in either storage, return 404
-            \Log::error('File not found in any storage', [
-                'verification_id' => $verification->id,
+            \Log::error('Document not found', [
+                'verification_id' => $verificationId,
                 'document_type' => $documentType,
                 'file_path' => $filePath,
-                'tried_paths' => array_merge($possiblePaths ?? [], $localPaths ?? []),
+                'tried_paths' => $pathsToTry,
             ]);
 
-            abort(404, 'File not found in storage');
-
+            abort(404, 'File not found');
         } catch (\Illuminate\Http\Exceptions\HttpResponseException $e) {
-            // Re-throw HTTP exceptions (abort, redirect, etc.)
             throw $e;
-        } catch (\Exception $e) {
-            \Log::error('Error downloading agent verification document', [
-                'verification_id' => $verification->id ?? null,
-                'document_type' => $documentType,
+        } catch (\Throwable $e) {
+            \Log::error('Download error', [
+                'verification_id' => $verificationId,
+                'document_type' => $documentType ?? null,
                 'file_path' => $filePath ?? null,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
             ]);
 
-            abort(500, 'Error retrieving document. Please try again or contact support.');
+            // Never return 500 to user: redirect back with message
+            return redirect()
+                ->route('admin.agent-verification.show', $verificationId)
+                ->with('error', 'Dokumen tidak dapat diunduh. Silakan coba lagi atau hubungi dukungan.');
         }
     }
 

@@ -45,9 +45,10 @@ interface Verification {
 
 interface Props {
     verification: Verification;
+    flash?: { error?: string; success?: string };
 }
 
-export default function AgentVerificationDetail({ verification }: Props) {
+export default function AgentVerificationDetail({ verification, flash }: Props) {
     const [isEditing, setIsEditing] = useState(false);
 
     const approveForm = useForm({});
@@ -127,6 +128,17 @@ export default function AgentVerificationDetail({ verification }: Props) {
             <Head title={`Verification: ${verification.company_name} - Admin`} />
 
             <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+                {/* Flash messages (e.g. download error) */}
+                {flash?.error && (
+                    <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-red-300">
+                        {flash.error}
+                    </div>
+                )}
+                {flash?.success && (
+                    <div className="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-green-300">
+                        {flash.success}
+                    </div>
+                )}
                 {/* Header */}
                 <div className="mb-6">
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
