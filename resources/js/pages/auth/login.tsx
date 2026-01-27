@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { FormEventHandler, useEffect, useState } from 'react';
 
@@ -69,52 +69,38 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                 setTimeout(() => {
                     setIsSubmitting(true);
                     const loginUrl = '/login';
-                    
-                    // Get fresh CSRF token after refresh
+                    const submitData = { email: formData.email || '', password: formData.password || '', remember: formData.remember || false, mode: formData.mode, redirect: formData.redirect };
+
                     const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
                     if (csrfToken && typeof window !== 'undefined' && (window as any).axios) {
                         (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
                     }
-                    
-                    post(loginUrl, {
+
+                    router.post(loginUrl, submitData, {
                         preserveState: true,
                         preserveScroll: false,
-                        only: [],
-                        onStart: () => {
-                            setIsSubmitting(true);
-                            console.log('[Login] Auto-resubmit started after refresh...');
-                        },
-                        onProgress: () => {
-                            setIsSubmitting(true);
-                        },
+                        onStart: () => setIsSubmitting(true),
+                        onProgress: () => setIsSubmitting(true),
                         onFinish: () => {
                             setIsSubmitting(false);
                             reset('password');
                             setHasPreviousError(false);
-                            // Clear pending data on finish
                             sessionStorage.removeItem('login_pending_resubmit');
                             console.log('[Login] Auto-resubmit finished');
                         },
-                        onSuccess: (page) => {
-                            console.log('[Login] Auto-resubmit success - redirecting...', {
-                                url: page.url,
-                                component: page.component,
-                            });
-                            // Clear pending data on success
+                        onSuccess: () => {
+                            sessionStorage.removeItem('login_pending_resubmit');
+                            setHasPreviousError(false);
+                        },
+                        onError: () => {
+                            setTimeout(() => setIsSubmitting(false), 150);
+                            setHasPreviousError(true);
                             sessionStorage.removeItem('login_pending_resubmit');
                         },
-                        onError: (errors) => {
-                            console.error('[Login] Auto-resubmit error:', errors);
-                            setTimeout(() => {
-                                setIsSubmitting(false);
-                            }, 100);
-                            // If still error, set flag for next attempt
-                            if (errors.email || errors.password) {
-                                setHasPreviousError(true);
-                            }
-                            // Clear pending data on error (to prevent loop)
-                            sessionStorage.removeItem('login_pending_resubmit');
-                        },
+                    }).catch(() => {
+                        setHasPreviousError(true);
+                        setTimeout(() => setIsSubmitting(false), 400);
+                        sessionStorage.removeItem('login_pending_resubmit');
                     });
                 }, 300);
             } catch (e) {
@@ -131,24 +117,19 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
         }
     }, [errors.email, errors.password]);
 
-    // Reset error flag when user changes email or password (they're trying new credentials)
-    // This prevents unnecessary refresh when user tries different credentials
+    // Keep error flag even when user changes credentials
+    // This ensures refresh happens on next submit regardless of whether credentials changed
+    // User might be correcting their input, so we still need refresh for fresh CSRF token
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setData('email', e.target.value);
-        if (hasPreviousError) {
-            setHasPreviousError(false);
-            sessionStorage.removeItem('login_pending_resubmit');
-            console.log('[Login] Email changed - resetting error flag');
-        }
+        // Don't reset hasPreviousError - we still want refresh on next submit
+        // This ensures fresh CSRF token even if user corrected their credentials
     };
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setData('password', e.target.value);
-        if (hasPreviousError) {
-            setHasPreviousError(false);
-            sessionStorage.removeItem('login_pending_resubmit');
-            console.log('[Login] Password changed - resetting error flag');
-        }
+        // Don't reset hasPreviousError - we still want refresh on next submit
+        // This ensures fresh CSRF token even if user corrected their credentials
     };
 
     // CRITICAL: Refresh CSRF token when login page loads (without causing reload loop)
@@ -246,113 +227,57 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
         setIsSubmitting(true);
 
         // CRITICAL: Use RELATIVE URL to let browser resolve HTTPS automatically
-        // Absolute URLs can cause Mixed Content if Inertia caches HTTP URL
-        // Relative URLs are always resolved relative to current page (which is HTTPS)
         const loginUrl = '/login';
-        
-        console.log('[Login] Using relative URL (browser will resolve to HTTPS):', loginUrl);
-        console.log('[Login] Current page protocol:', window.location.protocol);
-        console.log('[Login] Current page origin:', window.location.origin);
-        
-        // Submit login form with error handling
-        // Using relative URL ensures browser resolves it to HTTPS automatically
-        post(loginUrl, {
-            preserveState: true, // CRITICAL: Preserve state to keep loading visible
+        console.log('[Login] Form submission started - validating credentials...');
+
+        // Use router.post so we can .catch() network/request failures (ERR_NETWORK, AxiosError)
+        // useForm().post() doesn't expose promise rejection for network errors
+        router.post(loginUrl, data, {
+            preserveState: true,
             preserveScroll: false,
-            only: [], // Don't limit what gets updated - allow full page update
+            forceFormData: false,
             onStart: () => {
-                // Loading state is handled by processing state from useForm
-                setIsSubmitting(true); // Ensure loading state is set
-                console.log('[Login] Form submission started - validating credentials...');
+                setIsSubmitting(true);
             },
             onProgress: () => {
-                // Keep loading state active during progress
                 setIsSubmitting(true);
             },
             onFinish: () => {
-                // CRITICAL: Only reset loading state after everything is done
                 setIsSubmitting(false);
                 reset('password');
                 console.log('[Login] Form submission finished');
             },
             onSuccess: (page) => {
-                // Log successful login for debugging
-                console.log('[Login] Success - redirecting...', {
-                    url: page.url,
-                    component: page.component,
-                });
-                // Clear any pending resubmit data on success
+                console.log('[Login] Success - redirecting...', { url: page.url, component: page.component });
                 sessionStorage.removeItem('login_pending_resubmit');
                 setHasPreviousError(false);
-                // Loading state will be reset by onFinish
             },
-            onError: (errors) => {
-                // Log errors for debugging
-                console.error('[Login] Error occurred:', errors);
-                
-                // CRITICAL: Reset loading state on error so user can see error message
-                // But delay slightly to ensure error message is rendered
-                setTimeout(() => {
-                    setIsSubmitting(false);
-                }, 100);
-                
-                // CRITICAL: On ANY error (including validation errors), refresh CSRF token
-                // This ensures fresh token for next attempt, preventing stale token issues
-                const errorMessage = errors?.message || (typeof errors === 'string' ? errors : '') || '';
-                const errorString = JSON.stringify(errors || {});
-                
-                // Check if this is a CSRF/419 error
-                const isCsrfError = 
-                    errorMessage.includes('419') || 
-                    errorMessage.includes('expired') || 
-                    errorMessage.includes('PAGE EXPIRED') ||
-                    errorString.includes('419') ||
-                    errorString.includes('expired') ||
-                    errorString.includes('csrf') ||
-                    errorString.includes('token');
-                
-                if (isCsrfError) {
-                    // CSRF error - reload page immediately to refresh token
-                    // But show loading until reload happens
-                    console.warn('[Login] CSRF token expired, reloading page to refresh...');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 500);
-                    return;
-                }
-                
-                // For validation errors (email/password wrong), set flag for auto-refresh on next submit
-                // Server already regenerates token on each request, so meta tag should have fresh token
-                if (errors.email || errors.password) {
-                    console.log('[Login] Validation errors detected - will auto-refresh on next submit');
-                    
-                    // Set flag so next submit will trigger refresh + auto-resubmit
-                    setHasPreviousError(true);
-                    
-                    // Update from meta tag (server already regenerated token)
-                    const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
-                    if (metaToken && metaToken.content) {
-                        if (typeof window !== 'undefined' && (window as any).axios) {
-                            (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = metaToken.content;
-                        }
-                        console.log('[Login] CSRF token updated from meta tag after validation error');
-                    }
-                    
-                    // Still display validation errors to user
-                    // Loading state already reset above
-                    return;
-                }
-                
-                // For any other errors, set flag and update from meta tag
+            onError: (errs: Record<string, string>) => {
+                console.error('[Login] Error occurred:', errs);
+                setTimeout(() => setIsSubmitting(false), 150);
                 setHasPreviousError(true);
-                console.warn('[Login] Unknown error - updating CSRF token from meta tag...');
-                const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
-                if (metaToken && metaToken.content) {
-                    if (typeof window !== 'undefined' && (window as any).axios) {
-                        (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = metaToken.content;
-                    }
+
+                const errMsg = errs?.message || (typeof errs === 'string' ? errs : '') || '';
+                const errStr = JSON.stringify(errs || {});
+                const isCsrfError =
+                    /419|expired|PAGE EXPIRED|csrf|token/i.test(errMsg) || /419|expired|csrf|token/i.test(errStr);
+
+                if (isCsrfError) {
+                    console.warn('[Login] CSRF token expired, reloading page...');
+                    setTimeout(() => window.location.reload(), 400);
+                    return;
+                }
+
+                const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+                if (metaToken && typeof window !== 'undefined' && (window as any).axios) {
+                    (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = metaToken.content;
                 }
             },
+        }).catch((err: unknown) => {
+            // Network error (ERR_NETWORK, AxiosError) or request failed before response
+            console.error('[Login] Request failed (network or other):', err);
+            setHasPreviousError(true);
+            setTimeout(() => setIsSubmitting(false), 400);
         });
     };
 
