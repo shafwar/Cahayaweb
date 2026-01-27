@@ -113,6 +113,7 @@ class AuthenticatedSessionController extends Controller
                 \Log::debug('Route::has() check failed', ['error' => $e->getMessage()]);
             }
 
+            // Render Inertia page
             $response = Inertia::render('auth/login', [
                 'canResetPassword' => $canResetPassword,
                 'status' => $request->session()->get('status'),
@@ -122,22 +123,35 @@ class AuthenticatedSessionController extends Controller
             ]);
 
             // Add cache-control headers to prevent caching
+            // Use response() helper to ensure we can set headers properly
             try {
-                $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
-                $response->headers->set('Pragma', 'no-cache');
-                $response->headers->set('Expires', '0');
-                
-                // Try to get CSRF token - wrap in try-catch
+                // Get CSRF token for header
+                $csrfToken = null;
                 try {
                     $csrfToken = csrf_token();
+                } catch (\Throwable $e) {
+                    \Log::debug('Failed to get CSRF token for header', [
+                        'error' => $e->getMessage()
+                    ]);
+                }
+
+                // Set headers using response() helper if response is a Response object
+                if ($response instanceof SymfonyResponse) {
+                    $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+                    $response->headers->set('Pragma', 'no-cache');
+                    $response->headers->set('Expires', '0');
                     if ($csrfToken) {
                         $response->headers->set('X-CSRF-Token', $csrfToken);
                     }
-                } catch (\Throwable $e) {
-                    \Log::warning('Failed to set X-CSRF-Token header', [
-                        'error' => $e->getMessage()
-                    ]);
-                    // Continue without header - meta tag should still work
+                } else {
+                    // If response is not a Symfony Response, wrap it
+                    $response = response($response)
+                        ->header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+                        ->header('Pragma', 'no-cache')
+                        ->header('Expires', '0');
+                    if ($csrfToken) {
+                        $response->header('X-CSRF-Token', $csrfToken);
+                    }
                 }
             } catch (\Throwable $e) {
                 \Log::warning('Failed to set cache headers', [
