@@ -32,16 +32,6 @@ export default function Packages() {
     const [dialogSaving, setDialogSaving] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
-    };
-
-    const cardVariants = {
-        hidden: { opacity: 0, y: 30, scale: 0.95 },
-        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } },
-    };
-
     const packages = [
         { id: 1, title: 'Konsorsium Mesir Aqsa Jordan', location: 'Jordan, Palestina & Mesir', duration: '9D8N', price: '$2,300', pax: 'Max 25 pax', type: 'Religious', image: '/packages1.png', highlights: ['Petra', 'Museum Mummy', 'Camel', 'Nile Cruise', 'Pyramid & Sphinx', 'Masjid Al Aqsa'], description: 'Tempat mana yang paling bikin hati bergetar? Disinilah tempatnya yaitu napak tilas tiga negara sekaligus. Di Mesir, Di Aqsa, Di Jordan. Perjalanan ini bukan sekadar wisata, kita napak tilas belajar sejarah kisah nabi sebelumnya hingga merasakan khidmat dalam perjalanan ini agar kita terus bersyukur dan mengambil Pelajaran dari setiap kisah dan perjalanan ini.', features: ['Dinner Nile Cruise', 'Camel di Mesir', 'Petra', 'Museum Mummy', 'Tips Guide $80 (tidak termasuk)'], dates: [{ date: 'Oktober 2025', status: 'Available' }], hotels: [{ name: 'Golden Tulip', location: 'Amman', stars: 4 }, { name: 'Holyland', location: 'Jerusalem', stars: 4 }, { name: 'Mega Club', location: 'Taba', stars: 4 }, { name: 'Azal Pyramid', location: 'Cairo', stars: 4 }] },
         { id: 2, title: '3 Negara dalam 1 Perjalanan', location: 'Jordan, Palestina & Mesir', duration: '10D9N', price: '$2,300', pax: 'Kuota Terbatas', type: 'Religious', image: '/packages2.png', highlights: ['Napak tilas Para Nabi', 'Wisata sejarah', 'Healing untuk hati', 'Momen tenang'], description: '⚠️ Breaking News! 🌏 Sekali Jalan Langsung 3 Negara Sekaligus! Yes! Kamu nggak salah baca. Jordan, Palestina, dan Mesir bisa kamu jelajahi hanya dalam 1 trip selama 10 hari!! Include menapak jejak Para Nabi, wisata sejarah, dan healing untuk hati yang rindu momen tenang ⭐️', features: ['Menapak jejak Para Nabi', 'Wisata sejarah', 'Healing untuk hati', 'Momen tenang', 'Kuota terbatas'], dates: [{ date: 'Oktober 2025', status: 'Limited' }] },
@@ -92,56 +82,56 @@ export default function Packages() {
                 <section className="relative mx-auto max-w-7xl px-4 pt-16 pb-20 sm:px-6 md:pt-20">
                     {/* Ambient Effects */}
                     <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.1),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
-                        <div className="absolute bottom-0 right-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.1),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
+                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.1),transparent_70%)] blur-2xl" />
+                        <div className="absolute bottom-0 right-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.1),transparent_70%)] blur-2xl" />
                     </div>
 
-                    {/* Hero Section - Professional */}
-                    <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} className="relative mb-12 text-center md:mb-14">
+                    {/* Hero Section */}
+                    <div className="relative mb-12 text-center md:mb-14">
                         {/* Badge */}
-                        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }} className="mb-4 inline-block">
+                        <div className="mb-4 inline-block">
                             <div className="group inline-flex items-center gap-2 rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-5 py-2 shadow-xl transition-all duration-300 hover:scale-105 hover:border-amber-400/70">
                                 <Sparkles className="h-4 w-4 text-amber-300 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
                                 <span className="text-xs font-semibold uppercase tracking-wider text-amber-200 sm:text-sm">
                                     <EditableText sectionKey="packages.header.badge" value="Premium Travel Packages" tag="span" />
                                 </span>
                             </div>
-                        </motion.div>
+                        </div>
 
-                        {/* Main Title - Large Title between Badge and Subtitle */}
-                        <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.15 }} className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl font-bold leading-tight text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
+                        {/* Main Title */}
+                        <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl font-bold leading-tight text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
                             Discover Your Perfect Journey
-                        </motion.h1>
+                        </h1>
 
                         {/* Subtitle */}
-                        <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.25 }} className="mx-auto mb-5 max-w-3xl text-xl font-semibold leading-snug text-white sm:text-2xl md:text-3xl">
+                        <h2 className="mx-auto mb-5 max-w-3xl text-xl font-semibold leading-snug text-white sm:text-2xl md:text-3xl">
                             <EditableText sectionKey="packages.header.descriptionTitle" value="Your Perfect Journey Awaits" tag="span" />
-                        </motion.h2>
+                        </h2>
 
                         {/* Description */}
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.35 }} className="mx-auto mb-8 max-w-2xl space-y-2">
+                        <div className="mx-auto mb-8 max-w-2xl space-y-2">
                             <p className="text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
                                 Discover our curated collection of spiritual and cultural journeys. From Umrah & Hajj experiences to luxury adventures, find the perfect package for your next unforgettable journey.
                             </p>
-                        </motion.div>
+                        </div>
 
                         {/* Stats */}
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.45 }} className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/70 sm:gap-6 sm:text-sm">
+                        <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/70 sm:gap-6 sm:text-sm">
                             {[
                                 { label: 'Premium Experiences', color: 'from-amber-400 to-orange-400' },
                                 { label: 'Expert Guidance', color: 'from-orange-400 to-red-400' },
                                 { label: '24/7 Support', color: 'from-amber-500 to-yellow-400' },
                             ].map((item, index) => (
-                                <motion.div key={index} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 0.55 + index * 0.1 }} className="flex items-center gap-2">
+                                <div key={index} className="flex items-center gap-2">
                                     <div className={`h-2 w-2 rounded-full bg-gradient-to-r ${item.color} shadow-md`} />
                                     <span className="font-medium">{item.label}</span>
-                                </motion.div>
+                                </div>
                             ))}
-                        </motion.div>
-                    </motion.div>
+                        </div>
+                    </div>
 
                     {/* Filter Section */}
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.8 }} className="mt-8 mb-12">
+                    <div className="mt-8 mb-12">
                         <div className="mb-6 text-center">
                             <h3 className="mb-2 text-xl font-bold text-white sm:text-2xl md:text-2xl">Find Your Perfect Package</h3>
                             <p className="text-sm text-white/70 sm:text-base">Use filters below to discover packages that match your preferences</p>
@@ -183,33 +173,26 @@ export default function Packages() {
                                 </SelectContent>
                             </Select>
                         </div>
-                    </motion.div>
+                    </div>
 
-                    {/* Packages Grid */}
-                    <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                    {/* Packages Grid - ✅ NO SCROLL ANIMATIONS */}
+                    <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                         {filteredPackages.map((pkg) => (
                             <Dialog key={pkg.id} onOpenChange={(open) => { if (open) { setOpenDialogId(pkg.id); setShowSuccessAlert(false); } else { if (editMode && openDialogId === pkg.id) window.dispatchEvent(new CustomEvent('cms:flush-save')); setOpenDialogId(null); setTimeout(() => setShowSuccessAlert(false), 100); } }}>
                                 <DialogTrigger asChild>
-                                    <motion.article variants={cardVariants} whileHover={{ scale: 1.05, y: -10, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }} className="group cursor-pointer overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl transition-all duration-300" style={{ willChange: 'transform' }}>
+                                    <article className="group cursor-pointer overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl transition-all duration-300 hover:-translate-y-2.5 hover:scale-105">
                                         <div className="relative aspect-video overflow-hidden">
-                                            <img src={getR2Url(pkg.image)} alt={pkg.title} data-package-id={pkg.id} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 will-change-transform"
+                                            <img src={getR2Url(pkg.image)} alt={pkg.title} data-package-id={pkg.id} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                                 onError={(e) => {
-                                                    // Try alternative R2 paths, never fallback to local
                                                     const target = e.currentTarget;
                                                     if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
                                                         const currentUrl = target.src;
-                                                        // Try different R2 path variations
                                                         if (currentUrl.includes('/public/')) {
-                                                            // Try without /public/
-                                                            const altPath = currentUrl.replace('/public/', '/');
-                                                            target.src = altPath;
+                                                            target.src = currentUrl.replace('/public/', '/');
                                                         } else {
-                                                            // Try with /public/ prefix
-                                                            const altPath = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
-                                                            target.src = altPath;
+                                                            target.src = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
                                                         }
                                                     } else {
-                                                        // Hide image if not R2 URL
                                                         target.style.display = 'none';
                                                         const nextElement = target.nextElementSibling as HTMLElement;
                                                         if (nextElement) nextElement.style.display = 'block';
@@ -260,7 +243,7 @@ export default function Packages() {
                                         </div>
 
                                         <div className="h-1.5 origin-left scale-x-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-lg transition-transform duration-500 group-hover:scale-x-100" />
-                                    </motion.article>
+                                    </article>
                                 </DialogTrigger>
 
                                 <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl border-2 border-white/20 bg-gradient-to-br from-black/98 to-slate-900/98 shadow-2xl sm:max-w-3xl">
@@ -377,45 +360,46 @@ export default function Packages() {
                                         </div>
 
                                         <div className="flex gap-3 sm:gap-4">
-                                            <motion.a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-3 text-center text-sm font-bold text-white shadow-xl hover:from-amber-400 hover:to-orange-400 sm:px-8 sm:py-4 sm:text-base">Book Now</motion.a>
-                                            <motion.a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1 rounded-xl border border-amber-500 px-6 py-3 text-center text-sm font-bold text-amber-300 hover:bg-amber-500 hover:text-white sm:px-8 sm:py-4 sm:text-base">Ask Questions</motion.a>
+                                            <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-3 text-center text-sm font-bold text-white shadow-xl transition-all hover:from-amber-400 hover:to-orange-400 hover:scale-105 sm:px-8 sm:py-4 sm:text-base">Book Now</a>
+                                            <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" className="flex-1 rounded-xl border border-amber-500 px-6 py-3 text-center text-sm font-bold text-amber-300 transition-all hover:bg-amber-500 hover:text-white hover:scale-105 sm:px-8 sm:py-4 sm:text-base">Ask Questions</a>
                                         </div>
                                     </div>
                                 </DialogContent>
                             </Dialog>
                         ))}
-                    </motion.div>
+                    </div>
 
                     {/* No Results */}
                     {filteredPackages.length === 0 && (
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-16 text-center">
+                        <div className="mt-16 text-center">
                             <div className="mx-auto max-w-md rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-12 shadow-2xl">
                                 <div className="mb-6 text-6xl">🔍</div>
                                 <h3 className="mb-3 text-2xl font-bold text-white">No packages found</h3>
                                 <p className="text-base text-white/70">Try adjusting your filters to discover the perfect package for your journey.</p>
                             </div>
-                        </motion.div>
+                        </div>
                     )}
+
                     {/* Gallery Section */}
-                    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.8 }} className="relative pt-12 md:pt-16">
+                    <div className="relative pt-12 md:pt-16">
                         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-                        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ duration: 0.8 }} className="mb-10 text-center">
-                            <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: '-50px' }} transition={{ duration: 0.6 }} className="mb-3 inline-block">
+                        <div className="mb-10 text-center">
+                            <div className="mb-3 inline-block">
                                 <div className="rounded-full border-2 border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-6 py-3 shadow-xl">
                                     <span className="text-sm font-bold uppercase tracking-wider text-amber-200">
                                         <EditableText sectionKey="packages.gallery.badge" value="📸 Destination Gallery" tag="span" />
                                     </span>
                                 </div>
-                            </motion.div>
+                            </div>
                             <h2 className="mb-2 text-3xl font-bold leading-tight text-white drop-shadow-lg sm:text-4xl md:text-5xl">
                                 <EditableText sectionKey="packages.gallery.title" value="Explore Our Destinations" tag="span" />
                             </h2>
                             <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg">
                                 <EditableText sectionKey="packages.gallery.description" value="Discover the breathtaking beauty and rich history of the destinations featured in our travel packages" tag="span" />
                             </p>
-                        </motion.div>
+                        </div>
 
-                        <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                             {[
                                 { id: 1, title: 'Petra, Jordan', subtitle: 'The Rose City', image: '/TURKEY.jpeg', description: 'Ancient Nabataean city carved into red sandstone cliffs', category: 'Historical' },
                                 { id: 2, title: 'Dome of the Rock', subtitle: 'Jerusalem, Palestine', image: '/umrah.jpeg', description: 'Sacred Islamic shrine with stunning golden dome', category: 'Religious' },
@@ -424,26 +408,19 @@ export default function Packages() {
                                 { id: 5, title: 'Dubai Desert', subtitle: 'UAE', image: '/dubai1.jpeg', description: 'Golden sand dunes and desert adventures', category: 'Adventure' },
                                 { id: 6, title: 'Oman Desert', subtitle: 'Muscat, Oman', image: '/oman.jpg', description: 'Ancient forts and traditional markets', category: 'Cultural' },
                             ].map((destination) => (
-                                <motion.div key={destination.id} variants={cardVariants} whileHover={{ scale: 1.05, y: -8, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }} className="group relative overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl" style={{ willChange: 'transform' }}>
+                                <div key={destination.id} className="group relative overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:scale-105">
                                     <div className="relative aspect-[4/3] overflow-hidden">
-                                        <img src={getR2Url(destination.image)} alt={destination.title} data-gallery-id={destination.id} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 will-change-transform"
+                                        <img src={getR2Url(destination.image)} alt={destination.title} data-gallery-id={destination.id} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             onError={(e) => {
-                                                // Try alternative R2 paths, never fallback to local
                                                 const target = e.currentTarget;
                                                 if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
                                                     const currentUrl = target.src;
-                                                    // Try different R2 path variations
                                                     if (currentUrl.includes('/public/')) {
-                                                        // Try without /public/
-                                                        const altPath = currentUrl.replace('/public/', '/');
-                                                        target.src = altPath;
+                                                        target.src = currentUrl.replace('/public/', '/');
                                                     } else {
-                                                        // Try with /public/ prefix
-                                                        const altPath = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
-                                                        target.src = altPath;
+                                                        target.src = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
                                                     }
                                                 } else {
-                                                    // Hide image if not R2 URL
                                                     target.style.display = 'none';
                                                     const nextElement = target.nextElementSibling as HTMLElement;
                                                     if (nextElement) nextElement.style.display = 'block';
@@ -478,28 +455,28 @@ export default function Packages() {
                                     </div>
 
                                     <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-lg transition-all duration-500 group-hover:w-full" />
-                                </motion.div>
+                                </div>
                             ))}
-                        </motion.div>
+                        </div>
 
-                        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.8, delay: 0.3 }} className="mt-12">
+                        <div className="mt-12">
                             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
                                 <div className="inline-flex items-center rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-5 py-2.5 shadow-lg transition-all duration-300 hover:border-amber-400/70 hover:shadow-amber-500/20">
                                     <span className="text-xs font-semibold text-amber-200 sm:text-sm">✨ Ready to Experience These Amazing Destinations?</span>
                                 </div>
-                                <motion.a href="/destinations" whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }} className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2.5 text-sm font-bold text-white shadow-xl transition-all duration-300 hover:from-amber-400 hover:to-orange-400 hover:shadow-amber-500/30 sm:px-8 sm:py-3 sm:text-base">
+                                <a href="/destinations" className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2.5 text-sm font-bold text-white shadow-xl transition-all duration-300 hover:from-amber-400 hover:to-orange-400 hover:shadow-amber-500/30 hover:scale-105 sm:px-8 sm:py-3 sm:text-base">
                                     View All Destinations
                                     <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
-                                </motion.a>
+                                </a>
                             </div>
-                        </motion.div>
                         </div>
-                    </motion.div>
+                        </div>
+                    </div>
                 </section>
 
                 {/* Footer */}
                 <footer className="relative border-t border-white/10 bg-black/70">
-                    <motion.div className="mx-auto max-w-7xl px-4 py-12 sm:px-6" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }}>
+                    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
                         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
                             <div className="text-center text-base text-white/70 md:text-left">
                                 <div className="font-semibold">Email: hello@cahaya-anbiya.com</div>
@@ -508,14 +485,14 @@ export default function Packages() {
                             </div>
                             <div className="flex items-center gap-8">
                                 {['Instagram', 'TikTok', 'YouTube'].map((social) => (
-                                    <motion.a key={social} href={`https://${social.toLowerCase()}.com`} target="_blank" rel="noreferrer" className="text-base font-semibold text-white/70 hover:text-amber-400" whileHover={{ scale: 1.1, y: -2 }}>{social}</motion.a>
+                                    <a key={social} href={`https://${social.toLowerCase()}.com`} target="_blank" rel="noreferrer" className="text-base font-semibold text-white/70 transition-all hover:text-amber-400 hover:scale-110">{social}</a>
                                 ))}
                             </div>
                         </div>
                         <div className="mt-10 border-t border-white/10 pt-8 text-center">
                             <p className="text-sm text-white/50">© 2024 Cahaya Anbiya Travel. All rights reserved.</p>
                         </div>
-                    </motion.div>
+                    </div>
                 </footer>
             </div>
 
@@ -590,7 +567,7 @@ export default function Packages() {
                                 <label className="mb-2 block text-sm font-bold text-gray-200">Description</label>
                                 <textarea value={editorOpen.description} onChange={(e) => setEditorOpen({ ...editorOpen, description: e.target.value })} rows={4} className="w-full rounded-xl border-2 border-white/20 bg-gray-900 px-4 py-3 text-white focus:border-amber-500 focus:outline-none" />
                             </div>
-                            <button onClick={() => { const updates = [{ key: `packages.${editorOpen.id}.title`, content: editorOpen.title }, { key: `packages.${editorOpen.id}.location`, content: editorOpen.location }, { key: `packages.${editorOpen.id}.duration`, content: editorOpen.duration }, { key: `packages.${editorOpen.id}.price`, content: editorOpen.price }, { key: `packages.${editorOpen.id}.pax`, content: editorOpen.pax }, { key: `packages.${editorOpen.id}.type`, content: editorOpen.type }, { key: `packages.${editorOpen.id}.description`, content: editorOpen.description }]; Promise.all(updates.map((u) => axios.post('/admin/update-section', u))).then(() => { window.dispatchEvent(new CustomEvent('cms:flush-save')); setEditorOpen(null); }); }} disabled={saving} className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 text-base font-bold text-white shadow-2xl hover:from-amber-400 hover:to-orange-400 disabled:opacity-50">
+                            <button onClick={() => { const updates = [{ key: `packages.${editorOpen.id}.title`, content: editorOpen.title }, { key: `packages.${editorOpen.id}.location`, content: editorOpen.location }, { key: `packages.${editorOpen.id}.duration`, content: editorOpen.duration }, { key: `packages.${editorOpen.id}.price`, content: editorOpen.price }, { key: `packages.${editorOpen.id}.pax`, content: editorOpen.pax }, { key: `packages.${editorOpen.id}.type`, content: editorOpen.type }, { key: `packages.${editorOpen.id}.description`, content: editorOpen.description }]; Promise.all(updates.map((u) => axios.post('/admin/update-section', u))).then(() => { window.dispatchEvent(new CustomEvent('cms:flush-save')); setEditorOpen(null); }); }} disabled={saving} className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 text-base font-bold text-white shadow-2xl transition-all hover:from-amber-400 hover:to-orange-400 hover:scale-105 disabled:opacity-50">
                                 {saving ? 'Saving...' : '💾 Save All Changes'}
                             </button>
                         </div>

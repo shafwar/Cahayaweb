@@ -223,7 +223,7 @@
     "name": "vendor"
   },
   "resources/css/app.css": {
-    "file": "assets/app-CxLE9tAY.css",
+    "file": "assets/app-DarAHSfw.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
@@ -231,7 +231,7 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-DS5cIZ3z.js",
+    "file": "assets/app-CdOC-Xaq.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -275,7 +275,7 @@
       "resources/js/pages/welcome.tsx"
     ],
     "css": [
-      "assets/app-CxLE9tAY.css"
+      "assets/app-DarAHSfw.css"
     ]
   },
   "resources/js/pages/admin/agent-verification-detail.tsx": {
@@ -710,7 +710,7 @@
     ]
   },
   "resources/js/pages/b2c/packages/index.tsx": {
-    "file": "assets/index-DKgh3Ha_.js",
+    "file": "assets/index-BZBk3YZ6.js",
     "name": "index",
     "src": "resources/js/pages/b2c/packages/index.tsx",
     "isDynamicEntry": true,
@@ -812,7 +812,7 @@
     ]
   },
   "resources/js/pages/settings/appearance.tsx": {
-    "file": "assets/appearance-Csf_qdic.js",
+    "file": "assets/appearance-H4UmGCSf.js",
     "name": "appearance",
     "src": "resources/js/pages/settings/appearance.tsx",
     "isDynamicEntry": true,
@@ -829,7 +829,7 @@
       "_radix-ui-BGF_4iPy.js"
     ],
     "css": [
-      "assets/app-CxLE9tAY.css"
+      "assets/app-DarAHSfw.css"
     ]
   },
   "resources/js/pages/settings/password.tsx": {
