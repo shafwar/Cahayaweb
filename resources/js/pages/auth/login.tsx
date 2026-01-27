@@ -37,62 +37,43 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
         redirect: redirect ?? undefined,
     });
 
-    // CRITICAL: Force refresh CSRF token when login page loads
-    // This simulates a "hard refresh" to ensure fresh token and no stale cache
+    // CRITICAL: Refresh CSRF token when login page loads (without causing reload loop)
+    // Server already regenerates token on page load, so we just need to update axios header
     useEffect(() => {
-        const refreshCsrfToken = async () => {
-            try {
-                console.log('[Login] Refreshing CSRF token on page load...');
-                
-                // Fetch fresh CSRF token from server
-                // Use HEAD request to avoid unnecessary data transfer
-                const response = await fetch('/sanctum/csrf-cookie', {
-                    method: 'HEAD',
-                    credentials: 'include',
-                    cache: 'no-store', // Force no cache
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0',
-                    },
-                });
-
-                if (response.ok) {
-                    // After fetching CSRF cookie, reload meta tag token
-                    // Small delay to ensure cookie is set
-                    setTimeout(() => {
-                        const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
-                        if (metaToken) {
-                            // Force browser to re-read meta tag by removing and re-adding
-                            const token = metaToken.content;
-                            console.log('[Login] CSRF token refreshed:', token ? 'Token available' : 'Token missing');
-                            
-                            // Update axios default header if available
-                            if (token && typeof window !== 'undefined' && (window as any).axios) {
-                                (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
-                            }
-                            
-                            setCsrfTokenRefreshed(true);
-                        } else {
-                            console.warn('[Login] CSRF meta tag not found after refresh');
-                            // If meta tag missing, reload page to get fresh token
-                            window.location.reload();
-                        }
-                    }, 100);
-                } else {
-                    console.warn('[Login] Failed to refresh CSRF token, reloading page...');
-                    // If refresh fails, reload page to get fresh token
-                    window.location.reload();
-                }
-            } catch (error) {
-                console.error('[Login] Error refreshing CSRF token:', error);
-                // On error, reload page to ensure fresh token
-                window.location.reload();
+        // Check if we already have a CSRF token in meta tag (server always provides fresh token)
+        const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
+        if (metaToken && metaToken.content) {
+            // Update axios default header with fresh token from meta tag
+            if (typeof window !== 'undefined' && (window as any).axios) {
+                (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = metaToken.content;
             }
-        };
-
-        // Only refresh on initial mount, not on every render
-        refreshCsrfToken();
+            setCsrfTokenRefreshed(true);
+            console.log('[Login] CSRF token loaded from meta tag');
+        } else {
+            // Only fetch CSRF cookie if meta tag is missing (shouldn't happen normally)
+            // But don't reload page - just fetch cookie silently
+            console.warn('[Login] CSRF meta tag not found, fetching CSRF cookie...');
+            fetch('/sanctum/csrf-cookie', {
+                method: 'HEAD',
+                credentials: 'include',
+                cache: 'no-store',
+            }).then(() => {
+                // After fetching, check meta tag again
+                setTimeout(() => {
+                    const updatedMetaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
+                    if (updatedMetaToken && updatedMetaToken.content) {
+                        if (typeof window !== 'undefined' && (window as any).axios) {
+                            (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = updatedMetaToken.content;
+                        }
+                        setCsrfTokenRefreshed(true);
+                        console.log('[Login] CSRF token updated after cookie fetch');
+                    }
+                }, 100);
+            }).catch((error) => {
+                console.error('[Login] Failed to fetch CSRF cookie:', error);
+                // Don't reload - just log error. Server-side token regeneration should be enough.
+            });
+        }
     }, []); // Empty dependency array = run once on mount
 
     const submit: FormEventHandler = (e) => {
@@ -104,8 +85,10 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
         
         // Validate token exists before submitting
         if (!csrfToken) {
-            console.error('CSRF token not found in meta tag - reloading page');
-            window.location.reload();
+            console.error('CSRF token not found in meta tag');
+            // Don't reload automatically - let server handle it
+            // Server will regenerate token on next request anyway
+            // Just show error to user
             return;
         }
         
@@ -164,51 +147,33 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                     return;
                 }
                 
-                // For validation errors (email/password wrong), refresh CSRF token after showing error
-                // This ensures fresh token for next attempt
+                // For validation errors (email/password wrong), just update CSRF token from meta tag
+                // Server already regenerates token on each request, so meta tag should have fresh token
                 if (errors.email || errors.password) {
-                    console.log('[Login] Validation errors - refreshing CSRF token for next attempt...');
+                    console.log('[Login] Validation errors - updating CSRF token from meta tag...');
                     
-                    // Refresh CSRF token in background
-                    fetch('/sanctum/csrf-cookie', {
-                        method: 'HEAD',
-                        credentials: 'include',
-                        cache: 'no-store',
-                    }).then(() => {
-                        // Update meta tag token
-                        setTimeout(() => {
-                            const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
-                            if (metaToken && metaToken.content) {
-                                if (typeof window !== 'undefined' && (window as any).axios) {
-                                    (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = metaToken.content;
-                                }
-                                console.log('[Login] CSRF token refreshed after validation error');
-                            }
-                        }, 100);
-                    }).catch((err) => {
-                        console.error('[Login] Failed to refresh CSRF token after validation error:', err);
-                        // If refresh fails, reload page
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    });
+                    // Update from meta tag (server already regenerated token)
+                    const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
+                    if (metaToken && metaToken.content) {
+                        if (typeof window !== 'undefined' && (window as any).axios) {
+                            (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = metaToken.content;
+                        }
+                        console.log('[Login] CSRF token updated from meta tag after validation error');
+                    }
                     
                     // Still display validation errors to user
                     return;
                 }
                 
-                // For any other errors, also refresh token
-                console.warn('[Login] Unknown error - refreshing CSRF token as precaution...');
-                fetch('/sanctum/csrf-cookie', {
-                    method: 'HEAD',
-                    credentials: 'include',
-                    cache: 'no-store',
-                }).catch(() => {
-                    // If refresh fails, reload page
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                });
+                // For any other errors, just update from meta tag
+                // Don't reload - server handles token regeneration
+                console.warn('[Login] Unknown error - updating CSRF token from meta tag...');
+                const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
+                if (metaToken && metaToken.content) {
+                    if (typeof window !== 'undefined' && (window as any).axios) {
+                        (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = metaToken.content;
+                    }
+                }
             },
         });
     };
