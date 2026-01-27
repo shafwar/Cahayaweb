@@ -111,7 +111,14 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
         post(loginUrl, {
             preserveState: false,
             preserveScroll: false,
-            onFinish: () => reset('password'),
+            onStart: () => {
+                // Loading state is handled by processing state from useForm
+                console.log('[Login] Form submission started - validating credentials...');
+            },
+            onFinish: () => {
+                reset('password');
+                console.log('[Login] Form submission finished');
+            },
             onSuccess: (page) => {
                 // Log successful login for debugging
                 console.log('[Login] Success - redirecting...', {
@@ -192,10 +199,21 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                 </div>
             )}
 
-            <form method="POST" className="flex flex-col gap-6" onSubmit={submit}>
+            <form method="POST" className="flex flex-col gap-6 relative" onSubmit={submit}>
+                {/* Loading overlay - shows when form is submitting */}
+                {processing && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-black/40 backdrop-blur-sm">
+                        <div className="flex flex-col items-center gap-3 rounded-lg bg-gray-900/95 px-6 py-4 shadow-xl">
+                            <LoaderCircle className="h-8 w-8 animate-spin text-amber-500" />
+                            <p className="text-sm font-medium text-white">Validating credentials...</p>
+                            <p className="text-xs text-gray-400">Please wait</p>
+                        </div>
+                    </div>
+                )}
+                
                 {data.mode && <input type="hidden" name="mode" value={data.mode} />}
                 {data.redirect && <input type="hidden" name="redirect" value={data.redirect} />}
-                <div className="grid gap-6">
+                <div className={`grid gap-6 ${processing ? 'opacity-60 pointer-events-none' : ''}`}>
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email address</Label>
                         <Input
@@ -208,6 +226,8 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             placeholder="email@example.com"
+                            disabled={processing}
+                            className={processing ? 'opacity-60 cursor-not-allowed' : ''}
                         />
                         <InputError message={errors.email} />
                         {errors.email && (
@@ -248,12 +268,14 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
                                 placeholder="Password"
-                                className="pr-10"
+                                className={`pr-10 ${processing ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                disabled={processing}
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors"
+                                disabled={processing}
+                                className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 tabIndex={-1}
                                 aria-label={showPassword ? 'Hide password' : 'Show password'}
                             >
@@ -284,13 +306,26 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                             checked={data.remember}
                             onClick={() => setData('remember', !data.remember)}
                             tabIndex={3}
+                            disabled={processing}
+                            className={processing ? 'opacity-60 cursor-not-allowed' : ''}
                         />
-                        <Label htmlFor="remember">Remember me</Label>
+                        <Label htmlFor="remember" className={processing ? 'opacity-60 cursor-not-allowed' : ''}>Remember me</Label>
                     </div>
 
-                    <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processing}>
-                        {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Log in
+                    <Button 
+                        type="submit" 
+                        className="mt-4 w-full relative min-h-[44px]" 
+                        tabIndex={4} 
+                        disabled={processing}
+                    >
+                        {processing ? (
+                            <span className="flex items-center justify-center gap-2">
+                                <LoaderCircle className="h-4 w-4 animate-spin" />
+                                <span>Validating credentials...</span>
+                            </span>
+                        ) : (
+                            'Log in'
+                        )}
                     </Button>
                 </div>
 
