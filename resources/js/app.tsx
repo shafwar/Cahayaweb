@@ -51,25 +51,72 @@ if (typeof window !== 'undefined') {
         
         // 3. Override XMLHttpRequest to force HTTPS - MOST CRITICAL!
         // This intercepts ALL AJAX requests including Inertia requests
+        // CRITICAL: Convert relative URLs to absolute HTTPS immediately
         const originalXHROpen = XMLHttpRequest.prototype.open;
         XMLHttpRequest.prototype.open = function(method: string, url: string | URL, ...args: any[]) {
+            const originalUrl = typeof url === 'string' ? url : (url instanceof URL ? url.href : String(url));
+            
             if (typeof url === 'string') {
                 // Convert HTTP to HTTPS
                 if (url.startsWith('http://')) {
                     url = url.replace('http://', 'https://');
-                    console.log('[HTTPS] XMLHttpRequest.open() converted:', url);
-                }
-                // Also handle relative URLs that might be resolved to HTTP
-                if (url.startsWith('//') && window.location.protocol === 'https:') {
+                    console.log('[HTTPS] app.tsx: XMLHttpRequest.open() converted HTTP→HTTPS:', originalUrl, '→', url);
+                } else if (url.startsWith('//')) {
                     url = 'https:' + url;
-                    console.log('[HTTPS] XMLHttpRequest.open() added https protocol:', url);
+                    console.log('[HTTPS] app.tsx: XMLHttpRequest.open() added https protocol:', originalUrl, '→', url);
+                } else if (url.startsWith('/')) {
+                    // CRITICAL: Relative URL - convert to absolute HTTPS immediately
+                    // This prevents any chance of HTTP resolution
+                    url = window.location.origin + url;
+                    console.log('[HTTPS] app.tsx: XMLHttpRequest.open() converted relative to absolute HTTPS:', originalUrl, '→', url);
                 }
-            } else if (url instanceof URL && url.protocol === 'http:') {
-                url.protocol = 'https:';
-                console.log('[HTTPS] XMLHttpRequest.open() URL object converted to HTTPS');
+                
+                // Final check: if somehow still HTTP, force HTTPS
+                if (url.startsWith('http://')) {
+                    url = url.replace('http://', 'https://');
+                    console.error('[HTTPS] app.tsx: XMLHttpRequest.open() FINAL FORCE HTTPS:', originalUrl, '→', url);
+                }
+            } else if (url instanceof URL) {
+                if (url.protocol === 'http:') {
+                    url.protocol = 'https:';
+                    console.log('[HTTPS] app.tsx: XMLHttpRequest.open() URL object protocol changed to HTTPS');
+                }
             }
+            
             return originalXHROpen.call(this, method, url, ...args);
         };
+        
+        // Also override fetch in app.tsx (backup to app.blade.php)
+        const originalFetchApp = window.fetch;
+        window.fetch = function(url: RequestInfo | URL, options?: RequestInit) {
+            const originalUrl = typeof url === 'string' ? url : (url instanceof Request ? url.url : String(url));
+            
+            if (typeof url === 'string') {
+                if (url.startsWith('http://')) {
+                    url = url.replace('http://', 'https://');
+                    console.log('[HTTPS] app.tsx: fetch() converted HTTP→HTTPS:', originalUrl, '→', url);
+                } else if (url.startsWith('//')) {
+                    url = 'https:' + url;
+                    console.log('[HTTPS] app.tsx: fetch() added https protocol:', originalUrl, '→', url);
+                } else if (url.startsWith('/')) {
+                    // Relative URL - convert to absolute HTTPS
+                    url = window.location.origin + url;
+                    console.log('[HTTPS] app.tsx: fetch() converted relative to absolute HTTPS:', originalUrl, '→', url);
+                }
+            } else if (url instanceof Request) {
+                if (url.url.startsWith('http://')) {
+                    url = new Request(url.url.replace('http://', 'https://'), url);
+                    console.log('[HTTPS] app.tsx: fetch() Request object converted to HTTPS');
+                } else if (url.url.startsWith('/')) {
+                    url = new Request(window.location.origin + url.url, url);
+                    console.log('[HTTPS] app.tsx: fetch() Request relative URL converted to absolute HTTPS');
+                }
+            }
+            
+            return originalFetchApp(url, options);
+        };
+        
+        console.log('[HTTPS] app.tsx: All HTTPS overrides installed (backup to app.blade.php)');
         
         // 4. Also override XMLHttpRequest send to catch any URLs set after open()
         const originalXHRSend = XMLHttpRequest.prototype.send;

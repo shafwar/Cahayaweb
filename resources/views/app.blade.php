@@ -11,51 +11,79 @@
             (function() {
                 'use strict';
                 if (window.location.protocol === 'https:') {
+                    console.log('[HTTPS-FIRST] Installing HTTPS enforcement (protocol:', window.location.protocol, ')');
+                    
                     // Override XMLHttpRequest.prototype.open FIRST - most critical
                     const originalXHROpen = XMLHttpRequest.prototype.open;
                     XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
-                        // Convert HTTP to HTTPS
+                        // CRITICAL: Convert ALL HTTP URLs to HTTPS, including relative URLs that might resolve to HTTP
                         if (typeof url === 'string') {
+                            const originalUrl = url;
+                            
+                            // Convert HTTP to HTTPS
                             if (url.startsWith('http://')) {
                                 url = url.replace('http://', 'https://');
-                                console.log('[HTTPS-FIRST] XMLHttpRequest.open() converted HTTP→HTTPS:', url);
+                                console.log('[HTTPS-FIRST] XMLHttpRequest.open() converted HTTP→HTTPS:', originalUrl, '→', url);
                             } else if (url.startsWith('//')) {
+                                // Protocol-relative URL - force HTTPS
                                 url = 'https:' + url;
-                                console.log('[HTTPS-FIRST] XMLHttpRequest.open() added https protocol:', url);
-                            } else if (url.startsWith('/') && !url.startsWith('//')) {
-                                // Relative URL - ensure it uses current origin (which is HTTPS)
-                                const origin = window.location.origin;
-                                if (origin.startsWith('https://')) {
-                                    url = origin + url;
-                                    console.log('[HTTPS-FIRST] XMLHttpRequest.open() converted relative to absolute HTTPS:', url);
-                                }
+                                console.log('[HTTPS-FIRST] XMLHttpRequest.open() added https protocol:', originalUrl, '→', url);
+                            } else if (url.startsWith('/')) {
+                                // Relative URL - convert to absolute HTTPS URL immediately
+                                // This prevents any chance of HTTP resolution
+                                url = window.location.origin + url;
+                                console.log('[HTTPS-FIRST] XMLHttpRequest.open() converted relative to absolute HTTPS:', originalUrl, '→', url);
                             }
-                        } else if (url instanceof URL && url.protocol === 'http:') {
-                            url.protocol = 'https:';
-                            console.log('[HTTPS-FIRST] XMLHttpRequest.open() URL object converted to HTTPS');
+                            
+                            // Final check: if somehow still HTTP, force HTTPS
+                            if (url.startsWith('http://')) {
+                                url = url.replace('http://', 'https://');
+                                console.error('[HTTPS-FIRST] XMLHttpRequest.open() FINAL FORCE HTTPS:', originalUrl, '→', url);
+                            }
+                        } else if (url instanceof URL) {
+                            // URL object - modify protocol directly
+                            if (url.protocol === 'http:') {
+                                url.protocol = 'https:';
+                                console.log('[HTTPS-FIRST] XMLHttpRequest.open() URL object protocol changed to HTTPS');
+                            }
                         }
+                        
                         return originalXHROpen.call(this, method, url, async, user, password);
                     };
                     
-                    // Override fetch
+                    // Override fetch - intercept ALL fetch requests
                     const originalFetch = window.fetch;
                     window.fetch = function(url, options) {
+                        const originalUrl = typeof url === 'string' ? url : (url instanceof Request ? url.url : String(url));
+                        
                         if (typeof url === 'string') {
                             if (url.startsWith('http://')) {
                                 url = url.replace('http://', 'https://');
-                                console.log('[HTTPS-FIRST] fetch() converted HTTP→HTTPS');
+                                console.log('[HTTPS-FIRST] fetch() converted HTTP→HTTPS:', originalUrl, '→', url);
                             } else if (url.startsWith('//')) {
                                 url = 'https:' + url;
-                                console.log('[HTTPS-FIRST] fetch() added https protocol');
+                                console.log('[HTTPS-FIRST] fetch() added https protocol:', originalUrl, '→', url);
+                            } else if (url.startsWith('/')) {
+                                // Relative URL - convert to absolute HTTPS
+                                url = window.location.origin + url;
+                                console.log('[HTTPS-FIRST] fetch() converted relative to absolute HTTPS:', originalUrl, '→', url);
                             }
-                        } else if (url instanceof Request && url.url.startsWith('http://')) {
-                            url = new Request(url.url.replace('http://', 'https://'), url);
-                            console.log('[HTTPS-FIRST] fetch() Request object converted to HTTPS');
+                        } else if (url instanceof Request) {
+                            if (url.url.startsWith('http://')) {
+                                url = new Request(url.url.replace('http://', 'https://'), url);
+                                console.log('[HTTPS-FIRST] fetch() Request object converted to HTTPS');
+                            } else if (url.url.startsWith('/')) {
+                                url = new Request(window.location.origin + url.url, url);
+                                console.log('[HTTPS-FIRST] fetch() Request relative URL converted to absolute HTTPS');
+                            }
                         }
+                        
                         return originalFetch(url, options);
                     };
                     
                     console.log('[HTTPS-FIRST] All HTTPS overrides installed BEFORE any other scripts');
+                } else {
+                    console.log('[HTTPS-FIRST] Skipping HTTPS enforcement (not HTTPS page)');
                 }
             })();
         </script>

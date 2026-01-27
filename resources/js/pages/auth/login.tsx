@@ -55,65 +55,17 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
             (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
         }
 
-        // CRITICAL: Force HTTPS URL - ALWAYS use absolute HTTPS URL to prevent Mixed Content
-        // Don't rely on route() function - build URL directly to ensure HTTPS
-        let loginUrl: string;
+        // CRITICAL: Use RELATIVE URL to let browser resolve HTTPS automatically
+        // Absolute URLs can cause Mixed Content if Inertia caches HTTP URL
+        // Relative URLs are always resolved relative to current page (which is HTTPS)
+        const loginUrl = '/login';
         
-        try {
-            // Try route() first
-            loginUrl = route('login');
-            
-            // Convert to HTTPS if needed
-            if (typeof loginUrl === 'string') {
-                if (loginUrl.startsWith('http://')) {
-                    loginUrl = loginUrl.replace('http://', 'https://');
-                    console.warn('[Login] Converted HTTP URL to HTTPS:', loginUrl);
-                } else if (loginUrl.startsWith('//')) {
-                    loginUrl = 'https:' + loginUrl;
-                    console.warn('[Login] Added https protocol:', loginUrl);
-                } else if (loginUrl.startsWith('/')) {
-                    // Relative URL - convert to absolute HTTPS URL using current origin
-                    const currentOrigin = window.location.origin;
-                    if (currentOrigin.startsWith('https://')) {
-                        loginUrl = currentOrigin + loginUrl;
-                        console.warn('[Login] Converted relative URL to absolute HTTPS:', loginUrl);
-                    } else {
-                        // Fallback: use https:// with current hostname
-                        loginUrl = 'https://' + window.location.hostname + loginUrl;
-                        console.warn('[Login] Fallback: built absolute HTTPS URL:', loginUrl);
-                    }
-                }
-            }
-        } catch (routeError) {
-            // If route() fails, build URL directly
-            console.warn('[Login] route() failed, building URL directly:', routeError);
-            const currentOrigin = window.location.origin;
-            if (currentOrigin.startsWith('https://')) {
-                loginUrl = currentOrigin + '/login';
-            } else {
-                loginUrl = 'https://' + window.location.hostname + '/login';
-            }
-            console.log('[Login] Built login URL directly:', loginUrl);
-        }
-        
-        // CRITICAL: Final safety check - ALWAYS ensure HTTPS
-        if (window.location.protocol === 'https:') {
-            if (typeof loginUrl === 'string') {
-                if (loginUrl.startsWith('http://')) {
-                    loginUrl = loginUrl.replace('http://', 'https://');
-                    console.error('[Login] Final safety check: forced HTTPS:', loginUrl);
-                }
-                // Ensure it's absolute HTTPS URL
-                if (loginUrl.startsWith('/')) {
-                    loginUrl = 'https://' + window.location.hostname + loginUrl;
-                    console.warn('[Login] Final check: converted to absolute HTTPS:', loginUrl);
-                }
-            }
-        }
-        
-        console.log('[Login] Final login URL (guaranteed HTTPS):', loginUrl);
+        console.log('[Login] Using relative URL (browser will resolve to HTTPS):', loginUrl);
+        console.log('[Login] Current page protocol:', window.location.protocol);
+        console.log('[Login] Current page origin:', window.location.origin);
         
         // Submit login form with error handling
+        // Using relative URL ensures browser resolves it to HTTPS automatically
         post(loginUrl, {
             preserveState: false,
             preserveScroll: false,
