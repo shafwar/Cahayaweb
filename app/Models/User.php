@@ -59,7 +59,18 @@ class User extends Authenticatable
      */
     public function hasB2BAccess(): bool
     {
-        return $this->agentVerification && $this->agentVerification->isApproved();
+        try {
+            // Use relationship method to safely check if verification exists
+            $verification = $this->agentVerification;
+            return $verification && $verification->isApproved();
+        } catch (\Throwable $e) {
+            // If any error occurs (e.g., relationship not loaded, database error), return false
+            \Log::debug('Error checking B2B access', [
+                'user_id' => $this->id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
     }
 
     /**
@@ -67,6 +78,17 @@ class User extends Authenticatable
      */
     public function hasPendingB2BVerification(): bool
     {
-        return $this->agentVerification && $this->agentVerification->isPending();
+        try {
+            // Use relationship method to safely check if verification exists
+            $verification = $this->agentVerification;
+            return $verification && $verification->isPending();
+        } catch (\Throwable $e) {
+            // If any error occurs, return false
+            \Log::debug('Error checking pending B2B verification', [
+                'user_id' => $this->id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
     }
 }

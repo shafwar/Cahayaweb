@@ -88,90 +88,184 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request)
     {
-        // Authenticate user first (before any session operations)
-        $request->authenticate();
+        try {
+            // Authenticate user first (before any session operations)
+            $request->authenticate();
 
-        // Get user before regenerating session
-        $user = Auth::user();
+            // Get user before regenerating session
+            $user = Auth::user();
 
-        // Regenerate session ID for security (after authentication succeeds)
-        // This prevents session fixation attacks
-        $request->session()->regenerate();
-
-        // Regenerate CSRF token after session regeneration
-        // This ensures the token is fresh and valid
-        $request->session()->regenerateToken();
-
-        // Check mode parameter
-        $mode = $request->input('mode');
-
-        // Block admin login if coming from B2B mode
-        if ($mode === 'b2b') {
-            // Use same admin check logic as IsAdmin middleware
-            $isAdmin = false;
-            if ($user) {
-                if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
-                    $isAdmin = true;
-                }
-                if (!$isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
-                    $isAdmin = true;
-                }
-            }
-
-            if ($isAdmin) {
-                // Logout the admin immediately
-                Auth::guard('web')->logout();
-                $request->session()->invalidate();
+            // Regenerate session ID for security (after authentication succeeds)
+            // This prevents session fixation attacks
+            // Wrap in try-catch to handle any session errors gracefully
+            try {
+                $request->session()->regenerate();
+                // Regenerate CSRF token after session regeneration
+                // This ensures the token is fresh and valid
                 $request->session()->regenerateToken();
-
-                // Return error message
-                return back()->withErrors([
-                    'email' => 'Admin accounts cannot login through B2B portal. Please use the admin login page directly.',
-                ])->withInput($request->only('email'));
-            }
-        }
-
-        // For admin mode, verify user is actually an admin
-        if ($mode === 'admin') {
-            // Use same admin check logic as IsAdmin middleware
-            $isAdmin = false;
-            if ($user) {
-                if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
-                    $isAdmin = true;
-                }
-                if (!$isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
-                    $isAdmin = true;
+            } catch (\Throwable $sessionError) {
+                // If session regeneration fails, log but continue
+                // The user is already authenticated, so we can proceed
+                \Log::warning('Session regeneration failed during login', [
+                    'user_id' => $user?->id,
+                    'error' => $sessionError->getMessage()
+                ]);
+                // Try to regenerate token anyway
+                try {
+                    $request->session()->regenerateToken();
+                } catch (\Throwable $tokenError) {
+                    \Log::warning('Token regeneration also failed', [
+                        'error' => $tokenError->getMessage()
+                    ]);
                 }
             }
 
-            if (!$isAdmin) {
-                // Logout non-admin user immediately
-                Auth::guard('web')->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+            // Check mode parameter
+            $mode = $request->input('mode');
 
-                // Return error message
-                return back()->withErrors([
-                    'email' => 'This account does not have admin access. Please login with an admin account.',
-                ])->withInput($request->only('email'));
+            // Block admin login if coming from B2B mode
+            if ($mode === 'b2b') {
+                // Use same admin check logic as IsAdmin middleware
+                $isAdmin = false;
+                try {
+                    if ($user) {
+                        if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
+                            $isAdmin = true;
+                        }
+                        if (!$isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
+                            $isAdmin = true;
+                        }
+                    }
+                } catch (\Throwable $adminCheckError) {
+                    \Log::warning('Error checking admin status during B2B login', [
+                        'user_id' => $user?->id,
+                        'error' => $adminCheckError->getMessage()
+                    ]);
+                    // If we can't determine admin status, allow login to proceed
+                }
+
+                if ($isAdmin) {
+                    // Logout the admin immediately
+                    try {
+                        Auth::guard('web')->logout();
+                        $request->session()->invalidate();
+                        $request->session()->regenerateToken();
+                    } catch (\Throwable $logoutError) {
+                        \Log::warning('Error during admin logout in B2B mode', [
+                            'error' => $logoutError->getMessage()
+                        ]);
+                    }
+
+                    // Return error message - ensure Inertia response
+                    if ($request->header('X-Inertia')) {
+                        return back()->withErrors([
+                            'email' => 'Admin accounts cannot login through B2B portal. Please use the admin login page directly.',
+                        ])->withInput($request->only('email'));
+                    }
+                    return back()->withErrors([
+                        'email' => 'Admin accounts cannot login through B2B portal. Please use the admin login page directly.',
+                    ])->withInput($request->only('email'));
+                }
             }
 
-            // Admin verified - redirect to admin dashboard
-            // For Inertia requests, use location redirect
+            // For admin mode, verify user is actually an admin
+            if ($mode === 'admin') {
+                // Use same admin check logic as IsAdmin middleware
+                $isAdmin = false;
+                try {
+                    if ($user) {
+                        if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
+                            $isAdmin = true;
+                        }
+                        if (!$isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
+                            $isAdmin = true;
+                        }
+                    }
+                } catch (\Throwable $adminCheckError) {
+                    \Log::warning('Error checking admin status during admin login', [
+                        'user_id' => $user?->id,
+                        'error' => $adminCheckError->getMessage()
+                    ]);
+                    // If we can't determine admin status, treat as non-admin
+                }
+
+                if (!$isAdmin) {
+                    // Logout non-admin user immediately
+                    try {
+                        Auth::guard('web')->logout();
+                        $request->session()->invalidate();
+                        $request->session()->regenerateToken();
+                    } catch (\Throwable $logoutError) {
+                        \Log::warning('Error during non-admin logout in admin mode', [
+                            'error' => $logoutError->getMessage()
+                        ]);
+                    }
+
+                    // Return error message - ensure Inertia response
+                    if ($request->header('X-Inertia')) {
+                        return back()->withErrors([
+                            'email' => 'This account does not have admin access. Please login with an admin account.',
+                        ])->withInput($request->only('email'));
+                    }
+                    return back()->withErrors([
+                        'email' => 'This account does not have admin access. Please login with an admin account.',
+                    ])->withInput($request->only('email'));
+                }
+
+                // Admin verified - redirect to admin dashboard
+                // For Inertia requests, use location redirect
+                if ($request->header('X-Inertia')) {
+                    return Inertia::location('/admin');
+                }
+                return redirect('/admin');
+            }
+
+            // Determine redirect target - wrap in try-catch to handle any errors
+            try {
+                $redirectTarget = $this->determineRedirectTarget($request);
+            } catch (\Throwable $redirectError) {
+                \Log::error('Error determining redirect target', [
+                    'user_id' => $user?->id,
+                    'mode' => $mode,
+                    'error' => $redirectError->getMessage(),
+                    'trace' => $redirectError->getTraceAsString()
+                ]);
+                // Fallback to home page if redirect determination fails
+                $redirectTarget = route('home', absolute: false);
+            }
+
+            // Inertia form submissions expect a location response instead of a plain redirect
             if ($request->header('X-Inertia')) {
-                return Inertia::location('/admin');
+                return Inertia::location($redirectTarget);
             }
-            return redirect('/admin');
+
+            return redirect()->intended($redirectTarget);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Re-throw ValidationException to let it be handled by the exception handler
+            throw $e;
+        } catch (\Throwable $e) {
+            // Log any unexpected errors
+            \Log::error('Unexpected error during login', [
+                'user_email' => $request->input('email'),
+                'mode' => $request->input('mode'),
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // For Inertia requests, return proper Inertia error response
+            if ($request->header('X-Inertia')) {
+                return back()->withErrors([
+                    'email' => 'An error occurred during login. Please try again or refresh the page.',
+                ])->withInput($request->only('email'));
+            }
+
+            // For regular requests, redirect back with error
+            return back()->withErrors([
+                'email' => 'An error occurred during login. Please try again.',
+            ])->withInput($request->only('email'));
         }
-
-        $redirectTarget = $this->determineRedirectTarget($request);
-
-        // Inertia form submissions expect a location response instead of a plain redirect
-        if ($request->header('X-Inertia')) {
-            return Inertia::location($redirectTarget);
-        }
-
-        return redirect()->intended($redirectTarget);
     }
 
     /**
@@ -249,13 +343,20 @@ class AuthenticatedSessionController extends Controller
 
         // Check if user is admin - use same logic as IsAdmin middleware
         $isAdmin = false;
-        if ($user) {
-            if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
-                $isAdmin = true;
+        try {
+            if ($user) {
+                if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
+                    $isAdmin = true;
+                }
+                if (!$isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
+                    $isAdmin = true;
+                }
             }
-            if (!$isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
-                $isAdmin = true;
-            }
+        } catch (\Throwable $e) {
+            \Log::debug('Error checking admin status in determineRedirectTarget', [
+                'error' => $e->getMessage()
+            ]);
+            // Continue with $isAdmin = false
         }
 
         // Check mode parameter first
@@ -278,10 +379,20 @@ class AuthenticatedSessionController extends Controller
                 return '/admin';
             }
             // If user doesn't have B2B access, redirect to registration form
-            if (!$user->hasB2BAccess()) {
+            // Wrap in try-catch to handle any errors from hasB2BAccess()
+            try {
+                if (!$user || !$user->hasB2BAccess()) {
+                    return route('b2b.register', absolute: false);
+                }
+                return route('b2b.index', absolute: false);
+            } catch (\Throwable $e) {
+                \Log::warning('Error checking B2B access in determineRedirectTarget', [
+                    'user_id' => $user?->id,
+                    'error' => $e->getMessage()
+                ]);
+                // If error occurs, redirect to registration form as safe fallback
                 return route('b2b.register', absolute: false);
             }
-            return route('b2b.index', absolute: false);
         }
 
         // For admin users (not in B2B or admin mode), redirect to /admin
