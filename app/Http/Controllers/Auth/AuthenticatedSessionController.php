@@ -220,6 +220,15 @@ class AuthenticatedSessionController extends Controller
             // Determine redirect target - wrap in try-catch to handle any errors
             try {
                 $redirectTarget = $this->determineRedirectTarget($request);
+                
+                // Log redirect target for debugging
+                \Log::info('Login successful - redirecting', [
+                    'user_id' => $user?->id,
+                    'user_email' => $user?->email,
+                    'mode' => $mode,
+                    'redirect_target' => $redirectTarget,
+                    'has_b2b_access' => $mode === 'b2b' ? ($user?->hasB2BAccess() ?? false) : null,
+                ]);
             } catch (\Throwable $redirectError) {
                 \Log::error('Error determining redirect target', [
                     'user_id' => $user?->id,
@@ -233,6 +242,8 @@ class AuthenticatedSessionController extends Controller
 
             // Inertia form submissions expect a location response instead of a plain redirect
             if ($request->header('X-Inertia')) {
+                // Use Inertia::location() for proper Inertia redirect
+                // This ensures the redirect is handled correctly by Inertia
                 return Inertia::location($redirectTarget);
             }
 
@@ -373,19 +384,38 @@ class AuthenticatedSessionController extends Controller
         if ($mode === 'b2b') {
             // Double check - if somehow admin got through, redirect to admin dashboard
             if ($isAdmin) {
+                \Log::warning('Admin user detected in B2B mode redirect', [
+                    'user_id' => $user?->id,
+                ]);
                 return '/admin';
             }
+            
             // If user doesn't have B2B access, redirect to registration form
             // Wrap in try-catch to handle any errors from hasB2BAccess()
             try {
-                if (!$user || !$user->hasB2BAccess()) {
+                $hasB2BAccess = $user && $user->hasB2BAccess();
+                
+                \Log::info('B2B access check', [
+                    'user_id' => $user?->id,
+                    'has_b2b_access' => $hasB2BAccess,
+                ]);
+                
+                if (!$user || !$hasB2BAccess) {
+                    \Log::info('User does not have B2B access - redirecting to registration', [
+                        'user_id' => $user?->id,
+                    ]);
                     return route('b2b.register', absolute: false);
                 }
+                
+                \Log::info('User has B2B access - redirecting to B2B index', [
+                    'user_id' => $user?->id,
+                ]);
                 return route('b2b.index', absolute: false);
             } catch (\Throwable $e) {
-                \Log::warning('Error checking B2B access in determineRedirectTarget', [
+                \Log::error('Error checking B2B access in determineRedirectTarget', [
                     'user_id' => $user?->id,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
                 ]);
                 // If error occurs, redirect to registration form as safe fallback
                 return route('b2b.register', absolute: false);

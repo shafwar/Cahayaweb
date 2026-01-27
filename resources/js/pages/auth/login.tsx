@@ -60,11 +60,22 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
             preserveState: false,
             preserveScroll: false,
             onFinish: () => reset('password'),
+            onSuccess: (page) => {
+                // Log successful login for debugging
+                console.log('[Login] Success - redirecting...', {
+                    url: page.url,
+                    component: page.component,
+                });
+            },
             onError: (errors) => {
+                // Log errors for debugging
+                console.error('[Login] Error occurred:', errors);
+                
                 // Handle validation errors (422) - display in form
                 // These errors will be displayed automatically by InputError components
                 if (errors.email || errors.password) {
                     // Validation errors are handled by Inertia automatically
+                    console.log('[Login] Validation errors:', errors.email || errors.password);
                     return;
                 }
                 
@@ -81,7 +92,7 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                     errorString.includes('csrf')
                 ) {
                     // Reload page to refresh CSRF token
-                    console.warn('CSRF token expired, reloading page to refresh...');
+                    console.warn('[Login] CSRF token expired, reloading page to refresh...');
                     setTimeout(() => {
                         window.location.reload();
                     }, 500);

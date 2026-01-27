@@ -234,7 +234,7 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-B4MtYAE2.js",
+    "file": "assets/app-CwnIRe7Q.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -428,7 +428,7 @@
     ]
   },
   "resources/js/pages/auth/login.tsx": {
-    "file": "assets/login-BHbsi8ia.js",
+    "file": "assets/login-DM6SndRk.js",
     "name": "login",
     "src": "resources/js/pages/auth/login.tsx",
     "isDynamicEntry": true,
@@ -815,7 +815,7 @@
     ]
   },
   "resources/js/pages/settings/appearance.tsx": {
-    "file": "assets/appearance-CMZ5erzv.js",
+    "file": "assets/appearance-BIFIL7zE.js",
     "name": "appearance",
     "src": "resources/js/pages/settings/appearance.tsx",
     "isDynamicEntry": true,
