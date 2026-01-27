@@ -662,36 +662,68 @@ class AgentVerificationController extends Controller
         }
 
         try {
-            // Check if file exists in R2 storage
-            $disk = R2Helper::disk();
+            // First, try to generate R2 URL directly without checking existence
+            // This is faster and avoids potential errors from storage checks
+            $r2Url = R2Helper::url($path);
             
-            // Check if file exists in R2
-            if ($disk->exists($path)) {
-                // File exists in R2 - use R2Helper to generate URL
-                return R2Helper::url($path);
+            // If R2 URL generation succeeds, return it
+            // We don't check file existence to avoid 500 errors
+            // The browser will handle 404 if file doesn't exist
+            if ($r2Url) {
+                return $r2Url;
             }
-            
-            // File might be in local storage - check public disk
-            $publicDisk = Storage::disk('public');
-            if ($publicDisk->exists($path)) {
-                // File exists in local storage - use asset() helper
-                return asset('storage/' . $path);
-            }
-            
-            // File doesn't exist in either location - still return R2 URL
-            // This ensures we try R2 first even if file check fails
-            return R2Helper::url($path);
             
         } catch (\Exception $e) {
-            // On error, try to generate R2 URL anyway
-            // This ensures we always try R2 first
-            \Log::warning('Error checking file URL for agent verification', [
+            // Log but don't fail - we'll try fallback
+            \Log::debug('R2Helper::url() failed, trying fallback', [
+                'path' => $path,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        // Fallback: Try local storage if R2 fails
+        try {
+            $publicDisk = Storage::disk('public');
+            if ($publicDisk->exists($path)) {
+                return asset('storage/' . $path);
+            }
+        } catch (\Exception $e) {
+            \Log::debug('Local storage check failed', [
+                'path' => $path,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        // Last resort: Generate R2 URL structure manually
+        // This ensures we always return a valid URL format
+        try {
+            $cleanPath = trim($path, '/');
+            $baseUrl = config('filesystems.disks.r2.url', 'https://assets.cahayaanbiya.com');
+            
+            // Handle agent-verifications folder
+            if (str_contains($cleanPath, 'agent-verification')) {
+                // Remove 'public/' prefix if present
+                if (str_starts_with($cleanPath, 'public/')) {
+                    $cleanPath = substr($cleanPath, 7);
+                }
+                return rtrim($baseUrl, '/') . '/public/' . ltrim($cleanPath, '/');
+            }
+            
+            // Default: assume it's in public folder
+            if (!str_starts_with($cleanPath, 'public/')) {
+                $cleanPath = 'public/' . $cleanPath;
+            }
+            return rtrim($baseUrl, '/') . '/' . ltrim($cleanPath, '/');
+            
+        } catch (\Exception $e) {
+            \Log::error('All file URL generation methods failed', [
                 'path' => $path,
                 'error' => $e->getMessage()
             ]);
             
-            // Return R2 URL as fallback
-            return R2Helper::url($path);
+            // Absolute last resort: return null to prevent 500 error
+            // Frontend should handle null gracefully
+            return null;
         }
     }
 }

@@ -249,6 +249,45 @@ try {
     progress: {
         color: '#BC8E2E',
     },
+    onError: (error) => {
+        // Handle 419 Page Expired errors
+        const errorMessage = error?.message || (typeof error === 'string' ? error : '') || '';
+        const errorString = JSON.stringify(error || {});
+        
+        if (
+            errorMessage.includes('419') || 
+            errorMessage.includes('expired') || 
+            errorMessage.includes('PAGE EXPIRED') ||
+            errorString.includes('419') ||
+            errorString.includes('expired') ||
+            (error as any)?.status === 419
+        ) {
+            console.warn('[Inertia] CSRF token expired, reloading page...');
+            // Reload page to refresh CSRF token
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+            return;
+        }
+        
+        // Handle 500 Server Errors
+        if (
+            (error as any)?.status === 500 ||
+            errorMessage.includes('500') ||
+            errorMessage.includes('SERVER ERROR') ||
+            errorString.includes('500')
+        ) {
+            console.error('[Inertia] Server error occurred:', error);
+            // Show user-friendly message and reload
+            if (confirm('A server error occurred. Would you like to refresh the page?')) {
+                window.location.reload();
+            }
+            return;
+        }
+        
+        // Log other errors for debugging
+        console.error('[Inertia] Unhandled error:', error);
+    },
     });
     
     inertiaAppCreated = true;
