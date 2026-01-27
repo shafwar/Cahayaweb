@@ -485,13 +485,13 @@ class AgentVerificationController extends Controller
                 'contact_person_phone' => $verification->contact_person_phone,
                 'contact_person_email' => $verification->contact_person_email,
                 'business_license_file' => $verification->business_license_file 
-                    ? route('admin.agent-verifications.download', ['verification' => $verification->id, 'documentType' => 'business-license'])
+                    ? route('admin.agent-verification.download', ['verification' => $verification->id, 'documentType' => 'business-license'])
                     : null,
                 'tax_certificate_file' => $verification->tax_certificate_file 
-                    ? route('admin.agent-verifications.download', ['verification' => $verification->id, 'documentType' => 'tax-certificate'])
+                    ? route('admin.agent-verification.download', ['verification' => $verification->id, 'documentType' => 'tax-certificate'])
                     : null,
                 'company_profile_file' => $verification->company_profile_file 
-                    ? route('admin.agent-verifications.download', ['verification' => $verification->id, 'documentType' => 'company-profile'])
+                    ? route('admin.agent-verification.download', ['verification' => $verification->id, 'documentType' => 'company-profile'])
                     : null,
                 'status' => $verification->status,
                 'admin_notes' => $verification->admin_notes,
