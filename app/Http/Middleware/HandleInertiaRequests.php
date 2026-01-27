@@ -52,11 +52,18 @@ class HandleInertiaRequests extends Middleware
             }
 
             // Safe Ziggy initialization
-            $ziggyArray = ['url' => 'https://cahayaanbiya.com', 'routes' => []];
+            // CRITICAL: Always use HTTPS URL to prevent Mixed Content errors
+            $baseUrl = $request->getSchemeAndHttpHost();
+            // Force HTTPS if request is HTTPS
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
+                $baseUrl = str_replace('http://', 'https://', $baseUrl);
+            }
+            
+            $ziggyArray = ['url' => $baseUrl, 'routes' => []];
             try {
                 $ziggy = new Ziggy();
                 $ziggyArray = $ziggy->toArray();
-                $ziggyArray['url'] = 'https://cahayaanbiya.com';
+                $ziggyArray['url'] = $baseUrl; // Use forced HTTPS URL
             } catch (\Throwable $e) {
                 Log::warning('Error initializing Ziggy', ['error' => $e->getMessage()]);
             }
@@ -83,8 +90,15 @@ class HandleInertiaRequests extends Middleware
             }
 
             // Evaluate ziggy directly (not as closure) to avoid serialization issues
+            // CRITICAL: Always use HTTPS URL to prevent Mixed Content errors
+            $baseUrl = $request->getSchemeAndHttpHost();
+            // Force HTTPS if request is HTTPS
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
+                $baseUrl = str_replace('http://', 'https://', $baseUrl);
+            }
+            
             $ziggyData = [
-                'url' => 'https://cahayaanbiya.com',
+                'url' => $baseUrl,
                 'location' => $request->url(),
                 'routes' => [],
                 'forceHttps' => true,
@@ -92,6 +106,7 @@ class HandleInertiaRequests extends Middleware
             try {
                 $ziggyData = [
                     ...$ziggyArray,
+                    'url' => $baseUrl, // Override with forced HTTPS URL
                     'location' => $request->url(),
                     'forceHttps' => true,
                 ];
@@ -142,8 +157,14 @@ class HandleInertiaRequests extends Middleware
             ]);
             
             // Last resort: return minimal safe props (all evaluated, no closures)
+            // CRITICAL: Always use HTTPS URL to prevent Mixed Content errors
+            $baseUrl = $request->getSchemeAndHttpHost();
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
+                $baseUrl = str_replace('http://', 'https://', $baseUrl);
+            }
+            
             $fallbackZiggy = [
-                'url' => 'https://cahayaanbiya.com',
+                'url' => $baseUrl,
                 'location' => $request->url(),
                 'routes' => [],
                 'forceHttps' => true,
