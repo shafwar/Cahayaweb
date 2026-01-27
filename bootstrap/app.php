@@ -128,34 +128,26 @@ return Application::configure(basePath: dirname(__DIR__))
             ]);
 
             // For Inertia requests, return proper Inertia response (NOT JSON!)
-            // CRITICAL: Must use Inertia::render() or redirect with errors, NOT response()->json()
+            // CRITICAL: Must use redirect()->withErrors() or redirect()->route(), NOT response()->json()
             if ($request->header('X-Inertia')) {
                 // Check if this is a login request - if so, redirect back to login with error
-                if ($request->is('login') || $request->routeIs('login')) {
+                if ($request->is('login') || $request->routeIs('login') || str_contains($request->path(), 'login')) {
                     // For login requests, redirect back to login page with error message
                     // This ensures proper Inertia response instead of JSON
-                    return redirect()->route('login', [
-                        'mode' => $request->input('mode'),
-                        'redirect' => $request->input('redirect'),
-                    ])->withErrors([
+                    $mode = $request->input('mode') ?: $request->query('mode');
+                    $redirect = $request->input('redirect') ?: $request->query('redirect');
+                    
+                    return redirect()->route('login', array_filter([
+                        'mode' => $mode,
+                        'redirect' => $redirect,
+                    ]))->withErrors([
                         'email' => 'An error occurred during login. Please try again or refresh the page.',
                     ])->withInput($request->only('email'));
                 }
                 
-                // For other Inertia requests, try to render an error page
-                // If error page doesn't exist, redirect to home with error message
-                try {
-                    return \Inertia\Inertia::render('errors/500', [
-                        'status' => 500,
-                        'message' => 'An error occurred. Please try again or refresh the page.',
-                    ])->toResponse($request)->setStatusCode(500);
-                } catch (\Throwable $renderError) {
-                    // If error page doesn't exist, redirect to home
-                    \Log::warning('Error page render failed, redirecting to home', [
-                        'error' => $renderError->getMessage()
-                    ]);
-                    return redirect()->route('home')->with('error', 'An error occurred. Please try again.');
-                }
+                // For other Inertia requests, redirect to home with error message
+                // This ensures proper Inertia response instead of JSON
+                return redirect()->route('home')->with('error', 'An error occurred. Please try again or refresh the page.');
             }
             
             // For AJAX requests, return JSON
