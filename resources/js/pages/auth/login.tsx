@@ -55,35 +55,63 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
             (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
         }
 
-        // CRITICAL: Force HTTPS URL - use absolute URL to prevent Mixed Content
-        let loginUrl = route('login');
+        // CRITICAL: Force HTTPS URL - ALWAYS use absolute HTTPS URL to prevent Mixed Content
+        // Don't rely on route() function - build URL directly to ensure HTTPS
+        let loginUrl: string;
         
-        // Convert to HTTPS if needed
-        if (typeof loginUrl === 'string') {
-            if (loginUrl.startsWith('http://')) {
-                loginUrl = loginUrl.replace('http://', 'https://');
-                console.warn('[Login] Converted HTTP URL to HTTPS:', loginUrl);
-            } else if (loginUrl.startsWith('//')) {
-                // Protocol-relative URL - add https:
-                loginUrl = 'https:' + loginUrl;
-                console.warn('[Login] Added https protocol:', loginUrl);
-            } else if (loginUrl.startsWith('/')) {
-                // Relative URL - convert to absolute HTTPS URL
-                const currentOrigin = window.location.origin;
-                if (currentOrigin.startsWith('https://')) {
-                    loginUrl = currentOrigin + loginUrl;
-                    console.warn('[Login] Converted relative URL to absolute HTTPS:', loginUrl);
+        try {
+            // Try route() first
+            loginUrl = route('login');
+            
+            // Convert to HTTPS if needed
+            if (typeof loginUrl === 'string') {
+                if (loginUrl.startsWith('http://')) {
+                    loginUrl = loginUrl.replace('http://', 'https://');
+                    console.warn('[Login] Converted HTTP URL to HTTPS:', loginUrl);
+                } else if (loginUrl.startsWith('//')) {
+                    loginUrl = 'https:' + loginUrl;
+                    console.warn('[Login] Added https protocol:', loginUrl);
+                } else if (loginUrl.startsWith('/')) {
+                    // Relative URL - convert to absolute HTTPS URL using current origin
+                    const currentOrigin = window.location.origin;
+                    if (currentOrigin.startsWith('https://')) {
+                        loginUrl = currentOrigin + loginUrl;
+                        console.warn('[Login] Converted relative URL to absolute HTTPS:', loginUrl);
+                    } else {
+                        // Fallback: use https:// with current hostname
+                        loginUrl = 'https://' + window.location.hostname + loginUrl;
+                        console.warn('[Login] Fallback: built absolute HTTPS URL:', loginUrl);
+                    }
+                }
+            }
+        } catch (routeError) {
+            // If route() fails, build URL directly
+            console.warn('[Login] route() failed, building URL directly:', routeError);
+            const currentOrigin = window.location.origin;
+            if (currentOrigin.startsWith('https://')) {
+                loginUrl = currentOrigin + '/login';
+            } else {
+                loginUrl = 'https://' + window.location.hostname + '/login';
+            }
+            console.log('[Login] Built login URL directly:', loginUrl);
+        }
+        
+        // CRITICAL: Final safety check - ALWAYS ensure HTTPS
+        if (window.location.protocol === 'https:') {
+            if (typeof loginUrl === 'string') {
+                if (loginUrl.startsWith('http://')) {
+                    loginUrl = loginUrl.replace('http://', 'https://');
+                    console.error('[Login] Final safety check: forced HTTPS:', loginUrl);
+                }
+                // Ensure it's absolute HTTPS URL
+                if (loginUrl.startsWith('/')) {
+                    loginUrl = 'https://' + window.location.hostname + loginUrl;
+                    console.warn('[Login] Final check: converted to absolute HTTPS:', loginUrl);
                 }
             }
         }
         
-        // Final safety check: ensure URL is HTTPS
-        if (typeof loginUrl === 'string' && window.location.protocol === 'https:' && loginUrl.startsWith('http://')) {
-            loginUrl = loginUrl.replace('http://', 'https://');
-            console.error('[Login] Final safety check: forced HTTPS:', loginUrl);
-        }
-        
-        console.log('[Login] Final login URL:', loginUrl);
+        console.log('[Login] Final login URL (guaranteed HTTPS):', loginUrl);
         
         // Submit login form with error handling
         post(loginUrl, {
