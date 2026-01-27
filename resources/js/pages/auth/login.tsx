@@ -55,8 +55,15 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
             (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
         }
 
+        // CRITICAL: Ensure route() returns HTTPS URL
+        let loginUrl = route('login');
+        if (typeof loginUrl === 'string' && loginUrl.startsWith('http://')) {
+            loginUrl = loginUrl.replace('http://', 'https://');
+            console.warn('[Login] Converted HTTP URL to HTTPS:', loginUrl);
+        }
+        
         // Submit login form with error handling
-        post(route('login'), {
+        post(loginUrl, {
             preserveState: false,
             preserveScroll: false,
             onFinish: () => reset('password'),
