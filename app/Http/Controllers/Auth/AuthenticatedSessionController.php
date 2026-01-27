@@ -19,32 +19,29 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(Request $request)
     {
-        // CRITICAL: Regenerate CSRF token to prevent 419 errors
-        // This ensures a fresh token is available for login
-        // Also regenerate session if it's about to expire (within 10 minutes)
+        // CRITICAL: Always regenerate CSRF token on every page load
+        // This ensures a fresh token is ALWAYS available for login, preventing 419 errors
+        // No conditional checks - just regenerate every time to guarantee freshness
         try {
-            $sessionLifetime = config('session.lifetime', 120); // minutes
-            $sessionLastActivity = $request->session()->get('_token_last_activity', 0);
-            $minutesSinceActivity = $sessionLastActivity > 0 
-                ? (time() - $sessionLastActivity) / 60 
-                : $sessionLifetime + 1; // Force regenerate if no activity recorded
-            
-            // Regenerate token if session is about to expire (within 10 minutes)
-            // or if it's been more than 50% of lifetime
-            if ($minutesSinceActivity > ($sessionLifetime * 0.5) || $minutesSinceActivity > ($sessionLifetime - 10)) {
-                $request->session()->regenerate();
-            }
+            // Always regenerate session to ensure fresh session ID
+            // This prevents session fixation and ensures clean state
+            $request->session()->regenerate();
             
             // Always regenerate CSRF token for fresh token
+            // This is critical - token must be fresh on every page load
             $request->session()->regenerateToken();
             
-            // Record activity time
+            // Record activity time for session management
             $request->session()->put('_token_last_activity', time());
+            
+            // Force session to be saved immediately to prevent race conditions
+            $request->session()->save();
         } catch (\Throwable $e) {
             // If regeneration fails, still try to regenerate token
             // This ensures we always have a token, even if session operations fail
             try {
                 $request->session()->regenerateToken();
+                $request->session()->save();
             } catch (\Throwable $tokenError) {
                 \Log::warning('Failed to regenerate CSRF token in login page', [
                     'error' => $tokenError->getMessage()

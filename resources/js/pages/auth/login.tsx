@@ -39,8 +39,16 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        // Get CSRF token from meta tag (should be fresh from page load)
+        // Get CSRF token from meta tag (guaranteed fresh from server-side regeneration)
+        // Server always regenerates token on page load, so token is always fresh
         const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+        
+        // Validate token exists before submitting
+        if (!csrfToken) {
+            console.error('CSRF token not found in meta tag - reloading page');
+            window.location.reload();
+            return;
+        }
         
         // Set CSRF token for axios if available
         if (csrfToken && typeof window !== 'undefined' && (window as any).axios) {
@@ -53,6 +61,13 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
             preserveScroll: false,
             onFinish: () => reset('password'),
             onError: (errors) => {
+                // Handle validation errors (422) - display in form
+                // These errors will be displayed automatically by InputError components
+                if (errors.email || errors.password) {
+                    // Validation errors are handled by Inertia automatically
+                    return;
+                }
+                
                 // Handle 419 PAGE EXPIRED errors
                 const errorMessage = errors?.message || (typeof errors === 'string' ? errors : '') || '';
                 const errorString = JSON.stringify(errors || {});
