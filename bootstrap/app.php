@@ -127,12 +127,35 @@ return Application::configure(basePath: dirname(__DIR__))
                 'exception_type' => get_class($e),
             ]);
 
-            // For Inertia requests, return a clean error response
+            // For Inertia requests, return proper Inertia response (NOT JSON!)
+            // CRITICAL: Must use Inertia::render() or redirect with errors, NOT response()->json()
             if ($request->header('X-Inertia')) {
-                return response()->json([
-                    'message' => 'An error occurred. Please try again or refresh the page.',
-                    'errors' => ['server' => 'Server error. Please refresh the page.'],
-                ], 500)->header('X-Inertia-Location', $request->fullUrl());
+                // Check if this is a login request - if so, redirect back to login with error
+                if ($request->is('login') || $request->routeIs('login')) {
+                    // For login requests, redirect back to login page with error message
+                    // This ensures proper Inertia response instead of JSON
+                    return redirect()->route('login', [
+                        'mode' => $request->input('mode'),
+                        'redirect' => $request->input('redirect'),
+                    ])->withErrors([
+                        'email' => 'An error occurred during login. Please try again or refresh the page.',
+                    ])->withInput($request->only('email'));
+                }
+                
+                // For other Inertia requests, try to render an error page
+                // If error page doesn't exist, redirect to home with error message
+                try {
+                    return \Inertia\Inertia::render('errors/500', [
+                        'status' => 500,
+                        'message' => 'An error occurred. Please try again or refresh the page.',
+                    ])->toResponse($request)->setStatusCode(500);
+                } catch (\Throwable $renderError) {
+                    // If error page doesn't exist, redirect to home
+                    \Log::warning('Error page render failed, redirecting to home', [
+                        'error' => $renderError->getMessage()
+                    ]);
+                    return redirect()->route('home')->with('error', 'An error occurred. Please try again.');
+                }
             }
             
             // For AJAX requests, return JSON
