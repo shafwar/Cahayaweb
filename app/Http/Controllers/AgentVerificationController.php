@@ -682,24 +682,28 @@ class AgentVerificationController extends Controller
 
         // Map document type to file path
         $filePath = null;
-        $fileName = null;
+        $baseFileName = null;
         
         switch ($documentType) {
             case 'business-license':
                 $filePath = $verification->business_license_file;
-                $fileName = 'business-license-' . $verification->id . '.pdf';
+                $baseFileName = 'business-license-' . $verification->id;
                 break;
             case 'tax-certificate':
                 $filePath = $verification->tax_certificate_file;
-                $fileName = 'tax-certificate-' . $verification->id . '.pdf';
+                $baseFileName = 'tax-certificate-' . $verification->id;
                 break;
             case 'company-profile':
                 $filePath = $verification->company_profile_file;
-                $fileName = 'company-profile-' . $verification->id . '.pdf';
+                $baseFileName = 'company-profile-' . $verification->id;
                 break;
             default:
                 abort(404, 'Document type not found');
         }
+        
+        // Get file extension from path
+        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+        $fileName = $baseFileName . '.' . ($extension ?: 'pdf');
 
         if (empty($filePath)) {
             abort(404, 'Document not found');
