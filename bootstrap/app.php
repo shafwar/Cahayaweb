@@ -79,8 +79,19 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        // Handle 500 Internal Server Errors gracefully
+        // CRITICAL: Don't handle ValidationException - let Laravel handle it properly
+        // ValidationException should return proper Inertia response with validation errors
+        // This ensures login errors are displayed correctly instead of showing JSON error
+        
+        // Handle 500 Internal Server Errors gracefully (but exclude ValidationException)
         $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
+            // CRITICAL: Don't handle ValidationException - Laravel handles it correctly
+            // ValidationException will be converted to proper Inertia response automatically
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                // Let Laravel handle ValidationException - it will return proper Inertia response
+                return null; // Return null to let Laravel handle it
+            }
+
             // Log the error for debugging
             \Log::error('Unhandled exception', [
                 'message' => $e->getMessage(),
@@ -88,6 +99,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
                 'url' => $request->fullUrl(),
+                'exception_type' => get_class($e),
             ]);
 
             // For Inertia requests, return a clean error response

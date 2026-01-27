@@ -38,7 +38,7 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        // Get fresh CSRF token from meta tag
+        // Get CSRF token from meta tag (should be fresh from page load)
         const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
         
         // Set CSRF token for axios if available
@@ -106,11 +106,21 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                             placeholder="email@example.com"
                         />
                         <InputError message={errors.email} />
-                        {errors.email && errors.email.includes('Admin accounts cannot login') && (
+                        {errors.email && (
                             <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
-                                <p className="text-sm text-red-300">
-                                    {errors.email} Please use the admin login page directly at <code className="text-xs bg-red-500/20 px-1 py-0.5 rounded">/admin</code>
-                                </p>
+                                <div className="flex items-start gap-2">
+                                    <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-red-300">{errors.email}</p>
+                                        {errors.email.includes('Admin accounts cannot login') && (
+                                            <p className="mt-1 text-xs text-red-200">
+                                                Please use the admin login page directly at <code className="text-xs bg-red-500/20 px-1 py-0.5 rounded">/admin</code>
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -135,6 +145,16 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                             placeholder="Password"
                         />
                         <InputError message={errors.password} />
+                        {errors.password && (
+                            <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                                <div className="flex items-start gap-2">
+                                    <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                    <p className="text-sm font-medium text-red-300">{errors.password}</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex items-center space-x-3">
