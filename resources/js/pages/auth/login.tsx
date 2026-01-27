@@ -55,12 +55,35 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
             (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
         }
 
-        // CRITICAL: Ensure route() returns HTTPS URL
+        // CRITICAL: Force HTTPS URL - use absolute URL to prevent Mixed Content
         let loginUrl = route('login');
-        if (typeof loginUrl === 'string' && loginUrl.startsWith('http://')) {
-            loginUrl = loginUrl.replace('http://', 'https://');
-            console.warn('[Login] Converted HTTP URL to HTTPS:', loginUrl);
+        
+        // Convert to HTTPS if needed
+        if (typeof loginUrl === 'string') {
+            if (loginUrl.startsWith('http://')) {
+                loginUrl = loginUrl.replace('http://', 'https://');
+                console.warn('[Login] Converted HTTP URL to HTTPS:', loginUrl);
+            } else if (loginUrl.startsWith('//')) {
+                // Protocol-relative URL - add https:
+                loginUrl = 'https:' + loginUrl;
+                console.warn('[Login] Added https protocol:', loginUrl);
+            } else if (loginUrl.startsWith('/')) {
+                // Relative URL - convert to absolute HTTPS URL
+                const currentOrigin = window.location.origin;
+                if (currentOrigin.startsWith('https://')) {
+                    loginUrl = currentOrigin + loginUrl;
+                    console.warn('[Login] Converted relative URL to absolute HTTPS:', loginUrl);
+                }
+            }
         }
+        
+        // Final safety check: ensure URL is HTTPS
+        if (typeof loginUrl === 'string' && window.location.protocol === 'https:' && loginUrl.startsWith('http://')) {
+            loginUrl = loginUrl.replace('http://', 'https://');
+            console.error('[Login] Final safety check: forced HTTPS:', loginUrl);
+        }
+        
+        console.log('[Login] Final login URL:', loginUrl);
         
         // Submit login form with error handling
         post(loginUrl, {

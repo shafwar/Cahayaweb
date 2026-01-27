@@ -4,6 +4,61 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        
+        <!-- CRITICAL: Force HTTPS IMMEDIATELY - Must be FIRST script to prevent Mixed Content -->
+        <script>
+            // This MUST run before ANY other scripts to intercept ALL requests
+            (function() {
+                'use strict';
+                if (window.location.protocol === 'https:') {
+                    // Override XMLHttpRequest.prototype.open FIRST - most critical
+                    const originalXHROpen = XMLHttpRequest.prototype.open;
+                    XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
+                        // Convert HTTP to HTTPS
+                        if (typeof url === 'string') {
+                            if (url.startsWith('http://')) {
+                                url = url.replace('http://', 'https://');
+                                console.log('[HTTPS-FIRST] XMLHttpRequest.open() converted HTTP→HTTPS:', url);
+                            } else if (url.startsWith('//')) {
+                                url = 'https:' + url;
+                                console.log('[HTTPS-FIRST] XMLHttpRequest.open() added https protocol:', url);
+                            } else if (url.startsWith('/') && !url.startsWith('//')) {
+                                // Relative URL - ensure it uses current origin (which is HTTPS)
+                                const origin = window.location.origin;
+                                if (origin.startsWith('https://')) {
+                                    url = origin + url;
+                                    console.log('[HTTPS-FIRST] XMLHttpRequest.open() converted relative to absolute HTTPS:', url);
+                                }
+                            }
+                        } else if (url instanceof URL && url.protocol === 'http:') {
+                            url.protocol = 'https:';
+                            console.log('[HTTPS-FIRST] XMLHttpRequest.open() URL object converted to HTTPS');
+                        }
+                        return originalXHROpen.call(this, method, url, async, user, password);
+                    };
+                    
+                    // Override fetch
+                    const originalFetch = window.fetch;
+                    window.fetch = function(url, options) {
+                        if (typeof url === 'string') {
+                            if (url.startsWith('http://')) {
+                                url = url.replace('http://', 'https://');
+                                console.log('[HTTPS-FIRST] fetch() converted HTTP→HTTPS');
+                            } else if (url.startsWith('//')) {
+                                url = 'https:' + url;
+                                console.log('[HTTPS-FIRST] fetch() added https protocol');
+                            }
+                        } else if (url instanceof Request && url.url.startsWith('http://')) {
+                            url = new Request(url.url.replace('http://', 'https://'), url);
+                            console.log('[HTTPS-FIRST] fetch() Request object converted to HTTPS');
+                        }
+                        return originalFetch(url, options);
+                    };
+                    
+                    console.log('[HTTPS-FIRST] All HTTPS overrides installed BEFORE any other scripts');
+                }
+            })();
+        </script>
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
