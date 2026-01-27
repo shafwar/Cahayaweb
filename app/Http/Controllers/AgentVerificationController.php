@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AgentVerification;
+use App\Support\R2Helper;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
@@ -483,9 +484,9 @@ class AgentVerificationController extends Controller
                 'contact_person_position' => $verification->contact_person_position,
                 'contact_person_phone' => $verification->contact_person_phone,
                 'contact_person_email' => $verification->contact_person_email,
-                'business_license_file' => $verification->business_license_file ? asset('storage/' . $verification->business_license_file) : null,
-                'tax_certificate_file' => $verification->tax_certificate_file ? asset('storage/' . $verification->tax_certificate_file) : null,
-                'company_profile_file' => $verification->company_profile_file ? asset('storage/' . $verification->company_profile_file) : null,
+                'business_license_file' => $this->getFileUrl($verification->business_license_file),
+                'tax_certificate_file' => $this->getFileUrl($verification->tax_certificate_file),
+                'company_profile_file' => $this->getFileUrl($verification->company_profile_file),
                 'status' => $verification->status,
                 'admin_notes' => $verification->admin_notes,
                 'reviewed_by' => $verification->reviewer ? $verification->reviewer->name : null,
@@ -646,5 +647,51 @@ class AgentVerificationController extends Controller
         }
 
         return redirect()->route('admin.agent-verifications')->with('success', "All {$count} agent verification(s) deleted successfully.");
+    }
+
+    /**
+     * Get file URL - handles both R2 and local storage
+     * 
+     * @param string|null $path File path stored in database
+     * @return string|null Full URL to the file or null if path is empty
+     */
+    private function getFileUrl(?string $path): ?string
+    {
+        if (empty($path)) {
+            return null;
+        }
+
+        try {
+            // Check if file exists in R2 storage
+            $disk = R2Helper::disk();
+            
+            // Check if file exists in R2
+            if ($disk->exists($path)) {
+                // File exists in R2 - use R2Helper to generate URL
+                return R2Helper::url($path);
+            }
+            
+            // File might be in local storage - check public disk
+            $publicDisk = Storage::disk('public');
+            if ($publicDisk->exists($path)) {
+                // File exists in local storage - use asset() helper
+                return asset('storage/' . $path);
+            }
+            
+            // File doesn't exist in either location - still return R2 URL
+            // This ensures we try R2 first even if file check fails
+            return R2Helper::url($path);
+            
+        } catch (\Exception $e) {
+            // On error, try to generate R2 URL anyway
+            // This ensures we always try R2 first
+            \Log::warning('Error checking file URL for agent verification', [
+                'path' => $path,
+                'error' => $e->getMessage()
+            ]);
+            
+            // Return R2 URL as fallback
+            return R2Helper::url($path);
+        }
     }
 }

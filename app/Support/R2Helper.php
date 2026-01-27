@@ -102,6 +102,12 @@ class R2Helper
             }
             
             // Build R2 URL structure
+            // Handle agent-verifications folder (for B2B documents)
+            if (str_starts_with($cleanPath, 'agent-verifications/')) {
+                return $r2BaseUrl . '/public/' . $cleanPath;
+            }
+            
+            // Handle images and videos folders
             if (str_starts_with($cleanPath, 'images/') || str_starts_with($cleanPath, 'videos/')) {
                 return $r2BaseUrl . '/public/' . $cleanPath;
             }
@@ -120,6 +126,21 @@ class R2Helper
                 return $r2BaseUrl . '/public/videos/' . $cleanPath;
             }
             
+            // For PDF and other documents, check if it's in agent-verifications
+            $documentExtensions = ['.pdf', '.doc', '.docx'];
+            $isDocument = false;
+            foreach ($documentExtensions as $ext) {
+                if (str_ends_with(strtolower($cleanPath), $ext)) {
+                    $isDocument = true;
+                    break;
+                }
+            }
+            
+            // If it's a document and path contains agent-verifications, use that folder
+            if ($isDocument && str_contains($cleanPath, 'agent-verification')) {
+                return $r2BaseUrl . '/public/agent-verifications/' . basename($cleanPath);
+            }
+            
             return $r2BaseUrl . '/public/images/' . $cleanPath;
         } catch (\Throwable $e) {
             Log::error('Failed to generate R2 URL even in fallback', [
@@ -131,6 +152,12 @@ class R2Helper
             if (str_starts_with($cleanPath, 'public/')) {
                 $cleanPath = substr($cleanPath, 7);
             }
+            
+            // Check if it's an agent-verification file
+            if (str_contains($cleanPath, 'agent-verification')) {
+                return 'https://assets.cahayaanbiya.com/public/agent-verifications/' . basename($cleanPath);
+            }
+            
             return 'https://assets.cahayaanbiya.com/public/images/' . $cleanPath;
         }
     }
