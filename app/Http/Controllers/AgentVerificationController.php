@@ -71,6 +71,23 @@ class AgentVerificationController extends Controller
      */
     public function store(Request $request)
     {
+        // Check for file size issues before processing
+        $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
+        $totalSize = 0;
+        foreach ($fileFields as $field) {
+            if ($request->hasFile($field)) {
+                $totalSize += $request->file($field)->getSize();
+            }
+        }
+        
+        // Maximum total size: 15MB (3 files × 5MB each)
+        $maxTotalSize = 15 * 1024 * 1024; // 15MB
+        if ($totalSize > $maxTotalSize) {
+            return back()->withErrors([
+                'file_size' => 'Total file size exceeds the maximum allowed limit of 15MB. Please ensure each file is no larger than 5MB.',
+            ])->withInput();
+        }
+
         $user = $request->user();
 
         // If user is not logged in, store form data in session and redirect to register/login

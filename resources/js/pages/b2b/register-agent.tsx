@@ -160,9 +160,41 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
     });
 
     const [filePreviews, setFilePreviews] = useState<Record<string, string>>({});
+    const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+
+    const formatFileSize = (bytes: number): string => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    };
 
     const handleFileChange = (field: string, file: File | null) => {
+        // Clear previous error
+        setFileErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[field];
+            return newErrors;
+        });
+
         if (file) {
+            // Validate file size (5MB max)
+            if (file.size > MAX_FILE_SIZE) {
+                const errorMsg = `File size (${formatFileSize(file.size)}) exceeds the maximum allowed size of 5MB. Please compress or use a smaller file.`;
+                setFileErrors((prev) => ({ ...prev, [field]: errorMsg }));
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                const errorMsg = 'Invalid file type. Please upload PDF, JPG, or PNG files only.';
+                setFileErrors((prev) => ({ ...prev, [field]: errorMsg }));
+                return;
+            }
+
             setData(field as any, file);
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -181,6 +213,30 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
+
+        // Validate file sizes before submission
+        const fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
+        let hasFileError = false;
+        const newFileErrors: Record<string, string> = {};
+
+        fileFields.forEach((field) => {
+            const file = (data as any)[field];
+            if (file && file.size > MAX_FILE_SIZE) {
+                newFileErrors[field] = `File size (${formatFileSize(file.size)}) exceeds the maximum allowed size of 5MB. Please compress or use a smaller file.`;
+                hasFileError = true;
+            }
+        });
+
+        if (hasFileError) {
+            setFileErrors(newFileErrors);
+            // Scroll to first error
+            const firstErrorField = Object.keys(newFileErrors)[0];
+            const errorElement = document.getElementById(firstErrorField);
+            if (errorElement) {
+                errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
 
         // Refresh CSRF token before submission to prevent 419 errors
         const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
@@ -220,8 +276,36 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
             preserveScroll: false,
             onError: (errors) => {
                 console.error('Form submission errors:', errors);
+                
+                // Handle 413 Content Too Large error
+                const errorMessage = errors?.message || (typeof errors === 'string' ? errors : '') || '';
+                const errorString = JSON.stringify(errors || {});
+                
+                if (
+                    errorMessage.includes('413') || 
+                    errorMessage.includes('Content Too Large') ||
+                    errorMessage.includes('POST Content-Length') ||
+                    errorString.includes('413') ||
+                    errorString.includes('Content Too Large')
+                ) {
+                    // Show professional error message for file size issues
+                    const totalSize = fileFields.reduce((total, field) => {
+                        const file = (data as any)[field];
+                        return total + (file ? file.size : 0);
+                    }, 0);
+                    
+                    alert(
+                        `File Upload Size Limit Exceeded\n\n` +
+                        `The total size of your uploaded files (${formatFileSize(totalSize)}) exceeds the server's maximum limit.\n\n` +
+                        `Please ensure:\n` +
+                        `• Each file is no larger than 5MB\n` +
+                        `• Total combined size does not exceed 15MB\n\n` +
+                        `Tip: Compress PDF files or convert images to a smaller format before uploading.`
+                    );
+                    return;
+                }
+                
                 // If 419 error, reload page to refresh CSRF token
-                const errorMessage = errors?.message || (typeof errors === 'string' ? errors : '');
                 if (errorMessage.includes('419') || errorMessage.includes('expired') || errorMessage.includes('PAGE EXPIRED')) {
                     alert('Your session has expired. Please refresh the page and try again.');
                     window.location.reload();
@@ -230,6 +314,7 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
             onSuccess: () => {
                 reset();
                 setFilePreviews({});
+                setFileErrors({});
             },
         });
     };
@@ -389,6 +474,35 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                             animate="visible"
                             className="space-y-8"
                         >
+                            {/* Global File Size Error Alert */}
+                            {(errors as any)?.file_size && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="rounded-xl border-2 border-red-500/30 bg-gradient-to-br from-red-500/10 via-red-500/5 to-red-500/10 p-6 backdrop-blur-sm shadow-lg shadow-red-500/10"
+                                >
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-500/20 ring-4 ring-red-500/10">
+                                            <AlertCircle className="h-6 w-6 text-red-400" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="mb-2 text-lg font-bold text-red-300">File Upload Size Limit Exceeded</h3>
+                                            <p className="text-sm leading-relaxed text-gray-300">
+                                                {(errors as any).file_size}
+                                            </p>
+                                            <div className="mt-4 rounded-lg border border-red-500/20 bg-red-500/5 p-4">
+                                                <p className="mb-2 text-sm font-semibold text-red-200">Recommended Actions:</p>
+                                                <ul className="list-inside list-disc space-y-1 text-sm text-gray-300">
+                                                    <li>Compress PDF files using online tools or PDF compression software</li>
+                                                    <li>Reduce image resolution or convert to a more efficient format (WebP)</li>
+                                                    <li>Split large documents into smaller files if necessary</li>
+                                                    <li>Ensure each file is no larger than 5MB</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
                         {/* Company Information Section */}
                         <motion.div variants={cardVariants}>
                             <Card className="overflow-hidden border border-gray-700/50 bg-gray-800/60 shadow-xl backdrop-blur-sm">
@@ -903,7 +1017,7 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                                         <div className="flex-1">
                                             <CardTitle className="text-xl font-bold text-white sm:text-2xl">Supporting Documents</CardTitle>
                                             <CardDescription className="mt-0.5 text-sm text-gray-300 sm:text-base">
-                                                Upload business documents (PDF, JPG, PNG - Max 5MB each)
+                                                Upload business documents (PDF, JPG, PNG - Max 5MB per file, 15MB total)
                                             </CardDescription>
                                         </div>
                                     </div>
@@ -976,6 +1090,14 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                                                 </label>
                                             </div>
                                             <p className="text-xs text-gray-400">{guidance}</p>
+                                            {fileErrors[field] && (
+                                                <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                                                    <div className="flex items-start gap-2">
+                                                        <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" />
+                                                        <p className="text-sm text-red-300">{fileErrors[field]}</p>
+                                                    </div>
+                                                </div>
+                                            )}
                                             <InputError message={(errors as any)[field]} />
                                         </div>
                                     ))}
