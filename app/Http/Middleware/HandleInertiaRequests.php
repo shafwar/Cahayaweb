@@ -109,34 +109,28 @@ class HandleInertiaRequests extends Middleware
 
             // Evaluate ziggy directly (not as closure) to avoid serialization issues
             // CRITICAL: ALWAYS use HTTPS URL to prevent Mixed Content errors
-            // Re-check baseUrl to ensure it's HTTPS
-            $baseUrl = $request->getSchemeAndHttpHost();
-            $currentUrl = $request->url();
-            
-            // CRITICAL: Always force HTTPS if current request URL is HTTPS
-            if (str_starts_with($currentUrl, 'https://')) {
-                $baseUrl = str_replace('http://', 'https://', $baseUrl);
-                if (!str_starts_with($baseUrl, 'https://')) {
-                    $baseUrl = 'https://' . str_replace(['http://', 'https://'], '', $baseUrl);
-                }
-            } elseif ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
-                $baseUrl = str_replace('http://', 'https://', $baseUrl);
-            }
-            
-            // Final safety check: force HTTPS if still HTTP
-            if (str_starts_with($baseUrl, 'http://')) {
-                $baseUrl = str_replace('http://', 'https://', $baseUrl);
-            }
+            // Use the same baseUrl logic as above to ensure consistency
+            // Don't re-check - use the baseUrl that was already forced to HTTPS above
             
             // Ensure location URL is also HTTPS
             $locationUrl = $request->url();
             if (str_starts_with($locationUrl, 'http://')) {
                 $locationUrl = str_replace('http://', 'https://', $locationUrl);
+                Log::info('Converted location URL to HTTPS', ['original' => $request->url(), 'converted' => $locationUrl]);
             }
             
+            // CRITICAL: Log Ziggy URL for debugging
+            Log::info('Ziggy URL configuration', [
+                'baseUrl' => $baseUrl,
+                'locationUrl' => $locationUrl,
+                'currentRequestUrl' => $request->url(),
+                'isSecure' => $request->secure(),
+                'xForwardedProto' => $request->header('X-Forwarded-Proto'),
+            ]);
+            
             $ziggyData = [
-                'url' => $baseUrl,
-                'location' => $locationUrl,
+                'url' => $baseUrl, // Already forced to HTTPS above
+                'location' => $locationUrl, // Use HTTPS location URL
                 'routes' => [],
                 'forceHttps' => true,
             ];
@@ -147,6 +141,12 @@ class HandleInertiaRequests extends Middleware
                     'location' => $locationUrl, // Use HTTPS location URL
                     'forceHttps' => true,
                 ];
+                
+                // CRITICAL: Final verification - ensure URL is HTTPS
+                if (isset($ziggyData['url']) && str_starts_with($ziggyData['url'], 'http://')) {
+                    $ziggyData['url'] = str_replace('http://', 'https://', $ziggyData['url']);
+                    Log::warning('Final safety check: Forced Ziggy URL to HTTPS', ['url' => $ziggyData['url']]);
+                }
             } catch (\Throwable $e) {
                 Log::warning('Error building ziggy data', ['error' => $e->getMessage()]);
             }
