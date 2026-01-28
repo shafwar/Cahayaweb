@@ -1,7 +1,7 @@
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
-import { logout } from '@/utils/logout';
+import { useLogout } from '@/hooks/useLogout';
 import { type User } from '@/types';
 import { Link } from '@inertiajs/react';
 import { LogOut, Settings } from 'lucide-react';
@@ -12,6 +12,7 @@ interface UserMenuContentProps {
 
 export function UserMenuContent({ user }: UserMenuContentProps) {
     const cleanup = useMobileNavigation();
+    const { logout, isLoggingOut } = useLogout();
 
     const handleLogout = () => {
         cleanup();
@@ -36,9 +37,13 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-                <button className="flex w-full items-center" onClick={handleLogout}>
+                <button 
+                    className="flex w-full items-center disabled:opacity-50 disabled:cursor-not-allowed" 
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                >
                     <LogOut className="mr-2" />
-                    Log out
+                    {isLoggingOut ? 'Logging out...' : 'Log out'}
                 </button>
             </DropdownMenuItem>
         </>

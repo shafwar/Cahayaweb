@@ -2,7 +2,7 @@ import SimpleLayout from '@/layouts/simple-layout';
 import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Building2, Layout, ArrowRight, Sparkles, LogOut } from 'lucide-react';
-import { logout } from '@/utils/logout';
+import { useLogout } from '@/hooks/useLogout';
 
 export default function AdminDashboard() {
     const cardVariants = {
@@ -52,10 +52,11 @@ export default function AdminDashboard() {
                     <div className="mb-6 flex justify-end">
                         <button
                             onClick={logout}
-                            className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition-all hover:border-red-500/50 hover:bg-red-500/20 hover:text-red-200"
+                            disabled={isLoggingOut}
+                            className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition-all hover:border-red-500/50 hover:bg-red-500/20 hover:text-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <LogOut className="h-4 w-4" />
-                            Logout
+                            {isLoggingOut ? 'Logging out...' : 'Logout'}
                         </button>
                     </div>
 

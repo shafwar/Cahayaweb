@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Head, Link, router } from '@inertiajs/react';
 import { Building2, Clock, CheckCircle2, XCircle, Eye, ArrowLeft, LogOut, Trash2, CheckSquare, Square } from 'lucide-react';
 import { useState } from 'react';
-import { logout } from '@/utils/logout';
+import { useLogout } from '@/hooks/useLogout';
 
 interface Verification {
     id: number;
@@ -42,6 +42,7 @@ interface Props {
 }
 
 export default function AgentVerifications({ verifications, pagination }: Props) {
+    const { logout, isLoggingOut } = useLogout();
     const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -151,10 +152,11 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                         </Link>
                         <button
                             onClick={logout}
-                            className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition-all hover:border-red-500/50 hover:bg-red-500/20 hover:text-red-200"
+                            disabled={isLoggingOut}
+                            className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition-all hover:border-red-500/50 hover:bg-red-500/20 hover:text-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <LogOut className="h-4 w-4" />
-                            Logout
+                            {isLoggingOut ? 'Logging out...' : 'Logout'}
                         </button>
                     </div>
 

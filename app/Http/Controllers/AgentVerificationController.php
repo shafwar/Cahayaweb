@@ -218,23 +218,27 @@ class AgentVerificationController extends Controller
             ]);
         }
 
-        // Handle file uploads - check both request files and stored files
+        // Handle file uploads: save to R2 when configured (creates public/agent-verifications/ in bucket), else local public
+        $uploadDiskName = $this->getAgentVerificationUploadDiskName();
         $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
         foreach ($fileFields as $field) {
             if ($request->hasFile($field)) {
-                // New file uploaded
                 $file = $request->file($field);
                 $path = $file->storeAs(
                     'agent-verifications',
                     Str::uuid()->toString() . '.' . $file->getClientOriginalExtension(),
-                    'public'
+                    $uploadDiskName
                 );
                 $validated[str_replace('_file', '_file', $field)] = $path;
             } elseif (isset($storedFiles[$field])) {
-                // Use stored file from temp location
                 $tempPath = $storedFiles[$field];
-                $newPath = 'agent-verifications/' . basename($tempPath);
-                Storage::disk('public')->move($tempPath, $newPath);
+                $fileName = basename($tempPath);
+                $newPath = 'agent-verifications/' . $fileName;
+                $contents = Storage::disk('public')->get($tempPath);
+                if ($contents !== null) {
+                    Storage::disk($uploadDiskName)->put($newPath, $contents);
+                    Storage::disk('public')->delete($tempPath);
+                }
                 $validated[str_replace('_file', '_file', $field)] = $newPath;
             }
             unset($validated[$field]);
@@ -342,13 +346,19 @@ class AgentVerificationController extends Controller
 
         $validated = $validator->validated();
 
-        // Handle stored files - move from temp to permanent location
+        // Handle stored files: upload to R2 when configured (creates public/agent-verifications/ in bucket), else local public
+        $uploadDiskName = $this->getAgentVerificationUploadDiskName();
         $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
         foreach ($fileFields as $field) {
             if (isset($storedFiles[$field])) {
                 $tempPath = $storedFiles[$field];
-                $newPath = 'agent-verifications/' . basename($tempPath);
-                Storage::disk('public')->move($tempPath, $newPath);
+                $fileName = basename($tempPath);
+                $newPath = 'agent-verifications/' . $fileName;
+                $contents = Storage::disk('public')->get($tempPath);
+                if ($contents !== null) {
+                    Storage::disk($uploadDiskName)->put($newPath, $contents);
+                    Storage::disk('public')->delete($tempPath);
+                }
                 $validated[str_replace('_file', '_file', $field)] = $newPath;
             }
         }
@@ -831,6 +841,15 @@ class AgentVerificationController extends Controller
                 ->route('admin.agent-verification.show', $verificationId)
                 ->with('error', 'Dokumen tidak dapat diunduh. Silakan coba lagi atau hubungi dukungan.');
         }
+    }
+
+    /**
+     * Disk name for agent-verification document uploads.
+     * Uses R2 when configured so files land in bucket under public/agent-verifications/ and are served via assets.cahayaanbiya.com.
+     */
+    private function getAgentVerificationUploadDiskName(): string
+    {
+        return R2Helper::isConfigured() ? 'r2' : 'public';
     }
 
     /**

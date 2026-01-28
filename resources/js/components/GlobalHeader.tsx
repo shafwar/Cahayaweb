@@ -1,5 +1,5 @@
 import { useEditMode } from '@/components/cms';
-import { logout } from '@/utils/logout';
+import { useLogout } from '@/hooks/useLogout';
 import { getR2Url } from '@/utils/imageHelper';
 import { Link, router, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -368,10 +368,11 @@ const MobileMenuPortal: React.FC<{
                                         logout();
                                         onClose();
                                     }}
-                                    className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300"
+                                    disabled={isLoggingOut}
+                                    className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <LogOut className="h-4 w-4" />
-                                    Logout
+                                    {isLoggingOut ? 'Logging out...' : 'Logout'}
                                 </button>
                             ) : (
                                 <a
@@ -397,6 +398,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const { logout, isLoggingOut } = useLogout();
 
     const page = usePage();
     interface PageProps {
@@ -683,11 +685,12 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => logout()}
-                                        className="hidden rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20 md:flex"
+                                        disabled={isLoggingOut}
+                                        className="hidden rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed md:flex"
                                     >
                                         <span className="flex items-center gap-2">
                                             <LogOut className="h-4 w-4" />
-                                            <span>Logout</span>
+                                            <span>{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
                                         </span>
                                     </motion.button>
                                 ) : (

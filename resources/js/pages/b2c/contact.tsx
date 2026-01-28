@@ -121,43 +121,43 @@ export default function Contact() {
                                     <form onSubmit={handleSubmit} className="space-y-5">
                                         <div>
                                             <label className="mb-2 block text-sm font-semibold text-white">Full Name *</label>
-                                            <input
+                                <input
                                                 type="text"
                                                 required
                                                 value={formData.name}
                                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                                 className="w-full rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                                 placeholder="Enter your name"
-                                            />
-                                        </div>
+                                />
+                            </div>
 
                                         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                            <div>
+                                <div>
                                                 <label className="mb-2 block text-sm font-semibold text-white">Email *</label>
-                                                <input
+                                    <input
                                                     type="email"
                                                     required
                                                     value={formData.email}
                                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                                     className="w-full rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                                     placeholder="your@email.com"
-                                                />
-                                            </div>
+                                    />
+                                </div>
 
-                                            <div>
+                                <div>
                                                 <label className="mb-2 block text-sm font-semibold text-white">Phone *</label>
-                                                <input
+                                    <input
                                                     type="tel"
                                                     required
                                                     value={formData.phone}
                                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                                     className="w-full rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                                     placeholder="+62 812-xxxx-xxxx"
-                                                />
-                                            </div>
-                                        </div>
+                                    />
+                                </div>
+                            </div>
 
-                                        <div>
+                                <div>
                                             <label className="mb-2 block text-sm font-semibold text-white">Message *</label>
                                             <textarea
                                                 required
@@ -166,8 +166,8 @@ export default function Contact() {
                                                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                                 className="w-full resize-none rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                                 placeholder="Tell us about your travel plans..."
-                                            />
-                                        </div>
+                                    />
+                                </div>
 
                                         <button
                                             type="submit"
@@ -218,19 +218,19 @@ export default function Contact() {
                                 <div className="font-semibold">Email: hello@cahaya-anbiya.com</div>
                                 <div className="mt-2 font-semibold">WhatsApp: +62 812-3456-7890</div>
                                 <div className="mt-2 font-semibold">24/7 Customer Support</div>
-                            </div>
+                        </div>
                             <div className="flex items-center gap-8">
                                 {['Instagram', 'TikTok', 'YouTube'].map((social) => (
                                     <a
                                         key={social}
                                         href={`https://${social.toLowerCase()}.com`}
-                                        target="_blank"
-                                        rel="noreferrer"
+                                    target="_blank"
+                                    rel="noreferrer"
                                         className="text-base font-semibold text-white/70 transition-all hover:text-amber-400 hover:scale-110"
-                                    >
+                                >
                                         {social}
-                                    </a>
-                                ))}
+                                </a>
+                            ))}
                             </div>
                         </div>
                         <div className="mt-10 border-t border-white/10 pt-8 text-center">

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { logout } from '@/utils/logout';
+import { useLogout } from '@/hooks/useLogout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, Building2, CheckCircle2, Clock, Download, Edit2, FileText, LogOut, Save, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -49,6 +49,7 @@ interface Props {
 }
 
 export default function AgentVerificationDetail({ verification, flash }: Props) {
+    const { logout, isLoggingOut } = useLogout();
     const [isEditing, setIsEditing] = useState(false);
 
     const approveForm = useForm({});
@@ -160,10 +161,11 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                         </div>
                         <button
                             onClick={logout}
-                            className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition-all hover:border-red-500/50 hover:bg-red-500/20 hover:text-red-200"
+                            disabled={isLoggingOut}
+                            className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition-all hover:border-red-500/50 hover:bg-red-500/20 hover:text-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <LogOut className="h-4 w-4" />
-                            Logout
+                            {isLoggingOut ? 'Logging out...' : 'Logout'}
                         </button>
                     </div>
                     <div className="flex items-center justify-between">
