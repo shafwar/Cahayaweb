@@ -234,7 +234,7 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-CHTjvY1y.js",
+    "file": "assets/app-DUPI6F1o.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -486,7 +486,7 @@
     ]
   },
   "resources/js/pages/auth/verify-email.tsx": {
-    "file": "assets/verify-email-hG_8HmSy.js",
+    "file": "assets/verify-email-Cr9-Wz0W.js",
     "name": "verify-email",
     "src": "resources/js/pages/auth/verify-email.tsx",
     "isDynamicEntry": true,
@@ -495,6 +495,7 @@
       "_inertia-DnB9r-Z9.js",
       "_button-UGvbK2Hg.js",
       "_auth-layout-CLqlwe4C.js",
+      "_useLogout-B4M50OTq.js",
       "_lucide-BFbptF3M.js",
       "_vendor-DP3lGzMr.js",
       "_radix-ui-BGF_4iPy.js",
@@ -813,7 +814,7 @@
     ]
   },
   "resources/js/pages/settings/appearance.tsx": {
-    "file": "assets/appearance-j_LTbHUH.js",
+    "file": "assets/appearance-BchsI0Ct.js",
     "name": "appearance",
     "src": "resources/js/pages/settings/appearance.tsx",
     "isDynamicEntry": true,
