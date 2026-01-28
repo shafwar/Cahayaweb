@@ -5,9 +5,10 @@ import { FormEventHandler } from 'react';
 
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/auth-layout';
-import { logout } from '@/utils/logout';
+import { useLogout } from '@/hooks/useLogout';
 
 export default function VerifyEmail({ status }: { status?: string }) {
+    const { logout, isLoggingOut } = useLogout();
     const { post, processing } = useForm({});
 
     const submit: FormEventHandler = (e) => {
@@ -32,8 +33,13 @@ export default function VerifyEmail({ status }: { status?: string }) {
                     Resend verification email
                 </Button>
 
-                <button type="button" onClick={logout} className="mx-auto block text-sm text-blue-500 hover:underline">
-                    Log out
+                <button 
+                    type="button" 
+                    onClick={logout} 
+                    disabled={isLoggingOut}
+                    className="mx-auto block text-sm text-blue-500 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {isLoggingOut ? 'Logging out...' : 'Log out'}
                 </button>
             </form>
         </AuthLayout>
