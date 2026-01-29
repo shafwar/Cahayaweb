@@ -165,6 +165,10 @@ class AgentVerificationController extends Controller
                 $registerUrl = str_replace('http://', 'https://', $registerUrl);
             }
 
+            // Force full-page redirect so user leaves form and lands on register (Inertia POST otherwise may not navigate)
+            if ($request->header('X-Inertia')) {
+                return Inertia::location($registerUrl);
+            }
             return redirect($registerUrl)->with('info', 'Please create an account to complete your B2B agent registration.');
         }
 
