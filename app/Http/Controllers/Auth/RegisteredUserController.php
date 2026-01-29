@@ -34,7 +34,8 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    /** @return RedirectResponse|\Symfony\Component\HttpFoundation\Response */
+    public function store(Request $request)
     {
         try {
             $validated = $request->validate([
@@ -84,11 +85,18 @@ class RegisteredUserController extends Controller
                 if (!str_starts_with($continueUrl, '/') && (app()->environment('production') || $request->secure() || $request->header('X-Forwarded-Proto') === 'https')) {
                     $continueUrl = str_replace('http://', 'https://', $continueUrl);
                 }
+                // Inertia POST: force full-page visit so browser actually hits storeContinue (creates AgentVerification, then redirect to pending)
+                if ($request->header('X-Inertia')) {
+                    return Inertia::location($continueUrl);
+                }
                 return redirect($continueUrl);
             }
 
             // Session empty but redirect points to continue (e.g. b2b_token in URL) — let storeContinue load from draft
             if ($safeContinueUrl) {
+                if ($request->header('X-Inertia')) {
+                    return Inertia::location($safeContinueUrl);
+                }
                 return redirect($safeContinueUrl);
             }
 
