@@ -258,9 +258,8 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
         const contactPhoneWithCode = contactPhone ? `${data.contact_person_phone_country_code} ${contactPhone}` : '';
 
         // Build FormData explicitly so all 3 document fields and merged phones are always sent
-        const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '';
         const formData = new FormData();
-        formData.append('_token', csrfToken);
+        formData.append('_token', csrfToken ?? '');
 
         const scalarKeys = [
             'company_name',
