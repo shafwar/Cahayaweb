@@ -66,14 +66,14 @@ Dokumen ini mendeskripsikan alur registrasi B2B (guest → buat akun → halaman
 
 ## 3. Failure modes & penanganan
 
-| Failure                                     | Penyebab                          | Penanganan saat ini                                                                                                                                                                                                                 |
-| ------------------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Failure                                      | Penyebab                 | Penanganan saat ini                                                                                                                                              |
+| -------------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Session hilang (multi-instance, file driver) | Request ke instance lain | **Draft + b2b_token:** data di `b2b_registration_drafts`, file di R2/public; redirect URL berisi `b2b_token`; storeContinue load dari draft jika session kosong. |
-| Session expired / cookie | Idle lama | Redirect param = continue?b2b_token=... → storeContinue pakai draft. Draft kadaluarsa 1 jam. |
-| mode/redirect tidak terkirim di POST | Hanya di URL | Form state wajib mode & redirect; useEffect sync dari URL. |
-| Loading tidak kelihatan | Hanya `processing` | `isSubmitting` lokal + showLoading. |
-| Double submit | User klik berulang | Guard `if (processing \|\| isSubmitting) return`. |
-| Email sudah terdaftar di flow B2B | User pilih "log in here" | Link login dengan redirect=continue; setelah login redirect ke storeContinue (dengan token jika ada) → pending. |
+| Session expired / cookie                     | Idle lama                | Redirect param = continue?b2b_token=... → storeContinue pakai draft. Draft kadaluarsa 1 jam.                                                                     |
+| mode/redirect tidak terkirim di POST         | Hanya di URL             | Form state wajib mode & redirect; useEffect sync dari URL.                                                                                                       |
+| Loading tidak kelihatan                      | Hanya `processing`       | `isSubmitting` lokal + showLoading.                                                                                                                              |
+| Double submit                                | User klik berulang       | Guard `if (processing \|\| isSubmitting) return`.                                                                                                                |
+| Email sudah terdaftar di flow B2B            | User pilih "log in here" | Link login dengan redirect=continue; setelah login redirect ke storeContinue (dengan token jika ada) → pending.                                                  |
 
 ---
 

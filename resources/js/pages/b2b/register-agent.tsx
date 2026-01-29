@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import B2BLayout from '@/layouts/b2b-layout';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { AlertCircle, Briefcase, Building2, Check, FileText, Info, Mail, MapPin, Phone, RefreshCw, Upload, User, X } from 'lucide-react';
 import { FormEvent, useState } from 'react';
@@ -251,27 +251,60 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
             }
         }
 
-        // Combine country code with phone number before submission
-        const phoneNumber = data.company_phone.trim();
-        const contactPhoneNumber = data.contact_person_phone.trim();
+        // Merge country code with phone number for submission (avoid async setState so payload is correct)
+        const companyPhone = data.company_phone.trim();
+        const contactPhone = data.contact_person_phone.trim();
+        const companyPhoneWithCode = companyPhone ? `${data.company_phone_country_code} ${companyPhone}` : '';
+        const contactPhoneWithCode = contactPhone ? `${data.contact_person_phone_country_code} ${contactPhone}` : '';
 
-        // Temporarily update form data with combined phone numbers
-        setData('company_phone', phoneNumber ? `${data.company_phone_country_code} ${phoneNumber}` : '');
-        setData('contact_person_phone', contactPhoneNumber ? `${data.contact_person_phone_country_code} ${contactPhoneNumber}` : '');
+        // Build FormData explicitly so all 3 document fields and merged phones are always sent
+        const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '';
+        const formData = new FormData();
+        formData.append('_token', csrfToken);
 
-        // Use relative URL so request always uses current origin + protocol (avoids Mixed Content when page is HTTPS)
+        const scalarKeys = [
+            'company_name',
+            'company_email',
+            'company_address',
+            'company_city',
+            'company_province',
+            'company_postal_code',
+            'company_country',
+            'business_license_number',
+            'tax_id_number',
+            'business_type',
+            'business_type_other',
+            'years_in_business',
+            'business_description',
+            'contact_person_name',
+            'contact_person_position',
+            'contact_person_email',
+        ];
+        scalarKeys.forEach((key) => {
+            const v = (data as Record<string, unknown>)[key];
+            if (v === undefined || v === null) return;
+            if (typeof v === 'string') formData.append(key, v);
+            else if (typeof v === 'number') formData.append(key, String(v));
+        });
+        formData.append('company_phone', companyPhoneWithCode);
+        formData.append('contact_person_phone', contactPhoneWithCode);
+
+        fileFields.forEach((field) => {
+            const file = (data as Record<string, unknown>)[field];
+            if (file instanceof File) {
+                formData.append(field, file);
+            }
+        });
+
         const submitUrl = '/b2b/register';
 
-        // Submit - country code fields will be ignored by backend
-        post(submitUrl, {
-            forceFormData: true,
+        router.post(submitUrl, formData, {
             preserveState: false,
             preserveScroll: false,
+            forceFormData: true,
             onError: (errors) => {
                 console.error('Form submission errors:', errors);
-
-                // Handle 413 Content Too Large error
-                const errorMessage = errors?.message || (typeof errors === 'string' ? errors : '') || '';
+                const errorMessage = (errors?.message as string) || (typeof errors === 'string' ? errors : '') || '';
                 const errorString = JSON.stringify(errors || {});
 
                 if (
@@ -281,12 +314,10 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                     errorString.includes('413') ||
                     errorString.includes('Content Too Large')
                 ) {
-                    // Show professional error message for file size issues
                     const totalSize = fileFields.reduce((total, field) => {
-                        const file = (data as any)[field];
-                        return total + (file ? file.size : 0);
+                        const f = (data as Record<string, unknown>)[field];
+                        return total + (f && f instanceof File ? f.size : 0);
                     }, 0);
-
                     alert(
                         `File Upload Size Limit Exceeded\n\n` +
                             `The total size of your uploaded files (${formatFileSize(totalSize)}) exceeds the server's maximum limit.\n\n` +
@@ -297,8 +328,6 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                     );
                     return;
                 }
-
-                // If 419 error, reload page to refresh CSRF token
                 if (errorMessage.includes('419') || errorMessage.includes('expired') || errorMessage.includes('PAGE EXPIRED')) {
                     alert('Your session has expired. Please refresh the page and try again.');
                     window.location.reload();
