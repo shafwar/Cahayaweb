@@ -125,32 +125,119 @@
 
         <!-- Fallback script to show error if Inertia fails to load -->
         <script>
-            // Wait for page to load, then check if Inertia app rendered
+            // CRITICAL: Check immediately and repeatedly for app mount to remove loader ASAP
+            let loaderCheckInterval = null;
+            let loaderCheckCount = 0;
+            const MAX_LOADER_CHECKS = 20; // Check for 2 seconds (20 * 100ms)
+
+            function checkAppMount() {
+                loaderCheckCount++;
+                const appElement = document.querySelector('[data-page]') || document.getElementById('app');
+                const errorElement = document.getElementById('app-error');
+                const fallbackElement = document.getElementById('app-fallback');
+                const loader = document.getElementById('app-initial-loader');
+
+                // If app has content (mounted successfully), remove loader immediately
+                if (appElement && appElement.children.length > 0 && !errorElement && !fallbackElement) {
+                    if (loader) {
+                        loader.remove();
+                        console.log('[Loader] App mounted successfully, loader removed');
+                    }
+                    if (loaderCheckInterval) {
+                        clearInterval(loaderCheckInterval);
+                        loaderCheckInterval = null;
+                    }
+                    return true;
+                }
+
+                // If error or fallback already shown, stop checking
+                if (errorElement || fallbackElement) {
+                    if (loaderCheckInterval) {
+                        clearInterval(loaderCheckInterval);
+                        loaderCheckInterval = null;
+                    }
+                    return false;
+                }
+
+                // After max checks (2 seconds), show fallback if app still not mounted
+                if (loaderCheckCount >= MAX_LOADER_CHECKS) {
+                    if (loaderCheckInterval) {
+                        clearInterval(loaderCheckInterval);
+                        loaderCheckInterval = null;
+                    }
+
+                    // Check one more time before showing fallback
+                    if (appElement && appElement.children.length === 0) {
+                        console.warn('[Fallback] App element exists but is empty after 2 seconds - showing recovery UI');
+                        if (loader) loader.remove();
+                        if (!fallbackElement) {
+                            const fallbackDiv = document.createElement('div');
+                            fallbackDiv.id = 'app-fallback';
+                            fallbackDiv.style.cssText = 'position: fixed; inset: 0; z-index: 9999; padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif;';
+                            fallbackDiv.innerHTML = `
+                                <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Could not load the application</h1>
+                                <p style="color: #6b7280; margin-bottom: 0.5rem;">The page did not load correctly. Please try refreshing.</p>
+                                <button
+                                    onclick="window.location.reload()"
+                                    style="margin-top: 1.5rem; padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;"
+                                >
+                                    Refresh Page
+                                </button>
+                            `;
+                            document.body.appendChild(fallbackDiv);
+                        }
+                    } else if (!appElement) {
+                        console.error('[Fallback] No app element found after 2 seconds');
+                        if (loader) loader.remove();
+                        if (!fallbackElement) {
+                            const fallbackDiv = document.createElement('div');
+                            fallbackDiv.id = 'app-fallback';
+                            fallbackDiv.style.cssText = 'position: fixed; inset: 0; z-index: 9999; padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif;';
+                            fallbackDiv.innerHTML = `
+                                <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Loading Application...</h1>
+                                <p style="color: #6b7280; margin-bottom: 0.5rem;">If this message persists, please refresh the page.</p>
+                                <button
+                                    onclick="window.location.reload()"
+                                    style="margin-top: 1.5rem; padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;"
+                                >
+                                    Refresh Page
+                                </button>
+                            `;
+                            document.body.appendChild(fallbackDiv);
+                        }
+                    }
+                    return false;
+                }
+
+                return false;
+            }
+
+            // Start checking immediately when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    loaderCheckInterval = setInterval(checkAppMount, 100); // Check every 100ms
+                });
+            } else {
+                // DOM already ready, start checking immediately
+                loaderCheckInterval = setInterval(checkAppMount, 100);
+            }
+
+            // Also check on window load as backup
             window.addEventListener('load', function() {
+                // If loader still exists after load event, check one more time
                 setTimeout(function() {
-                    // Check if app element exists and has content
                     const appElement = document.querySelector('[data-page]') || document.getElementById('app');
                     const errorElement = document.getElementById('app-error');
+                    const fallbackElement = document.getElementById('app-fallback');
 
-                    // If no app element and no error element, something is wrong
-                    if (!appElement && !errorElement) {
-                        console.error('[Fallback] No app element found after page load');
+                    // If app has content, remove loader
+                    if (appElement && appElement.children.length > 0 && !errorElement && !fallbackElement) {
                         document.getElementById('app-initial-loader')?.remove();
-                        const fallbackDiv = document.createElement('div');
-                        fallbackDiv.id = 'app-fallback';
-                        fallbackDiv.style.cssText = 'padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;';
-                        fallbackDiv.innerHTML = `
-                            <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Loading Application...</h1>
-                            <p style="color: #6b7280; margin-bottom: 0.5rem;">If this message persists, please refresh the page.</p>
-                            <button
-                                onclick="window.location.reload()"
-                                style="margin-top: 1.5rem; padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;"
-                            >
-                                Refresh Page
-                            </button>
-                        `;
-                        document.body.appendChild(fallbackDiv);
-                    } else if (appElement && appElement.children.length === 0 && !errorElement) {
+                        if (loaderCheckInterval) {
+                            clearInterval(loaderCheckInterval);
+                            loaderCheckInterval = null;
+                        }
+                    } else if (appElement && appElement.children.length === 0 && !errorElement && !fallbackElement) {
                         // App element exists but is empty - app failed to mount (e.g. JS error or chunk 404)
                         if (!document.getElementById('app-fallback')) {
                             console.warn('[Fallback] App element exists but is empty - showing recovery UI');
@@ -170,16 +257,40 @@
                             `;
                             document.body.appendChild(fallbackDiv);
                         }
+                    } else if (!appElement && !errorElement && !fallbackElement) {
+                        // No app element found
+                        console.error('[Fallback] No app element found after page load');
+                        document.getElementById('app-initial-loader')?.remove();
+                        const fallbackDiv = document.createElement('div');
+                        fallbackDiv.id = 'app-fallback';
+                        fallbackDiv.style.cssText = 'position: fixed; inset: 0; z-index: 9999; padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif;';
+                        fallbackDiv.innerHTML = `
+                            <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Loading Application...</h1>
+                            <p style="color: #6b7280; margin-bottom: 0.5rem;">If this message persists, please refresh the page.</p>
+                            <button
+                                onclick="window.location.reload()"
+                                style="margin-top: 1.5rem; padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;"
+                            >
+                                Refresh Page
+                            </button>
+                        `;
+                        document.body.appendChild(fallbackDiv);
                     } else {
                         // App seems to be loading or loaded
-                        console.log('[Fallback] App element found, removing fallback if exists');
+                        console.log('[Fallback] App element found, removing loader if exists');
                         document.getElementById('app-initial-loader')?.remove();
                         const existingFallback = document.getElementById('app-fallback');
                         if (existingFallback) {
                             existingFallback.remove();
                         }
                     }
-                }, 3000); // Wait 3 seconds before showing fallback
+
+                    // Stop interval if still running
+                    if (loaderCheckInterval) {
+                        clearInterval(loaderCheckInterval);
+                        loaderCheckInterval = null;
+                    }
+                }, 1000); // Check after 1 second of load event
             });
         </script>
 
