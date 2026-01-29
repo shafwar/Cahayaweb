@@ -38,6 +38,7 @@ Cloudflare R2 adalah object storage service yang digunakan untuk menyimpan dan m
 ### Current Status
 
 ✅ **100% COMPLETE**
+
 - ✅ All 23 files (21 images + 2 videos) uploaded to R2
 - ✅ All code configured to use R2 URLs exclusively
 - ✅ CORS Policy configured
@@ -89,6 +90,7 @@ AWS_USE_PATH_STYLE_ENDPOINT=true
 ```
 
 **Important Notes:**
+
 - `root: 'public'` berarti semua file di-upload relatif ke folder `public/` di bucket
 - Upload ke `images/` akan menjadi `public/images/` di bucket
 - Upload ke `videos/` akan menjadi `public/videos/` di bucket
@@ -132,6 +134,7 @@ cahayaanbiya-assets/
 ### 3.2 Complete File List
 
 **Images (21 files):**
+
 1. `arabsaudi.jpg` - Used in: Home, Destinations, Search, Blog
 2. `TURKEY.jpeg` - Used in: Home, Destinations, Search, Blog, Highlights
 3. `egypt.jpeg` - Used in: Home, Destinations, Search, Blog, Highlights
@@ -155,6 +158,7 @@ cahayaanbiya-assets/
 21. `packages3.png` - Used in: Packages page, Search
 
 **Videos (2 files):**
+
 1. `b2cherosectionvideo.mp4` - Used in: Home page hero section
 2. `b2cherosectionvideo-original.mp4` - Original version
 
@@ -183,37 +187,27 @@ cahayaanbiya-assets/
 
 ```json
 [
-  {
-    "AllowedOrigins": [
-      "https://cahayaanbiya.com",
-      "http://cahayaanbiya.com",
-      "https://www.cahayaanbiya.com",
-      "http://www.cahayaanbiya.com",
-      "https://*.cahayaanbiya.com",
-      "http://*.cahayaanbiya.com",
-      "https://cahayaweb-production.up.railway.app",
-      "http://cahayaweb-production.up.railway.app",
-      "https://*.up.railway.app",
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "http://localhost:8000",
-      "http://cahayaweb.test"
-    ],
-    "AllowedMethods": [
-      "GET",
-      "HEAD"
-    ],
-    "AllowedHeaders": [
-      "*"
-    ],
-    "ExposeHeaders": [
-      "Content-Length",
-      "Content-Type",
-      "ETag",
-      "Last-Modified"
-    ],
-    "MaxAgeSeconds": 3600
-  }
+    {
+        "AllowedOrigins": [
+            "https://cahayaanbiya.com",
+            "http://cahayaanbiya.com",
+            "https://www.cahayaanbiya.com",
+            "http://www.cahayaanbiya.com",
+            "https://*.cahayaanbiya.com",
+            "http://*.cahayaanbiya.com",
+            "https://cahayaweb-production.up.railway.app",
+            "http://cahayaweb-production.up.railway.app",
+            "https://*.up.railway.app",
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://localhost:8000",
+            "http://cahayaweb.test"
+        ],
+        "AllowedMethods": ["GET", "HEAD"],
+        "AllowedHeaders": ["*"],
+        "ExposeHeaders": ["Content-Length", "Content-Type", "ETag", "Last-Modified"],
+        "MaxAgeSeconds": 3600
+    }
 ]
 ```
 
@@ -240,6 +234,7 @@ cahayaanbiya-assets/
 ### 5.2 DNS Configuration
 
 **CNAME Record**:
+
 - **Name**: `assets`
 - **Target**: `9d03ca8e06f677e49fa453f08f9273e4.r2.cloudflarestorage.com` (atau target yang diberikan R2)
 - **Proxy status**: ✅ Proxied (orange cloud) atau ⚪ DNS only (gray cloud)
@@ -248,9 +243,9 @@ cahayaanbiya-assets/
 
 1. Buka **Cloudflare Dashboard** → **R2** → **cahayaanbiya-assets** → **Settings**
 2. Di bagian **Custom Domains**, pastikan:
-   - ✅ Status: **Active** (bukan Pending)
-   - ✅ Access: **Enabled**
-   - ✅ CNAME record sudah benar di DNS
+    - ✅ Status: **Active** (bukan Pending)
+    - ✅ Access: **Enabled**
+    - ✅ CNAME record sudah benar di DNS
 
 **Status**: ✅ **ACTIVE & ENABLED**
 
@@ -273,6 +268,7 @@ $url = R2Helper::url('images/arabsaudi.jpg');
 ```
 
 **Key Features:**
+
 - ✅ Always returns R2 URL structure
 - ✅ Handles `public/` prefix correctly
 - ✅ No fallback to local storage
@@ -281,16 +277,19 @@ $url = R2Helper::url('images/arabsaudi.jpg');
 #### Models Using R2
 
 **Section Model** (`app/Models/Section.php`):
+
 ```php
 $imageUrl = R2Helper::url($imagePath);
 ```
 
 **SectionRevision Model** (`app/Models/SectionRevision.php`):
+
 ```php
 $imageUrl = R2Helper::url($revision->image);
 ```
 
 **SectionDefaults** (`app/Support/SectionDefaults.php`):
+
 ```php
 $imageUrl = R2Helper::url($path);
 ```
@@ -300,6 +299,7 @@ $imageUrl = R2Helper::url($path);
 #### Image Helper (`resources/js/utils/imageHelper.ts`)
 
 **Functions:**
+
 - `getR2Url(path: string)` - Convert path to R2 URL
 - `getImageUrl(sections, key, fallback)` - Get image from sections or R2
 - `getVideoUrl(path: string)` - Convert video path to R2 URL
@@ -307,6 +307,7 @@ $imageUrl = R2Helper::url($path);
 **Base URL**: `https://assets.cahayaanbiya.com`
 
 **URL Format:**
+
 - Images: `https://assets.cahayaanbiya.com/public/images/{filename}`
 - Videos: `https://assets.cahayaanbiya.com/public/videos/{filename}`
 
@@ -337,11 +338,13 @@ $imageUrl = R2Helper::url($path);
 ### 6.3 Error Handling
 
 **Frontend Error Handling:**
+
 - All `onError` handlers try alternative R2 paths only
 - No fallback to local storage
 - Automatic path variation attempts (`/public/images/` vs `/images/`)
 
 **Backend Error Handling:**
+
 - All error handlers return R2 URL structure
 - No `asset()` fallbacks
 - Comprehensive try-catch blocks
@@ -355,6 +358,7 @@ $imageUrl = R2Helper::url($path);
 **Script**: `scripts/verify-all-files-in-r2.php`
 
 **Results**:
+
 ```
 ✅ PERFECT: All files are in R2!
    Local: 23 files
@@ -364,6 +368,7 @@ $imageUrl = R2Helper::url($path);
 ### 7.2 Code Verification
 
 **Audit Results**:
+
 - ✅ 17 React components verified
 - ✅ 3 PHP models verified
 - ✅ 100% R2 URL usage
@@ -383,42 +388,42 @@ $imageUrl = R2Helper::url($path);
 ### 8.1 Available Scripts
 
 1. **`scripts/upload-to-r2.php`**
-   - Upload files dari local `public/` ke R2
-   - Upload ke path: `public/images/` dan `public/videos/`
+    - Upload files dari local `public/` ke R2
+    - Upload ke path: `public/images/` dan `public/videos/`
 
 2. **`scripts/upload-r2-correct-path.php`** ⭐ **RECOMMENDED**
-   - Upload files dengan path yang benar
-   - Upload ke: `images/` dan `videos/` (karena root='public')
-   - Files akan tersimpan di `public/images/` dan `public/videos/` di bucket
+    - Upload files dengan path yang benar
+    - Upload ke: `images/` dan `videos/` (karena root='public')
+    - Files akan tersimpan di `public/images/` dan `public/videos/` di bucket
 
 3. **`scripts/force-upload-r2.php`**
-   - Force upload dengan verifikasi lengkap
-   - Checks file existence after upload
-   - Reports file sizes
+    - Force upload dengan verifikasi lengkap
+    - Checks file existence after upload
+    - Reports file sizes
 
 4. **`scripts/fix-r2-permissions.php`**
-   - Set semua file permissions ke `public-read`
-   - Verifies permissions after setting
+    - Set semua file permissions ke `public-read`
+    - Verifies permissions after setting
 
 5. **`scripts/verify-r2-connection.php`**
-   - Verify R2 connection
-   - List files in R2
-   - Test HTTP accessibility
+    - Verify R2 connection
+    - List files in R2
+    - Test HTTP accessibility
 
 6. **`scripts/check-r2-status.php`**
-   - Check R2 status comprehensively
-   - Test file existence
-   - Test HTTP accessibility
+    - Check R2 status comprehensively
+    - Test file existence
+    - Test HTTP accessibility
 
 7. **`scripts/verify-all-files-in-r2.php`**
-   - Compare local files vs R2 files
-   - Report missing files
-   - Perfect match verification
+    - Compare local files vs R2 files
+    - Report missing files
+    - Perfect match verification
 
 8. **`scripts/test-r2-assets.sh`**
-   - Test asset accessibility via HTTP
-   - Try multiple path variations
-   - Reports HTTP status codes
+    - Test asset accessibility via HTTP
+    - Try multiple path variations
+    - Reports HTTP status codes
 
 ### 8.2 Usage Examples
 
@@ -439,6 +444,27 @@ php scripts/check-r2-status.php
 ./scripts/test-r2-assets.sh
 ```
 
+### 8.3 B2B Agent Verification Documents
+
+Dokumen B2B (business license, tax certificate, company profile) disimpan di R2 di folder **`public/agent-verifications/`** di bucket. Aplikasi memakai **R2 disk** untuk upload/download dokumen ini **jika disk `r2` dikonfigurasi** (tidak bergantung pada `FILESYSTEM_DISK` default).
+
+**Script:**
+
+```bash
+# List dokumen B2B di R2 dan path dari database
+php scripts/agent-verifications-r2.php
+
+# Upload dokumen yang masih di local ke R2 (backfill)
+php scripts/agent-verifications-r2.php --sync
+```
+
+**Yang perlu dikonfigurasi di production:**
+
+- Set **R2\_\*** (atau AWS\_\*) di `.env`: `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_URL`, `R2_ENDPOINT`.
+- Tidak perlu mengubah `FILESYSTEM_DISK` ke `r2` untuk seluruh app; cukup pastikan disk `r2` terisi env di atas. Upload B2B akan otomatis ke R2, dan admin download melalui Laravel (stream dari R2).
+
+**Admin download:** Admin mengunduh dokumen lewat route Laravel (`/admin/agent-verifications/{id}/download/{type}`). File di-stream dari R2 oleh Laravel; tidak perlu public access pada objek dokumen di bucket.
+
 ---
 
 ## 9. Troubleshooting
@@ -448,6 +474,7 @@ php scripts/check-r2-status.php
 **Problem**: Dashboard shows empty folders but files exist in R2.
 
 **Solution**:
+
 - Files ARE in R2 (verified via API)
 - Dashboard UI may need refresh
 - Try viewing via "Objects" tab instead of folder navigation
@@ -458,11 +485,13 @@ php scripts/check-r2-status.php
 **Problem**: Files return 404 when accessed via custom domain.
 
 **Possible Causes**:
+
 1. Custom domain not fully propagated (wait 15-30 minutes)
 2. CNAME record incorrect
 3. Custom domain not active/enabled
 
 **Solution**:
+
 1. Verify custom domain status in R2 dashboard
 2. Check CNAME record in DNS
 3. Wait for DNS propagation
@@ -473,6 +502,7 @@ php scripts/check-r2-status.php
 **Problem**: Files uploaded but URLs don't work.
 
 **Solution**:
+
 - Remember: `root: 'public'` means upload to `images/` not `public/images/`
 - Use script: `scripts/upload-r2-correct-path.php`
 - Verify path structure matches URL generation
@@ -482,6 +512,7 @@ php scripts/check-r2-status.php
 **Problem**: Browser blocks requests due to CORS.
 
 **Solution**:
+
 1. Verify CORS Policy is configured in R2 dashboard
 2. Ensure your domain is in `AllowedOrigins`
 3. Check browser console for specific CORS error
@@ -505,26 +536,28 @@ php scripts/check-r2-status.php
 
 ### 10.2 File Usage by Page
 
-| Page | Files Used | Files in R2 | Status |
-|------|------------|-------------|--------|
-| Home | 13 images + 1 video | 13 + 1 | ✅ 100% |
-| Destinations | 9 images | 9 | ✅ 100% |
-| Packages | 9 images | 9 | ✅ 100% |
-| Highlights | 6 images | 6 | ✅ 100% |
-| Blog | 9 images | 9 | ✅ 100% |
-| Search | 12 images | 12 | ✅ 100% |
-| Logo/Icons | 2 images | 2 | ✅ 100% |
-| B2B | 1 image | 1 | ✅ 100% |
+| Page         | Files Used          | Files in R2 | Status  |
+| ------------ | ------------------- | ----------- | ------- |
+| Home         | 13 images + 1 video | 13 + 1      | ✅ 100% |
+| Destinations | 9 images            | 9           | ✅ 100% |
+| Packages     | 9 images            | 9           | ✅ 100% |
+| Highlights   | 6 images            | 6           | ✅ 100% |
+| Blog         | 9 images            | 9           | ✅ 100% |
+| Search       | 12 images           | 12          | ✅ 100% |
+| Logo/Icons   | 2 images            | 2           | ✅ 100% |
+| B2B          | 1 image             | 1           | ✅ 100% |
 
 **Total**: ✅ **100% of all files are in R2**
 
 ### 10.3 URL Format
 
 **All URLs follow this pattern:**
+
 - Images: `https://assets.cahayaanbiya.com/public/images/{filename}`
 - Videos: `https://assets.cahayaanbiya.com/public/videos/{filename}`
 
 **Example URLs:**
+
 - `https://assets.cahayaanbiya.com/public/images/arabsaudi.jpg`
 - `https://assets.cahayaanbiya.com/public/images/TURKEY.jpeg`
 - `https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4`
@@ -542,26 +575,31 @@ php scripts/check-r2-status.php
 ## 11. Quick Reference
 
 ### Upload Files
+
 ```bash
 php scripts/upload-r2-correct-path.php
 ```
 
 ### Verify Files
+
 ```bash
 php scripts/verify-all-files-in-r2.php
 ```
 
 ### Check Status
+
 ```bash
 php scripts/check-r2-status.php
 ```
 
 ### Test HTTP Access
+
 ```bash
 ./scripts/test-r2-assets.sh
 ```
 
 ### Fix Permissions
+
 ```bash
 php scripts/fix-r2-permissions.php
 ```
@@ -573,6 +611,7 @@ php scripts/fix-r2-permissions.php
 ### ⚠️ Cloudflare R2 vs AWS S3
 
 **Key Differences:**
+
 - ❌ Cloudflare R2 **TIDAK menggunakan Bucket Policy** seperti AWS S3
 - ✅ Public access dikonfigurasi melalui **Custom Domain**
 - ✅ Jika custom domain **Active & Enabled**, public access sudah aktif
@@ -581,16 +620,19 @@ php scripts/fix-r2-permissions.php
 ### ⚠️ Path Structure
 
 **Critical**: Karena `root: 'public'` di config:
+
 - ✅ Upload ke: `images/arabsaudi.jpg` → Tersimpan di `public/images/arabsaudi.jpg`
 - ❌ Jangan upload ke: `public/images/arabsaudi.jpg` → Menjadi `public/public/images/arabsaudi.jpg`
 
 ### ⚠️ URL Generation
 
 **Backend (PHP)**:
+
 - Uses `R2Helper::url()` which handles `public/` prefix automatically
 - Path: `images/arabsaudi.jpg` → URL: `https://assets.cahayaanbiya.com/public/images/arabsaudi.jpg`
 
 **Frontend (TypeScript)**:
+
 - Uses `getR2Url()`, `getImageUrl()`, `getVideoUrl()`
 - Always includes `/public/` prefix in generated URLs
 - Tries alternative paths on error
@@ -641,4 +683,4 @@ php scripts/fix-r2-permissions.php
 
 ---
 
-*This documentation consolidates all R2 integration work and provides a complete reference for the Cloudflare R2 implementation.*
+_This documentation consolidates all R2 integration work and provides a complete reference for the Cloudflare R2 implementation._

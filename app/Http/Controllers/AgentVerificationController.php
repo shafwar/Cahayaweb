@@ -765,55 +765,43 @@ class AgentVerificationController extends Controller
                 }
             }
 
-            // 2) Try R2 disk only if public disk didn't have the file
-            try {
-                $disk = R2Helper::disk();
-                foreach ($pathsToTry as $path) {
-                    try {
-                        if ($disk->exists($path)) {
-                            \Log::info('Serving file from R2', [
-                                'path' => $path,
-                                'verification_id' => $verificationId,
-                            ]);
+            // 2) Try R2 disk explicitly when R2 is configured (do not rely on default disk)
+            if (R2Helper::isR2DiskConfigured()) {
+                try {
+                    $r2Disk = Storage::disk('r2');
+                    foreach ($pathsToTry as $path) {
+                        try {
+                            if ($r2Disk->exists($path)) {
+                                \Log::info('Serving file from R2', [
+                                    'path' => $path,
+                                    'verification_id' => $verificationId,
+                                ]);
 
-                            return response()->stream(function () use ($disk, $path) {
-                                $stream = $disk->readStream($path);
-                                if ($stream) {
-                                    fpassthru($stream);
-                                    fclose($stream);
-                                }
-                            }, 200, [
-                                'Content-Type' => $mimeType,
-                                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-                                'Cache-Control' => 'public, max-age=3600',
+                                return response()->stream(function () use ($r2Disk, $path) {
+                                    $stream = $r2Disk->readStream($path);
+                                    if ($stream) {
+                                        fpassthru($stream);
+                                        fclose($stream);
+                                    }
+                                }, 200, [
+                                    'Content-Type' => $mimeType,
+                                    'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                                    'Cache-Control' => 'public, max-age=3600',
+                                ]);
+                            }
+                        } catch (\Throwable $e) {
+                            \Log::debug('R2 check failed for path', [
+                                'path' => $path,
+                                'error' => $e->getMessage(),
                             ]);
                         }
-                    } catch (\Throwable $e) {
-                        \Log::debug('R2 check failed for path', [
-                            'path' => $path,
-                            'error' => $e->getMessage(),
-                        ]);
                     }
-                }
-            } catch (\Throwable $e) {
-                \Log::warning('R2 disk unavailable', [
-                    'error' => $e->getMessage(),
-                    'verification_id' => $verificationId,
-                ]);
-            }
-
-            // 3) Optional: redirect to R2 public URL if file might be there
-            try {
-                $r2Url = R2Helper::url($filePath);
-                if ($r2Url) {
-                    \Log::info('Redirecting to R2 URL', [
-                        'url' => $r2Url,
+                } catch (\Throwable $e) {
+                    \Log::warning('R2 disk unavailable', [
+                        'error' => $e->getMessage(),
                         'verification_id' => $verificationId,
                     ]);
-                    return redirect($r2Url);
                 }
-            } catch (\Throwable $e) {
-                \Log::debug('R2 URL generation failed', ['error' => $e->getMessage()]);
             }
 
             \Log::error('Document not found', [
@@ -845,11 +833,11 @@ class AgentVerificationController extends Controller
 
     /**
      * Disk name for agent-verification document uploads.
-     * Uses R2 when configured so files land in bucket under public/agent-verifications/ and are served via assets.cahayaanbiya.com.
+     * Uses R2 when r2 disk is configured so files land in bucket under public/agent-verifications/.
      */
     private function getAgentVerificationUploadDiskName(): string
     {
-        return R2Helper::isConfigured() ? 'r2' : 'public';
+        return R2Helper::isR2DiskConfigured() ? 'r2' : 'public';
     }
 
     /**
@@ -858,7 +846,7 @@ class AgentVerificationController extends Controller
     private function getMimeType(?string $extension): string
     {
         $extension = strtolower($extension ?? '');
-        
+
         $mimeTypes = [
             'pdf' => 'application/pdf',
             'doc' => 'application/msword',

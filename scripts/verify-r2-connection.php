@@ -10,9 +10,12 @@ use Illuminate\Support\Facades\Log;
 
 echo "=== R2 Connection Verification ===\n\n";
 
+$r2Configured = \App\Support\R2Helper::isR2DiskConfigured();
+echo "R2 disk configured (for B2B docs): " . ($r2Configured ? 'yes' : 'no') . "\n\n";
+
 try {
     $disk = Storage::disk('r2');
-    
+
     // Test 1: Check if disk is accessible
     echo "1. Testing R2 disk connection...\n";
     $config = config('filesystems.disks.r2');
@@ -22,7 +25,7 @@ try {
     echo "   - URL: " . ($config['url'] ?? 'N/A') . "\n";
     echo "   - Root: " . ($config['root'] ?? 'N/A') . "\n";
     echo "   ✓ Disk configuration loaded\n\n";
-    
+
     // Test 2: List files in R2
     echo "2. Listing files in R2 bucket...\n";
     try {
@@ -38,7 +41,22 @@ try {
     } catch (\Exception $e) {
         echo "   ✗ Error listing files: " . $e->getMessage() . "\n\n";
     }
-    
+
+    // Test 2b: B2B agent-verifications folder
+    echo "2b. B2B agent-verifications (public/agent-verifications/)...\n";
+    try {
+        $agentFiles = $disk->allFiles('agent-verifications');
+        echo "   - Files: " . count($agentFiles) . "\n";
+        if (count($agentFiles) > 0) {
+            foreach (array_slice($agentFiles, 0, 5) as $f) {
+                echo "     * {$f}\n";
+            }
+        }
+        echo "   ✓ Listed\n\n";
+    } catch (\Exception $e) {
+        echo "   ✗ " . $e->getMessage() . "\n\n";
+    }
+
     // Test 3: Check if specific files exist
     echo "3. Checking specific files...\n";
     $testFiles = [
@@ -47,14 +65,14 @@ try {
         'public/images/egypt.jpeg',
         'public/videos/b2cherosectionvideo.mp4',
     ];
-    
+
     foreach ($testFiles as $file) {
         $exists = $disk->exists($file);
         $status = $exists ? '✓' : '✗';
         echo "   {$status} {$file}: " . ($exists ? 'EXISTS' : 'NOT FOUND') . "\n";
     }
     echo "\n";
-    
+
     // Test 4: Generate URLs for test files using R2Helper
     echo "4. Generating R2 URLs using R2Helper...\n";
     foreach ($testFiles as $file) {
@@ -66,7 +84,7 @@ try {
         }
     }
     echo "\n";
-    
+
     // Test 5: Test HTTP accessibility
     echo "5. Testing HTTP accessibility...\n";
     $testUrls = [
@@ -74,7 +92,7 @@ try {
         'https://assets.cahayaanbiya.com/public/images/TURKEY.jpeg',
         'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4',
     ];
-    
+
     foreach ($testUrls as $url) {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -84,13 +102,13 @@ try {
         curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        
+
         $status = ($httpCode === 200) ? '✓' : '✗';
         echo "   {$status} {$url}: HTTP {$httpCode}\n";
     }
-    
+
     echo "\n=== Verification Complete ===\n";
-    
+
 } catch (\Exception $e) {
     echo "✗ Fatal error: " . $e->getMessage() . "\n";
     echo "Stack trace:\n" . $e->getTraceAsString() . "\n";
