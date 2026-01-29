@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AgentVerification;
+use App\Models\B2BRegistrationDraft;
 use App\Support\R2Helper;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -91,19 +92,20 @@ class AgentVerificationController extends Controller
 
         $user = $request->user();
 
-        // If user is not logged in, store form data in session and redirect to register/login
+        // If user is not logged in, store form data in session AND in draft (draft survives multi-instance / lost session)
         if (!$user) {
-            // Store form data in session for after registration (exclude country code fields as they're combined with phone)
-            $request->session()->put('b2b_registration_data', $request->except([
+            $formData = $request->except([
                 '_token',
                 'business_license_file',
                 'tax_certificate_file',
                 'company_profile_file',
                 'company_phone_country_code',
                 'contact_person_phone_country_code'
-            ]));
+            ]);
 
-            // Store files temporarily if uploaded
+            // Store in session for same-instance flow
+            $request->session()->put('b2b_registration_data', $formData);
+
             $fileData = [];
             $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
             foreach ($fileFields as $field) {
@@ -121,14 +123,32 @@ class AgentVerificationController extends Controller
                 $request->session()->put('b2b_registration_files', $fileData);
             }
 
-            // Ensure HTTPS for redirect URL - use absolute URL and force HTTPS
-            $redirectUrl = route('b2b.register.store.continue', [], true);
-            // Always force HTTPS for redirect URL in production
+            // Create draft so flow works when session is lost (e.g. multi-instance with file session driver)
+            $token = Str::random(64);
+            $uploadDiskName = $this->getAgentVerificationUploadDiskName();
+            $draftFilePaths = [];
+            foreach ($fileData as $field => $localPath) {
+                $contents = Storage::disk('public')->get($localPath);
+                if ($contents !== null) {
+                    $ext = pathinfo($localPath, PATHINFO_EXTENSION);
+                    $newPath = 'temp-b2b-drafts/' . $token . '/' . Str::uuid()->toString() . '.' . $ext;
+                    Storage::disk($uploadDiskName)->put($newPath, $contents);
+                    $draftFilePaths[$field] = $newPath;
+                }
+            }
+            B2BRegistrationDraft::create([
+                'token' => $token,
+                'payload' => $formData,
+                'file_paths' => !empty($draftFilePaths) ? $draftFilePaths : null,
+                'expires_at' => now()->addHour(),
+            ]);
+
+            // Continue URL must include b2b_token so storeContinue can load draft if session is empty
+            $redirectUrl = route('b2b.register.store.continue', ['b2b_token' => $token], true);
             if (app()->environment('production') || $request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
                 $redirectUrl = str_replace('http://', 'https://', $redirectUrl);
             }
 
-            // Ensure register route also uses HTTPS
             $registerUrl = route('register', ['mode' => 'b2b', 'redirect' => $redirectUrl], true);
             if (app()->environment('production') || $request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
                 $registerUrl = str_replace('http://', 'https://', $registerUrl);
@@ -277,7 +297,8 @@ class AgentVerificationController extends Controller
     }
 
     /**
-     * Continue registration after user creates account (for guest submissions)
+     * Continue registration after user creates account (for guest submissions).
+     * Uses session first; if session is empty (e.g. multi-instance), loads from draft by b2b_token.
      */
     public function storeContinue(Request $request)
     {
@@ -291,19 +312,7 @@ class AgentVerificationController extends Controller
             return redirect($registerUrl);
         }
 
-        // Check if there's stored registration data
-        $storedData = $request->session()->get('b2b_registration_data');
-        $storedFiles = $request->session()->get('b2b_registration_files');
-
-        if (!$storedData) {
-            $registerUrl = route('b2b.register', [], true);
-            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
-                $registerUrl = str_replace('http://', 'https://', $registerUrl);
-            }
-            return redirect($registerUrl)->with('error', 'No registration data found. Please fill the form again.');
-        }
-
-        // Check if user already has a verification
+        // User already has a verification → go to pending
         if ($user->agentVerification) {
             $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
             $pendingUrl = route('b2b.pending', [], true);
@@ -313,7 +322,23 @@ class AgentVerificationController extends Controller
             return redirect($pendingUrl)->with('info', 'You already have a verification application.');
         }
 
-        // Validate stored data
+        $storedData = $request->session()->get('b2b_registration_data');
+        $storedFiles = $request->session()->get('b2b_registration_files');
+
+        // Try draft fallback when session is empty (multi-instance / lost session)
+        if (!$storedData && $request->filled('b2b_token')) {
+            return $this->storeContinueFromDraft($request, $user);
+        }
+
+        if (!$storedData) {
+            $registerUrl = route('b2b.register', [], true);
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                $registerUrl = str_replace('http://', 'https://', $registerUrl);
+            }
+            return redirect($registerUrl)->with('error', 'No registration data found. Please fill the form again.');
+        }
+
+        // Session flow: validate and create from session
         $validator = \Validator::make($storedData, [
             'company_name' => ['required', 'string', 'max:255'],
             'company_email' => ['required', 'email', 'max:255'],
@@ -346,7 +371,6 @@ class AgentVerificationController extends Controller
 
         $validated = $validator->validated();
 
-        // Handle stored files: upload to R2 when configured (creates public/agent-verifications/ in bucket), else local public
         $uploadDiskName = $this->getAgentVerificationUploadDiskName();
         $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
         foreach ($fileFields as $field) {
@@ -359,30 +383,116 @@ class AgentVerificationController extends Controller
                     Storage::disk($uploadDiskName)->put($newPath, $contents);
                     Storage::disk('public')->delete($tempPath);
                 }
-                $validated[str_replace('_file', '_file', $field)] = $newPath;
+                $validated[$field] = $newPath;
             }
         }
 
-        // Create verification
-        $verification = $user->agentVerification()->create([
+        $user->agentVerification()->create([
             ...$validated,
             'status' => 'pending',
             'company_country' => $validated['company_country'] ?? 'Indonesia',
         ]);
 
-        // Clear stored session data
         $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
-
-        // Regenerate session token after successful submission
         $request->session()->regenerateToken();
 
-        // Force HTTPS to prevent Mixed Content errors
         $pendingUrl = route('b2b.pending', [], true);
         if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
             $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
         }
+        return redirect($pendingUrl)->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
+    }
 
-        // Use plain redirect to ensure it works correctly
+    /**
+     * Create AgentVerification from draft (used when session was lost, e.g. multi-instance).
+     */
+    private function storeContinueFromDraft(Request $request, $user): RedirectResponse
+    {
+        $token = $request->input('b2b_token');
+        $draft = B2BRegistrationDraft::where('token', $token)->first();
+
+        if (!$draft || $draft->isExpired()) {
+            if ($draft) {
+                $draft->delete();
+            }
+            $registerUrl = route('b2b.register', [], true);
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                $registerUrl = str_replace('http://', 'https://', $registerUrl);
+            }
+            return redirect($registerUrl)->with('error', 'Registration link expired or invalid. Please fill the form again.');
+        }
+
+        $storedData = $draft->payload;
+        $storedFiles = $draft->file_paths ?? [];
+
+        $validator = \Validator::make($storedData, [
+            'company_name' => ['required', 'string', 'max:255'],
+            'company_email' => ['required', 'email', 'max:255'],
+            'company_phone' => ['required', 'string', 'max:50'],
+            'company_address' => ['required', 'string'],
+            'company_city' => ['required', 'string', 'max:100'],
+            'company_province' => ['required', 'string', 'max:100'],
+            'company_postal_code' => ['required', 'string', 'max:20'],
+            'company_country' => ['nullable', 'string', 'max:100'],
+            'business_license_number' => ['nullable', 'string', 'max:100'],
+            'tax_id_number' => ['nullable', 'string', 'max:100'],
+            'business_type' => ['required', 'string', 'max:50'],
+            'business_type_other' => ['required_if:business_type,Other', 'nullable', 'string', 'max:100'],
+            'years_in_business' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'business_description' => ['nullable', 'string'],
+            'contact_person_name' => ['required', 'string', 'max:255'],
+            'contact_person_position' => ['required', 'string', 'max:100'],
+            'contact_person_phone' => ['required', 'string', 'max:50'],
+            'contact_person_email' => ['required', 'email', 'max:255'],
+        ]);
+
+        if ($validator->fails()) {
+            $draft->delete();
+            $registerUrl = route('b2b.register', [], true);
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                $registerUrl = str_replace('http://', 'https://', $registerUrl);
+            }
+            return redirect($registerUrl)->withErrors($validator)->with('error', 'Invalid registration data. Please fill the form again.');
+        }
+
+        $validated = $validator->validated();
+        $uploadDiskName = $this->getAgentVerificationUploadDiskName();
+        $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
+
+        foreach ($fileFields as $field) {
+            if (isset($storedFiles[$field])) {
+                $tempPath = $storedFiles[$field];
+                $contents = Storage::disk($uploadDiskName)->get($tempPath);
+                if ($contents !== null) {
+                    $ext = pathinfo($tempPath, PATHINFO_EXTENSION);
+                    $newPath = 'agent-verifications/' . Str::uuid()->toString() . '.' . $ext;
+                    Storage::disk($uploadDiskName)->put($newPath, $contents);
+                    $validated[$field] = $newPath;
+                }
+                Storage::disk($uploadDiskName)->delete($tempPath);
+            }
+        }
+
+        // Delete temp draft files
+        $files = Storage::disk($uploadDiskName)->files('temp-b2b-drafts/' . $token);
+        foreach ($files as $file) {
+            Storage::disk($uploadDiskName)->delete($file);
+        }
+
+        $user->agentVerification()->create([
+            ...$validated,
+            'status' => 'pending',
+            'company_country' => $validated['company_country'] ?? 'Indonesia',
+        ]);
+
+        $draft->delete();
+
+        $request->session()->regenerateToken();
+
+        $pendingUrl = route('b2b.pending', [], true);
+        if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+            $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
+        }
         return redirect($pendingUrl)->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
     }
 

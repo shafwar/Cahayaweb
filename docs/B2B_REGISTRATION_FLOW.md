@@ -1,6 +1,6 @@
 # B2B Registration Flow – Architecture & Safeguards
 
-Dokumen ini mendeskripsikan alur registrasi B2B (guest → buat akun → halaman verifikasi) dan aturan yang **tidak boleh dilanggar** agar issue (loading tidak tampil, redirect gagal) tidak terulang.
+Dokumen ini mendeskripsikan alur registrasi B2B (guest → buat akun → halaman verifikasi) dan aturan yang **tidak boleh dilanggar** agar issue (loading tidak tampil, redirect gagal, data tidak muncul di admin) tidak terulang.
 
 ---
 
@@ -8,27 +8,28 @@ Dokumen ini mendeskripsikan alur registrasi B2B (guest → buat akun → halaman
 
 ```
 [Guest] Isi form B2B (register-agent)
-    → POST /b2b/register (pakai path relatif agar request ikut protokol halaman, hindari Mixed Content HTTPS→HTTP)
-    → Backend: simpan request ke session (b2b_registration_data, b2b_registration_files)
-    → Redirect 302 ke: /register?mode=b2b&redirect=<absolute_url_b2b/register/continue>
+    → POST /b2b/register (path relatif agar request ikut protokol halaman)
+    → Backend: simpan ke SESSION (b2b_registration_data, b2b_registration_files)
+               DAN buat DRAFT di DB (b2b_registration_drafts) dengan token; file disalin ke R2/public (temp-b2b-drafts/{token}/)
+    → Redirect 302 ke: /register?mode=b2b&redirect=<url_b2b/register/continue?b2b_token=TOKEN>
 
 [User] Halaman Register (auth/register)
     → Form state HARUS menyertakan mode + redirect (dari URL → useEffect → setData)
-    → User isi name, email, password
-    → Klik "Create account" → loading HARUS langsung tampil (isSubmitting + processing)
+    → User isi name, email, password, klik "Create account"
     → POST /register (body = form state, termasuk mode & redirect)
 
 [Backend] RegisteredUserController::store
     → Buat user, Auth::login()
-    → PRIORITY 1: session has b2b_registration_data? → redirect GET b2b.register.store.continue
-    → PRIORITY 2: input mode === 'b2b'? → redirect b2b.register dengan error
-    → PRIORITY 3: input redirect? (same-origin) → redirect ke path tersebut
+    → Jika session punya b2b_registration_data: redirect ke continue (prefer redirect param agar b2b_token ikut)
+    → Jika session kosong tapi redirect = /b2b/register/continue?b2b_token=...: redirect ke URL itu (storeContinue akan pakai draft)
+    → Jika mode=b2b dan tidak ada data: redirect ke b2b.register dengan error
 
 [Backend] AgentVerificationController::storeContinue (GET, auth)
-    → Ambil data dari session, buat AgentVerification, clear session
+    → Jika session punya data: buat AgentVerification dari session, clear session
+    → Jika session kosong tapi request ada b2b_token: load draft, buat AgentVerification dari draft, hapus draft
     → Redirect ke b2b.pending
 
-[User] Halaman Pending Verification
+[User] Halaman Pending Verification → status Pending, data muncul di admin
 ```
 
 ---
@@ -53,14 +54,13 @@ Dokumen ini mendeskripsikan alur registrasi B2B (guest → buat akun → halaman
 
 ### 2.2 Backend (RegisteredUserController::store)
 
-- **Urutan pengecekan jangan diubah:** (1) session `b2b_registration_data`, (2) input `mode === 'b2b'`, (3) input `redirect`.
-- **Jangan panggil `session()->regenerateToken()` sebelum cek session B2B** (agar data registrasi tidak hilang).
-- **Redirect param:** hanya gunakan path yang aman (same-origin / allowlist path), jangan redirect ke URL arbitrer (open redirect).
+- **Urutan:** (1) redirect ke continue jika session ada (pakai redirect param jika aman agar b2b_token ikut); (2) jika session kosong tapi redirect = continue URL → redirect ke itu (draft flow); (3) jika mode=b2b → error ke b2b.register; (4) redirect param lain (same-origin).
+- **Redirect param:** hanya path yang aman (allowlist /b2b, /login, /), jangan open redirect.
 
 ### 2.3 Backend (AgentVerificationController)
 
-- **store() (guest):** redirect ke register **dengan** `mode=b2b` dan `redirect=<full_url_continue>` (HTTPS di production).
-- **storeContinue():** hanya GET, middleware auth; baca session, buat verification, redirect ke pending.
+- **store() (guest):** simpan session + buat draft (token, payload, file_paths di R2/public), redirect ke register dengan `redirect=<url_continue?b2b_token=TOKEN>`.
+- **storeContinue():** GET, auth; coba session dulu; jika kosong dan ada `b2b_token` → load draft, buat AgentVerification, hapus draft; redirect ke pending.
 
 ---
 
@@ -68,11 +68,12 @@ Dokumen ini mendeskripsikan alur registrasi B2B (guest → buat akun → halaman
 
 | Failure                                     | Penyebab                          | Penanganan saat ini                                                                                                                                                                                                                 |
 | ------------------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Session hilang antara form B2B dan register | Session expired, cookie, domain   | Backend: jika tidak ada session tapi `mode=b2b` → redirect ke b2b.register + error. User isi ulang form.                                                                                                                            |
-| mode/redirect tidak terkirim di POST        | Hanya di URL, tidak di form state | Form state wajib berisi mode & redirect; useEffect + optional sync sebelum post.                                                                                                                                                    |
-| Loading tidak kelihatan                     | Hanya andal pada `processing`     | `isSubmitting` lokal + showLoading.                                                                                                                                                                                                 |
-| Double submit                               | User klik berulang                | Guard `if (processing \|\| isSubmitting) return`.                                                                                                                                                                                   |
-| Email sudah terdaftar di flow B2B           | User pilih "log in here"          | Link login dengan mode=b2b & redirect=continue. Setelah login, `AuthenticatedSessionController::determineRedirectTarget` memakai param redirect jika path `/b2b/register/continue` sehingga user lanjut ke storeContinue → pending. |
+| Session hilang (multi-instance, file driver) | Request ke instance lain | **Draft + b2b_token:** data di `b2b_registration_drafts`, file di R2/public; redirect URL berisi `b2b_token`; storeContinue load dari draft jika session kosong. |
+| Session expired / cookie | Idle lama | Redirect param = continue?b2b_token=... → storeContinue pakai draft. Draft kadaluarsa 1 jam. |
+| mode/redirect tidak terkirim di POST | Hanya di URL | Form state wajib mode & redirect; useEffect sync dari URL. |
+| Loading tidak kelihatan | Hanya `processing` | `isSubmitting` lokal + showLoading. |
+| Double submit | User klik berulang | Guard `if (processing \|\| isSubmitting) return`. |
+| Email sudah terdaftar di flow B2B | User pilih "log in here" | Link login dengan redirect=continue; setelah login redirect ke storeContinue (dengan token jika ada) → pending. |
 
 ---
 

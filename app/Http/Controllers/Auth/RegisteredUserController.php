@@ -60,23 +60,41 @@ class RegisteredUserController extends Controller
 
             Auth::login($user);
 
-            // PRIORITY 1: Check if there's stored B2B registration data in session (most reliable)
-            // Check this BEFORE regenerating token to preserve session data
+            // PRIORITY 1: B2B flow — redirect to continue (session or draft token)
+            // Use redirect param from request when it points to continue URL so b2b_token is preserved (draft fallback when session is lost)
+            $redirectParam = $request->input('redirect');
+            $continuePath = '/b2b/register/continue';
+            $safeContinueUrl = null;
+            if ($redirectParam && is_string($redirectParam)) {
+                $path = null;
+                if (str_starts_with($redirectParam, '/')) {
+                    $path = $redirectParam;
+                } elseif (str_starts_with($redirectParam, 'http://') || str_starts_with($redirectParam, 'https://')) {
+                    $parsed = parse_url($redirectParam);
+                    $path = isset($parsed['path']) ? $parsed['path'] . (isset($parsed['query']) ? '?' . $parsed['query'] : '') : null;
+                }
+                if ($path && str_starts_with($path, $continuePath)) {
+                    $safeContinueUrl = $path;
+                }
+            }
+
             if ($request->session()->has('b2b_registration_data')) {
-                // Redirect to continue registration endpoint (GET request)
-                // Force HTTPS to prevent Mixed Content errors
-                $continueUrl = route('b2b.register.store.continue', [], true);
-                if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                // Session has data: redirect to continue (prefer URL with b2b_token so it works even if session is lost on next request)
+                $continueUrl = $safeContinueUrl ?? route('b2b.register.store.continue', [], true);
+                if (!str_starts_with($continueUrl, '/') && (app()->environment('production') || $request->secure() || $request->header('X-Forwarded-Proto') === 'https')) {
                     $continueUrl = str_replace('http://', 'https://', $continueUrl);
                 }
                 return redirect($continueUrl);
             }
 
-            // PRIORITY 2: Check mode parameter for B2B (from POST data or query string)
+            // Session empty but redirect points to continue (e.g. b2b_token in URL) — let storeContinue load from draft
+            if ($safeContinueUrl) {
+                return redirect($safeContinueUrl);
+            }
+
+            // PRIORITY 2: mode=b2b but no session and no continue URL — ask to fill form again
             $mode = $request->input('mode');
             if ($mode === 'b2b') {
-                // If mode is b2b but no session data, redirect to B2B register form
-                // User needs to fill the form again
                 $registerUrl = route('b2b.register', [], true);
                 if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
                     $registerUrl = str_replace('http://', 'https://', $registerUrl);
