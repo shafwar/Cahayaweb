@@ -5,6 +5,7 @@ import { Building2, Layout, ArrowRight, Sparkles, LogOut } from 'lucide-react';
 import { useLogout } from '@/hooks/useLogout';
 
 export default function AdminDashboard() {
+    const { logout, isLoggingOut } = useLogout();
     const cardVariants = {
         hidden: { opacity: 0, y: 20 },
         visible: (i: number) => ({
