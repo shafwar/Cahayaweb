@@ -8,7 +8,7 @@ Dokumen ini mendeskripsikan alur registrasi B2B (guest → buat akun → halaman
 
 ```
 [Guest] Isi form B2B (register-agent)
-    → POST b2b.register.store
+    → POST /b2b/register (pakai path relatif agar request ikut protokol halaman, hindari Mixed Content HTTPS→HTTP)
     → Backend: simpan request ke session (b2b_registration_data, b2b_registration_files)
     → Redirect 302 ke: /register?mode=b2b&redirect=<absolute_url_b2b/register/continue>
 

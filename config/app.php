@@ -56,6 +56,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Force HTTPS for generated URLs
+    |--------------------------------------------------------------------------
+    | When true (or in production), URL::forceScheme('https') is applied so
+    | route(), url(), redirect() generate https:// and Mixed Content is avoided.
+    */
+    'force_https' => env('FORCE_HTTPS', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

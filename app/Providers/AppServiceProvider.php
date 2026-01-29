@@ -22,6 +22,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS for all generated URLs in production (prevents Mixed Content when frontend loads over HTTPS)
+        if (app()->environment('production') || config('app.force_https', false)) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         // Register is_admin middleware alias
         \Illuminate\Support\Facades\Route::aliasMiddleware('is_admin', \App\Http\Middleware\IsAdmin::class);
 
@@ -30,20 +35,20 @@ class AppServiceProvider extends ServiceProvider
         try {
             // Check if database connection is available
             \Illuminate\Support\Facades\DB::connection()->getPdo();
-            
+
             // Only proceed if we can connect to database
             if (Schema::hasTable('sections') && Schema::hasTable('section_snapshots')) {
                 $sectionCount = Section::count();
-                
+
                 // Only restore if sections table is empty
                 if ($sectionCount === 0) {
                     $snapshot = SectionSnapshot::latestPayload();
-                    
+
                     if ($snapshot->isNotEmpty()) {
                         \Log::info('Restoring sections from snapshot', [
                             'snapshot_count' => $snapshot->count()
                         ]);
-                        
+
                         $restored = 0;
                         $snapshot->each(function (array $row) use (&$restored) {
                             try {
@@ -62,7 +67,7 @@ class AppServiceProvider extends ServiceProvider
                                 ]);
                             }
                         });
-                        
+
                         \Log::info('Sections restored from snapshot', [
                             'restored_count' => $restored,
                             'total_snapshots' => $snapshot->count()
