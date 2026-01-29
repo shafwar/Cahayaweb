@@ -130,15 +130,9 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
 
             <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
                 {/* Flash messages (e.g. download error) */}
-                {flash?.error && (
-                    <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-red-300">
-                        {flash.error}
-                    </div>
-                )}
+                {flash?.error && <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-red-300">{flash.error}</div>}
                 {flash?.success && (
-                    <div className="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-green-300">
-                        {flash.success}
-                    </div>
+                    <div className="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-green-300">{flash.success}</div>
                 )}
                 {/* Header */}
                 <div className="mb-6">
@@ -162,7 +156,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                         <button
                             onClick={logout}
                             disabled={isLoggingOut}
-                            className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition-all hover:border-red-500/50 hover:bg-red-500/20 hover:text-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition-all hover:border-red-500/50 hover:bg-red-500/20 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             <LogOut className="h-4 w-4" />
                             {isLoggingOut ? 'Logging out...' : 'Logout'}
@@ -291,61 +285,84 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                             </CardContent>
                         </Card>
 
-                        {/* Documents */}
-                        {(verification.business_license_file || verification.tax_certificate_file || verification.company_profile_file) && (
-                            <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
-                                <CardHeader>
-                                    <CardTitle className="text-white">Supporting Documents</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                    {verification.business_license_file && (
-                                        <a
-                                            href={verification.business_license_file}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-3 transition-colors hover:bg-gray-900"
-                                        >
-                                            <FileText className="h-5 w-5 text-blue-400" />
-                                            <div className="flex-1">
-                                                <p className="text-white">Business License</p>
-                                                <p className="text-sm text-gray-400">Click to view/download</p>
-                                            </div>
-                                            <Download className="h-4 w-4 text-gray-400" />
-                                        </a>
-                                    )}
-                                    {verification.tax_certificate_file && (
-                                        <a
-                                            href={verification.tax_certificate_file}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-3 transition-colors hover:bg-gray-900"
-                                        >
-                                            <FileText className="h-5 w-5 text-green-400" />
-                                            <div className="flex-1">
-                                                <p className="text-white">Tax Certificate</p>
-                                                <p className="text-sm text-gray-400">Click to view/download</p>
-                                            </div>
-                                            <Download className="h-4 w-4 text-gray-400" />
-                                        </a>
-                                    )}
-                                    {verification.company_profile_file && (
-                                        <a
-                                            href={verification.company_profile_file}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-3 transition-colors hover:bg-gray-900"
-                                        >
-                                            <FileText className="h-5 w-5 text-purple-400" />
-                                            <div className="flex-1">
-                                                <p className="text-white">Company Profile</p>
-                                                <p className="text-sm text-gray-400">Click to view/download</p>
-                                            </div>
-                                            <Download className="h-4 w-4 text-gray-400" />
-                                        </a>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        )}
+                        {/* Documents — always show so admin sees the section; link to download when file exists */}
+                        <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+                            <CardHeader>
+                                <CardTitle className="text-white">Supporting Documents</CardTitle>
+                                <CardDescription className="text-gray-400">Dokumen yang diunggah saat pendaftaran</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                {verification.business_license_file ? (
+                                    <a
+                                        href={verification.business_license_file}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-3 transition-colors hover:bg-gray-900"
+                                    >
+                                        <FileText className="h-5 w-5 text-blue-400" />
+                                        <div className="flex-1">
+                                            <p className="text-white">Business License</p>
+                                            <p className="text-sm text-gray-400">Klik untuk melihat/unduh</p>
+                                        </div>
+                                        <Download className="h-4 w-4 text-gray-400" />
+                                    </a>
+                                ) : (
+                                    <div className="flex items-center gap-3 rounded-lg border border-gray-700/50 bg-gray-900/30 p-3 text-gray-500">
+                                        <FileText className="h-5 w-5 shrink-0" />
+                                        <div>
+                                            <p className="text-gray-400">Business License</p>
+                                            <p className="text-sm">Tidak ada dokumen diunggah</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {verification.tax_certificate_file ? (
+                                    <a
+                                        href={verification.tax_certificate_file}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-3 transition-colors hover:bg-gray-900"
+                                    >
+                                        <FileText className="h-5 w-5 text-green-400" />
+                                        <div className="flex-1">
+                                            <p className="text-white">Tax Certificate</p>
+                                            <p className="text-sm text-gray-400">Klik untuk melihat/unduh</p>
+                                        </div>
+                                        <Download className="h-4 w-4 text-gray-400" />
+                                    </a>
+                                ) : (
+                                    <div className="flex items-center gap-3 rounded-lg border border-gray-700/50 bg-gray-900/30 p-3 text-gray-500">
+                                        <FileText className="h-5 w-5 shrink-0" />
+                                        <div>
+                                            <p className="text-gray-400">Tax Certificate</p>
+                                            <p className="text-sm">Tidak ada dokumen diunggah</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {verification.company_profile_file ? (
+                                    <a
+                                        href={verification.company_profile_file}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-3 transition-colors hover:bg-gray-900"
+                                    >
+                                        <FileText className="h-5 w-5 text-purple-400" />
+                                        <div className="flex-1">
+                                            <p className="text-white">Company Profile</p>
+                                            <p className="text-sm text-gray-400">Klik untuk melihat/unduh</p>
+                                        </div>
+                                        <Download className="h-4 w-4 text-gray-400" />
+                                    </a>
+                                ) : (
+                                    <div className="flex items-center gap-3 rounded-lg border border-gray-700/50 bg-gray-900/30 p-3 text-gray-500">
+                                        <FileText className="h-5 w-5 shrink-0" />
+                                        <div>
+                                            <p className="text-gray-400">Company Profile</p>
+                                            <p className="text-sm">Tidak ada dokumen diunggah</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
 
                         {/* User Account Info */}
                         <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
