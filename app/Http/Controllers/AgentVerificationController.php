@@ -389,24 +389,39 @@ class AgentVerificationController extends Controller
         $uploadDiskName = $this->getAgentVerificationUploadDiskName();
         $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
         foreach ($fileFields as $field) {
-            if (isset($storedFiles[$field])) {
-                $tempPath = $storedFiles[$field];
-                $fileName = basename($tempPath);
-                $newPath = 'agent-verifications/' . $fileName;
+            if (!isset($storedFiles[$field])) {
+                continue;
+            }
+            $tempPath = $storedFiles[$field];
+            try {
                 $contents = Storage::disk('public')->get($tempPath);
                 if ($contents !== null) {
+                    $fileName = basename($tempPath);
+                    $newPath = 'agent-verifications/' . $fileName;
                     Storage::disk($uploadDiskName)->put($newPath, $contents);
                     Storage::disk('public')->delete($tempPath);
+                    $validated[$field] = $newPath;
                 }
-                $validated[$field] = $newPath;
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('B2B session file copy failed', ['field' => $field, 'path' => $tempPath, 'message' => $e->getMessage()]);
             }
         }
 
-        $user->agentVerification()->create([
-            ...$validated,
-            'status' => 'pending',
-            'company_country' => $validated['company_country'] ?? 'Indonesia',
-        ]);
+        try {
+            $user->agentVerification()->create([
+                ...$validated,
+                'status' => 'pending',
+                'company_country' => $validated['company_country'] ?? 'Indonesia',
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('B2B storeContinue (session) create failed', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
+            $registerUrl = route('b2b.register', [], true);
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                $registerUrl = str_replace('http://', 'https://', $registerUrl);
+            }
+            return redirect($registerUrl)->with('error', 'Could not complete registration. Please try again.');
+        }
 
         $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
         $request->session()->regenerateToken();
@@ -475,8 +490,11 @@ class AgentVerificationController extends Controller
         $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
 
         foreach ($fileFields as $field) {
-            if (isset($storedFiles[$field])) {
-                $tempPath = $storedFiles[$field];
+            if (!isset($storedFiles[$field])) {
+                continue;
+            }
+            $tempPath = $storedFiles[$field];
+            try {
                 $contents = Storage::disk($uploadDiskName)->get($tempPath);
                 if ($contents !== null) {
                     $ext = pathinfo($tempPath, PATHINFO_EXTENSION);
@@ -485,23 +503,37 @@ class AgentVerificationController extends Controller
                     $validated[$field] = $newPath;
                 }
                 Storage::disk($uploadDiskName)->delete($tempPath);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('B2B draft file copy failed', ['field' => $field, 'path' => $tempPath, 'message' => $e->getMessage()]);
             }
         }
 
-        // Delete temp draft files
-        $files = Storage::disk($uploadDiskName)->files('temp-b2b-drafts/' . $token);
-        foreach ($files as $file) {
-            Storage::disk($uploadDiskName)->delete($file);
+        try {
+            $files = Storage::disk($uploadDiskName)->files('temp-b2b-drafts/' . $token);
+            foreach ($files as $file) {
+                Storage::disk($uploadDiskName)->delete($file);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('B2B draft temp cleanup failed', ['token' => $token, 'message' => $e->getMessage()]);
         }
 
-        $user->agentVerification()->create([
-            ...$validated,
-            'status' => 'pending',
-            'company_country' => $validated['company_country'] ?? 'Indonesia',
-        ]);
+        try {
+            $user->agentVerification()->create([
+                ...$validated,
+                'status' => 'pending',
+                'company_country' => $validated['company_country'] ?? 'Indonesia',
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('B2B storeContinueFromDraft create failed', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $draft->delete();
+            $registerUrl = route('b2b.register', [], true);
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                $registerUrl = str_replace('http://', 'https://', $registerUrl);
+            }
+            return redirect($registerUrl)->with('error', 'Could not complete registration. Please try again.');
+        }
 
         $draft->delete();
-
         $request->session()->regenerateToken();
 
         $pendingUrl = route('b2b.pending', [], true);
