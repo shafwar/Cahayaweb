@@ -37,7 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 // Laravel's default handler will do this, but we ensure it works
                 return back()->withErrors($e->errors())->withInput();
             }
-            
+
             // For AJAX/JSON requests, return JSON with validation errors
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
@@ -45,7 +45,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'errors' => $e->errors(),
                 ], 422);
             }
-            
+
             // For regular requests, redirect back with errors (Laravel default)
             return redirect()->back()
                 ->withInput()
@@ -62,7 +62,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'errors' => ['csrf' => 'Session expired. Please refresh the page.'],
                 ], 419)->header('X-Inertia-Location', $request->fullUrl());
             }
-            
+
             // For AJAX requests, return JSON
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
@@ -70,7 +70,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'errors' => ['csrf' => 'Session expired. Please refresh the page.'],
                 ], 419);
             }
-            
+
             // For regular requests, redirect back with error message
             return redirect()->back()
                 ->withInput()
@@ -88,7 +88,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'details' => 'The total size of your uploaded files exceeds the server\'s maximum limit. Please ensure each file is no larger than 5MB and the total combined size does not exceed 15MB.',
                     ])->toResponse($request)->setStatusCode(413);
                 }
-                
+
                 // For non-Inertia requests, return JSON or redirect
                 if ($request->expectsJson()) {
                     return response()->json([
@@ -97,7 +97,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'status' => 413,
                     ], 413);
                 }
-                
+
                 return redirect()->back()->withErrors([
                     'file_size' => 'File Upload Size Limit Exceeded. The total size of your uploaded files exceeds the server\'s maximum limit. Please ensure each file is no larger than 5MB and the total combined size does not exceed 15MB.',
                 ])->withInput();
@@ -111,7 +111,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($e instanceof \Illuminate\Validation\ValidationException) {
                 return null; // Already handled above
             }
-            
+
             // CRITICAL: Don't handle TokenMismatchException - already handled above
             if ($e instanceof \Illuminate\Session\TokenMismatchException) {
                 return null; // Already handled above
@@ -136,7 +136,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     // This ensures proper Inertia response instead of JSON
                     $mode = $request->input('mode') ?: $request->query('mode');
                     $redirect = $request->input('redirect') ?: $request->query('redirect');
-                    
+
                     return redirect()->route('login', array_filter([
                         'mode' => $mode,
                         'redirect' => $redirect,
@@ -144,12 +144,19 @@ return Application::configure(basePath: dirname(__DIR__))
                         'email' => 'An error occurred during login. Please try again or refresh the page.',
                     ])->withInput($request->only('email'));
                 }
-                
+
+                // B2B registration flow: keep user in B2B flow, do NOT send to select mode (home)
+                if ($request->is('b2b/register') || $request->routeIs('b2b.register.store')) {
+                    return redirect()->route('b2b.register')->withErrors([
+                        'message' => 'Something went wrong. Please try submitting the form again.',
+                    ])->withInput($request->except(['_token', 'password', 'password_confirmation']));
+                }
+
                 // For other Inertia requests, redirect to home with error message
                 // This ensures proper Inertia response instead of JSON
                 return redirect()->route('home')->with('error', 'An error occurred. Please try again or refresh the page.');
             }
-            
+
             // For AJAX requests, return JSON
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
@@ -157,7 +164,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'errors' => ['server' => 'Server error. Please refresh the page.'],
                 ], 500);
             }
-            
+
             // For regular requests, show error page (Laravel default)
             // Don't expose error details in production
             if (!app()->environment('local')) {

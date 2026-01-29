@@ -123,28 +123,39 @@ class AgentVerificationController extends Controller
                 $request->session()->put('b2b_registration_files', $fileData);
             }
 
-            // Create draft so flow works when session is lost (e.g. multi-instance with file session driver)
-            $token = Str::random(64);
-            $uploadDiskName = $this->getAgentVerificationUploadDiskName();
-            $draftFilePaths = [];
-            foreach ($fileData as $field => $localPath) {
-                $contents = Storage::disk('public')->get($localPath);
-                if ($contents !== null) {
-                    $ext = pathinfo($localPath, PATHINFO_EXTENSION);
-                    $newPath = 'temp-b2b-drafts/' . $token . '/' . Str::uuid()->toString() . '.' . $ext;
-                    Storage::disk($uploadDiskName)->put($newPath, $contents);
-                    $draftFilePaths[$field] = $newPath;
+            // Build redirect to register — always redirect so flow never breaks (stick to flow)
+            $redirectUrl = null;
+            try {
+                // Create draft so flow works when session is lost (e.g. multi-instance)
+                $token = Str::random(64);
+                $uploadDiskName = $this->getAgentVerificationUploadDiskName();
+                $draftFilePaths = [];
+                foreach ($fileData as $field => $localPath) {
+                    $contents = Storage::disk('public')->get($localPath);
+                    if ($contents !== null) {
+                        $ext = pathinfo($localPath, PATHINFO_EXTENSION);
+                        $newPath = 'temp-b2b-drafts/' . $token . '/' . Str::uuid()->toString() . '.' . $ext;
+                        Storage::disk($uploadDiskName)->put($newPath, $contents);
+                        $draftFilePaths[$field] = $newPath;
+                    }
                 }
+                B2BRegistrationDraft::create([
+                    'token' => $token,
+                    'payload' => $formData,
+                    'file_paths' => !empty($draftFilePaths) ? $draftFilePaths : null,
+                    'expires_at' => now()->addHour(),
+                ]);
+                // Continue URL with b2b_token so storeContinue can load draft if session is empty
+                $redirectUrl = route('b2b.register.store.continue', ['b2b_token' => $token], true);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('B2B draft creation failed, using session-only redirect', [
+                    'message' => $e->getMessage(),
+                    'url' => $request->fullUrl(),
+                ]);
+                // Fallback: redirect to continue without token (session-only flow)
+                $redirectUrl = route('b2b.register.store.continue', [], true);
             }
-            B2BRegistrationDraft::create([
-                'token' => $token,
-                'payload' => $formData,
-                'file_paths' => !empty($draftFilePaths) ? $draftFilePaths : null,
-                'expires_at' => now()->addHour(),
-            ]);
 
-            // Continue URL must include b2b_token so storeContinue can load draft if session is empty
-            $redirectUrl = route('b2b.register.store.continue', ['b2b_token' => $token], true);
             if (app()->environment('production') || $request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
                 $redirectUrl = str_replace('http://', 'https://', $redirectUrl);
             }
