@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        
+
         <!-- CRITICAL: Force HTTPS IMMEDIATELY - Must be FIRST script to prevent Mixed Content -->
         <script>
             // This MUST run before ANY other scripts to intercept ALL requests
@@ -12,14 +12,14 @@
                 'use strict';
                 if (window.location.protocol === 'https:') {
                     console.log('[HTTPS-FIRST] Installing HTTPS enforcement (protocol:', window.location.protocol, ')');
-                    
+
                     // Override XMLHttpRequest.prototype.open FIRST - most critical
                     const originalXHROpen = XMLHttpRequest.prototype.open;
                     XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
                         // CRITICAL: Convert ALL HTTP URLs to HTTPS, including relative URLs that might resolve to HTTP
                         if (typeof url === 'string') {
                             const originalUrl = url;
-                            
+
                             // Convert HTTP to HTTPS
                             if (url.startsWith('http://')) {
                                 url = url.replace('http://', 'https://');
@@ -34,7 +34,7 @@
                                 url = window.location.origin + url;
                                 console.log('[HTTPS-FIRST] XMLHttpRequest.open() converted relative to absolute HTTPS:', originalUrl, '→', url);
                             }
-                            
+
                             // Final check: if somehow still HTTP, force HTTPS
                             if (url.startsWith('http://')) {
                                 url = url.replace('http://', 'https://');
@@ -47,15 +47,15 @@
                                 console.log('[HTTPS-FIRST] XMLHttpRequest.open() URL object protocol changed to HTTPS');
                             }
                         }
-                        
+
                         return originalXHROpen.call(this, method, url, async, user, password);
                     };
-                    
+
                     // Override fetch - intercept ALL fetch requests
                     const originalFetch = window.fetch;
                     window.fetch = function(url, options) {
                         const originalUrl = typeof url === 'string' ? url : (url instanceof Request ? url.url : String(url));
-                        
+
                         if (typeof url === 'string') {
                             if (url.startsWith('http://')) {
                                 url = url.replace('http://', 'https://');
@@ -77,10 +77,10 @@
                                 console.log('[HTTPS-FIRST] fetch() Request relative URL converted to absolute HTTPS');
                             }
                         }
-                        
+
                         return originalFetch(url, options);
                     };
-                    
+
                     console.log('[HTTPS-FIRST] All HTTPS overrides installed BEFORE any other scripts');
                 } else {
                     console.log('[HTTPS-FIRST] Skipping HTTPS enforcement (not HTTPS page)');
@@ -122,7 +122,7 @@
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx'])
         @inertiaHead
-        
+
         <!-- Fallback script to show error if Inertia fails to load -->
         <script>
             // Wait for page to load, then check if Inertia app rendered
@@ -131,17 +131,18 @@
                     // Check if app element exists and has content
                     const appElement = document.querySelector('[data-page]') || document.getElementById('app');
                     const errorElement = document.getElementById('app-error');
-                    
+
                     // If no app element and no error element, something is wrong
                     if (!appElement && !errorElement) {
                         console.error('[Fallback] No app element found after page load');
+                        document.getElementById('app-initial-loader')?.remove();
                         const fallbackDiv = document.createElement('div');
                         fallbackDiv.id = 'app-fallback';
                         fallbackDiv.style.cssText = 'padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;';
                         fallbackDiv.innerHTML = `
                             <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Loading Application...</h1>
                             <p style="color: #6b7280; margin-bottom: 0.5rem;">If this message persists, please refresh the page.</p>
-                            <button 
+                            <button
                                 onclick="window.location.reload()"
                                 style="margin-top: 1.5rem; padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;"
                             >
@@ -150,11 +151,29 @@
                         `;
                         document.body.appendChild(fallbackDiv);
                     } else if (appElement && appElement.children.length === 0 && !errorElement) {
-                        // App element exists but is empty - might be loading
-                        console.warn('[Fallback] App element exists but is empty');
+                        // App element exists but is empty - app failed to mount (e.g. JS error or chunk 404)
+                        if (!document.getElementById('app-fallback')) {
+                            console.warn('[Fallback] App element exists but is empty - showing recovery UI');
+                            document.getElementById('app-initial-loader')?.remove();
+                            const fallbackDiv = document.createElement('div');
+                            fallbackDiv.id = 'app-fallback';
+                            fallbackDiv.style.cssText = 'position: fixed; inset: 0; z-index: 9999; padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif;';
+                            fallbackDiv.innerHTML = `
+                                <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Could not load the application</h1>
+                                <p style="color: #6b7280; margin-bottom: 0.5rem;">The page did not load correctly. Please try refreshing.</p>
+                                <button
+                                    onclick="window.location.reload()"
+                                    style="margin-top: 1.5rem; padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;"
+                                >
+                                    Refresh Page
+                                </button>
+                            `;
+                            document.body.appendChild(fallbackDiv);
+                        }
                     } else {
                         // App seems to be loading or loaded
                         console.log('[Fallback] App element found, removing fallback if exists');
+                        document.getElementById('app-initial-loader')?.remove();
                         const existingFallback = document.getElementById('app-fallback');
                         if (existingFallback) {
                             existingFallback.remove();
@@ -188,7 +207,7 @@
                         }
                         return originalXHROpen.call(this, method, url, ...args);
                     };
-                    
+
                     // 2. Override fetch
                     const originalFetch = window.fetch;
                     window.fetch = function(url, options) {
@@ -229,7 +248,7 @@
                             setTimeout(overrideZiggy, 50);
                         }
                     };
-                    
+
                     // Try immediately and on DOMContentLoaded
                     overrideZiggy();
                     if (document.readyState === 'loading') {
@@ -237,13 +256,21 @@
                     }
                     setTimeout(overrideZiggy, 100);
                     setTimeout(overrideZiggy, 500);
-                    
+
                     console.log('[HTTPS] app.blade.php: All HTTPS overrides installed');
                 }
             })();
         </script>
     </head>
     <body class="font-sans antialiased">
+        <!-- Initial loader: visible until React/Inertia mounts. Prevents blank white page. -->
+        <div id="app-initial-loader" style="position: fixed; inset: 0; z-index: 9999; background: linear-gradient(to bottom, #f9fafb, #f3f4f6); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif;">
+            <div style="width: 48px; height: 48px; border: 4px solid #e5e7eb; border-top-color: #3b82f6; border-radius: 50%; animation: app-loader-spin 0.8s linear infinite;"></div>
+            <p style="margin-top: 1rem; color: #6b7280; font-size: 0.9375rem;">Loading Cahaya Anbiya...</p>
+        </div>
+        <style>
+            @keyframes app-loader-spin { to { transform: rotate(360deg); } }
+        </style>
         @inertia
     </body>
 </html>
