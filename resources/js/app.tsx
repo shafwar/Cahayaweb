@@ -9,6 +9,14 @@ import { initializeTheme } from './hooks/use-appearance';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
 
+// First-page components in main bundle so "/" and "/home" never wait for a chunk (avoids empty app in production)
+import B2CHomePage from './pages/b2c/home';
+import SelectModePage from './pages/landing/select-mode';
+const criticalPages: Record<string, React.ComponentType<PageProps>> = {
+    'landing/select-mode': SelectModePage,
+    'b2c/home': B2CHomePage,
+};
+
 if (typeof window !== 'undefined') {
     const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
 
@@ -249,31 +257,28 @@ try {
             }
         },
         resolve: (name) => {
-            // All pages use dynamic import for optimal code splitting
+            // Use critical (eager-loaded) pages first so "/" and "/home" mount immediately
+            const critical = criticalPages[name];
+            if (critical) {
+                return Promise.resolve(critical);
+            }
+
+            const RESOLVE_TIMEOUT_MS = 10000;
             const pages = import.meta.glob('./pages/**/*.tsx', { eager: false });
-            return resolvePageComponent(`./pages/${name}.tsx`, pages)
+            const loadPromise = resolvePageComponent(`./pages/${name}.tsx`, pages)
                 .then((module: unknown) => {
-                    if (!module) {
-                        console.error(`Module not found for page: ${name}`);
-                        throw new Error(`Page component not found: ${name}`);
-                    }
+                    if (!module) throw new Error(`Page component not found: ${name}`);
                     const Page = (module as { default: React.ComponentType<PageProps> })?.default;
-                    if (!Page) {
-                        console.error(`Page component default export not found for: ${name}`, module);
-                        throw new Error(`Page component default export not found: ${name}`);
-                    }
-                    // Return page directly without heavy animation wrapper
-                    // Individual pages can add their own animations if needed
+                    if (!Page) throw new Error(`Page component default export not found: ${name}`);
                     return Page;
                 })
                 .catch((error) => {
                     console.error(`Failed to load page component: ${name}`, error);
-                    // Return a fallback error page
                     const ErrorPage = () => (
                         <div className="flex min-h-screen items-center justify-center bg-gray-50">
                             <div className="text-center">
                                 <h1 className="text-2xl font-bold text-gray-900">Page Not Found</h1>
-                                <p className="mt-2 text-gray-600">The page "{name}" could not be loaded.</p>
+                                <p className="mt-2 text-gray-600">The page &quot;{name}&quot; could not be loaded.</p>
                                 <p className="mt-1 text-sm text-gray-500">Error: {error instanceof Error ? error.message : String(error)}</p>
                                 <button
                                     onClick={() => (window.location.href = '/')}
@@ -286,6 +291,29 @@ try {
                     );
                     return ErrorPage;
                 });
+
+            const timeoutPromise = new Promise<React.ComponentType<PageProps>>((_, reject) => {
+                setTimeout(() => reject(new Error(`Page load timeout: ${name}`)), RESOLVE_TIMEOUT_MS);
+            });
+
+            return Promise.race([loadPromise, timeoutPromise]).catch((error) => {
+                console.error(`Resolve failed or timed out for: ${name}`, error);
+                const ErrorPage = () => (
+                    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+                        <div className="text-center">
+                            <h1 className="text-2xl font-bold text-gray-900">Page Not Found</h1>
+                            <p className="mt-2 text-gray-600">The page &quot;{name}&quot; could not be loaded.</p>
+                            <button
+                                onClick={() => (window.location.href = '/')}
+                                className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                            >
+                                Go Home
+                            </button>
+                        </div>
+                    </div>
+                );
+                return ErrorPage;
+            });
         },
         setup({ el, App, props }) {
             // Enhanced logging for debugging
@@ -338,21 +366,9 @@ try {
                     }
 
                     root.render(<App {...(props || {})} />);
-
-                    // Remove initial loader so user sees the app (prevents blank/white page)
-                    if (typeof document !== 'undefined') {
-                        const loader = document.getElementById('app-initial-loader');
-                        if (loader) {
-                            loader.remove();
-                        }
-                        if (typeof window !== 'undefined') {
-                            console.log('[Inertia] App rendered successfully');
-                        }
-                    }
                 } catch (error) {
                     console.error('[Inertia] Error rendering app:', error);
                     console.error('[Inertia] Error stack:', error instanceof Error ? error.stack : 'No stack');
-                    document.getElementById('app-initial-loader')?.remove();
                     // Render fallback UI with more details
                     try {
                         root.render(
@@ -410,7 +426,6 @@ try {
             } catch (error) {
                 console.error('[Inertia] Fatal error setting up app:', error);
                 console.error('[Inertia] Error stack:', error instanceof Error ? error.stack : 'No stack');
-                document.getElementById('app-initial-loader')?.remove();
                 // Last resort: show error in the element using innerHTML
                 if (el) {
                     try {
@@ -488,7 +503,6 @@ try {
 } catch (error) {
     console.error('[App] Fatal error creating Inertia app:', error);
     console.error('[App] Error stack:', error instanceof Error ? error.stack : 'No stack');
-    document.getElementById('app-initial-loader')?.remove();
     // Last resort: show error message
     if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         const errorDiv = document.createElement('div');
