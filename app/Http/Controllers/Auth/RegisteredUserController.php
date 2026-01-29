@@ -89,17 +89,19 @@ class RegisteredUserController extends Controller
 
             // PRIORITY 3: Check if there's a redirect parameter (e.g., from B2B registration)
             $redirect = $request->input('redirect');
-            if ($redirect) {
-                // Handle both relative and absolute URLs
+            if ($redirect && is_string($redirect)) {
+                $path = null;
                 if (str_starts_with($redirect, '/')) {
-                    // Relative URL - use directly
-                    return redirect($redirect);
+                    $path = $redirect;
                 } elseif (str_starts_with($redirect, 'http://') || str_starts_with($redirect, 'https://')) {
-                    // Absolute URL - extract path and use it
                     $parsedUrl = parse_url($redirect);
                     if (isset($parsedUrl['path'])) {
-                        return redirect($parsedUrl['path'] . (isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : ''));
+                        $path = $parsedUrl['path'] . (isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : '');
                     }
+                }
+                // Only allow same-origin paths: /b2b/*, /login, / (prevent open redirect)
+                if ($path && (str_starts_with($path, '/b2b') || str_starts_with($path, '/login') || $path === '/')) {
+                    return redirect($path);
                 }
             }
 

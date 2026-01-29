@@ -26,14 +26,14 @@ class AuthenticatedSessionController extends Controller
             // Always regenerate session to ensure fresh session ID
             // This prevents session fixation and ensures clean state
             $request->session()->regenerate();
-            
+
             // Always regenerate CSRF token for fresh token
             // This is critical - token must be fresh on every page load
             $request->session()->regenerateToken();
-            
+
             // Record activity time for session management
             $request->session()->put('_token_last_activity', time());
-            
+
             // Force session to be saved immediately to prevent race conditions
             $request->session()->save();
         } catch (\Throwable $e) {
@@ -158,7 +158,7 @@ class AuthenticatedSessionController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             // Try to return basic Inertia response without extra data
             try {
                 return Inertia::render('auth/login', [
@@ -318,7 +318,7 @@ class AuthenticatedSessionController extends Controller
             // Determine redirect target - wrap in try-catch to handle any errors
             try {
                 $redirectTarget = $this->determineRedirectTarget($request);
-                
+
                 // Log redirect target for debugging
                 \Log::info('Login successful - redirecting', [
                     'user_id' => $user?->id,
@@ -487,24 +487,33 @@ class AuthenticatedSessionController extends Controller
                 ]);
                 return '/admin';
             }
-            
+
+            // If redirect param points to B2B continue URL (e.g. "email already registered" → log in → complete flow), use it
+            $redirect = $request->input('redirect');
+            if (is_string($redirect)) {
+                $path = str_starts_with($redirect, '/') ? $redirect : (parse_url($redirect, PHP_URL_PATH) ?: '');
+                if ($path && str_starts_with($path, '/b2b/register/continue')) {
+                    return $path;
+                }
+            }
+
             // If user doesn't have B2B access, redirect to registration form
             // Wrap in try-catch to handle any errors from hasB2BAccess()
             try {
                 $hasB2BAccess = $user && $user->hasB2BAccess();
-                
+
                 \Log::info('B2B access check', [
                     'user_id' => $user?->id,
                     'has_b2b_access' => $hasB2BAccess,
                 ]);
-                
+
                 if (!$user || !$hasB2BAccess) {
                     \Log::info('User does not have B2B access - redirecting to registration', [
                         'user_id' => $user?->id,
                     ]);
                     return route('b2b.register', absolute: false);
                 }
-                
+
                 \Log::info('User has B2B access - redirecting to B2B index', [
                     'user_id' => $user?->id,
                 ]);

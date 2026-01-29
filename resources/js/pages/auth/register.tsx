@@ -1,6 +1,6 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -9,64 +9,83 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
 
+/**
+ * B2B flow: mode & redirect must be in form state so they are sent with POST.
+ * Inertia useForm().post() only sends form state; options.data is ignored.
+ * See docs/B2B_REGISTRATION_FLOW.md for full flow and safeguards.
+ */
 type RegisterForm = {
     name: string;
     email: string;
     password: string;
     password_confirmation: string;
+    mode?: string;
+    redirect?: string;
 };
 
 export default function Register() {
     const { url, props } = usePage();
-    const mode = new URLSearchParams(url.split('?')[1] || '').get('mode');
-    const redirect = new URLSearchParams(url.split('?')[1] || '').get('redirect');
     const status = (props as any)?.status;
-    const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const { data, setData, post, processing, errors, reset } = useForm<RegisterForm>({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
+        mode: '',
+        redirect: '',
     });
+
+    // Sync mode and redirect from URL into form state so they are sent with POST (Inertia useForm sends form state only)
+    useEffect(() => {
+        const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : url.split('?')[1] || '');
+        const modeParam = params.get('mode');
+        const redirectParam = params.get('redirect');
+        if (modeParam || redirectParam) {
+            setData((prev) => ({
+                ...prev,
+                ...(modeParam ? { mode: modeParam } : {}),
+                ...(redirectParam ? { redirect: redirectParam } : {}),
+            }));
+        }
+    }, [url]);
+
+    const mode = new URLSearchParams(url.split('?')[1] || '').get('mode');
+    const redirect = new URLSearchParams(url.split('?')[1] || '').get('redirect');
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        if (processing || isSubmitting) return;
+
+        setIsSubmitting(true);
 
         // Get CSRF token from meta tag (most reliable)
         const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-        
-        // Fallback to XSRF-TOKEN cookie if meta tag token is missing
         let token = csrfToken;
         if (!token && typeof document !== 'undefined') {
-            const xsrfCookie = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='));
+            const xsrfCookie = document.cookie.split('; ').find((row) => row.startsWith('XSRF-TOKEN='));
             if (xsrfCookie) {
                 token = decodeURIComponent(xsrfCookie.split('=')[1]);
             }
         }
-
-        // Set CSRF token for axios if available
         if (token && typeof window !== 'undefined' && (window as any).axios) {
             (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
         }
 
-        // Preserve mode and redirect parameters from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const modeParam = urlParams.get('mode');
-        const redirectParam = urlParams.get('redirect');
+        // Build URL: use form state first, fallback to current URL params (backend also reads from query)
+        const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+        const modeFromUrl = urlParams.get('mode');
+        const redirectFromUrl = urlParams.get('redirect');
+        const modeToSend = data.mode || modeFromUrl;
+        const redirectToSend = data.redirect || redirectFromUrl;
 
-        // Build registration URL (use relative to avoid HTTPS issues)
         let registerUrl = route('register');
-
-        // Add mode and redirect as both URL params and data (to ensure they're available)
         const params = new URLSearchParams();
-        if (modeParam) params.set('mode', modeParam);
-        if (redirectParam) params.set('redirect', redirectParam);
+        if (modeToSend) params.set('mode', modeToSend);
+        if (redirectToSend) params.set('redirect', redirectToSend);
+        if (params.toString()) registerUrl += '?' + params.toString();
 
-        // Build full URL with parameters
-        if (params.toString()) {
-            registerUrl += '?' + params.toString();
-        }
-
-        // Ensure HTTPS if current page is HTTPS
         if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
             const absoluteUrl = new URL(registerUrl, window.location.origin);
             if (absoluteUrl.protocol === 'http:') {
@@ -75,35 +94,18 @@ export default function Register() {
             }
         }
 
-        // Include mode and redirect in data as well (for POST data)
-        const postData: any = {
-            ...data,
-        };
-        
-        // Add mode and redirect to POST data if they exist
-        if (modeParam) {
-            (postData as any).mode = modeParam;
-        }
-        if (redirectParam) {
-            (postData as any).redirect = redirectParam;
-        }
-
         post(registerUrl, {
-            data: postData,
             preserveState: false,
             preserveScroll: false,
             only: [],
             onError: (errors) => {
                 console.error('Registration errors:', errors);
-                // If 419 error, reload page to refresh CSRF token
                 const errorMessage = errors?.message || (typeof errors === 'string' ? errors : '');
                 if (errorMessage.includes('419') || errorMessage.includes('expired') || errorMessage.includes('PAGE EXPIRED')) {
                     alert('Your session has expired. Please refresh the page and try again.');
                     window.location.reload();
                     return;
                 }
-                // Errors will be automatically displayed via InputError components
-                // Scroll to first error
                 const firstErrorField = Object.keys(errors)[0];
                 if (firstErrorField) {
                     const errorElement = document.getElementById(firstErrorField) || document.querySelector(`[name="${firstErrorField}"]`);
@@ -113,14 +115,14 @@ export default function Register() {
                     }
                 }
             },
-            onSuccess: () => {
-                // Success - user will be redirected automatically by backend
-            },
             onFinish: () => {
+                setIsSubmitting(false);
                 reset('password', 'password_confirmation');
             },
         });
     };
+
+    const showLoading = isSubmitting || processing;
 
     return (
         <AuthLayout title="Create an account" description="Enter your details below to create your account">
@@ -130,6 +132,15 @@ export default function Register() {
             {status && (
                 <div className="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 p-3">
                     <p className="text-sm text-green-300">{status}</p>
+                </div>
+            )}
+
+            {/* B2B flow: set expectation for redirect to verification */}
+            {mode === 'b2b' && (
+                <div className="mb-4 rounded-lg border border-blue-500/30 bg-blue-500/10 p-3">
+                    <p className="text-sm text-blue-200">
+                        After creating your account you will be redirected to the verification page to complete your B2B application.
+                    </p>
                 </div>
             )}
 
@@ -146,7 +157,7 @@ export default function Register() {
                             autoComplete="name"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
-                            disabled={processing}
+                            disabled={showLoading}
                             placeholder="Full name"
                         />
                         <InputError message={errors.name} className="mt-2" />
@@ -162,7 +173,7 @@ export default function Register() {
                             autoComplete="email"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
-                            disabled={processing}
+                            disabled={showLoading}
                             placeholder="email@example.com"
                             className={
                                 errors.email && errors.email.includes('already registered')
@@ -218,22 +229,19 @@ export default function Register() {
                             autoComplete="new-password"
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
-                            disabled={processing}
+                            disabled={showLoading}
                             placeholder="Password (minimum 8 characters)"
                             minLength={8}
                         />
                         <div className="flex items-start gap-2">
                             <InputError message={errors.password} />
-                            {!errors.password && (
-                                <p className="text-xs text-muted-foreground">
-                                    Password must be at least 8 characters long.
-                                </p>
-                            )}
+                            {!errors.password && <p className="text-xs text-muted-foreground">Password must be at least 8 characters long.</p>}
                         </div>
                         {data.password && data.password.length > 0 && data.password.length < 8 && (
                             <div className="mt-1 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2">
                                 <p className="text-xs text-amber-300">
-                                    <strong>Password too short:</strong> Your password must be at least 8 characters. Currently: {data.password.length} character{data.password.length !== 1 ? 's' : ''}.
+                                    <strong>Password too short:</strong> Your password must be at least 8 characters. Currently:{' '}
+                                    {data.password.length} character{data.password.length !== 1 ? 's' : ''}.
                                 </p>
                             </div>
                         )}
@@ -249,7 +257,7 @@ export default function Register() {
                             autoComplete="new-password"
                             value={data.password_confirmation}
                             onChange={(e) => setData('password_confirmation', e.target.value)}
-                            disabled={processing}
+                            disabled={showLoading}
                             placeholder="Confirm password"
                         />
                         <InputError message={errors.password_confirmation} />
@@ -262,10 +270,10 @@ export default function Register() {
                         )}
                     </div>
 
-                    <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>
-                        {processing ? (
+                    <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={showLoading} aria-busy={showLoading}>
+                        {showLoading ? (
                             <>
-                                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                                <LoaderCircle className="mr-2 h-4 w-4 shrink-0 animate-spin" aria-hidden />
                                 Creating account...
                             </>
                         ) : (
