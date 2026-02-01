@@ -8,7 +8,9 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -36,6 +38,8 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        Log::info('Registration attempt', ['email' => $request->input('email')]);
+
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
@@ -50,15 +54,23 @@ class RegisteredUserController extends Controller
                 'password.confirmed' => 'Password confirmation does not match.',
             ]);
 
-            $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-            ]);
+            $user = DB::transaction(function () use ($validated) {
+                $user = User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'password' => Hash::make($validated['password']),
+                ]);
+                event(new Registered($user));
+                return $user;
+            });
 
-            event(new Registered($user));
+            Log::info('User registered successfully', ['user_id' => $user->id, 'email' => $user->email]);
 
             Auth::login($user);
+
+            // Read mode/redirect from query if not in body (B2B flow when form posts to /register?mode=b2b&redirect=...)
+            $mode = $request->input('mode') ?: $request->query('mode');
+            $redirect = $request->input('redirect') ?: $request->query('redirect');
 
             // PRIORITY 1: Check if there's stored B2B registration data in session (most reliable)
             // Check this BEFORE regenerating token to preserve session data
@@ -73,10 +85,8 @@ class RegisteredUserController extends Controller
             }
 
             // PRIORITY 2: Check mode parameter for B2B (from POST data or query string)
-            $mode = $request->input('mode');
             if ($mode === 'b2b') {
                 // If redirect param points to B2B continue URL (with b2b_token), use it so draft flow works when session was lost
-                $redirect = $request->input('redirect');
                 if (is_string($redirect)) {
                     $path = str_starts_with($redirect, '/') ? explode('?', $redirect, 2)[0] : (parse_url($redirect, PHP_URL_PATH) ?: '');
                     $query = str_starts_with($redirect, '/') ? (explode('?', $redirect, 2)[1] ?? '') : (parse_url($redirect, PHP_URL_QUERY) ?? '');
@@ -97,7 +107,6 @@ class RegisteredUserController extends Controller
             $request->session()->regenerateToken();
 
             // PRIORITY 3: Check if there's a redirect parameter (e.g., from B2B registration)
-            $redirect = $request->input('redirect');
             if ($redirect && is_string($redirect)) {
                 $path = null;
                 if (str_starts_with($redirect, '/')) {
@@ -119,10 +128,15 @@ class RegisteredUserController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Re-throw validation exceptions so they're handled by Inertia
             throw $e;
-        } catch (\Exception $e) {
-            // Handle other exceptions
+        } catch (\Throwable $e) {
+            Log::error('Registration failed', [
+                'email' => $request->input('email'),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return back()->withErrors([
-                'email' => 'An error occurred during registration. Please try again.',
+                'email' => 'An error occurred during registration. Please try again or contact support.',
             ])->withInput($request->only('name', 'email'));
         }
     }
