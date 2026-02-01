@@ -102,8 +102,8 @@ class R2Helper
             }
 
             // Build R2 URL structure
-            // Handle agent-verifications folder (for B2B documents)
-            if (str_starts_with($cleanPath, 'agent-verifications/')) {
+            // Handle B2B documents (in public/documents/agent-verifications/ in bucket)
+            if (str_starts_with($cleanPath, 'documents/agent-verifications/') || str_starts_with($cleanPath, 'agent-verifications/')) {
                 return $r2BaseUrl . '/public/' . $cleanPath;
             }
 
@@ -136,9 +136,9 @@ class R2Helper
                 }
             }
 
-            // If it's a document and path contains agent-verifications, use that folder
+            // If it's a document and path contains agent-verifications, use documents/agent-verifications folder
             if ($isDocument && str_contains($cleanPath, 'agent-verification')) {
-                return $r2BaseUrl . '/public/agent-verifications/' . basename($cleanPath);
+                return $r2BaseUrl . '/public/documents/agent-verifications/' . basename($cleanPath);
             }
 
             return $r2BaseUrl . '/public/images/' . $cleanPath;
@@ -153,9 +153,9 @@ class R2Helper
                 $cleanPath = substr($cleanPath, 7);
             }
 
-            // Check if it's an agent-verification file
+            // Check if it's an agent-verification file (B2B documents in documents/agent-verifications)
             if (str_contains($cleanPath, 'agent-verification')) {
-                return 'https://assets.cahayaanbiya.com/public/agent-verifications/' . basename($cleanPath);
+                return 'https://assets.cahayaanbiya.com/public/documents/agent-verifications/' . basename($cleanPath);
             }
 
             return 'https://assets.cahayaanbiya.com/public/images/' . $cleanPath;

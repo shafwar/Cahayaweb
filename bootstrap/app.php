@@ -145,13 +145,6 @@ return Application::configure(basePath: dirname(__DIR__))
                     ])->withInput($request->only('email'));
                 }
 
-                // B2B registration flow: keep user in B2B flow, do NOT send to select mode (home)
-                if ($request->is('b2b/register') || $request->routeIs('b2b.register.store')) {
-                    return redirect()->route('b2b.register')->withErrors([
-                        'message' => 'Something went wrong. Please try submitting the form again.',
-                    ])->withInput($request->except(['_token', 'password', 'password_confirmation']));
-                }
-
                 // For other Inertia requests, redirect to home with error message
                 // This ensures proper Inertia response instead of JSON
                 return redirect()->route('home')->with('error', 'An error occurred. Please try again or refresh the page.');

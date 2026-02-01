@@ -96,8 +96,8 @@ echo "   " . ($r2Configured ? "✓ R2 disk configured: YES (B2B docs will use R2
 if ($r2Configured) {
     try {
         $disk = \Illuminate\Support\Facades\Storage::disk('r2');
-        $agentFiles = $disk->allFiles('agent-verifications');
-        echo "   ✓ R2 agent-verifications count: " . count($agentFiles) . "\n";
+        $agentFiles = $disk->allFiles('documents/agent-verifications');
+        echo "   ✓ R2 B2B documents (documents/agent-verifications) count: " . count($agentFiles) . "\n";
     } catch (\Throwable $e) {
         echo "   ✗ R2 list error: " . $e->getMessage() . "\n";
     }

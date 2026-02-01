@@ -27,16 +27,16 @@ if (!R2Helper::isR2DiskConfigured()) {
 
 $r2Disk = Storage::disk('r2');
 $root = config('filesystems.disks.r2.root', 'public');
-$prefix = trim($root . '/agent-verifications', '/'); // path under bucket: public/agent-verifications
+$b2bPath = 'documents/agent-verifications';
+$prefix = trim($root . '/' . $b2bPath, '/'); // path under bucket: public/documents/agent-verifications
 
 echo "1. R2 config\n";
 echo "   - Root: {$root}\n";
-echo "   - Prefix for B2B docs: {$prefix}\n\n";
+echo "   - B2B docs path: {$prefix}\n\n";
 
-echo "2. Files in R2 under agent-verifications\n";
+echo "2. Files in R2 under documents/agent-verifications\n";
 try {
-    // With root 'public', path 'agent-verifications' lists keys like public/agent-verifications/...
-    $files = $r2Disk->allFiles('agent-verifications');
+    $files = $r2Disk->allFiles($b2bPath);
     echo "   - Count: " . count($files) . "\n";
     if (count($files) > 0) {
         foreach (array_slice($files, 0, 20) as $f) {
@@ -46,7 +46,7 @@ try {
             echo "     ... and " . (count($files) - 20) . " more\n";
         }
     } else {
-        echo "   - No files yet. New B2B submissions will be stored here (public/agent-verifications/).\n";
+        echo "   - No files yet. New B2B submissions will be stored here (public/documents/agent-verifications/).\n";
     }
 } catch (\Throwable $e) {
     echo "   ✗ Error: " . $e->getMessage() . "\n";

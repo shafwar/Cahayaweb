@@ -42,10 +42,10 @@ try {
         echo "   ✗ Error listing files: " . $e->getMessage() . "\n\n";
     }
 
-    // Test 2b: B2B agent-verifications folder
-    echo "2b. B2B agent-verifications (public/agent-verifications/)...\n";
+    // Test 2b: B2B documents (public/documents/agent-verifications/)
+    echo "2b. B2B documents (public/documents/agent-verifications/)...\n";
     try {
-        $agentFiles = $disk->allFiles('agent-verifications');
+        $agentFiles = $disk->allFiles('documents/agent-verifications');
         echo "   - Files: " . count($agentFiles) . "\n";
         if (count($agentFiles) > 0) {
             foreach (array_slice($agentFiles, 0, 5) as $f) {
