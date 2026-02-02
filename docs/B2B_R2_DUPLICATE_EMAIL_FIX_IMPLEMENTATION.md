@@ -9,18 +9,21 @@
 ## Ringkasan Masalah
 
 ### Masalah 1: B2B Registration Redirect Issue
+
 - User mengisi form B2B registration (termasuk upload dokumen)
 - Setelah submit, user **tidak** redirect ke "Verification Pending"
 - Malah redirect kembali ke halaman register
 - Data tidak muncul di Admin Panel → Agent Verifications
 
 ### Masalah 2: R2 Storage Issue
+
 - R2 menjadi "pain point" yang menyebabkan submit gagal
 - Tidak ada fallback jika R2 gagal
 - Dokumen tidak terorganisir per akun B2B
 - Sulit mengidentifikasi "dokumen ini milik siapa"
 
 ### Masalah 3: Duplicate Email Handling
+
 - User mencoba register dengan email yang sudah ada
 - Sistem tidak memberikan feedback yang jelas
 - Tidak ada logging untuk debug
@@ -34,6 +37,7 @@
 **File:** `app/Http/Controllers/AgentVerificationController.php`
 
 **Penyebab:**
+
 1. **Global exception handler** di `bootstrap/app.php` menangkap semua exception untuk `POST /b2b/register` dan redirect ke register page dengan pesan generic.
 2. **Bug `unset()`**: Setelah upload file berhasil, ada `unset($validated[$field])` yang **unconditionally** menghapus file path dari array sebelum disimpan ke database.
 3. **Order of operations**: File upload dilakukan **sebelum** create DB record. Jika R2 gagal, seluruh submit gagal.
@@ -55,6 +59,7 @@ unset($validated[$field]); // ← MASALAH: file path hilang sebelum save ke DB
 **File:** `app/Support/R2Helper.php`
 
 **Penyebab:**
+
 - `isR2DiskConfigured()` tidak memeriksa `R2_ENDPOINT`
 - Cloudflare R2 membutuhkan custom S3-compatible endpoint
 - Tanpa endpoint, R2 dikira "configured" tapi gagal saat digunakan
@@ -79,6 +84,7 @@ public static function isR2DiskConfigured(): bool
 **File:** `app/Http/Controllers/Auth/RegisteredUserController.php`
 
 **Penyebab:**
+
 - Validation exception untuk `unique` constraint sudah benar
 - Tapi tidak ada logging untuk debug
 - Jika DB-level unique constraint gagal (race condition), tidak ada handling khusus
@@ -90,6 +96,7 @@ public static function isR2DiskConfigured(): bool
 ### Langkah 1: Fix B2B Registration Flow - "Create First, Upload Later"
 
 **Prinsip:** Data profil B2B **selalu** disimpan ke database dulu, baru upload file. Ini memastikan:
+
 - User selalu redirect ke "Verification Pending"
 - Data selalu muncul di Admin Panel
 - R2 gagal tidak menggagalkan seluruh submit
@@ -116,6 +123,7 @@ private function getB2BDocumentBasePath(int $userId, int $verificationId): strin
 #### 1.2 Refactor `store()` method
 
 **Sebelum:**
+
 ```php
 // Upload files dulu
 foreach ($fileFields as $field) {
@@ -129,6 +137,7 @@ $verification = $user->agentVerification()->create($validated);
 ```
 
 **Sesudah:**
+
 ```php
 // 1. Pisahkan data scalar dari file fields
 $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
@@ -144,9 +153,9 @@ try {
         ['user_id' => $user->id],
         $validatedScalar
     );
-    
+
     Log::info('B2B verification saved to DB', [
-        'user_id' => $user->id, 
+        'user_id' => $user->id,
         'verification_id' => $verification->id
     ]);
 
@@ -185,7 +194,7 @@ try {
 private function storeFileWithFallback($file, string $basePath, string $primaryDisk, string $fieldName): ?string
 {
     $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
-    
+
     try {
         $stored = $file->storeAs($basePath, $filename, $primaryDisk);
         if (is_string($stored)) {
@@ -201,7 +210,7 @@ private function storeFileWithFallback($file, string $basePath, string $primaryD
             'field' => $fieldName,
             'error' => $e->getMessage(),
         ]);
-        
+
         // Fallback ke public disk
         if ($primaryDisk !== 'public') {
             try {
@@ -231,6 +240,7 @@ private function putFileWithFallback(string $contents, string $path, string $pri
 #### 1.4 Refactor `storeContinue()` dan `storeContinueFromDraft()`
 
 Kedua method ini juga di-refactor mengikuti pola yang sama:
+
 1. Create `AgentVerification` dengan data scalar + null file paths
 2. Loop melalui stored files, upload ke path per-akun
 3. Update verification record dengan file paths
@@ -246,7 +256,7 @@ public static function isR2DiskConfigured(): bool
     if (!$config || ($config['driver'] ?? '') !== 's3') {
         return false;
     }
-    
+
     // PENTING: Cloudflare R2 WAJIB punya endpoint
     return !empty($config['key'])
         && !empty($config['secret'])
@@ -257,6 +267,7 @@ public static function isR2DiskConfigured(): bool
 ```
 
 **Dampak:**
+
 - R2 hanya dipakai jika SEMUA env variables ada, termasuk `R2_ENDPOINT`
 - Jika `R2_ENDPOINT` tidak di-set, sistem otomatis pakai disk `public`
 - Tidak ada lagi error karena R2 "setengah configured"
@@ -266,6 +277,7 @@ public static function isR2DiskConfigured(): bool
 **File:** `AgentVerificationController.php` - method `downloadDocument()`
 
 **Sebelum:**
+
 ```php
 // Try public disk first
 $publicDisk = Storage::disk('public');
@@ -283,6 +295,7 @@ if (R2Helper::isR2DiskConfigured()) {
 ```
 
 **Sesudah:**
+
 ```php
 // 1. Try R2 FIRST when configured (B2B docs stored in R2 when available)
 if (R2Helper::isR2DiskConfigured()) {
@@ -322,26 +335,26 @@ foreach ($pathsToTry as $path) {
     }
     // Re-throw so Inertia displays errors on form
     throw $e;
-    
+
 } catch (\Throwable $e) {
     // Check if error is DB duplicate (unique constraint at DB level)
     $isDuplicate = str_contains(strtolower($e->getMessage()), 'duplicate') ||
                    str_contains(strtolower($e->getMessage()), 'unique');
-    
+
     Log::error('Registration failed', [
         'email' => $request->input('email'),
         'mode' => $request->input('mode') ?: $request->query('mode'),
         'message' => $e->getMessage(),
         'is_duplicate' => $isDuplicate,
     ]);
-    
+
     // If DB-level duplicate, give clear message
     if ($isDuplicate) {
         return back()->withErrors([
             'email' => 'This email address is already registered. Please log in instead or use a different email address.',
         ])->withInput($request->only('name', 'email'));
     }
-    
+
     return back()->withErrors([
         'email' => 'An error occurred during registration. Please try again or contact support.',
     ])->withInput($request->only('name', 'email'));
@@ -361,12 +374,14 @@ const pageProps = usePage().props as {
 };
 
 // Di dalam JSX:
-{(pageProps.errors?.message || (errors as any)?.message) && (
-    <motion.div className="... error alert styling ...">
-        <p>{pageProps.errors?.message || (errors as any)?.message}</p>
-        <p>Please check your data and try again. If the problem persists, contact support.</p>
-    </motion.div>
-)}
+{
+    (pageProps.errors?.message || (errors as any)?.message) && (
+        <motion.div className="error alert styling ... ...">
+            <p>{pageProps.errors?.message || (errors as any)?.message}</p>
+            <p>Please check your data and try again. If the problem persists, contact support.</p>
+        </motion.div>
+    );
+}
 ```
 
 ### Langkah 6: Update Documentation
@@ -374,6 +389,7 @@ const pageProps = usePage().props as {
 **File:** `R2_B2B_DOCUMENTS_SETUP.md`
 
 Dokumentasi lengkap tentang:
+
 - Pemisahan data (DB) vs dokumen (R2)
 - Struktur path R2 per akun
 - Alur sistem dari upload sampai download
@@ -401,6 +417,7 @@ public/documents/agent-verifications/
 ```
 
 **Keuntungan:**
+
 - **Per user**: Semua dokumen dari satu user ada di satu folder
 - **Per verification**: Satu aplikasi B2B = satu subfolder
 - **Traceable**: Admin bisa lihat "dokumen milik siapa" dari path
@@ -494,6 +511,7 @@ R2_REGION=auto
 ```
 
 **Catatan:**
+
 - Jika `R2_ENDPOINT` tidak di-set, sistem otomatis pakai disk `public`
 - Tidak perlu set `FILESYSTEM_DISK=r2`; B2B upload otomatis pilih R2 jika configured
 
@@ -502,6 +520,7 @@ R2_REGION=auto
 ## Testing Checklist
 
 ### 1. B2B Registration (New User)
+
 - [ ] Isi form B2B lengkap dengan 3 dokumen PDF
 - [ ] Submit form
 - [ ] **Expected:** Redirect ke "Verification Pending"
@@ -509,17 +528,20 @@ R2_REGION=auto
 - [ ] **Check Logs:** "B2B verification saved to DB", "B2B document uploaded to R2"
 
 ### 2. B2B Registration (Existing User - Already Has Verification)
+
 - [ ] Login dengan akun yang sudah punya verification
 - [ ] Coba akses `/b2b/register`
 - [ ] **Expected:** Redirect ke "Verification Pending" (tidak bisa submit lagi)
 
 ### 3. Duplicate Email Registration
+
 - [ ] Coba register dengan email yang sudah ada
 - [ ] **Expected:** Form menampilkan error "This email address is already registered..."
 - [ ] **Expected:** Banner amber dengan link "log in here"
 - [ ] **Check Logs:** "Registration validation failed (email)"
 
 ### 4. Admin Download Document
+
 - [ ] Login sebagai admin
 - [ ] Buka Agent Verifications
 - [ ] Klik "Download Document" pada salah satu aplikasi
@@ -527,6 +549,7 @@ R2_REGION=auto
 - [ ] **Check Logs:** "Admin download: serving from R2" atau "serving from public disk"
 
 ### 5. R2 Fallback (Simulasi R2 Down)
+
 - [ ] Temporarily remove `R2_ENDPOINT` dari env
 - [ ] Submit B2B registration baru
 - [ ] **Expected:** Submit tetap sukses, file di disk `public`
@@ -536,15 +559,15 @@ R2_REGION=auto
 
 ## Files Changed
 
-| File | Perubahan |
-|------|-----------|
-| `app/Http/Controllers/AgentVerificationController.php` | Refactor store/storeContinue/storeContinueFromDraft dengan pola "create first, upload later"; tambah helper methods; fix download order |
-| `app/Http/Controllers/Auth/RegisteredUserController.php` | Tambah logging untuk duplicate email; handle DB-level unique constraint |
-| `app/Support/R2Helper.php` | `isR2DiskConfigured()` sekarang require `R2_ENDPOINT` |
-| `resources/js/pages/b2b/register-agent.tsx` | Display global error messages dari server redirect |
-| `bootstrap/app.php` | Perbaiki error message dan input preservation untuk POST b2b/register |
-| `R2_B2B_DOCUMENTS_SETUP.md` | Dokumentasi lengkap data vs dokumen, path per-akun |
-| `RAILWAY_VARIABLES_CHECKLIST.md` | Tambah catatan R2_ENDPOINT wajib |
+| File                                                     | Perubahan                                                                                                                               |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/Http/Controllers/AgentVerificationController.php`   | Refactor store/storeContinue/storeContinueFromDraft dengan pola "create first, upload later"; tambah helper methods; fix download order |
+| `app/Http/Controllers/Auth/RegisteredUserController.php` | Tambah logging untuk duplicate email; handle DB-level unique constraint                                                                 |
+| `app/Support/R2Helper.php`                               | `isR2DiskConfigured()` sekarang require `R2_ENDPOINT`                                                                                   |
+| `resources/js/pages/b2b/register-agent.tsx`              | Display global error messages dari server redirect                                                                                      |
+| `bootstrap/app.php`                                      | Perbaiki error message dan input preservation untuk POST b2b/register                                                                   |
+| `R2_B2B_DOCUMENTS_SETUP.md`                              | Dokumentasi lengkap data vs dokumen, path per-akun                                                                                      |
+| `RAILWAY_VARIABLES_CHECKLIST.md`                         | Tambah catatan R2_ENDPOINT wajib                                                                                                        |
 
 ---
 

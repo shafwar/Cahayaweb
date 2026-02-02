@@ -89,7 +89,11 @@ export default function Contact() {
                             </h1>
 
                             <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
-                                <EditableText sectionKey="contact.header.description" value="Have questions about our travel packages? We're here to help you plan your perfect journey" tag="span" />
+                                <EditableText
+                                    sectionKey="contact.header.description"
+                                    value="Have questions about our travel packages? We're here to help you plan your perfect journey"
+                                    tag="span"
+                                />
                             </p>
                         </div>
 
@@ -102,9 +106,11 @@ export default function Contact() {
                                         key={info.id}
                                         className={`group relative overflow-hidden rounded-xl border ${info.borderColor} bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg transition-transform duration-300 hover:-translate-y-1 sm:p-6`}
                                     >
-                                        <div className={`absolute inset-0 bg-gradient-to-br ${info.color} opacity-0 transition-opacity duration-500 group-hover:opacity-100`} />
+                                        <div
+                                            className={`absolute inset-0 bg-gradient-to-br ${info.color} opacity-0 transition-opacity duration-500 group-hover:opacity-100`}
+                                        />
                                         <div className="relative text-center">
-                                            <div className="mb-3 inline-flex items-center justify-center rounded-lg bg-gradient-to-br ${info.color} p-3 shadow-md ring-1 ring-white/10">
+                                            <div className="${info.color} mb-3 inline-flex items-center justify-center rounded-lg bg-gradient-to-br p-3 shadow-md ring-1 ring-white/10">
                                                 <IconComponent className={`h-6 w-6 ${info.iconColor}`} />
                                             </div>
                                             <h3 className="mb-2 text-lg font-bold text-white">
@@ -146,43 +152,43 @@ export default function Contact() {
                                     <form onSubmit={handleSubmit} className="space-y-5">
                                         <div>
                                             <label className="mb-2 block text-sm font-semibold text-white">Full Name *</label>
-                                <input
+                                            <input
                                                 type="text"
                                                 required
                                                 value={formData.name}
                                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                                 className="w-full rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                                 placeholder="Enter your name"
-                                />
-                            </div>
+                                            />
+                                        </div>
 
                                         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                <div>
+                                            <div>
                                                 <label className="mb-2 block text-sm font-semibold text-white">Email *</label>
-                                    <input
+                                                <input
                                                     type="email"
                                                     required
                                                     value={formData.email}
                                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                                     className="w-full rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                                     placeholder="your@email.com"
-                                    />
-                                </div>
+                                                />
+                                            </div>
 
-                                <div>
+                                            <div>
                                                 <label className="mb-2 block text-sm font-semibold text-white">Phone *</label>
-                                    <input
+                                                <input
                                                     type="tel"
                                                     required
                                                     value={formData.phone}
                                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                                     className="w-full rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                                     placeholder="+62 812-xxxx-xxxx"
-                                    />
-                                </div>
-                            </div>
+                                                />
+                                            </div>
+                                        </div>
 
-                                <div>
+                                        <div>
                                             <label className="mb-2 block text-sm font-semibold text-white">Message *</label>
                                             <textarea
                                                 required
@@ -191,12 +197,12 @@ export default function Contact() {
                                                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                                 className="w-full resize-none rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                                                 placeholder="Tell us about your travel plans..."
-                                    />
-                                </div>
+                                            />
+                                        </div>
 
                                         <button
                                             type="submit"
-                                            className="group flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 text-base font-bold text-white shadow-xl transition-all hover:from-amber-400 hover:to-orange-400 hover:shadow-2xl hover:scale-105"
+                                            className="group flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 text-base font-bold text-white shadow-xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 hover:shadow-2xl"
                                         >
                                             <span>Send Message via WhatsApp</span>
                                             <Send className="h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -226,7 +232,7 @@ export default function Contact() {
                                         href={social.url}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="group flex items-center gap-2 rounded-lg border border-white/10 bg-slate-900/50 px-5 py-3 shadow-lg transition-all hover:border-amber-500/50 hover:bg-gradient-to-r hover:from-amber-500/10 hover:to-orange-500/10 hover:scale-105"
+                                        className="group flex items-center gap-2 rounded-lg border border-white/10 bg-slate-900/50 px-5 py-3 shadow-lg transition-all hover:scale-105 hover:border-amber-500/50 hover:bg-gradient-to-r hover:from-amber-500/10 hover:to-orange-500/10"
                                     >
                                         <span className="text-2xl">{social.icon}</span>
                                         <span className="text-sm font-semibold text-white">{social.name}</span>
@@ -245,19 +251,19 @@ export default function Contact() {
                                 <div className="font-semibold">Email: hello@cahaya-anbiya.com</div>
                                 <div className="mt-2 font-semibold">WhatsApp: +62 812-3456-7890</div>
                                 <div className="mt-2 font-semibold">24/7 Customer Support</div>
-                        </div>
+                            </div>
                             <div className="flex items-center gap-8">
                                 {['Instagram', 'TikTok', 'YouTube'].map((social) => (
                                     <a
                                         key={social}
                                         href={`https://${social.toLowerCase()}.com`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                        className="text-base font-semibold text-white/70 transition-all hover:text-amber-400 hover:scale-110"
-                                >
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-base font-semibold text-white/70 transition-all hover:scale-110 hover:text-amber-400"
+                                    >
                                         {social}
-                                </a>
-                            ))}
+                                    </a>
+                                ))}
                             </div>
                         </div>
                         <div className="mt-10 border-t border-white/10 pt-8 text-center">
