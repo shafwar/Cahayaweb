@@ -155,11 +155,11 @@ return Application::configure(basePath: dirname(__DIR__))
                     ])->withInput($request->only('name', 'email'));
                 }
 
-                // POST b2b/register: redirect back to B2B form
+                // POST b2b/register: redirect back to B2B form (fallback when controller did not catch)
                 if ($request->isMethod('POST') && ($request->routeIs('b2b.register.store') || $request->is('b2b/register'))) {
                     return redirect()->route('b2b.register')->withErrors([
-                        'message' => 'An error occurred while submitting the form. Please try again.',
-                    ])->withInput();
+                        'message' => 'An error occurred while submitting the form. Please try again or contact support if the problem persists.',
+                    ])->withInput($request->except(['business_license_file', 'tax_certificate_file', 'company_profile_file', '_token']));
                 }
 
                 // For other Inertia requests, redirect to home with error message

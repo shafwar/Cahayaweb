@@ -133,7 +133,11 @@ const countryCodes = countries
     });
 
 export default function RegisterAgent({ isGuest, rejectedVerification }: Props) {
-    const { auth } = usePage().props as { auth: { user: { id: number; name: string; email: string } | null } };
+    const pageProps = usePage().props as {
+        auth: { user: { id: number; name: string; email: string } | null };
+        errors?: Record<string, string>;
+    };
+    const { auth } = pageProps;
     const isUserGuest = !auth.user || isGuest;
     const [showRejectionNotice, setShowRejectionNotice] = useState(!!rejectedVerification);
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -492,6 +496,29 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                     {/* Only show form if rejection notice is dismissed or not present */}
                     {!showRejectionNotice && (
                         <motion.form onSubmit={submit} variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
+                            {/* Global error from redirect (e.g. save failure) or form submit */}
+                            {(pageProps.errors?.message || (errors as any)?.message) && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="rounded-xl border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-amber-500/10 p-6 shadow-lg shadow-amber-500/10 backdrop-blur-sm"
+                                >
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/20 ring-4 ring-amber-500/10">
+                                            <AlertCircle className="h-6 w-6 text-amber-400" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="mb-2 text-lg font-bold text-amber-300">Submission issue</h3>
+                                            <p className="text-sm leading-relaxed text-gray-300">
+                                                {pageProps.errors?.message || (errors as any)?.message}
+                                            </p>
+                                            <p className="mt-2 text-xs text-gray-400">
+                                                Please check your data and try again. If the problem persists, contact support.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
                             {/* Global File Size Error Alert */}
                             {(errors as any)?.file_size && (
                                 <motion.div

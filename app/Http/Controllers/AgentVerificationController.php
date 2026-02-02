@@ -267,62 +267,79 @@ class AgentVerificationController extends Controller
             ]);
         }
 
-        // Handle file uploads: save to R2 when configured (public/documents/agent-verifications/ in bucket), else local public
-        $uploadDiskName = $this->getAgentVerificationUploadDiskName();
-        $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
-        foreach ($fileFields as $field) {
-            if ($request->hasFile($field)) {
-                $file = $request->file($field);
-                $path = $file->storeAs(
-                    trim(self::B2B_DOCUMENT_PATH, '/'),
-                    Str::uuid()->toString() . '.' . $file->getClientOriginalExtension(),
-                    $uploadDiskName
-                );
-                $validated[$field] = $path;
-            } elseif (isset($storedFiles[$field])) {
-                $tempPath = $storedFiles[$field];
-                $fileName = basename($tempPath);
-                $newPath = self::B2B_DOCUMENT_PATH . $fileName;
-                $contents = Storage::disk('public')->get($tempPath);
-                if ($contents !== null) {
-                    Storage::disk($uploadDiskName)->put($newPath, $contents);
-                    Storage::disk('public')->delete($tempPath);
+        try {
+            // Handle file uploads: save to R2 when configured (public/documents/agent-verifications/ in bucket), else local public
+            $uploadDiskName = $this->getAgentVerificationUploadDiskName();
+            $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
+            foreach ($fileFields as $field) {
+                if ($request->hasFile($field)) {
+                    $file = $request->file($field);
+                    $path = $file->storeAs(
+                        trim(self::B2B_DOCUMENT_PATH, '/'),
+                        Str::uuid()->toString() . '.' . $file->getClientOriginalExtension(),
+                        $uploadDiskName
+                    );
+                    $validated[$field] = $path;
+                } elseif (isset($storedFiles[$field])) {
+                    $tempPath = $storedFiles[$field];
+                    $fileName = basename($tempPath);
+                    $newPath = self::B2B_DOCUMENT_PATH . $fileName;
+                    $contents = Storage::disk('public')->get($tempPath);
+                    if ($contents !== null) {
+                        Storage::disk($uploadDiskName)->put($newPath, $contents);
+                        Storage::disk('public')->delete($tempPath);
+                    }
+                    $validated[$field] = $newPath;
+                } else {
+                    // Optional file not provided: remove key so DB gets null
+                    unset($validated[$field]);
                 }
-                $validated[$field] = $newPath;
             }
-            unset($validated[$field]);
-        }
+            // Check if user already has a verification (for re-submission after rejection)
+            $existingVerification = $user->agentVerification;
 
-        // Check if user already has a verification (for re-submission after rejection)
-        $existingVerification = $user->agentVerification;
+            if ($existingVerification) {
+                // Update existing verification (for re-submission after rejection)
+                $existingVerification->update([
+                    ...$validated,
+                    'status' => 'pending',
+                    'admin_notes' => null, // Clear previous rejection notes
+                    'reviewed_by' => null,
+                    'reviewed_at' => null,
+                    'company_country' => $validated['company_country'] ?? 'Indonesia',
+                ]);
+                $verification = $existingVerification;
+            } else {
+                // Create new verification so it appears in admin and user has pending status
+                $verification = $user->agentVerification()->create([
+                    ...$validated,
+                    'status' => 'pending',
+                    'company_country' => $validated['company_country'] ?? 'Indonesia',
+                ]);
+            }
 
-        if ($existingVerification) {
-            // Update existing verification (for re-submission after rejection)
-            $existingVerification->update([
-                ...$validated,
-                'status' => 'pending',
-                'admin_notes' => null, // Clear previous rejection notes
-                'reviewed_by' => null,
-                'reviewed_at' => null,
-                'company_country' => $validated['company_country'] ?? 'Indonesia',
+            // Clear stored session data
+            $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
+
+            // Regenerate session token after successful submission to prevent 419 errors on next request
+            $request->session()->regenerateToken();
+
+            return redirect()->route('b2b.pending')->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
+        } catch (\Throwable $e) {
+            Log::error('B2B store (logged-in) failed', [
+                'user_id' => $user->id,
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
             ]);
-            $verification = $existingVerification;
-        } else {
-            // Create new verification
-            $verification = $user->agentVerification()->create([
-                ...$validated,
-                'status' => 'pending',
-                'company_country' => $validated['company_country'] ?? 'Indonesia',
-            ]);
+
+            return redirect()->route('b2b.register')
+                ->withErrors([
+                    'message' => 'Unable to save your application. Please check your data and try again. If the problem persists, contact support.',
+                ])
+                ->withInput($request->except(['business_license_file', 'tax_certificate_file', 'company_profile_file', '_token']));
         }
-
-        // Clear stored session data
-        $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
-
-        // Regenerate session token after successful submission to prevent 419 errors on next request
-        $request->session()->regenerateToken();
-
-        return redirect()->route('b2b.pending')->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
     }
 
     /**
