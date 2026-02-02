@@ -1,9 +1,19 @@
+import { EditableText } from '@/components/cms';
 import PublicLayout from '@/layouts/public-layout';
 import { Head } from '@inertiajs/react';
 import { Mail, MapPin, MessageSquare, Phone, Send } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Contact() {
+    const [editMode, setEditModeUI] = useState<boolean>(false);
+    useEffect(() => {
+        const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
+        check();
+        const handler = () => check();
+        window.addEventListener('cms:mode', handler as EventListener);
+        return () => window.removeEventListener('cms:mode', handler as EventListener);
+    }, []);
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -19,25 +29,31 @@ export default function Contact() {
 
     const contactInfo = [
         {
+            id: 1,
             icon: Phone,
             title: 'Phone',
-            details: ['+62 812-3456-7890', '24/7 Customer Support'],
+            detail1: '+62 812-3456-7890',
+            detail2: '24/7 Customer Support',
             color: 'from-blue-500/20 to-indigo-500/20',
             iconColor: 'text-blue-400',
             borderColor: 'border-blue-500/30',
         },
         {
+            id: 2,
             icon: Mail,
             title: 'Email',
-            details: ['hello@cahaya-anbiya.com', 'info@cahaya-anbiya.com'],
+            detail1: 'hello@cahaya-anbiya.com',
+            detail2: 'info@cahaya-anbiya.com',
             color: 'from-purple-500/20 to-pink-500/20',
             iconColor: 'text-purple-400',
             borderColor: 'border-purple-500/30',
         },
         {
+            id: 3,
             icon: MapPin,
             title: 'Office',
-            details: ['Jakarta, Indonesia', 'Mon-Sat, 9AM-6PM'],
+            detail1: 'Jakarta, Indonesia',
+            detail2: 'Mon-Sat, 9AM-6PM',
             color: 'from-amber-500/20 to-orange-500/20',
             iconColor: 'text-amber-400',
             borderColor: 'border-amber-500/30',
@@ -63,27 +79,27 @@ export default function Contact() {
                             <div className="mb-4 inline-block">
                                 <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
                                     <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
-                                        ✨ Get In Touch
+                                        <EditableText sectionKey="contact.header.badge" value="✨ Get In Touch" tag="span" />
                                     </span>
                                 </div>
                             </div>
 
                             <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
-                                Contact Us
+                                <EditableText sectionKey="contact.header.title" value="Contact Us" tag="span" />
                             </h1>
 
                             <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
-                                Have questions about our travel packages? We're here to help you plan your perfect journey
+                                <EditableText sectionKey="contact.header.description" value="Have questions about our travel packages? We're here to help you plan your perfect journey" tag="span" />
                             </p>
                         </div>
 
                         {/* Contact Info Cards */}
                         <div className="mb-12 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
-                            {contactInfo.map((info, index) => {
+                            {contactInfo.map((info) => {
                                 const IconComponent = info.icon;
                                 return (
                                     <div
-                                        key={index}
+                                        key={info.id}
                                         className={`group relative overflow-hidden rounded-xl border ${info.borderColor} bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg transition-transform duration-300 hover:-translate-y-1 sm:p-6`}
                                     >
                                         <div className={`absolute inset-0 bg-gradient-to-br ${info.color} opacity-0 transition-opacity duration-500 group-hover:opacity-100`} />
@@ -91,12 +107,15 @@ export default function Contact() {
                                             <div className="mb-3 inline-flex items-center justify-center rounded-lg bg-gradient-to-br ${info.color} p-3 shadow-md ring-1 ring-white/10">
                                                 <IconComponent className={`h-6 w-6 ${info.iconColor}`} />
                                             </div>
-                                            <h3 className="mb-2 text-lg font-bold text-white">{info.title}</h3>
-                                            {info.details.map((detail, idx) => (
-                                                <p key={idx} className="text-sm text-white/75">
-                                                    {detail}
-                                                </p>
-                                            ))}
+                                            <h3 className="mb-2 text-lg font-bold text-white">
+                                                <EditableText sectionKey={`contact.info.${info.id}.title`} value={info.title} tag="span" />
+                                            </h3>
+                                            <p className="text-sm text-white/75">
+                                                <EditableText sectionKey={`contact.info.${info.id}.detail1`} value={info.detail1} tag="span" />
+                                            </p>
+                                            <p className="text-sm text-white/75">
+                                                <EditableText sectionKey={`contact.info.${info.id}.detail2`} value={info.detail2} tag="span" />
+                                            </p>
                                         </div>
                                     </div>
                                 );
@@ -112,10 +131,16 @@ export default function Contact() {
                                     <div className="mb-6 text-center">
                                         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-4 py-2">
                                             <MessageSquare className="h-5 w-5 text-amber-400" />
-                                            <span className="text-sm font-bold text-amber-300">Send us a message</span>
+                                            <span className="text-sm font-bold text-amber-300">
+                                                <EditableText sectionKey="contact.form.badge" value="Send us a message" tag="span" />
+                                            </span>
                                         </div>
-                                        <h2 className="text-2xl font-bold text-white sm:text-3xl">Quick Contact Form</h2>
-                                        <p className="mt-2 text-sm text-white/70">We'll respond within 24 hours</p>
+                                        <h2 className="text-2xl font-bold text-white sm:text-3xl">
+                                            <EditableText sectionKey="contact.form.title" value="Quick Contact Form" tag="span" />
+                                        </h2>
+                                        <p className="mt-2 text-sm text-white/70">
+                                            <EditableText sectionKey="contact.form.subtitle" value="We'll respond within 24 hours" tag="span" />
+                                        </p>
                                     </div>
 
                                     <form onSubmit={handleSubmit} className="space-y-5">
@@ -187,7 +212,9 @@ export default function Contact() {
 
                         {/* Social Media Links */}
                         <div className="mt-12 text-center">
-                            <h3 className="mb-5 text-xl font-bold text-white sm:text-2xl">Connect With Us</h3>
+                            <h3 className="mb-5 text-xl font-bold text-white sm:text-2xl">
+                                <EditableText sectionKey="contact.social.title" value="Connect With Us" tag="span" />
+                            </h3>
                             <div className="flex items-center justify-center gap-4">
                                 {[
                                     { name: 'Instagram', url: 'https://instagram.com', icon: '📸' },

@@ -1,10 +1,22 @@
+import { EditableText } from '@/components/cms';
 import PublicLayout from '@/layouts/public-layout';
 import { Head } from '@inertiajs/react';
 import { Award, Globe, Heart, Shield, Star, TrendingUp, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function About() {
+    const [editMode, setEditModeUI] = useState<boolean>(false);
+    useEffect(() => {
+        const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
+        check();
+        const handler = () => check();
+        window.addEventListener('cms:mode', handler as EventListener);
+        return () => window.removeEventListener('cms:mode', handler as EventListener);
+    }, []);
+
     const coreValues = [
         {
+            id: 1,
             icon: Shield,
             title: 'Integrity',
             description: 'Transparency and honesty in every service we provide',
@@ -14,6 +26,7 @@ export default function About() {
             accentGradient: 'from-blue-400 to-indigo-400',
         },
         {
+            id: 2,
             icon: Heart,
             title: 'Hospitality',
             description: 'Genuine warmth and care in every journey',
@@ -23,6 +36,7 @@ export default function About() {
             accentGradient: 'from-rose-400 to-pink-400',
         },
         {
+            id: 3,
             icon: Star,
             title: 'Excellence',
             description: 'Uncompromising quality in every travel detail',
@@ -34,10 +48,10 @@ export default function About() {
     ];
 
     const stats = [
-        { number: '100+', label: 'Happy Travelers', icon: Users },
-        { number: '15+', label: 'Destinations', icon: Globe },
-        { number: '2025', label: 'Established', icon: Award },
-        { number: '95%', label: 'Satisfaction Rate', icon: TrendingUp },
+        { id: 1, number: '100+', label: 'Happy Travelers', icon: Users },
+        { id: 2, number: '15+', label: 'Destinations', icon: Globe },
+        { id: 3, number: '2025', label: 'Established', icon: Award },
+        { id: 4, number: '95%', label: 'Satisfaction Rate', icon: TrendingUp },
     ];
 
     return (
@@ -59,28 +73,27 @@ export default function About() {
                             <div className="mb-4 inline-block">
                                 <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
                                     <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
-                                        ✨ Cahaya Anbiya Travel
+                                        <EditableText sectionKey="about.header.badge" value="✨ Cahaya Anbiya Travel" tag="span" />
                                     </span>
                                 </div>
                             </div>
 
                             <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
-                                About Us
+                                <EditableText sectionKey="about.header.title" value="About Us" tag="span" />
                             </h1>
 
                             <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
-                                Creating unforgettable travel experiences with exceptional service, cultural authenticity, and unwavering commitment
-                                to excellence
+                                <EditableText sectionKey="about.header.description" value="Creating unforgettable travel experiences with exceptional service, cultural authenticity, and unwavering commitment to excellence" tag="span" />
                             </p>
                         </div>
 
                         {/* Stats Grid */}
                         <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-                            {stats.map((stat, index) => {
+                            {stats.map((stat) => {
                                 const IconComponent = stat.icon;
                                 return (
                                     <div
-                                        key={index}
+                                        key={stat.id}
                                         className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-4 text-center shadow-lg sm:p-5 md:p-6 transition-transform duration-300 hover:-translate-y-1.5"
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-orange-500/0 transition-all duration-500 group-hover:from-amber-500/15 group-hover:to-orange-500/15" />
@@ -92,9 +105,11 @@ export default function About() {
                                                 </div>
                                             </div>
                                             <div className="mb-1.5 bg-gradient-to-r from-amber-200 via-amber-100 to-orange-200 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl md:text-4xl lg:text-5xl">
-                                                {stat.number}
+                                                <EditableText sectionKey={`about.stats.${stat.id}.number`} value={stat.number} tag="span" />
                                             </div>
-                                            <div className="text-xs font-semibold text-white/90 sm:text-sm">{stat.label}</div>
+                                            <div className="text-xs font-semibold text-white/90 sm:text-sm">
+                                                <EditableText sectionKey={`about.stats.${stat.id}.label`} value={stat.label} tag="span" />
+                                            </div>
                                         </div>
                                         <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-all duration-500 group-hover:w-full" />
                                     </div>
@@ -113,12 +128,10 @@ export default function About() {
                                 <div className="space-y-3">
                                     <div>
                                         <h2 className="mb-3 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-xl font-bold text-transparent sm:text-2xl lg:text-3xl">
-                                            Company Profile
+                                            <EditableText sectionKey="about.profile.title" value="Company Profile" tag="span" />
                                         </h2>
                                         <p className="text-sm leading-relaxed text-white/80 sm:text-base md:text-lg">
-                                            PT Cahaya Anbiya Travel is a premier travel company committed to providing memorable and comfortable halal
-                                            travel experiences. We prioritize service quality with a friendly and professional approach, ensuring
-                                            every journey is both spiritually fulfilling and culturally enriching.
+                                            <EditableText sectionKey="about.profile.description" value="PT Cahaya Anbiya Travel is a premier travel company committed to providing memorable and comfortable halal travel experiences. We prioritize service quality with a friendly and professional approach, ensuring every journey is both spiritually fulfilling and culturally enriching." tag="span" />
                                         </p>
                                     </div>
                                 </div>
@@ -129,11 +142,12 @@ export default function About() {
                                     <div className="relative">
                                         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-500/40 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 px-3 py-1.5">
                                             <div className="h-2 w-2 rounded-full bg-blue-400 shadow-md shadow-blue-400/50" />
-                                            <span className="text-xs font-bold tracking-wider text-blue-300 uppercase">Vision</span>
+                                            <span className="text-xs font-bold tracking-wider text-blue-300 uppercase">
+                                                <EditableText sectionKey="about.vision.label" value="Vision" tag="span" />
+                                            </span>
                                         </div>
                                         <p className="text-sm leading-relaxed text-white/85 sm:text-base">
-                                            To become a leading travel company in inspiring halal travel packages that connect people with their faith
-                                            and culture, creating transformative experiences that last a lifetime.
+                                            <EditableText sectionKey="about.vision.description" value="To become a leading travel company in inspiring halal travel packages that connect people with their faith and culture, creating transformative experiences that last a lifetime." tag="span" />
                                         </p>
                                     </div>
                                     <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-blue-400 to-indigo-400 shadow-md transition-all duration-500 group-hover:w-full" />
@@ -145,20 +159,22 @@ export default function About() {
                                     <div className="relative">
                                         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-purple-500/40 bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-3 py-1.5">
                                             <div className="h-2 w-2 rounded-full bg-purple-400 shadow-md shadow-purple-400/50" />
-                                            <span className="text-xs font-bold tracking-wider text-purple-300 uppercase">Mission</span>
+                                            <span className="text-xs font-bold tracking-wider text-purple-300 uppercase">
+                                                <EditableText sectionKey="about.mission.label" value="Mission" tag="span" />
+                                            </span>
                                         </div>
                                         <ul className="space-y-2.5 text-sm text-white/85 sm:text-base">
                                             <li className="flex items-start gap-2.5">
                                                 <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 shadow-md" />
-                                                <span>Provide inspiring halal travel experiences that enrich spiritual journeys</span>
+                                                <span><EditableText sectionKey="about.mission.item1" value="Provide inspiring halal travel experiences that enrich spiritual journeys" tag="span" /></span>
                                             </li>
                                             <li className="flex items-start gap-2.5">
                                                 <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 shadow-md" />
-                                                <span>Prioritize safety, comfort, and authenticity in every service</span>
+                                                <span><EditableText sectionKey="about.mission.item2" value="Prioritize safety, comfort, and authenticity in every service" tag="span" /></span>
                                             </li>
                                             <li className="flex items-start gap-2.5">
                                                 <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 shadow-md" />
-                                                <span>Deliver exceptional customer service with cultural sensitivity</span>
+                                                <span><EditableText sectionKey="about.mission.item3" value="Deliver exceptional customer service with cultural sensitivity" tag="span" /></span>
                                             </li>
                                         </ul>
                                     </div>
@@ -170,14 +186,14 @@ export default function About() {
                             <div className="space-y-6">
                                 <div>
                                     <h2 className="mb-5 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-xl font-bold text-transparent sm:text-2xl lg:text-3xl">
-                                        Our Core Values
+                                        <EditableText sectionKey="about.values.title" value="Our Core Values" tag="span" />
                                     </h2>
                                     <div className="space-y-4">
-                                        {coreValues.map((value, index) => {
+                                        {coreValues.map((value) => {
                                             const IconComponent = value.icon;
                                             return (
                                                 <div
-                                                    key={index}
+                                                    key={value.id}
                                                     className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm sm:p-6 transition-transform duration-300 hover:-translate-y-1"
                                                 >
                                                     <div className={`absolute inset-0 bg-gradient-to-br ${value.color} opacity-0 transition-all duration-500 group-hover:opacity-100`} />
@@ -187,10 +203,10 @@ export default function About() {
                                                         </div>
                                                         <div className="flex-1">
                                                             <h3 className="mb-1.5 text-base font-bold text-white transition-colors sm:text-lg lg:text-xl">
-                                                                {value.title}
+                                                                <EditableText sectionKey={`about.values.${value.id}.title`} value={value.title} tag="span" />
                                                             </h3>
                                                             <p className="text-xs leading-relaxed text-white/75 transition-colors group-hover:text-white/90 sm:text-sm">
-                                                                {value.description}
+                                                                <EditableText sectionKey={`about.values.${value.id}.description`} value={value.description} tag="span" />
                                                             </p>
                                                         </div>
                                                     </div>
@@ -205,9 +221,11 @@ export default function About() {
                                 <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-6 shadow-xl sm:p-8">
                                     <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/10" />
                                     <div className="relative text-center">
-                                        <h3 className="mb-2.5 text-xl font-bold text-white sm:text-2xl">Ready to Start Your Journey?</h3>
+                                        <h3 className="mb-2.5 text-xl font-bold text-white sm:text-2xl">
+                                            <EditableText sectionKey="about.cta.title" value="Ready to Start Your Journey?" tag="span" />
+                                        </h3>
                                         <p className="mb-5 text-sm text-white/95 sm:text-base">
-                                            Contact us today for a free consultation and let us help you plan your perfect travel experience
+                                            <EditableText sectionKey="about.cta.description" value="Contact us today for a free consultation and let us help you plan your perfect travel experience" tag="span" />
                                         </p>
                                         <a
                                             href="https://wa.me/6281234567890"
@@ -215,7 +233,7 @@ export default function About() {
                                             rel="noopener noreferrer"
                                             className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black shadow-xl transition-all hover:bg-white/95 hover:shadow-2xl hover:scale-105 sm:px-8 sm:py-4 sm:text-base"
                                         >
-                                            <span>Free Consultation</span>
+                                            <span><EditableText sectionKey="about.cta.button" value="Free Consultation" tag="span" /></span>
                                             <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                             </svg>
