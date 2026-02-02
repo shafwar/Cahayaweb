@@ -1,18 +1,64 @@
-# R2: Setup Dokumen B2B (Agent Verification) — Atasi Error 404
+# R2: Setup Dokumen B2B (Agent Verification)
 
-## Perilaku baru (setelah implementasi)
+## Pemisahan data vs dokumen
 
-**Folder `public/agent-verifications/` di R2 dibuat otomatis** saat ada dokumen B2B yang di-upload dan R2 dikonfigurasi:
+| Yang disimpan                                                    | Di mana                                   | Keterangan                                                         |
+| ---------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------ |
+| **Data B2B** (nama perusahaan, kontak, alamat, dll.)             | **Database saja**                         | Tabel `agent_verifications` + relasi `user`. Tidak disimpan di R2. |
+| **Dokumen** (Business License, Tax Certificate, Company Profile) | **R2** (atau disk `public` jika R2 gagal) | Hanya file; path-nya disimpan di kolom di database.                |
 
-- Jika **R2 dikonfigurasi** (`R2_*` / `AWS_*` di `.env` dan `R2Helper::isConfigured()` true), setiap dokumen (Business License, Tax Certificate, Company Profile) dari registrasi B2B **langsung disimpan ke R2** di path `public/agent-verifications/<nama-file>.pdf` (atau ekstensi lain).
-- Admin mengunduh dokumen lewat endpoint **Download Document** di B2B Admin; backend mencoba **R2 dulu**, lalu fallback ke local `public` disk.
-- Anda **tidak perlu** membuat folder `agent-verifications` secara manual di R2; folder tersebut tercipta saat file pertama di-upload melalui aplikasi.
+- **Database**: Semua data diri B2B dan **path** ke file dokumen.
+- **R2**: Hanya file PDF/gambar; tidak menyimpan data profil. Setiap dokumen bisa diidentifikasi “milik siapa” lewat path dan record di DB.
+
+## Struktur path di R2 (per akun B2B)
+
+Dokumen di R2 diorganisir **per user dan per aplikasi** sehingga bisa dipisah per orang:
+
+```
+public/documents/agent-verifications/{user_id}/{verification_id}/
+  ├── {uuid}.pdf   (business_license_file)
+  ├── {uuid}.pdf   (tax_certificate_file)
+  └── {uuid}.pdf   (company_profile_file)
+```
+
+- **`user_id`**: ID user (akun B2B) di database → dokumen milik orang ini.
+- **`verification_id`**: ID aplikasi verifikasi (`agent_verifications.id`) → satu folder = satu aplikasi B2B.
+
+Admin bisa mengembalikan “dokumen dari orang mana” lewat record `agent_verifications` (user_id + verification_id) dan path yang disimpan.
+
+## Alur sistem (desain saat ini)
+
+1. **User B2B** mengisi form registrasi dan meng-upload dokumen (Business License, Tax Certificate, Company Profile).
+2. **Backend** menyimpan **data** ke database dulu (agar aplikasi selalu muncul di admin, redirect ke Verification Pending), lalu meng-upload **file**:
+    - Jika **R2 dikonfigurasi** (semua env `R2_*` terisi, termasuk **R2_ENDPOINT**), file disimpan ke **R2** di path `public/documents/agent-verifications/{user_id}/{verification_id}/{uuid}.<ext>`.
+    - Jika R2 gagal (credentials/endpoint salah), fallback ke disk **public** (local) agar submit tidak gagal.
+3. **Path file** disimpan di database (contoh: `documents/agent-verifications/42/17/uuid.pdf` → user_id 42, verification_id 17).
+4. **Admin** mengunduh dokumen lewat **Download Document** di halaman Agent Verifications. Backend **stream file dari R2 dulu** (jika R2 configured), lalu fallback ke disk public. Admin tidak mengakses URL publik R2; semua lewat endpoint Laravel.
+
+**Env wajib agar R2 dipakai untuk B2B dokumen (di Railway / .env):**
+
+- `R2_ACCESS_KEY_ID`
+- `R2_SECRET_ACCESS_KEY`
+- `R2_BUCKET`
+- `R2_URL` (custom domain, mis. `https://assets.cahayaanbiya.com`)
+- **`R2_ENDPOINT`** (endpoint Cloudflare R2, mis. `https://<account-id>.r2.cloudflarestorage.com`)
+
+Tanpa `R2_ENDPOINT`, aplikasi tidak menganggap R2 “configured” dan akan pakai disk `public` untuk upload.
+
+---
+
+## Perilaku teknis
+
+- **Data** → hanya di database; **dokumen** → hanya di R2 (atau public); path dokumen → di database.
+- **Path di R2** → `documents/agent-verifications/{user_id}/{verification_id}/` sehingga dokumen terfilter per akun B2B.
+- Admin mengunduh lewat route **Download Document**; backend stream dari R2 dulu, lalu fallback ke disk `public`. Dokumen “milik siapa” ditentukan dari record `agent_verifications` (user_id + verification_id) dan path yang disimpan.
+- Folder di R2 dibuat otomatis saat upload pertama; tidak perlu membuat folder secara manual.
 
 Saat download mengarah ke  
 `assets.cahayaanbiya.com/public/agent-verifications/xxx.pdf`  
 lalu muncul **Error 404: Object not found**, penyebabnya biasanya:
 
-1. **File belum ada di R2** (mis. upload lama hanya ke local, atau R2 belum dikonfigurasi saat itu)  
+1. **File belum ada di R2** (mis. upload lama hanya ke local, atau R2 belum dikonfigurasi saat itu)
 2. **Akses publik via custom domain belum diaktifkan** untuk bucket R2
 
 Berikut yang perlu Anda lakukan di R2/assets.
@@ -26,13 +72,13 @@ Agar URL `https://assets.cahayaanbiya.com/...` bisa diakses publik:
 1. Buka **Cloudflare Dashboard** → **R2** → bucket **cahayaanbiya-assets** (atau nama bucket Anda).
 2. Masuk ke **Settings**.
 3. Di bagian **Custom Domains**:
-   - Pastikan `assets.cahayaanbiya.com` **terhubung** dan status **Active**.
-   - Pastikan **Access to Bucket** = **Allowed** (bukan "Not allowed").
-     - Jika "Not allowed", pilih **…** di samping domain → **Enable domain** (atau opsi serupa di UI terbaru).
+    - Pastikan `assets.cahayaanbiya.com` **terhubung** dan status **Active**.
+    - Pastikan **Access to Bucket** = **Allowed** (bukan "Not allowed").
+        - Jika "Not allowed", pilih **…** di samping domain → **Enable domain** (atau opsi serupa di UI terbaru).
 4. Jika domain belum ada:
-   - Klik **Add** under Custom Domains.
-   - Masukkan `assets.cahayaanbiya.com` → **Continue** → ikuti langkah (DNS, dll.) → **Connect Domain**.
-   - Tunggu status menjadi **Active**.
+    - Klik **Add** under Custom Domains.
+    - Masukkan `assets.cahayaanbiya.com` → **Continue** → ikuti langkah (DNS, dll.) → **Connect Domain**.
+    - Tunggu status menjadi **Active**.
 
 Tanpa custom domain yang **Active** dan **Access = Allowed**, semua request ke `assets.cahayaanbiya.com/...` bisa berujung 404 atau “not publicly accessible”.
 
@@ -63,8 +109,8 @@ Saat ini, dokumen B2B (agent verification) di-upload ke **local disk** server (`
 
 1. Di **R2** → bucket Anda → **Objects**.
 2. Pastikan ada folder:
-   - `public`
-   - di dalamnya: `agent-verifications`
+    - `public`
+    - di dalamnya: `agent-verifications`
 3. Upload file PDF ke `public/agent-verifications/` dengan **nama file yang sama** persis seperti di database (mis. `f7b4731b-95a8-43de-8d48-a12f459af858.pdf`).
 
 Path lengkap di bucket harus: `public/agent-verifications/f7b4731b-95a8-43de-8d48-a12f459af858.pdf` (sesuaikan nama file dengan data Anda).
@@ -84,12 +130,12 @@ seharusnya bisa diakses (dan download dari aplikasi tidak lagi 404 dari R2).
 
 ## 3. Ringkasan Checklist
 
-| Yang dicek | Di mana | Harus |
-|-----------|--------|--------|
-| Custom domain `assets.cahayaanbiya.com` | R2 → Bucket → Settings → Custom Domains | Status **Active** |
-| Akses publik untuk domain itu | Same section | **Access to Bucket** = **Allowed** |
-| Path di bucket | R2 → Bucket → Objects | Ada folder `public/agent-verifications/` |
-| File PDF | Di dalam `public/agent-verifications/` | Nama file sama dengan yang di app (mis. UUID.pdf) |
+| Yang dicek                              | Di mana                                 | Harus                                             |
+| --------------------------------------- | --------------------------------------- | ------------------------------------------------- |
+| Custom domain `assets.cahayaanbiya.com` | R2 → Bucket → Settings → Custom Domains | Status **Active**                                 |
+| Akses publik untuk domain itu           | Same section                            | **Access to Bucket** = **Allowed**                |
+| Path di bucket                          | R2 → Bucket → Objects                   | Ada folder `public/agent-verifications/`          |
+| File PDF                                | Di dalam `public/agent-verifications/`  | Nama file sama dengan yang di app (mis. UUID.pdf) |
 
 ---
 

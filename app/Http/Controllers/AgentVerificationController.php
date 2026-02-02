@@ -17,7 +17,15 @@ use Inertia\Response;
 
 class AgentVerificationController extends Controller
 {
-    /** R2 path for B2B documents (under public/ in bucket) – so they appear in Cloudflare under "documents" */
+    /**
+     * Base path for B2B documents in R2/public.
+     * Data (company info, contact, etc.) → database only.
+     * Documents (files) → R2 or public; path stored in DB.
+     * Path structure: documents/agent-verifications/{user_id}/{verification_id}/ so each B2B account's docs are separate.
+     */
+    private const B2B_DOCUMENT_PATH_PREFIX = 'documents/agent-verifications';
+
+    /** @deprecated Use getB2BDocumentBasePath() for new uploads */
     private const B2B_DOCUMENT_PATH = 'documents/agent-verifications/';
 
     /**
@@ -186,6 +194,8 @@ class AgentVerificationController extends Controller
             return redirect($registerUrl)->with('info', 'Please create an account to complete your B2B agent registration.');
         }
 
+        Log::info('B2B store (logged-in) start', ['user_id' => $user->id]);
+
         // Check if user already has a verification
         if ($user->agentVerification) {
             return back()->withErrors([
@@ -267,55 +277,55 @@ class AgentVerificationController extends Controller
             ]);
         }
 
+        // Build scalar-only payload for create (no file objects); R2/storage must not block DB save
+        $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
+        $validatedScalar = collect($validated)->except($fileFields)->all();
+        $validatedScalar['status'] = 'pending';
+        $validatedScalar['company_country'] = $validated['company_country'] ?? 'Indonesia';
+        foreach ($fileFields as $field) {
+            $validatedScalar[$field] = null;
+        }
+
         try {
-            // Handle file uploads: save to R2 when configured (public/documents/agent-verifications/ in bucket), else local public
-            $uploadDiskName = $this->getAgentVerificationUploadDiskName();
-            $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
-            foreach ($fileFields as $field) {
-                if ($request->hasFile($field)) {
-                    $file = $request->file($field);
-                    $path = $file->storeAs(
-                        trim(self::B2B_DOCUMENT_PATH, '/'),
-                        Str::uuid()->toString() . '.' . $file->getClientOriginalExtension(),
-                        $uploadDiskName
-                    );
-                    $validated[$field] = $path;
-                } elseif (isset($storedFiles[$field])) {
-                    $tempPath = $storedFiles[$field];
-                    $fileName = basename($tempPath);
-                    $newPath = self::B2B_DOCUMENT_PATH . $fileName;
-                    $contents = Storage::disk('public')->get($tempPath);
-                    if ($contents !== null) {
-                        Storage::disk($uploadDiskName)->put($newPath, $contents);
-                        Storage::disk('public')->delete($tempPath);
-                    }
-                    $validated[$field] = $newPath;
-                } else {
-                    // Optional file not provided: remove key so DB gets null
-                    unset($validated[$field]);
-                }
-            }
-            // Check if user already has a verification (for re-submission after rejection)
+            // 1. Save to DB first so application always appears in admin (R2/storage must not block this)
             $existingVerification = $user->agentVerification;
 
             if ($existingVerification) {
-                // Update existing verification (for re-submission after rejection)
-                $existingVerification->update([
-                    ...$validated,
-                    'status' => 'pending',
-                    'admin_notes' => null, // Clear previous rejection notes
+                $existingVerification->update(array_merge($validatedScalar, [
+                    'admin_notes' => null,
                     'reviewed_by' => null,
                     'reviewed_at' => null,
-                    'company_country' => $validated['company_country'] ?? 'Indonesia',
-                ]);
+                ]));
                 $verification = $existingVerification;
             } else {
-                // Create new verification so it appears in admin and user has pending status
-                $verification = $user->agentVerification()->create([
-                    ...$validated,
-                    'status' => 'pending',
-                    'company_country' => $validated['company_country'] ?? 'Indonesia',
-                ]);
+                $verification = $user->agentVerification()->create($validatedScalar);
+            }
+
+            Log::info('B2B verification saved to DB', ['user_id' => $user->id, 'verification_id' => $verification->id]);
+
+            // 2. Upload files to R2/public under per-account path: documents/agent-verifications/{user_id}/{verification_id}/
+            $uploadDiskName = $this->getAgentVerificationUploadDiskName();
+            $basePath = $this->getB2BDocumentBasePath((int) $user->id, (int) $verification->id);
+
+            foreach ($fileFields as $field) {
+                $path = null;
+                if ($request->hasFile($field)) {
+                    $file = $request->file($field);
+                    $path = $this->storeFileWithFallback($file, $basePath, $uploadDiskName, $field);
+                } elseif (isset($storedFiles[$field])) {
+                    $tempPath = $storedFiles[$field];
+                    $contents = Storage::disk('public')->get($tempPath);
+                    if ($contents !== null) {
+                        $fileName = basename($tempPath);
+                        $path = $this->putFileWithFallback($contents, $basePath . '/' . $fileName, $uploadDiskName, $field);
+                        if ($path !== null) {
+                            Storage::disk('public')->delete($tempPath);
+                        }
+                    }
+                }
+                if ($path !== null) {
+                    $verification->update([$field => $path]);
+                }
             }
 
             // Clear stored session data
@@ -340,6 +350,67 @@ class AgentVerificationController extends Controller
                 ])
                 ->withInput($request->except(['business_license_file', 'tax_certificate_file', 'company_profile_file', '_token']));
         }
+    }
+
+    /**
+     * Store uploaded file: try R2 first (when configured), then public. Path stored in DB is used for admin download.
+     */
+    private function storeFileWithFallback($file, string $basePath, string $primaryDisk, string $fieldName): ?string
+    {
+        $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+        try {
+            $stored = $file->storeAs($basePath, $filename, $primaryDisk);
+            if (is_string($stored)) {
+                if ($primaryDisk === 'r2') {
+                    Log::info('B2B document uploaded to R2', ['field' => $fieldName, 'path' => $stored]);
+                }
+                return $stored;
+            }
+            return null;
+        } catch (\Throwable $e) {
+            Log::warning('B2B file upload failed (primary disk), using public', [
+                'field' => $fieldName,
+                'disk' => $primaryDisk,
+                'error' => $e->getMessage(),
+            ]);
+            try {
+                $stored = $file->storeAs($basePath, $filename, 'public');
+                return is_string($stored) ? $stored : null;
+            } catch (\Throwable $e2) {
+                Log::error('B2B file upload failed (public fallback)', ['field' => $fieldName, 'error' => $e2->getMessage()]);
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Put file contents: try R2 first (when configured), then public. Path stored in DB is used for admin download.
+     */
+    private function putFileWithFallback(string $contents, string $path, string $primaryDisk, string $fieldName): ?string
+    {
+        $path = ltrim($path, '/');
+        try {
+            if (Storage::disk($primaryDisk)->put($path, $contents)) {
+                if ($primaryDisk === 'r2') {
+                    Log::info('B2B document uploaded to R2 (from temp)', ['field' => $fieldName, 'path' => $path]);
+                }
+                return $path;
+            }
+        } catch (\Throwable $e) {
+            Log::warning('B2B put file failed (primary disk), using public', [
+                'field' => $fieldName,
+                'disk' => $primaryDisk,
+                'error' => $e->getMessage(),
+            ]);
+        }
+        try {
+            if (Storage::disk('public')->put($path, $contents)) {
+                return $path;
+            }
+        } catch (\Throwable $e2) {
+            Log::error('B2B put file failed (public fallback)', ['field' => $fieldName, 'error' => $e2->getMessage()]);
+        }
+        return null;
     }
 
     /**
@@ -417,34 +488,40 @@ class AgentVerificationController extends Controller
         }
 
         $validated = $validator->validated();
-
-        $uploadDiskName = $this->getAgentVerificationUploadDiskName();
         $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
+        foreach ($fileFields as $field) {
+            $validated[$field] = null;
+        }
 
         try {
-            DB::transaction(function () use ($user, &$validated, $storedFiles, $uploadDiskName, $fileFields) {
-                // Handle stored files: upload to R2 or local public
-                foreach ($fileFields as $field) {
-                    if (isset($storedFiles[$field])) {
-                        $tempPath = $storedFiles[$field];
-                        $fileName = basename($tempPath);
-                        $newPath = self::B2B_DOCUMENT_PATH . $fileName;
-                        $contents = Storage::disk('public')->get($tempPath);
-                        if ($contents !== null) {
-                            Storage::disk($uploadDiskName)->put($newPath, $contents);
-                            Storage::disk('public')->delete($tempPath);
-                        }
-                        $validated[$field] = $newPath;
+            // 1. Create verification first (data in DB only; no file paths yet)
+            $verification = $user->agentVerification()->create([
+                ...$validated,
+                'status' => 'pending',
+                'company_country' => $validated['company_country'] ?? 'Indonesia',
+            ]);
+
+            // 2. Upload files to per-account path: documents/agent-verifications/{user_id}/{verification_id}/
+            $uploadDiskName = $this->getAgentVerificationUploadDiskName();
+            $basePath = $this->getB2BDocumentBasePath((int) $user->id, (int) $verification->id);
+
+            foreach ($fileFields as $field) {
+                if (!isset($storedFiles[$field])) {
+                    continue;
+                }
+                $tempPath = $storedFiles[$field];
+                $contents = Storage::disk('public')->get($tempPath);
+                if ($contents !== null) {
+                    $fileName = basename($tempPath);
+                    $path = $this->putFileWithFallback($contents, $basePath . '/' . $fileName, $uploadDiskName, $field);
+                    if ($path !== null) {
+                        $verification->update([$field => $path]);
+                        Storage::disk('public')->delete($tempPath);
                     }
                 }
+            }
 
-                // Create verification so it appears in admin and user has pending status
-                $user->agentVerification()->create([
-                    ...$validated,
-                    'status' => 'pending',
-                    'company_country' => $validated['company_country'] ?? 'Indonesia',
-                ]);
-            });
+            Log::info('B2B verification created (session)', ['user_id' => $user->id, 'verification_id' => $verification->id]);
         } catch (\Throwable $e) {
             Log::error('B2B storeContinue (session) failed', [
                 'user_id' => $user->id,
@@ -459,9 +536,6 @@ class AgentVerificationController extends Controller
             }
             return redirect($registerUrl)->with('error', 'Could not save your application. Please try again or contact support.');
         }
-
-        $verification = $user->fresh()->agentVerification;
-        Log::info('B2B verification created (session)', ['user_id' => $user->id, 'verification_id' => $verification?->id]);
 
         $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
         $request->session()->regenerateToken();
@@ -527,50 +601,56 @@ class AgentVerificationController extends Controller
         }
 
         $validated = $validator->validated();
-        $uploadDiskName = $this->getAgentVerificationUploadDiskName();
         $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
-
-        // Copy files from draft to permanent path; if a file fails, leave field unset so verification still gets created
         foreach ($fileFields as $field) {
-            if (!isset($storedFiles[$field])) {
-                continue;
-            }
-            $tempPath = $storedFiles[$field];
-            try {
-                $contents = Storage::disk($uploadDiskName)->get($tempPath);
-                if ($contents !== null && strlen($contents) > 0) {
-                    $ext = pathinfo($tempPath, PATHINFO_EXTENSION);
-                    $newPath = self::B2B_DOCUMENT_PATH . Str::uuid()->toString() . '.' . $ext;
-                    Storage::disk($uploadDiskName)->put($newPath, $contents);
-                    $validated[$field] = $newPath;
+            $validated[$field] = null;
+        }
+
+        try {
+            // 1. Create verification first (data in DB only; no file paths yet)
+            $verification = $user->agentVerification()->create([
+                ...$validated,
+                'status' => 'pending',
+                'company_country' => $validated['company_country'] ?? 'Indonesia',
+            ]);
+
+            // 2. Copy draft files to per-account path: documents/agent-verifications/{user_id}/{verification_id}/
+            $uploadDiskName = $this->getAgentVerificationUploadDiskName();
+            $basePath = $this->getB2BDocumentBasePath((int) $user->id, (int) $verification->id);
+
+            foreach ($fileFields as $field) {
+                if (!isset($storedFiles[$field])) {
+                    continue;
                 }
-                if (Storage::disk($uploadDiskName)->exists($tempPath)) {
-                    Storage::disk($uploadDiskName)->delete($tempPath);
+                $tempPath = $storedFiles[$field];
+                try {
+                    $contents = Storage::disk($uploadDiskName)->get($tempPath);
+                    if ($contents !== null && strlen($contents) > 0) {
+                        $ext = pathinfo($tempPath, PATHINFO_EXTENSION);
+                        $fileName = Str::uuid()->toString() . '.' . $ext;
+                        $path = $this->putFileWithFallback($contents, $basePath . '/' . $fileName, $uploadDiskName, $field);
+                        if ($path !== null) {
+                            $verification->update([$field => $path]);
+                        }
+                    }
+                    if (Storage::disk($uploadDiskName)->exists($tempPath)) {
+                        Storage::disk($uploadDiskName)->delete($tempPath);
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('B2B draft file copy failed', ['field' => $field, 'path' => $tempPath, 'message' => $e->getMessage()]);
+                }
+            }
+
+            try {
+                $files = Storage::disk($uploadDiskName)->files('temp-b2b-drafts/' . $token);
+                foreach ($files as $file) {
+                    Storage::disk($uploadDiskName)->delete($file);
                 }
             } catch (\Throwable $e) {
-                Log::warning('B2B draft file copy failed', ['field' => $field, 'path' => $tempPath, 'message' => $e->getMessage()]);
+                // ignore cleanup errors
             }
-        }
 
-        try {
-            $files = Storage::disk($uploadDiskName)->files('temp-b2b-drafts/' . $token);
-            foreach ($files as $file) {
-                Storage::disk($uploadDiskName)->delete($file);
-            }
-        } catch (\Throwable $e) {
-            // ignore cleanup errors
-        }
-
-        try {
-            DB::transaction(function () use ($user, $validated) {
-                $user->agentVerification()->create([
-                    ...$validated,
-                    'status' => 'pending',
-                    'company_country' => $validated['company_country'] ?? 'Indonesia',
-                ]);
-            });
-            $verification = $user->fresh()->agentVerification;
-            Log::info('B2B verification created (draft)', ['user_id' => $user->id, 'verification_id' => $verification?->id]);
+            Log::info('B2B verification created (draft)', ['user_id' => $user->id, 'verification_id' => $verification->id]);
         } catch (\Throwable $e) {
             Log::error('B2B storeContinueFromDraft create failed', ['user_id' => $user->id, 'message' => $e->getMessage()]);
             $draft->delete();
@@ -933,79 +1013,66 @@ class AgentVerificationController extends Controller
             $fileName = $baseFileName . '.' . ($extension ?: 'pdf');
             $mimeType = $this->getMimeType($extension);
 
-            // Paths to try: uploads go to public disk or R2 as "documents/agent-verifications/..." or "agent-verifications/..."
+            // Paths to try: must match what we store (documents/agent-verifications/... or public/...)
             $pathsToTry = [
                 $filePath,
-                'public/' . $filePath,
-                str_replace('public/', '', $filePath),
+                ltrim(str_replace('public/', '', $filePath), '/'),
+                'public/' . ltrim($filePath, '/'),
             ];
+            $pathsToTry = array_values(array_unique(array_filter($pathsToTry)));
 
-            // 1) Try public disk first (where storeAs(..., 'public') saves files)
-            $publicDisk = Storage::disk('public');
-            foreach ($pathsToTry as $path) {
-                try {
-                    if ($publicDisk->exists($path)) {
-                        \Log::info('Serving file from public disk', [
-                            'path' => $path,
-                            'verification_id' => $verificationId,
-                        ]);
-
-                        return response()->stream(function () use ($publicDisk, $path) {
-                            $stream = $publicDisk->readStream($path);
-                            if ($stream) {
-                                fpassthru($stream);
-                                fclose($stream);
-                            }
-                        }, 200, [
-                            'Content-Type' => $mimeType,
-                            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-                            'Cache-Control' => 'public, max-age=3600',
-                        ]);
+            $streamResponse = function ($disk, $path) use ($mimeType, $fileName) {
+                return response()->stream(function () use ($disk, $path) {
+                    $stream = $disk->readStream($path);
+                    if ($stream) {
+                        fpassthru($stream);
+                        fclose($stream);
                     }
-                } catch (\Throwable $e) {
-                    \Log::debug('Public disk check failed for path', [
-                        'path' => $path,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
-            }
+                }, 200, [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                    'Cache-Control' => 'private, max-age=3600',
+                ]);
+            };
 
-            // 2) Try R2 disk explicitly when R2 is configured (do not rely on default disk)
+            // 1) Try R2 first when configured (B2B docs are stored in R2 when R2 is configured)
             if (R2Helper::isR2DiskConfigured()) {
                 try {
                     $r2Disk = Storage::disk('r2');
                     foreach ($pathsToTry as $path) {
                         try {
                             if ($r2Disk->exists($path)) {
-                                \Log::info('Serving file from R2', [
+                                \Log::info('Admin download: serving from R2', [
                                     'path' => $path,
                                     'verification_id' => $verificationId,
                                 ]);
-
-                                return response()->stream(function () use ($r2Disk, $path) {
-                                    $stream = $r2Disk->readStream($path);
-                                    if ($stream) {
-                                        fpassthru($stream);
-                                        fclose($stream);
-                                    }
-                                }, 200, [
-                                    'Content-Type' => $mimeType,
-                                    'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-                                    'Cache-Control' => 'public, max-age=3600',
-                                ]);
+                                return $streamResponse($r2Disk, $path);
                             }
                         } catch (\Throwable $e) {
-                            \Log::debug('R2 check failed for path', [
-                                'path' => $path,
-                                'error' => $e->getMessage(),
-                            ]);
+                            \Log::debug('R2 check failed for path', ['path' => $path, 'error' => $e->getMessage()]);
                         }
                     }
                 } catch (\Throwable $e) {
-                    \Log::warning('R2 disk unavailable', [
+                    \Log::warning('R2 disk unavailable for download', [
                         'error' => $e->getMessage(),
                         'verification_id' => $verificationId,
                     ]);
+                }
+            }
+
+            // 2) Fallback: try public disk (when R2 was not used or file was fallback-uploaded to public)
+            $publicDisk = Storage::disk('public');
+            foreach ($pathsToTry as $path) {
+                try {
+                    if ($publicDisk->exists($path)) {
+                        \Log::info('Admin download: serving from public disk', [
+                            'path' => $path,
+                            'verification_id' => $verificationId,
+                        ]);
+                        return $streamResponse($publicDisk, $path);
+                    }
+                } catch (\Throwable $e) {
+                    \Log::debug('Public disk check failed for path', ['path' => $path, 'error' => $e->getMessage()]);
                 }
             }
 
@@ -1037,8 +1104,17 @@ class AgentVerificationController extends Controller
     }
 
     /**
+     * Base path for one B2B account's documents in R2/public.
+     * Enables separation: documents/agent-verifications/{user_id}/{verification_id}/ = one person's docs.
+     */
+    private function getB2BDocumentBasePath(int $userId, int $verificationId): string
+    {
+        return self::B2B_DOCUMENT_PATH_PREFIX . '/' . $userId . '/' . $verificationId;
+    }
+
+    /**
      * Disk name for agent-verification document uploads.
-     * Uses R2 when configured; files land in bucket under public/documents/agent-verifications/.
+     * Uses R2 when configured; files land in bucket under public/documents/agent-verifications/{user_id}/{verification_id}/.
      */
     private function getAgentVerificationUploadDiskName(): string
     {

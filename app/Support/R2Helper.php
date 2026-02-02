@@ -163,8 +163,9 @@ class R2Helper
     }
 
     /**
-     * Check if R2 disk is configured (has credentials and bucket).
+     * Check if R2 disk is configured (has credentials, bucket, and endpoint).
      * Use this for agent-verification uploads/downloads so they use R2 even when default disk is 'local'.
+     * Endpoint is required for Cloudflare R2 (custom S3-compatible endpoint).
      */
     public static function isR2DiskConfigured(): bool
     {
@@ -175,7 +176,8 @@ class R2Helper
         return !empty($config['key'])
             && !empty($config['secret'])
             && !empty($config['bucket'])
-            && !empty($config['url']);
+            && !empty($config['url'])
+            && !empty($config['endpoint']);
     }
 
     /**

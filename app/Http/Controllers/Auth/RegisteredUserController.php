@@ -125,15 +125,38 @@ class RegisteredUserController extends Controller
             // For non-B2B registrations, redirect to home instead of dashboard
             return redirect()->route('home');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Re-throw validation exceptions so they're handled by Inertia
+            // Log validation failures, especially for duplicate email (unique constraint)
+            $errors = $e->errors();
+            if (isset($errors['email'])) {
+                Log::info('Registration validation failed (email)', [
+                    'email' => $request->input('email'),
+                    'mode' => $request->input('mode') ?: $request->query('mode'),
+                    'error' => $errors['email'][0] ?? 'unknown',
+                ]);
+            }
+            // Re-throw validation exceptions so they're handled by Inertia and errors show on form
             throw $e;
         } catch (\Throwable $e) {
+            // Check if error is DB duplicate (unique constraint at DB level, not validation level)
+            $isDuplicate = str_contains(strtolower($e->getMessage()), 'duplicate') ||
+                           str_contains(strtolower($e->getMessage()), 'unique');
+            
             Log::error('Registration failed', [
                 'email' => $request->input('email'),
+                'mode' => $request->input('mode') ?: $request->query('mode'),
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
+                'is_duplicate' => $isDuplicate,
             ]);
+            
+            // If DB-level duplicate (unique constraint), give clear message
+            if ($isDuplicate) {
+                return back()->withErrors([
+                    'email' => 'This email address is already registered. Please log in instead or use a different email address.',
+                ])->withInput($request->only('name', 'email'));
+            }
+            
             return back()->withErrors([
                 'email' => 'An error occurred during registration. Please try again or contact support.',
             ])->withInput($request->only('name', 'email'));
