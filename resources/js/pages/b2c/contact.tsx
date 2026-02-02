@@ -84,11 +84,11 @@ export default function Contact() {
                                 </div>
                             </div>
 
-                            <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
+                            <h1 className="mb-4 text-3xl leading-tight font-bold text-white sm:text-4xl md:text-5xl lg:text-6xl">
                                 <EditableText sectionKey="contact.header.title" value="Contact Us" tag="span" />
                             </h1>
 
-                            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
+                            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white sm:text-base md:text-lg lg:text-xl">
                                 <EditableText
                                     sectionKey="contact.header.description"
                                     value="Have questions about our travel packages? We're here to help you plan your perfect journey"
@@ -110,16 +110,18 @@ export default function Contact() {
                                             className={`absolute inset-0 bg-gradient-to-br ${info.color} opacity-0 transition-opacity duration-500 group-hover:opacity-100`}
                                         />
                                         <div className="relative text-center">
-                                            <div className="${info.color} mb-3 inline-flex items-center justify-center rounded-lg bg-gradient-to-br p-3 shadow-md ring-1 ring-white/10">
+                                            <div
+                                                className={`mb-3 inline-flex items-center justify-center rounded-lg bg-gradient-to-br ${info.color} p-3 shadow-md ring-1 ring-white/10`}
+                                            >
                                                 <IconComponent className={`h-6 w-6 ${info.iconColor}`} />
                                             </div>
                                             <h3 className="mb-2 text-lg font-bold text-white">
                                                 <EditableText sectionKey={`contact.info.${info.id}.title`} value={info.title} tag="span" />
                                             </h3>
-                                            <p className="text-sm text-white/75">
+                                            <p className="text-sm text-white">
                                                 <EditableText sectionKey={`contact.info.${info.id}.detail1`} value={info.detail1} tag="span" />
                                             </p>
-                                            <p className="text-sm text-white/75">
+                                            <p className="text-sm text-white">
                                                 <EditableText sectionKey={`contact.info.${info.id}.detail2`} value={info.detail2} tag="span" />
                                             </p>
                                         </div>
@@ -144,7 +146,7 @@ export default function Contact() {
                                         <h2 className="text-2xl font-bold text-white sm:text-3xl">
                                             <EditableText sectionKey="contact.form.title" value="Quick Contact Form" tag="span" />
                                         </h2>
-                                        <p className="mt-2 text-sm text-white/70">
+                                        <p className="mt-2 text-sm text-white">
                                             <EditableText sectionKey="contact.form.subtitle" value="We'll respond within 24 hours" tag="span" />
                                         </p>
                                     </div>

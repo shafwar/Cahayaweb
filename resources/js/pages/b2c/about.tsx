@@ -78,11 +78,11 @@ export default function About() {
                                 </div>
                             </div>
 
-                            <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
+                            <h1 className="mb-4 text-3xl leading-tight font-bold text-white sm:text-4xl md:text-5xl lg:text-6xl">
                                 <EditableText sectionKey="about.header.title" value="About Us" tag="span" />
                             </h1>
 
-                            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
+                            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white sm:text-base md:text-lg lg:text-xl">
                                 <EditableText
                                     sectionKey="about.header.description"
                                     value="Creating unforgettable travel experiences with exceptional service, cultural authenticity, and unwavering commitment to excellence"
@@ -108,10 +108,10 @@ export default function About() {
                                                     <IconComponent className="h-5 w-5 text-amber-400 sm:h-6 sm:w-6" />
                                                 </div>
                                             </div>
-                                            <div className="mb-1.5 bg-gradient-to-r from-amber-200 via-amber-100 to-orange-200 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl md:text-4xl lg:text-5xl">
+                                            <div className="mb-1.5 text-2xl font-bold text-amber-200 sm:text-3xl md:text-4xl lg:text-5xl">
                                                 <EditableText sectionKey={`about.stats.${stat.id}.number`} value={stat.number} tag="span" />
                                             </div>
-                                            <div className="text-xs font-semibold text-white/90 sm:text-sm">
+                                            <div className="text-xs font-semibold text-white sm:text-sm">
                                                 <EditableText sectionKey={`about.stats.${stat.id}.label`} value={stat.label} tag="span" />
                                             </div>
                                         </div>
@@ -131,10 +131,10 @@ export default function About() {
                             <div className="space-y-6">
                                 <div className="space-y-3">
                                     <div>
-                                        <h2 className="mb-3 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-xl font-bold text-transparent sm:text-2xl lg:text-3xl">
+                                        <h2 className="mb-3 text-xl font-bold text-white sm:text-2xl lg:text-3xl">
                                             <EditableText sectionKey="about.profile.title" value="Company Profile" tag="span" />
                                         </h2>
-                                        <p className="text-sm leading-relaxed text-white/80 sm:text-base md:text-lg">
+                                        <p className="text-sm leading-relaxed text-white sm:text-base md:text-lg">
                                             <EditableText
                                                 sectionKey="about.profile.description"
                                                 value="PT Cahaya Anbiya Travel is a premier travel company committed to providing memorable and comfortable halal travel experiences. We prioritize service quality with a friendly and professional approach, ensuring every journey is both spiritually fulfilling and culturally enriching."
@@ -154,7 +154,7 @@ export default function About() {
                                                 <EditableText sectionKey="about.vision.label" value="Vision" tag="span" />
                                             </span>
                                         </div>
-                                        <p className="text-sm leading-relaxed text-white/85 sm:text-base">
+                                        <p className="text-sm leading-relaxed text-white sm:text-base">
                                             <EditableText
                                                 sectionKey="about.vision.description"
                                                 value="To become a leading travel company in inspiring halal travel packages that connect people with their faith and culture, creating transformative experiences that last a lifetime."
@@ -175,7 +175,7 @@ export default function About() {
                                                 <EditableText sectionKey="about.mission.label" value="Mission" tag="span" />
                                             </span>
                                         </div>
-                                        <ul className="space-y-2.5 text-sm text-white/85 sm:text-base">
+                                        <ul className="space-y-2.5 text-sm text-white sm:text-base">
                                             <li className="flex items-start gap-2.5">
                                                 <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 shadow-md" />
                                                 <span>
@@ -215,7 +215,7 @@ export default function About() {
                             {/* Right Column */}
                             <div className="space-y-6">
                                 <div>
-                                    <h2 className="mb-5 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-xl font-bold text-transparent sm:text-2xl lg:text-3xl">
+                                    <h2 className="mb-5 text-xl font-bold text-white sm:text-2xl lg:text-3xl">
                                         <EditableText sectionKey="about.values.title" value="Our Core Values" tag="span" />
                                     </h2>
                                     <div className="space-y-4">
@@ -243,7 +243,7 @@ export default function About() {
                                                                     tag="span"
                                                                 />
                                                             </h3>
-                                                            <p className="text-xs leading-relaxed text-white/75 transition-colors group-hover:text-white/90 sm:text-sm">
+                                                            <p className="text-xs leading-relaxed text-white transition-colors group-hover:text-white sm:text-sm">
                                                                 <EditableText
                                                                     sectionKey={`about.values.${value.id}.description`}
                                                                     value={value.description}
