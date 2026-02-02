@@ -54,17 +54,26 @@ class RegisteredUserController extends Controller
                 'password.confirmed' => 'Password confirmation does not match.',
             ]);
 
+            // Only persist user in transaction. Do NOT fire Registered event inside transaction:
+            // if a listener throws (e.g. email), the whole transaction would roll back and the user would not be saved.
             $user = DB::transaction(function () use ($validated) {
-                $user = User::create([
+                return User::create([
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'password' => Hash::make($validated['password']),
                 ]);
-                event(new Registered($user));
-                return $user;
             });
 
             Log::info('User registered successfully', ['user_id' => $user->id, 'email' => $user->email]);
+
+            try {
+                event(new Registered($user));
+            } catch (\Throwable $e) {
+                Log::warning('Registered event failed (user already saved)', [
+                    'user_id' => $user->id,
+                    'message' => $e->getMessage(),
+                ]);
+            }
 
             Auth::login($user);
 
@@ -75,31 +84,30 @@ class RegisteredUserController extends Controller
             // PRIORITY 1: Check if there's stored B2B registration data in session (most reliable)
             // Check this BEFORE regenerating token to preserve session data
             if ($request->session()->has('b2b_registration_data')) {
-                // Redirect to continue registration endpoint (GET request)
-                // Force HTTPS to prevent Mixed Content errors
                 $continueUrl = route('b2b.register.store.continue', [], true);
                 if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
                     $continueUrl = str_replace('http://', 'https://', $continueUrl);
                 }
+                Log::info('B2B post-register redirect (session)', ['user_id' => $user->id, 'continue_url' => $continueUrl]);
                 return redirect($continueUrl);
             }
 
             // PRIORITY 2: Check mode parameter for B2B (from POST data or query string)
             if ($mode === 'b2b') {
-                // If redirect param points to B2B continue URL (with b2b_token), use it so draft flow works when session was lost
                 if (is_string($redirect)) {
                     $path = str_starts_with($redirect, '/') ? explode('?', $redirect, 2)[0] : (parse_url($redirect, PHP_URL_PATH) ?: '');
                     $query = str_starts_with($redirect, '/') ? (explode('?', $redirect, 2)[1] ?? '') : (parse_url($redirect, PHP_URL_QUERY) ?? '');
                     if ($path && str_contains($path, '/b2b/register/continue')) {
                         $continuePath = $path . ($query !== '' ? '?' . $query : '');
+                        Log::info('B2B post-register redirect (mode+redirect)', ['user_id' => $user->id, 'continue_path' => $continuePath]);
                         return redirect($continuePath);
                     }
                 }
-                // No valid continue URL: redirect to B2B register form
                 $registerUrl = route('b2b.register', [], true);
                 if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
                     $registerUrl = str_replace('http://', 'https://', $registerUrl);
                 }
+                Log::warning('B2B post-register: no valid continue URL', ['user_id' => $user->id, 'redirect_param' => $redirect]);
                 return redirect($registerUrl)->with('error', 'Please complete the B2B registration form.');
             }
 

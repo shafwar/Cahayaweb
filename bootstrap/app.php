@@ -130,10 +130,7 @@ return Application::configure(basePath: dirname(__DIR__))
             // For Inertia requests, return proper Inertia response (NOT JSON!)
             // CRITICAL: Must use redirect()->withErrors() or redirect()->route(), NOT response()->json()
             if ($request->header('X-Inertia')) {
-                // Check if this is a login request - if so, redirect back to login with error
                 if ($request->is('login') || $request->routeIs('login') || str_contains($request->path(), 'login')) {
-                    // For login requests, redirect back to login page with error message
-                    // This ensures proper Inertia response instead of JSON
                     $mode = $request->input('mode') ?: $request->query('mode');
                     $redirect = $request->input('redirect') ?: $request->query('redirect');
 
@@ -145,8 +142,27 @@ return Application::configure(basePath: dirname(__DIR__))
                     ])->withInput($request->only('email'));
                 }
 
+                // POST register: keep user in B2B flow; redirect to register with mode/redirect preserved
+                if ($request->isMethod('POST') && ($request->routeIs('register') || $request->is('register'))) {
+                    $mode = $request->input('mode') ?: $request->query('mode');
+                    $redirect = $request->input('redirect') ?: $request->query('redirect');
+
+                    return redirect()->route('register', array_filter([
+                        'mode' => $mode,
+                        'redirect' => $redirect,
+                    ]))->withErrors([
+                        'email' => 'An error occurred during registration. Please try again or contact support.',
+                    ])->withInput($request->only('name', 'email'));
+                }
+
+                // POST b2b/register: redirect back to B2B form
+                if ($request->isMethod('POST') && ($request->routeIs('b2b.register.store') || $request->is('b2b/register'))) {
+                    return redirect()->route('b2b.register')->withErrors([
+                        'message' => 'An error occurred while submitting the form. Please try again.',
+                    ])->withInput();
+                }
+
                 // For other Inertia requests, redirect to home with error message
-                // This ensures proper Inertia response instead of JSON
                 return redirect()->route('home')->with('error', 'An error occurred. Please try again or refresh the page.');
             }
 

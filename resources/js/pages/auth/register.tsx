@@ -94,10 +94,21 @@ export default function Register() {
             }
         }
 
+        // Always inject mode/redirect from current URL into payload so backend receives them (avoids race with useEffect)
         post(registerUrl, {
             preserveState: false,
             preserveScroll: false,
             only: [],
+            transform: (payload) => {
+                const q = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+                const modeFromUrl = q.get('mode');
+                const redirectFromUrl = q.get('redirect');
+                return {
+                    ...payload,
+                    ...(modeFromUrl ? { mode: modeFromUrl } : {}),
+                    ...(redirectFromUrl ? { redirect: redirectFromUrl } : {}),
+                };
+            },
             onError: (errors) => {
                 console.error('Registration errors:', errors);
                 const errorMessage = errors?.message || (typeof errors === 'string' ? errors : '');
