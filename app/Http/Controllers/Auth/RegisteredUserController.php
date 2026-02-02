@@ -81,34 +81,25 @@ class RegisteredUserController extends Controller
             $mode = $request->input('mode') ?: $request->query('mode');
             $redirect = $request->input('redirect') ?: $request->query('redirect');
 
-            // PRIORITY 1: Check if there's stored B2B registration data in session (most reliable)
-            // Check this BEFORE regenerating token to preserve session data
-            if ($request->session()->has('b2b_registration_data')) {
-                $continueUrl = route('b2b.register.store.continue', [], true);
-                if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
-                    $continueUrl = str_replace('http://', 'https://', $continueUrl);
-                }
-                Log::info('B2B post-register redirect (session)', ['user_id' => $user->id, 'continue_url' => $continueUrl]);
-                return redirect($continueUrl);
-            }
-
-            // PRIORITY 2: Check mode parameter for B2B (from POST data or query string)
-            if ($mode === 'b2b') {
+            // PRIORITY 1: B2B flow — redirect to continue so verification is created and user lands on pending
+            // Prefer redirect param (contains b2b_token) so multi-instance / lost session still works via draft
+            if ($request->session()->has('b2b_registration_data') || $mode === 'b2b') {
+                $continueUrl = null;
                 if (is_string($redirect)) {
                     $path = str_starts_with($redirect, '/') ? explode('?', $redirect, 2)[0] : (parse_url($redirect, PHP_URL_PATH) ?: '');
                     $query = str_starts_with($redirect, '/') ? (explode('?', $redirect, 2)[1] ?? '') : (parse_url($redirect, PHP_URL_QUERY) ?? '');
                     if ($path && str_contains($path, '/b2b/register/continue')) {
-                        $continuePath = $path . ($query !== '' ? '?' . $query : '');
-                        Log::info('B2B post-register redirect (mode+redirect)', ['user_id' => $user->id, 'continue_path' => $continuePath]);
-                        return redirect($continuePath);
+                        $continueUrl = $path . ($query !== '' ? '?' . $query : '');
                     }
                 }
-                $registerUrl = route('b2b.register', [], true);
-                if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
-                    $registerUrl = str_replace('http://', 'https://', $registerUrl);
+                if ($continueUrl === null) {
+                    $continueUrl = route('b2b.register.store.continue', [], true);
                 }
-                Log::warning('B2B post-register: no valid continue URL', ['user_id' => $user->id, 'redirect_param' => $redirect]);
-                return redirect($registerUrl)->with('error', 'Please complete the B2B registration form.');
+                if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                    $continueUrl = preg_replace('#^http://#', 'https://', $continueUrl);
+                }
+                Log::info('B2B post-register redirect to continue', ['user_id' => $user->id, 'continue_url' => $continueUrl]);
+                return redirect($continueUrl);
             }
 
             // Regenerate session token after successful registration (only if not B2B)
