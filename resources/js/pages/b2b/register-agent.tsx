@@ -132,6 +132,30 @@ const countryCodes = countries
         return numA - numB;
     });
 
+const businessTypes = [
+    { value: 'PT', label: 'PT - Limited Liability Company' },
+    { value: 'CV', label: 'CV - Limited Partnership' },
+    { value: 'UD', label: 'UD - Trading Company' },
+    { value: 'Firma', label: 'General Partnership' },
+    { value: 'Koperasi', label: 'Cooperative' },
+    { value: 'Perusahaan Perorangan', label: 'Sole Proprietorship' },
+    { value: 'Yayasan', label: 'Foundation (Nonprofit)' },
+    { value: 'Perseroan Terbuka', label: 'Public Limited Company (PLC)' },
+    { value: 'Perusahaan Daerah', label: 'Regional-Owned Enterprise (ROE)' },
+    { value: 'LLC', label: 'Limited Liability Company (LLC)' },
+    { value: 'Corporation', label: 'Corporation' },
+    { value: 'Private Limited', label: 'Private Limited Company (Ltd)' },
+    { value: 'Limited Partnership', label: 'Limited Partnership (LP)' },
+    { value: 'Nonprofit', label: 'Nonprofit Organization' },
+    { value: 'Association', label: 'Association' },
+    { value: 'Trust', label: 'Trust' },
+    { value: 'Government', label: 'Government Agency' },
+    { value: 'State-Owned', label: 'State-Owned Enterprise (SOE)' },
+    { value: 'Educational', label: 'Educational Institution' },
+    { value: 'Religious', label: 'Religious Organization' },
+    { value: 'Other', label: 'Other - Please specify below' },
+];
+
 export default function RegisterAgent({ isGuest, rejectedVerification }: Props) {
     const pageProps = usePage().props as {
         auth: { user: { id: number; name: string; email: string } | null };
@@ -602,36 +626,15 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                                                         <SelectValue placeholder="Select your business type" />
                                                     </SelectTrigger>
                                                     <SelectContent className="border border-gray-700 bg-gray-800">
-                                                        <SelectItem value="PT" className="text-white hover:bg-orange-500/20">
-                                                            PT (Perseroan Terbatas) - Limited liability company
-                                                        </SelectItem>
-                                                        <SelectItem value="CV" className="text-white hover:bg-orange-500/20">
-                                                            CV (Commanditaire Vennootschap) - Limited partnership
-                                                        </SelectItem>
-                                                        <SelectItem value="UD" className="text-white hover:bg-orange-500/20">
-                                                            UD (Usaha Dagang) - Trading business
-                                                        </SelectItem>
-                                                        <SelectItem value="Firma" className="text-white hover:bg-orange-500/20">
-                                                            Firma - Partnership firm
-                                                        </SelectItem>
-                                                        <SelectItem value="Koperasi" className="text-white hover:bg-orange-500/20">
-                                                            Koperasi - Cooperative organization
-                                                        </SelectItem>
-                                                        <SelectItem value="Perusahaan Perorangan" className="text-white hover:bg-orange-500/20">
-                                                            Perusahaan Perorangan - Sole proprietorship
-                                                        </SelectItem>
-                                                        <SelectItem value="Yayasan" className="text-white hover:bg-orange-500/20">
-                                                            Yayasan - Foundation (non-profit)
-                                                        </SelectItem>
-                                                        <SelectItem value="Perseroan Terbuka" className="text-white hover:bg-orange-500/20">
-                                                            Perseroan Terbuka (Tbk) - Public limited company
-                                                        </SelectItem>
-                                                        <SelectItem value="Perusahaan Daerah" className="text-white hover:bg-orange-500/20">
-                                                            Perusahaan Daerah (BUMD) - Regional enterprise
-                                                        </SelectItem>
-                                                        <SelectItem value="Other" className="text-white hover:bg-orange-500/20">
-                                                            Other - Please specify below
-                                                        </SelectItem>
+                                                        {businessTypes.map((type) => (
+                                                            <SelectItem
+                                                                key={type.value}
+                                                                value={type.value}
+                                                                className="text-white hover:bg-orange-500/20"
+                                                            >
+                                                                {type.label}
+                                                            </SelectItem>
+                                                        ))}
                                                     </SelectContent>
                                                 </Select>
                                                 <p className="text-xs text-gray-400">
