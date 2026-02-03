@@ -1,6 +1,7 @@
 import GlobalHeader from '@/components/GlobalHeader';
-import { searchItems, SearchResult } from '@/utils/search';
+import SeoHead from '@/components/SeoHead';
 import { getR2Url } from '@/utils/imageHelper';
+import { searchItems, SearchResult } from '@/utils/search';
 import { Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { FileText, MapPin, Package, Search as SearchIcon, X } from 'lucide-react';
@@ -264,22 +265,18 @@ export default function SearchPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
+            <SeoHead title="Search - Cahaya Anbiya Travel" description="Cari paket perjalanan dan destinasi terbaik dari Cahaya Anbiya Travel." />
             <GlobalHeader variant="b2c" />
 
             <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6 lg:py-12">
                 {/* Search Bar */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="mb-8"
-                >
+                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-8">
                     <form
                         onSubmit={handleSearch}
-                        className="group relative mx-auto max-w-3xl overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-br from-black/80 to-slate-900/60 shadow-lg shadow-amber-500/10 transition-all duration-300 focus-within:border-amber-500/70 focus-within:shadow-amber-500/20 focus-within:ring-2 focus-within:ring-amber-500/20"
+                        className="group relative mx-auto max-w-3xl overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-br from-black/80 to-slate-900/60 shadow-lg shadow-amber-500/10 transition-all duration-300 focus-within:border-amber-500/70 focus-within:ring-2 focus-within:shadow-amber-500/20 focus-within:ring-amber-500/20"
                     >
                         <div className="flex items-stretch">
-                            <div className="flex items-center justify-center pl-6 pr-4">
+                            <div className="flex items-center justify-center pr-4 pl-6">
                                 <SearchIcon className="h-6 w-6 text-amber-500/70 transition-colors duration-300 group-focus-within:text-amber-400" />
                             </div>
                             <input
@@ -318,38 +315,22 @@ export default function SearchPage() {
                 {searchQuery.trim() ? (
                     <div className="space-y-8">
                         {results.length === 0 ? (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="text-center py-16"
-                            >
-                                <SearchIcon className="mx-auto h-16 w-16 text-white/20 mb-4" />
-                                <h3 className="text-xl font-semibold text-white/70 mb-2">
-                                    Tidak ada hasil ditemukan
-                                </h3>
-                                <p className="text-white/50">
-                                    Coba gunakan kata kunci lain atau periksa ejaan Anda
-                                </p>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center">
+                                <SearchIcon className="mx-auto mb-4 h-16 w-16 text-white/20" />
+                                <h3 className="mb-2 text-xl font-semibold text-white/70">Tidak ada hasil ditemukan</h3>
+                                <p className="text-white/50">Coba gunakan kata kunci lain atau periksa ejaan Anda</p>
                             </motion.div>
                         ) : (
                             <>
                                 {/* Summary */}
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="text-sm text-white/60"
-                                >
-                                    Ditemukan <span className="font-semibold text-amber-400">{results.length}</span> hasil
-                                    untuk &quot;<span className="font-semibold text-white">{searchQuery}</span>&quot;
+                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-white/60">
+                                    Ditemukan <span className="font-semibold text-amber-400">{results.length}</span> hasil untuk &quot;
+                                    <span className="font-semibold text-white">{searchQuery}</span>&quot;
                                 </motion.div>
 
                                 {/* Pages */}
                                 {groupedResults.pages.length > 0 && (
-                                    <motion.section
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.05 }}
-                                    >
+                                    <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
                                         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
                                             <FileText className="h-5 w-5 text-amber-500" />
                                             Halaman ({groupedResults.pages.length})
@@ -369,19 +350,15 @@ export default function SearchPage() {
                                                         <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/20 text-amber-400 transition-all group-hover:from-amber-500/30 group-hover:to-orange-500/30">
                                                             <FileText className="h-6 w-6" />
                                                         </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <h3 className="text-base font-bold text-white mb-1 group-hover:text-amber-400 transition-colors">
+                                                        <div className="min-w-0 flex-1">
+                                                            <h3 className="mb-1 text-base font-bold text-white transition-colors group-hover:text-amber-400">
                                                                 {result.item.title}
                                                             </h3>
                                                             {result.item.subtitle && (
-                                                                <p className="text-sm text-white/70 mb-2">
-                                                                    {result.item.subtitle}
-                                                                </p>
+                                                                <p className="mb-2 text-sm text-white/70">{result.item.subtitle}</p>
                                                             )}
                                                             {result.item.description && (
-                                                                <p className="text-xs text-white/50 line-clamp-2">
-                                                                    {result.item.description}
-                                                                </p>
+                                                                <p className="line-clamp-2 text-xs text-white/50">{result.item.description}</p>
                                                             )}
                                                         </div>
                                                     </Link>
@@ -393,11 +370,7 @@ export default function SearchPage() {
 
                                 {/* Destinations */}
                                 {groupedResults.destinations.length > 0 && (
-                                    <motion.section
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.1 }}
-                                    >
+                                    <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
                                         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
                                             <MapPin className="h-5 w-5 text-amber-500" />
                                             Destinasi ({groupedResults.destinations.length})
@@ -440,14 +413,10 @@ export default function SearchPage() {
                                                                 }}
                                                             />
                                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                                                            <div className="absolute bottom-4 left-4 right-4">
-                                                                <h3 className="text-lg font-bold text-white mb-1">
-                                                                    {result.item.title}
-                                                                </h3>
+                                                            <div className="absolute right-4 bottom-4 left-4">
+                                                                <h3 className="mb-1 text-lg font-bold text-white">{result.item.title}</h3>
                                                                 {result.item.subtitle && (
-                                                                    <p className="text-sm text-white/80">
-                                                                        {result.item.subtitle}
-                                                                    </p>
+                                                                    <p className="text-sm text-white/80">{result.item.subtitle}</p>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -461,12 +430,8 @@ export default function SearchPage() {
                                                                 )}
                                                             </div>
                                                             <div className="flex items-center justify-between">
-                                                                <span className="text-sm font-semibold text-amber-400">
-                                                                    {result.item.price}
-                                                                </span>
-                                                                <span className="text-xs text-white/50">
-                                                                    {result.item.duration}
-                                                                </span>
+                                                                <span className="text-sm font-semibold text-amber-400">{result.item.price}</span>
+                                                                <span className="text-xs text-white/50">{result.item.duration}</span>
                                                             </div>
                                                         </div>
                                                     </Link>
@@ -478,11 +443,7 @@ export default function SearchPage() {
 
                                 {/* Packages */}
                                 {groupedResults.packages.length > 0 && (
-                                    <motion.section
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                    >
+                                    <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                                         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
                                             <Package className="h-5 w-5 text-amber-500" />
                                             Paket ({groupedResults.packages.length})
@@ -525,14 +486,10 @@ export default function SearchPage() {
                                                                 }}
                                                             />
                                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                                                            <div className="absolute bottom-4 left-4 right-4">
-                                                                <h3 className="text-lg font-bold text-white mb-1">
-                                                                    {result.item.title}
-                                                                </h3>
+                                                            <div className="absolute right-4 bottom-4 left-4">
+                                                                <h3 className="mb-1 text-lg font-bold text-white">{result.item.title}</h3>
                                                                 {result.item.location && (
-                                                                    <p className="text-sm text-white/80">
-                                                                        {result.item.location}
-                                                                    </p>
+                                                                    <p className="text-sm text-white/80">{result.item.location}</p>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -546,12 +503,8 @@ export default function SearchPage() {
                                                                 )}
                                                             </div>
                                                             <div className="flex items-center justify-between">
-                                                                <span className="text-sm font-semibold text-amber-400">
-                                                                    {result.item.price}
-                                                                </span>
-                                                                <span className="text-xs text-white/50">
-                                                                    {result.item.duration}
-                                                                </span>
+                                                                <span className="text-sm font-semibold text-amber-400">{result.item.price}</span>
+                                                                <span className="text-xs text-white/50">{result.item.duration}</span>
                                                             </div>
                                                         </div>
                                                     </Link>
@@ -564,16 +517,10 @@ export default function SearchPage() {
                         )}
                     </div>
                 ) : (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="text-center py-16"
-                    >
-                        <SearchIcon className="mx-auto h-16 w-16 text-white/20 mb-4" />
-                        <h3 className="text-xl font-semibold text-white/70 mb-2">
-                            Cari Destinasi & Paket Wisata
-                        </h3>
-                        <p className="text-white/50 max-w-md mx-auto">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center">
+                        <SearchIcon className="mx-auto mb-4 h-16 w-16 text-white/20" />
+                        <h3 className="mb-2 text-xl font-semibold text-white/70">Cari Destinasi & Paket Wisata</h3>
+                        <p className="mx-auto max-w-md text-white/50">
                             Masukkan kata kunci untuk mencari destinasi atau paket wisata yang Anda inginkan
                         </p>
                     </motion.div>
@@ -582,4 +529,3 @@ export default function SearchPage() {
         </div>
     );
 }
-

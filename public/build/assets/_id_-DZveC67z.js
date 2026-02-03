@@ -1,21 +1,4 @@
-import SeoHead from '@/components/SeoHead';
-import PublicLayout from '@/layouts/public-layout';
-import { getR2Url } from '@/utils/imageHelper';
-import { Link, usePage } from '@inertiajs/react';
-import { motion } from 'framer-motion';
-
-export default function BlogArticle() {
-    const { props } = usePage();
-    const id = props.id || 1;
-
-    // Comprehensive blog articles with detailed content
-    const blogArticles = [
-        {
-            id: 1,
-            title: 'Complete Guide to Umrah: Spiritual Journey to the Holy Land',
-            excerpt:
-                'Discover everything you need to know about performing Umrah, from preparation to completion. Learn about the sacred rituals, best times to visit, and how to make your spiritual journey truly meaningful.',
-            content: `
+import{j as e,m as r}from"./framer-motion-D9Ds6MjR.js";import{P as u,S as d,g}from"./app-BRFkv5JS.js";import{u as p,L as s}from"./inertia-D2QVZ4Tm.js";/* empty css            */import"./vendor-DP3lGzMr.js";import"./lucide-CmpPQWiQ.js";import"./radix-ui-CoelwvIk.js";function A(){const{props:c}=p(),m=c.id||1,l=[{id:1,title:"Complete Guide to Umrah: Spiritual Journey to the Holy Land",excerpt:"Discover everything you need to know about performing Umrah, from preparation to completion. Learn about the sacred rituals, best times to visit, and how to make your spiritual journey truly meaningful.",content:`
                 <h2>Understanding Umrah: A Sacred Pilgrimage</h2>
                 <p>Umrah, often referred to as the "lesser pilgrimage," is a sacred journey to the holy cities of Makkah and Madinah. Unlike Hajj, which is obligatory once in a lifetime for those who are able, Umrah can be performed at any time of the year and is highly recommended in Islamic tradition.</p>
 
@@ -66,23 +49,7 @@ export default function BlogArticle() {
 
                 <h3>Post-Umrah Reflection</h3>
                 <p>After completing Umrah, take time to reflect on your experience and how it has impacted your spiritual life. This journey should serve as a foundation for continued spiritual growth and development.</p>
-            `,
-            image: '/umrah.jpeg',
-            category: 'Spiritual Journey',
-            readTime: '8 min read',
-            date: 'August 28, 2025',
-            author: 'Cahaya Anbiya Team',
-            authorImage: '/team-1.jpg',
-            tags: ['Umrah', 'Spiritual', 'Makkah', 'Madinah'],
-            featured: true,
-            relatedArticles: [2, 3, 4],
-        },
-        {
-            id: 2,
-            title: 'Exploring Turkey: From Istanbul to Cappadocia',
-            excerpt:
-                "Embark on a cultural adventure through Turkey's most iconic destinations. From the historic streets of Istanbul to the magical landscapes of Cappadocia, discover the perfect blend of East and West.",
-            content: `
+            `,image:"/umrah.jpeg",category:"Spiritual Journey",readTime:"8 min read",date:"August 28, 2025",author:"Cahaya Anbiya Team",authorImage:"/team-1.jpg",tags:["Umrah","Spiritual","Makkah","Madinah"],featured:!0,relatedArticles:[2,3,4]},{id:2,title:"Exploring Turkey: From Istanbul to Cappadocia",excerpt:"Embark on a cultural adventure through Turkey's most iconic destinations. From the historic streets of Istanbul to the magical landscapes of Cappadocia, discover the perfect blend of East and West.",content:`
                 <h2>Turkey: Where East Meets West</h2>
                 <p>Turkey stands as a unique bridge between Europe and Asia, offering visitors an unparalleled blend of cultures, histories, and landscapes. From the bustling streets of Istanbul to the otherworldly landscapes of Cappadocia, every corner of this magnificent country tells a story.</p>
 
@@ -130,23 +97,7 @@ export default function BlogArticle() {
                     <li>Learn a few basic Turkish phrases to enhance your experience</li>
                     <li>Respect local customs and dress modestly when visiting religious sites</li>
                 </ul>
-            `,
-            image: '/TURKEY.jpeg',
-            category: 'Cultural Travel',
-            readTime: '6 min read',
-            date: 'August 25, 2025',
-            author: 'Travel Expert',
-            authorImage: '/team-2.jpg',
-            tags: ['Turkey', 'Istanbul', 'Cappadocia', 'Culture'],
-            featured: true,
-            relatedArticles: [1, 3, 5],
-        },
-        {
-            id: 3,
-            title: 'Ancient Egypt: Unveiling the Mysteries of the Pharaohs',
-            excerpt:
-                'Journey through the cradle of civilization and explore the magnificent wonders of ancient Egypt. From the Great Pyramids to the Valley of the Kings, experience the magic of pharaonic history.',
-            content: `
+            `,image:"/TURKEY.jpeg",category:"Cultural Travel",readTime:"6 min read",date:"August 25, 2025",author:"Travel Expert",authorImage:"/team-2.jpg",tags:["Turkey","Istanbul","Cappadocia","Culture"],featured:!0,relatedArticles:[1,3,5]},{id:3,title:"Ancient Egypt: Unveiling the Mysteries of the Pharaohs",excerpt:"Journey through the cradle of civilization and explore the magnificent wonders of ancient Egypt. From the Great Pyramids to the Valley of the Kings, experience the magic of pharaonic history.",content:`
                 <h2>Egypt: The Cradle of Civilization</h2>
                 <p>Egypt, often called the "Gift of the Nile," is home to some of the world's most ancient and magnificent monuments. This land of pharaohs, pyramids, and timeless mysteries continues to captivate travelers from around the world.</p>
 
@@ -208,23 +159,7 @@ export default function BlogArticle() {
                     <li><strong>Red Sea Coast:</strong> World-class diving and beach resorts</li>
                     <li><strong>Sinai Peninsula:</strong> Mountain adventures and religious sites</li>
                 </ul>
-            `,
-            image: '/egypt.jpeg',
-            category: 'Historical Travel',
-            readTime: '7 min read',
-            date: 'August 22, 2025',
-            author: 'Archaeology Enthusiast',
-            authorImage: '/team-3.jpg',
-            tags: ['Egypt', 'Pyramids', 'History', 'Nile'],
-            featured: false,
-            relatedArticles: [1, 2, 4],
-        },
-        {
-            id: 4,
-            title: 'Dubai Luxury: Modern Wonders and Desert Adventures',
-            excerpt:
-                'Experience the epitome of luxury and innovation in Dubai. From the iconic Burj Khalifa to thrilling desert safaris, discover why Dubai is the ultimate destination for luxury travelers.',
-            content: `
+            `,image:"/egypt.jpeg",category:"Historical Travel",readTime:"7 min read",date:"August 22, 2025",author:"Archaeology Enthusiast",authorImage:"/team-3.jpg",tags:["Egypt","Pyramids","History","Nile"],featured:!1,relatedArticles:[1,2,4]},{id:4,title:"Dubai Luxury: Modern Wonders and Desert Adventures",excerpt:"Experience the epitome of luxury and innovation in Dubai. From the iconic Burj Khalifa to thrilling desert safaris, discover why Dubai is the ultimate destination for luxury travelers.",content:`
                 <h2>Dubai: Where Dreams Become Reality</h2>
                 <p>Dubai, the crown jewel of the United Arab Emirates, has transformed from a small fishing village into one of the world's most luxurious and innovative cities. This desert metropolis offers visitors an unparalleled blend of modern luxury and traditional Arabian hospitality.</p>
 
@@ -298,23 +233,7 @@ export default function BlogArticle() {
                     <li><strong>Dubai Parks and Resorts:</strong> Multiple theme parks</li>
                     <li><strong>Global Village:</strong> Cultural festival park</li>
                 </ul>
-            `,
-            image: '/dubai1.jpeg',
-            category: 'Luxury Travel',
-            readTime: '5 min read',
-            date: 'August 20, 2025',
-            author: 'Luxury Travel Specialist',
-            authorImage: '/team-4.jpg',
-            tags: ['Dubai', 'Luxury', 'Desert', 'Modern'],
-            featured: false,
-            relatedArticles: [1, 2, 5],
-        },
-        {
-            id: 5,
-            title: 'Oman Adventure: Hidden Gems of the Arabian Peninsula',
-            excerpt:
-                'Explore the hidden gem of the Arabian Peninsula. From the stunning fjords of Musandam to the ancient forts of Nizwa, discover authentic Arabian experiences away from the crowds.',
-            content: `
+            `,image:"/dubai1.jpeg",category:"Luxury Travel",readTime:"5 min read",date:"August 20, 2025",author:"Luxury Travel Specialist",authorImage:"/team-4.jpg",tags:["Dubai","Luxury","Desert","Modern"],featured:!1,relatedArticles:[1,2,5]},{id:5,title:"Oman Adventure: Hidden Gems of the Arabian Peninsula",excerpt:"Explore the hidden gem of the Arabian Peninsula. From the stunning fjords of Musandam to the ancient forts of Nizwa, discover authentic Arabian experiences away from the crowds.",content:`
                 <h2>Oman: Arabia's Best-Kept Secret</h2>
                 <p>Oman, often overlooked in favor of its more famous neighbors, is a hidden gem that offers visitors authentic Arabian experiences, stunning natural landscapes, and rich cultural heritage. This peaceful sultanate provides a perfect blend of tradition and modernity.</p>
 
@@ -399,23 +318,7 @@ export default function BlogArticle() {
                     <li><strong>Mountain Biking:</strong> Challenging trails in the mountains</li>
                     <li><strong>Wildlife Watching:</strong> Spot Arabian wildlife</li>
                 </ul>
-            `,
-            image: '/oman.jpg',
-            category: 'Adventure Travel',
-            readTime: '6 min read',
-            date: 'August 18, 2025',
-            author: 'Adventure Guide',
-            authorImage: '/team-5.jpg',
-            tags: ['Oman', 'Adventure', 'Desert', 'Forts'],
-            featured: false,
-            relatedArticles: [2, 4, 6],
-        },
-        {
-            id: 6,
-            title: 'Qatar Luxury: Tradition Meets Modernity',
-            excerpt:
-                'Discover the perfect blend of tradition and modernity in Qatar. From the stunning Museum of Islamic Art to luxury at The Pearl, experience why Qatar is becoming a premier travel destination.',
-            content: `
+            `,image:"/oman.jpg",category:"Adventure Travel",readTime:"6 min read",date:"August 18, 2025",author:"Adventure Guide",authorImage:"/team-5.jpg",tags:["Oman","Adventure","Desert","Forts"],featured:!1,relatedArticles:[2,4,6]},{id:6,title:"Qatar Luxury: Tradition Meets Modernity",excerpt:"Discover the perfect blend of tradition and modernity in Qatar. From the stunning Museum of Islamic Art to luxury at The Pearl, experience why Qatar is becoming a premier travel destination.",content:`
                 <h2>Qatar: Where Tradition Meets Innovation</h2>
                 <p>Qatar, a small but mighty nation on the Arabian Peninsula, has rapidly emerged as a premier travel destination. This modern country offers visitors a unique blend of traditional Arabian hospitality and cutting-edge innovation.</p>
 
@@ -512,219 +415,4 @@ export default function BlogArticle() {
                     <li><strong>Cinema City:</strong> Modern movie theaters</li>
                     <li><strong>Sports Facilities:</strong> World-class sports venues</li>
                 </ul>
-            `,
-            image: '/qatar.jpg',
-            category: 'Luxury Travel',
-            readTime: '5 min read',
-            date: 'August 15, 2025',
-            author: 'Qatar Expert',
-            authorImage: '/team-6.jpg',
-            tags: ['Qatar', 'Luxury', 'Culture', 'Modern'],
-            featured: false,
-            relatedArticles: [4, 5, 7],
-        },
-    ];
-
-    // Find the current article
-    const currentArticle = blogArticles.find((article) => article.id === parseInt(id as string));
-
-    if (!currentArticle) {
-        return (
-            <PublicLayout>
-                <SeoHead title="Article Not Found - Cahaya Anbiya Travel" description="Artikel yang Anda cari tidak ditemukan." />
-                <section className="mx-auto max-w-4xl px-6 py-16 text-center">
-                    <h1 className="mb-4 text-4xl font-bold text-foreground">Article Not Found</h1>
-                    <p className="mb-8 text-muted-foreground">The article you're looking for doesn't exist.</p>
-                    <Link
-                        href="/blog"
-                        className="inline-flex items-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-lg"
-                    >
-                        Back to Blog
-                    </Link>
-                </section>
-            </PublicLayout>
-        );
-    }
-
-    // Get related articles
-    const relatedArticles = blogArticles.filter((article) => currentArticle.relatedArticles.includes(article.id));
-
-    return (
-        <PublicLayout>
-            <SeoHead title={`${currentArticle.title} - Cahaya Anbiya Travel`} description={currentArticle.excerpt} image={currentArticle.image} />
-
-            <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 md:py-16">
-                {/* Article Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: 'easeOut' }}
-                    className="mb-8"
-                >
-                    {/* Enhanced Breadcrumb */}
-                    <nav className="mb-6 flex flex-wrap items-center space-x-2 text-sm text-muted-foreground">
-                        <Link href="/" className="transition-colors duration-200 hover:text-primary">
-                            Home
-                        </Link>
-                        <span className="text-primary/50">•</span>
-                        <Link href="/blog" className="transition-colors duration-200 hover:text-primary">
-                            Blog
-                        </Link>
-                        <span className="text-primary/50">•</span>
-                        <span className="line-clamp-1 font-medium text-foreground">{currentArticle.title}</span>
-                    </nav>
-
-                    {/* Article Meta */}
-                    <div className="mb-6 flex items-center space-x-4 text-sm text-muted-foreground">
-                        <span>{currentArticle.date}</span>
-                        <span>•</span>
-                        <span>{currentArticle.readTime}</span>
-                        <span>•</span>
-                        <span className="rounded-full bg-primary/10 px-2 py-1 text-primary">{currentArticle.category}</span>
-                    </div>
-
-                    {/* Article Title */}
-                    <h1 className="mb-6 text-4xl font-bold text-foreground md:text-5xl lg:text-6xl">{currentArticle.title}</h1>
-
-                    {/* Article Excerpt */}
-                    <p className="mb-8 text-lg leading-relaxed text-muted-foreground md:text-xl">{currentArticle.excerpt}</p>
-
-                    {/* Author Info */}
-                    <div className="mb-8 flex items-center space-x-4">
-                        <div className="h-12 w-12 rounded-full bg-muted">{/* Author image placeholder */}</div>
-                        <div>
-                            <div className="font-medium text-foreground">By {currentArticle.author}</div>
-                            <div className="text-sm text-muted-foreground">Travel Expert</div>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Article Image */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                    className="mb-8 overflow-hidden rounded-xl"
-                >
-                    <img
-                        src={getR2Url(currentArticle.image)}
-                        alt={currentArticle.title}
-                        className="h-64 w-full object-cover md:h-96"
-                        onError={(e) => {
-                            const target = e.currentTarget;
-                            if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
-                                const currentUrl = target.src;
-                                let altPath = currentUrl;
-                                if (currentUrl.includes('/public/images/')) {
-                                    altPath = currentUrl.replace('/public/images/', '/images/');
-                                } else if (currentUrl.includes('/public/')) {
-                                    altPath = currentUrl.replace('/public/', '/');
-                                } else if (currentUrl.includes('/images/')) {
-                                    altPath = currentUrl.replace('/images/', '/public/images/');
-                                } else {
-                                    const fileName = currentUrl.split('/').pop() || currentArticle.image;
-                                    altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
-                                }
-                                console.log('[Blog Article Image] Trying alternative R2 path:', altPath);
-                                target.src = altPath;
-                            }
-                        }}
-                    />
-                </motion.div>
-
-                {/* Article Content */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.4 }}
-                    className="prose prose-lg prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-ul:text-muted-foreground prose-li:text-muted-foreground max-w-none"
-                    dangerouslySetInnerHTML={{ __html: currentArticle.content }}
-                />
-
-                {/* Tags */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.6 }}
-                    className="mt-12 border-t border-border pt-8"
-                >
-                    <h3 className="mb-4 text-lg font-semibold text-foreground">Tags:</h3>
-                    <div className="flex flex-wrap gap-2">
-                        {currentArticle.tags.map((tag) => (
-                            <span key={tag} className="rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
-                                #{tag}
-                            </span>
-                        ))}
-                    </div>
-                </motion.div>
-
-                {/* Related Articles */}
-                {relatedArticles.length > 0 && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.8 }}
-                        className="mt-16 border-t border-border pt-8"
-                    >
-                        <h3 className="mb-6 text-2xl font-bold text-foreground">Related Articles</h3>
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                            {relatedArticles.map((article) => (
-                                <Link
-                                    key={article.id}
-                                    href={`/blog/${article.id}`}
-                                    className="group block overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-lg"
-                                >
-                                    <div className="aspect-video overflow-hidden">
-                                        <img
-                                            src={getR2Url(article.image)}
-                                            alt={article.title}
-                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                        />
-                                    </div>
-                                    <div className="p-4">
-                                        <h4 className="mb-2 font-semibold text-foreground transition-colors duration-300 group-hover:text-primary">
-                                            {article.title}
-                                        </h4>
-                                        <p className="line-clamp-2 text-sm text-muted-foreground">{article.excerpt}</p>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
-
-                {/* Call to Action */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 1.0 }}
-                    className="mt-16 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-8 text-center backdrop-blur-sm"
-                >
-                    <h3 className="mb-4 text-2xl font-bold text-foreground">Ready to Experience These Destinations?</h3>
-                    <p className="mb-6 text-muted-foreground">Let us help you plan your perfect journey to these amazing destinations.</p>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-                        <motion.a
-                            href="https://wa.me/6281234567890"
-                            target="_blank"
-                            rel="noreferrer"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-lg"
-                        >
-                            Start Planning
-                            <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                        </motion.a>
-                        <Link
-                            href="/destinations"
-                            className="inline-flex items-center justify-center rounded-lg border border-primary px-6 py-3 text-sm font-medium text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground"
-                        >
-                            View All Destinations
-                        </Link>
-                    </div>
-                </motion.div>
-            </section>
-        </PublicLayout>
-    );
-}
+            `,image:"/qatar.jpg",category:"Luxury Travel",readTime:"5 min read",date:"August 15, 2025",author:"Qatar Expert",authorImage:"/team-6.jpg",tags:["Qatar","Luxury","Culture","Modern"],featured:!1,relatedArticles:[4,5,7]}],i=l.find(t=>t.id===parseInt(m));if(!i)return e.jsxs(u,{children:[e.jsx(d,{title:"Article Not Found - Cahaya Anbiya Travel",description:"Artikel yang Anda cari tidak ditemukan."}),e.jsxs("section",{className:"mx-auto max-w-4xl px-6 py-16 text-center",children:[e.jsx("h1",{className:"mb-4 text-4xl font-bold text-foreground",children:"Article Not Found"}),e.jsx("p",{className:"mb-8 text-muted-foreground",children:"The article you're looking for doesn't exist."}),e.jsx(s,{href:"/blog",className:"inline-flex items-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-lg",children:"Back to Blog"})]})]});const h=l.filter(t=>i.relatedArticles.includes(t.id));return e.jsxs(u,{children:[e.jsx(d,{title:`${i.title} - Cahaya Anbiya Travel`,description:i.excerpt,image:i.image}),e.jsxs("section",{className:"mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 md:py-16",children:[e.jsxs(r.div,{initial:{opacity:0,y:-20},animate:{opacity:1,y:0},transition:{duration:.8,ease:"easeOut"},className:"mb-8",children:[e.jsxs("nav",{className:"mb-6 flex flex-wrap items-center space-x-2 text-sm text-muted-foreground",children:[e.jsx(s,{href:"/",className:"hover:text-primary transition-colors duration-200",children:"Home"}),e.jsx("span",{className:"text-primary/50",children:"•"}),e.jsx(s,{href:"/blog",className:"hover:text-primary transition-colors duration-200",children:"Blog"}),e.jsx("span",{className:"text-primary/50",children:"•"}),e.jsx("span",{className:"text-foreground font-medium line-clamp-1",children:i.title})]}),e.jsxs("div",{className:"mb-6 flex items-center space-x-4 text-sm text-muted-foreground",children:[e.jsx("span",{children:i.date}),e.jsx("span",{children:"•"}),e.jsx("span",{children:i.readTime}),e.jsx("span",{children:"•"}),e.jsx("span",{className:"rounded-full bg-primary/10 px-2 py-1 text-primary",children:i.category})]}),e.jsx("h1",{className:"mb-6 text-4xl font-bold text-foreground md:text-5xl lg:text-6xl",children:i.title}),e.jsx("p",{className:"mb-8 text-lg leading-relaxed text-muted-foreground md:text-xl",children:i.excerpt}),e.jsxs("div",{className:"mb-8 flex items-center space-x-4",children:[e.jsx("div",{className:"h-12 w-12 rounded-full bg-muted"}),e.jsxs("div",{children:[e.jsxs("div",{className:"font-medium text-foreground",children:["By ",i.author]}),e.jsx("div",{className:"text-sm text-muted-foreground",children:"Travel Expert"})]})]})]}),e.jsx(r.div,{initial:{opacity:0,scale:.95},animate:{opacity:1,scale:1},transition:{duration:.8,delay:.2},className:"mb-8 overflow-hidden rounded-xl",children:e.jsx("img",{src:g(i.image),alt:i.title,className:"h-64 w-full object-cover md:h-96",onError:t=>{const o=t.currentTarget;if(o.src&&o.src.includes("assets.cahayaanbiya.com")){const a=o.src;let n=a;a.includes("/public/images/")?n=a.replace("/public/images/","/images/"):a.includes("/public/")?n=a.replace("/public/","/"):a.includes("/images/")?n=a.replace("/images/","/public/images/"):n=`https://assets.cahayaanbiya.com/public/images/${a.split("/").pop()||i.image}`,console.log("[Blog Article Image] Trying alternative R2 path:",n),o.src=n}}})}),e.jsx(r.div,{initial:{opacity:0,y:20},animate:{opacity:1,y:0},transition:{duration:.8,delay:.4},className:"prose prose-lg prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-ul:text-muted-foreground prose-li:text-muted-foreground max-w-none",dangerouslySetInnerHTML:{__html:i.content}}),e.jsxs(r.div,{initial:{opacity:0,y:20},animate:{opacity:1,y:0},transition:{duration:.8,delay:.6},className:"mt-12 border-t border-border pt-8",children:[e.jsx("h3",{className:"mb-4 text-lg font-semibold text-foreground",children:"Tags:"}),e.jsx("div",{className:"flex flex-wrap gap-2",children:i.tags.map(t=>e.jsxs("span",{className:"rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground",children:["#",t]},t))})]}),h.length>0&&e.jsxs(r.div,{initial:{opacity:0,y:20},animate:{opacity:1,y:0},transition:{duration:.8,delay:.8},className:"mt-16 border-t border-border pt-8",children:[e.jsx("h3",{className:"mb-6 text-2xl font-bold text-foreground",children:"Related Articles"}),e.jsx("div",{className:"grid grid-cols-1 gap-6 md:grid-cols-3",children:h.map(t=>e.jsxs(s,{href:`/blog/${t.id}`,className:"group block overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-lg",children:[e.jsx("div",{className:"aspect-video overflow-hidden",children:e.jsx("img",{src:g(t.image),alt:t.title,className:"h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"})}),e.jsxs("div",{className:"p-4",children:[e.jsx("h4",{className:"mb-2 font-semibold text-foreground transition-colors duration-300 group-hover:text-primary",children:t.title}),e.jsx("p",{className:"line-clamp-2 text-sm text-muted-foreground",children:t.excerpt})]})]},t.id))})]}),e.jsxs(r.div,{initial:{opacity:0,y:20},animate:{opacity:1,y:0},transition:{duration:.8,delay:1},className:"mt-16 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 p-8 text-center backdrop-blur-sm",children:[e.jsx("h3",{className:"mb-4 text-2xl font-bold text-foreground",children:"Ready to Experience These Destinations?"}),e.jsx("p",{className:"mb-6 text-muted-foreground",children:"Let us help you plan your perfect journey to these amazing destinations."}),e.jsxs("div",{className:"flex flex-col gap-3 sm:flex-row sm:justify-center",children:[e.jsxs(r.a,{href:"https://wa.me/6281234567890",target:"_blank",rel:"noreferrer",whileHover:{scale:1.05},whileTap:{scale:.95},className:"inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all duration-300 hover:shadow-lg",children:["Start Planning",e.jsx("svg",{className:"ml-2 h-4 w-4",fill:"none",stroke:"currentColor",viewBox:"0 0 24 24",children:e.jsx("path",{strokeLinecap:"round",strokeLinejoin:"round",strokeWidth:2,d:"M9 5l7 7-7 7"})})]}),e.jsx(s,{href:"/destinations",className:"inline-flex items-center justify-center rounded-lg border border-primary px-6 py-3 text-sm font-medium text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground",children:"View All Destinations"})]})]})]})]})}export{A as default};

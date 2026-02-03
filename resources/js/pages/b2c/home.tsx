@@ -1,12 +1,13 @@
 import { EditableText } from '@/components/cms';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
-import { Head, router, usePage } from '@inertiajs/react';
+import { getImageUrl, getVideoUrl } from '@/utils/imageHelper';
+import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
-import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Camera, ChevronDown, Edit3, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { getImageUrl, getVideoUrl } from '@/utils/imageHelper';
 
 // Video component with R2 fallback - Simplified and safer
 function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl: string }) {
@@ -35,7 +36,7 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
                             // Try alternative R2 path variations
                             const currentUrl = videoSrc;
                             let altUrl = fallbackUrl;
-                            
+
                             // Try multiple path variations
                             if (currentUrl.includes('/public/videos/')) {
                                 // Try without /public/
@@ -51,7 +52,7 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
                                 const fileName = currentUrl.split('/').pop() || 'b2cherosectionvideo.mp4';
                                 altUrl = `https://assets.cahayaanbiya.com/public/videos/${fileName}`;
                             }
-                            
+
                             console.log('[Video] Trying alternative R2 path:', altUrl);
                             setVideoSrc(altUrl || 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4');
                             video.load();
@@ -83,7 +84,7 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
                 playsInline
                 preload="auto"
                 className="absolute inset-0 h-full w-full"
-                style={{ 
+                style={{
                     objectFit: 'cover',
                     objectPosition: 'center center',
                     position: 'absolute',
@@ -95,7 +96,7 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
                     minHeight: '100%',
                     maxWidth: '100%',
                     maxHeight: '100%',
-                    zIndex: 0
+                    zIndex: 0,
                 }}
             >
                 <source src={videoSrc} type="video/mp4" />
@@ -115,7 +116,7 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
                     playsInline
                     preload="auto"
                     className="absolute inset-0 h-full w-full"
-                    style={{ 
+                    style={{
                         objectFit: 'cover',
                         objectPosition: 'center center',
                         position: 'absolute',
@@ -127,7 +128,7 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
                         minHeight: '100%',
                         maxWidth: '100%',
                         maxHeight: '100%',
-                        zIndex: 0
+                        zIndex: 0,
                     }}
                 >
                     <source src={fallbackR2Url} type="video/mp4" />
@@ -146,7 +147,7 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
                     playsInline
                     preload="auto"
                     className="absolute inset-0 h-full w-full"
-                    style={{ 
+                    style={{
                         objectFit: 'cover',
                         objectPosition: 'center center',
                         position: 'absolute',
@@ -158,7 +159,7 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
                         minHeight: '100%',
                         maxWidth: '100%',
                         maxHeight: '100%',
-                        zIndex: 0
+                        zIndex: 0,
                     }}
                 >
                     <source src="https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4" type="video/mp4" />
@@ -341,7 +342,7 @@ export default function Home() {
         offset: ['start start', 'end end'],
         layoutEffect: false, // Use regular effect instead of layout effect for better performance
     });
-    
+
     // Throttled transform to reduce re-renders
     const videoY = useTransform(scrollYProgress, [0, 1], [0, 200], {
         clamp: false,
@@ -439,7 +440,10 @@ export default function Home() {
     return (
         <ErrorBoundary>
             <PublicLayout>
-                <Head title="Home" />
+                <SeoHead
+                    title="Home - Cahaya Anbiya Travel"
+                    description="Cahaya Anbiya Travel menghadirkan paket umrah, wisata halal, dan perjalanan premium dengan layanan profesional."
+                />
 
                 <div ref={containerRef}>
                     {/* Hero Section - Clean Video Background - Mobile Optimized */}
@@ -460,7 +464,7 @@ export default function Home() {
                                     const r2VideoUrl = getVideoUrl('/b2cherosectionvideo.mp4');
                                     // Always use R2 URL, never local path
                                     return (
-                                        <VideoWithFallback 
+                                        <VideoWithFallback
                                             r2Url={r2VideoUrl}
                                             fallbackUrl={r2VideoUrl} // Use R2 URL as fallback too
                                         />
@@ -469,12 +473,7 @@ export default function Home() {
                                     console.error('Error getting video URL:', error);
                                     // Even on error, use R2 URL structure
                                     const fallbackR2Url = 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4';
-                                    return (
-                                        <VideoWithFallback 
-                                            r2Url={fallbackR2Url}
-                                            fallbackUrl={fallbackR2Url}
-                                        />
-                                    );
+                                    return <VideoWithFallback r2Url={fallbackR2Url} fallbackUrl={fallbackR2Url} />;
                                 }
                             })()}
                         </motion.div>
@@ -500,51 +499,54 @@ export default function Home() {
                             />
                         </div>
 
-
                         {/* Hero Content - Clean Single Line */}
                         <div className="relative z-10 flex h-full items-center justify-center px-4 pb-20 sm:pb-24">
-                                    <motion.h1
-                                className="max-w-5xl text-center text-4xl font-light leading-tight text-white drop-shadow-2xl md:text-6xl lg:text-7xl"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
+                            <motion.h1
+                                className="max-w-5xl text-center text-4xl leading-tight font-light text-white drop-shadow-2xl md:text-6xl lg:text-7xl"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                                    >
+                            >
                                 <EditableText sectionKey="home.hero.tagline" value="Where ancient wonders meet extraordinary journeys" tag="span" />
-                                    </motion.h1>
+                            </motion.h1>
                         </div>
 
                         {/* Scroll Down Button - Elegant & Subtle */}
-                                    <motion.div
+                        <motion.div
                             className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 sm:bottom-8"
                             initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
+                            animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                                    >
-                                        <motion.button
-                                            onClick={() => smoothScrollTo('best-sellers')}
+                        >
+                            <motion.button
+                                onClick={() => smoothScrollTo('best-sellers')}
                                 className="group flex flex-col items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-3 transition-all duration-300 hover:border-white/30 hover:bg-white/15"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 aria-label="Scroll down"
                             >
-                                <motion.div
-                                    animate={{ y: [0, 6, 0] }}
-                                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                                >
+                                <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}>
                                     <ChevronDown className="h-5 w-5 text-white/70 transition-colors group-hover:text-white/90" strokeWidth={1.5} />
                                 </motion.div>
-                                <span className="text-[10px] font-light tracking-wider text-white/50 transition-colors group-hover:text-white/70">SCROLL</span>
-                                        </motion.button>
-                                    </motion.div>
-
+                                <span className="text-[10px] font-light tracking-wider text-white/50 transition-colors group-hover:text-white/70">
+                                    SCROLL
+                                </span>
+                            </motion.button>
+                        </motion.div>
                     </section>
 
                     {/* Best Sellers Section - Unified 2-Column Design */}
                     <section id="best-sellers" className="relative bg-gradient-to-b from-black via-slate-950 to-black py-24">
                         {/* Ambient background effects - Reduced blur for performance */}
                         <div className="pointer-events-none absolute inset-0">
-                            <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.04),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
-                            <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,84,255,0.03),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
+                            <div
+                                className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.04),transparent_70%)] blur-2xl"
+                                style={{ willChange: 'auto' }}
+                            />
+                            <div
+                                className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,84,255,0.03),transparent_70%)] blur-2xl"
+                                style={{ willChange: 'auto' }}
+                            />
                         </div>
 
                         <div className="relative mx-auto max-w-7xl px-4">
@@ -586,118 +588,118 @@ export default function Home() {
                                 {bestSellers.map((item) => {
                                     const imageSrc = getImageSrc(`home.bestsellers.${item.id}.image`, item.image);
                                     return (
-                                    <motion.div key={item.id} variants={fadeInUp} transition={{ duration: 0.7, ease }} className="group">
-                                        <motion.div
-                                            className="relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-slate-900/80 to-slate-900/60"
-                                            whileHover={{ y: -6 }}
-                                            transition={{ duration: 0.4, ease }}
-                                        >
-                                            <div className="relative aspect-[16/10] overflow-hidden">
-                                                <motion.img
-                                                    src={imageSrc}
-                                                    alt={item.title}
-                                                    className="h-full w-full object-cover"
-                                                    loading="lazy"
-                                                    decoding="async"
-                                                    whileHover={{ scale: 1.1 }}
-                                                    transition={{ duration: 0.8, ease }}
-                                                    style={{ willChange: 'transform' }}
-                                                    onError={(e) => {
-                                                        // Try alternative R2 path if current R2 URL fails
-                                                        const target = e.currentTarget;
-                                                        if (target.src.includes('assets.cahayaanbiya.com')) {
-                                                            const currentUrl = target.src;
-                                                            let altPath = currentUrl;
-                                                            
-                                                            // Try multiple path variations
-                                                            if (currentUrl.includes('/public/images/')) {
-                                                                // Try without /public/
-                                                                altPath = currentUrl.replace('/public/images/', '/images/');
-                                                            } else if (currentUrl.includes('/public/')) {
-                                                                // Try without /public/
-                                                                altPath = currentUrl.replace('/public/', '/');
-                                                            } else if (currentUrl.includes('/images/')) {
-                                                                // Try with /public/ prefix
-                                                                altPath = currentUrl.replace('/images/', '/public/images/');
-                                                            } else {
-                                                                // Try with /public/images/ prefix
-                                                                const fileName = currentUrl.split('/').pop() || item.image;
-                                                                altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
+                                        <motion.div key={item.id} variants={fadeInUp} transition={{ duration: 0.7, ease }} className="group">
+                                            <motion.div
+                                                className="relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-slate-900/80 to-slate-900/60"
+                                                whileHover={{ y: -6 }}
+                                                transition={{ duration: 0.4, ease }}
+                                            >
+                                                <div className="relative aspect-[16/10] overflow-hidden">
+                                                    <motion.img
+                                                        src={imageSrc}
+                                                        alt={item.title}
+                                                        className="h-full w-full object-cover"
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        whileHover={{ scale: 1.1 }}
+                                                        transition={{ duration: 0.8, ease }}
+                                                        style={{ willChange: 'transform' }}
+                                                        onError={(e) => {
+                                                            // Try alternative R2 path if current R2 URL fails
+                                                            const target = e.currentTarget;
+                                                            if (target.src.includes('assets.cahayaanbiya.com')) {
+                                                                const currentUrl = target.src;
+                                                                let altPath = currentUrl;
+
+                                                                // Try multiple path variations
+                                                                if (currentUrl.includes('/public/images/')) {
+                                                                    // Try without /public/
+                                                                    altPath = currentUrl.replace('/public/images/', '/images/');
+                                                                } else if (currentUrl.includes('/public/')) {
+                                                                    // Try without /public/
+                                                                    altPath = currentUrl.replace('/public/', '/');
+                                                                } else if (currentUrl.includes('/images/')) {
+                                                                    // Try with /public/ prefix
+                                                                    altPath = currentUrl.replace('/images/', '/public/images/');
+                                                                } else {
+                                                                    // Try with /public/images/ prefix
+                                                                    const fileName = currentUrl.split('/').pop() || item.image;
+                                                                    altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
+                                                                }
+
+                                                                console.log('[Image] Trying alternative R2 path:', altPath);
+                                                                target.src = altPath;
                                                             }
-                                                            
-                                                            console.log('[Image] Trying alternative R2 path:', altPath);
-                                                            target.src = altPath;
-                                                        }
-                                                    }}
-                                                />
+                                                        }}
+                                                    />
 
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-                                                {/* Badge */}
-                                                <div className="absolute top-4 right-4">
-                                                    <motion.div
-                                                        className="flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 shadow-xl"
-                                                        whileHover={{ scale: 1.05 }}
-                                                    >
-                                                        <Sparkles className="h-3.5 w-3.5 text-white" />
-                                                        <span className="text-xs font-bold text-white">{item.tag}</span>
-                                                    </motion.div>
-                                                </div>
-
-                                                {/* Edit Controls */}
-                                                {editMode && (
-                                                    <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setImageTargetKey(`home.bestsellers.${item.id}.image`);
-                                                                const el = document.getElementById(hiddenImageInputId) as HTMLInputElement | null;
-                                                                el?.click();
-                                                            }}
-                                                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
+                                                    {/* Badge */}
+                                                    <div className="absolute top-4 right-4">
+                                                        <motion.div
+                                                            className="flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 shadow-xl"
+                                                            whileHover={{ scale: 1.05 }}
                                                         >
-                                                            <Camera className="h-5 w-5" strokeWidth={2.5} />
-                                                        </button>
-
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setEditorOpen({
-                                                                    section: 'bestsellers',
-                                                                    id: item.id,
-                                                                    title: item.title,
-                                                                    subtitle: item.subtitle,
-                                                                });
-                                                            }}
-                                                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
-                                                        >
-                                                            <Edit3 className="h-5 w-5" strokeWidth={2.5} />
-                                                        </button>
+                                                            <Sparkles className="h-3.5 w-3.5 text-white" />
+                                                            <span className="text-xs font-bold text-white">{item.tag}</span>
+                                                        </motion.div>
                                                     </div>
-                                                )}
 
-                                                {/* Content Overlay */}
-                                                <div className="absolute right-0 bottom-0 left-0 p-6">
-                                                    <h3 className="mb-2 text-2xl font-bold text-white">
-                                                        <EditableText
-                                                            sectionKey={`home.bestsellers.${item.id}.title`}
-                                                            value={item.title}
-                                                            tag="span"
-                                                        />
-                                                    </h3>
-                                                    <p className="text-white/70">
-                                                        <EditableText
-                                                            sectionKey={`home.bestsellers.${item.id}.subtitle`}
-                                                            value={item.subtitle}
-                                                            tag="span"
-                                                        />
-                                                    </p>
+                                                    {/* Edit Controls */}
+                                                    {editMode && (
+                                                        <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setImageTargetKey(`home.bestsellers.${item.id}.image`);
+                                                                    const el = document.getElementById(hiddenImageInputId) as HTMLInputElement | null;
+                                                                    el?.click();
+                                                                }}
+                                                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
+                                                            >
+                                                                <Camera className="h-5 w-5" strokeWidth={2.5} />
+                                                            </button>
+
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setEditorOpen({
+                                                                        section: 'bestsellers',
+                                                                        id: item.id,
+                                                                        title: item.title,
+                                                                        subtitle: item.subtitle,
+                                                                    });
+                                                                }}
+                                                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                                            >
+                                                                <Edit3 className="h-5 w-5" strokeWidth={2.5} />
+                                                            </button>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Content Overlay */}
+                                                    <div className="absolute right-0 bottom-0 left-0 p-6">
+                                                        <h3 className="mb-2 text-2xl font-bold text-white">
+                                                            <EditableText
+                                                                sectionKey={`home.bestsellers.${item.id}.title`}
+                                                                value={item.title}
+                                                                tag="span"
+                                                            />
+                                                        </h3>
+                                                        <p className="text-white/70">
+                                                            <EditableText
+                                                                sectionKey={`home.bestsellers.${item.id}.subtitle`}
+                                                                value={item.subtitle}
+                                                                tag="span"
+                                                            />
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500 group-hover:w-full" />
+                                                <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500 group-hover:w-full" />
+                                            </motion.div>
                                         </motion.div>
-                                    </motion.div>
                                     );
                                 })}
                             </motion.div>
@@ -707,7 +709,10 @@ export default function Home() {
                     {/* New Destinations - Creative Magazine Layout */}
                     <section className="relative bg-gradient-to-b from-black via-slate-950 to-black py-24">
                         <div className="pointer-events-none absolute inset-0">
-                            <div className="absolute top-1/3 right-0 h-[500px] w-[600px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.04),transparent_70%)] blur-2xl" style={{ willChange: 'auto' }} />
+                            <div
+                                className="absolute top-1/3 right-0 h-[500px] w-[600px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.04),transparent_70%)] blur-2xl"
+                                style={{ willChange: 'auto' }}
+                            />
                         </div>
 
                         <div className="relative mx-auto max-w-7xl px-4">

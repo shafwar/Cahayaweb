@@ -1,13 +1,13 @@
 import { EditableText } from '@/components/cms';
 import PlaceholderImage from '@/components/media/placeholder-image';
+import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
-import { Head } from '@inertiajs/react';
+import { getR2Url } from '@/utils/imageHelper';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Camera, Check, Edit3, Star, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { getR2Url } from '@/utils/imageHelper';
 
 // ✅ KEEP modal animations - they don't block scroll
 function HighlightEditorModal({
@@ -335,7 +335,10 @@ export default function Highlights() {
 
     return (
         <PublicLayout>
-            <Head title="Highlights - Cahaya Anbiya Travel" />
+            <SeoHead
+                title="Highlights - Cahaya Anbiya Travel"
+                description="Rangkuman pengalaman terbaik dan highlight perjalanan Cahaya Anbiya Travel untuk umrah dan wisata premium."
+            />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
                 <section className="relative mx-auto max-w-7xl px-4 pt-12 pb-8 sm:px-6 md:pt-16 md:pb-10">
@@ -519,7 +522,7 @@ export default function Highlights() {
                                     </div>
 
                                     <div className="mt-auto flex items-center justify-between">
-                                        <button className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:from-amber-400 hover:to-orange-400 hover:scale-105 sm:px-6 sm:py-3 sm:text-base">
+                                        <button className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 sm:px-6 sm:py-3 sm:text-base">
                                             Learn More
                                         </button>
                                         <div className="text-xs font-semibold text-white/60 sm:text-sm">{highlight.features.length} features</div>
@@ -544,14 +547,14 @@ export default function Highlights() {
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black shadow-xl transition-all hover:bg-white/95 hover:scale-105 sm:px-8 sm:py-4 sm:text-base"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black shadow-xl transition-all hover:scale-105 hover:bg-white/95 sm:px-8 sm:py-4 sm:text-base"
                                 >
                                     Start Your Journey
                                     <ArrowRight className="h-5 w-5" />
                                 </a>
                                 <a
                                     href="/destinations"
-                                    className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white px-6 py-3 text-sm font-bold text-white transition-all hover:bg-white hover:text-black hover:scale-105 sm:px-8 sm:py-4 sm:text-base"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white px-6 py-3 text-sm font-bold text-white transition-all hover:scale-105 hover:bg-white hover:text-black sm:px-8 sm:py-4 sm:text-base"
                                 >
                                     View All Destinations
                                     <ArrowRight className="h-5 w-5" />
@@ -625,7 +628,7 @@ export default function Highlights() {
                                         href={`https://${social.toLowerCase()}.com`}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="text-base font-semibold text-white/70 transition-all hover:text-amber-400 hover:scale-110"
+                                        className="text-base font-semibold text-white/70 transition-all hover:scale-110 hover:text-amber-400"
                                     >
                                         {social}
                                     </a>

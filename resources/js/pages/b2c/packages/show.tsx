@@ -1,10 +1,11 @@
+import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 export default function PackageShow({ slug }: { slug: string }) {
     return (
         <PublicLayout>
-            <Head title="Package Detail" />
+            <SeoHead title="Package Detail - Cahaya Anbiya Travel" description="Detail paket perjalanan dari Cahaya Anbiya Travel." />
             <section className="mx-auto max-w-6xl p-6 md:p-10">
                 <nav className="text-sm text-muted-foreground">
                     <Link href={route('b2c.packages')} className="hover:text-accent">

@@ -1,9 +1,9 @@
+import SeoHead from '@/components/SeoHead';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import PublicLayout from '@/layouts/public-layout';
-import { Head } from '@inertiajs/react';
+import { getR2Url } from '@/utils/imageHelper';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { getR2Url } from '@/utils/imageHelper';
 
 export default function BlogIndex() {
     const [selectedArticle, setSelectedArticle] = useState<number | null>(null);
@@ -160,7 +160,10 @@ export default function BlogIndex() {
 
     return (
         <PublicLayout>
-            <Head title="Blog - Cahaya Anbiya Wisata" />
+            <SeoHead
+                title="Blog - Cahaya Anbiya Travel"
+                description="Artikel dan informasi seputar umrah, wisata halal, dan perjalanan premium dari Cahaya Anbiya Travel."
+            />
 
             <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 md:px-10 md:py-16">
                 {/* Enhanced Header Section */}

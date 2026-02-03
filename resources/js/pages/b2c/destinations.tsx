@@ -1,35 +1,38 @@
 import { EditableText } from '@/components/cms';
 import PlaceholderImage from '@/components/media/placeholder-image';
+import SeoHead from '@/components/SeoHead';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import PublicLayout from '@/layouts/public-layout';
-import { Head, usePage } from '@inertiajs/react';
-import axios from 'axios';
 import { getImageUrl } from '@/utils/imageHelper';
+import { usePage } from '@inertiajs/react';
+import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Camera, Check, Clock, Edit3, MapPin, Plus, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 // ✅ KEEP modal animations - they don't block scroll
+type DestinationEditorData = {
+    id: number;
+    title: string;
+    subtitle: string;
+    location: string;
+    duration: string;
+    price: string;
+    highlights: string;
+    description: string;
+    category: string;
+    badge: string;
+};
+
 function DestinationEditorModal({
     destination,
     onClose,
     onSave,
 }: {
-    destination: {
-        id: number;
-        title: string;
-        subtitle: string;
-        location: string;
-        duration: string;
-        price: string;
-        highlights: string;
-        description: string;
-        category: string;
-        badge: string;
-    };
+    destination: DestinationEditorData;
     onClose: () => void;
-    onSave: (data: any) => Promise<void>;
+    onSave: (data: DestinationEditorData) => Promise<void>;
 }) {
     const [formData, setFormData] = useState(destination);
     const [isSaving, setIsSaving] = useState(false);
@@ -243,7 +246,7 @@ function DestinationEditorModal({
 
 export default function Destinations() {
     const [editMode, setEditModeUI] = useState<boolean>(false);
-    const [saving, setSaving] = useState(false);
+    const [, setSaving] = useState(false);
 
     useEffect(() => {
         const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
@@ -253,18 +256,8 @@ export default function Destinations() {
         return () => window.removeEventListener('cms:mode', handler as EventListener);
     }, []);
 
-    const [editorOpen, setEditorOpen] = useState<null | {
-        id: number;
-        title: string;
-        subtitle: string;
-        location: string;
-        duration: string;
-        price: string;
-        highlights: string;
-        description: string;
-        category: string;
-        badge: string;
-    }>(null);
+    const [editorOpen, setEditorOpen] = useState<DestinationEditorData | null>(null);
+    const [openDialogId, setOpenDialogId] = useState<number | null>(null);
 
     const [imageTargetKey, setImageTargetKey] = useState<string | null>(null);
     const hiddenImageInputId = 'destinations-image-replacer';
@@ -478,7 +471,10 @@ export default function Destinations() {
 
     return (
         <PublicLayout>
-            <Head title="Destinations - Cahaya Anbiya Travel" />
+            <SeoHead
+                title="Destinations - Cahaya Anbiya Travel"
+                description="Jelajahi destinasi pilihan Cahaya Anbiya Travel: umrah, wisata budaya, dan perjalanan premium dengan layanan profesional."
+            />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
                 {/* Hero Section */}
@@ -525,19 +521,16 @@ export default function Destinations() {
 
                         {/* Destinations Grid - ✅ NO SCROLL ANIMATIONS */}
                         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
-                            {destinations.map((destination) => {
-                                const [dialogOpen, setDialogOpen] = React.useState(false);
-
-                                return (
-                                    <Dialog
-                                        key={destination.id}
-                                        open={dialogOpen}
-                                        onOpenChange={setDialogOpen}
-                                    >
-                                        <DialogTrigger asChild>
-                                            <article
-                                                className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1.5 ${!editMode ? 'cursor-pointer' : 'cursor-default'}`}
-                                            >
+                            {destinations.map((destination) => (
+                                <Dialog
+                                    key={destination.id}
+                                    open={openDialogId === destination.id}
+                                    onOpenChange={(open) => setOpenDialogId(open ? destination.id : null)}
+                                >
+                                    <DialogTrigger asChild>
+                                        <article
+                                            className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1.5 ${!editMode ? 'cursor-pointer' : 'cursor-default'}`}
+                                        >
                                             <div className="relative aspect-video overflow-hidden">
                                                 <img
                                                     src={getImageSrc(`destinations.${destination.id}.image`, destination.image)}
@@ -658,9 +651,7 @@ export default function Destinations() {
                                                     </span>
                                                 </div>
 
-                                                <div className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm">
-                                                    {destination.highlights}
-                                                </div>
+                                                <div className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm">{destination.highlights}</div>
 
                                                 <div className="flex items-center justify-between">
                                                     <div className="text-sm font-bold text-amber-300 transition-transform group-hover:scale-105 sm:text-base">
@@ -754,7 +745,7 @@ export default function Destinations() {
                                                     href="https://wa.me/6281234567890"
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-center text-lg font-bold text-white shadow-2xl transition-all hover:from-amber-400 hover:to-orange-400 hover:scale-105"
+                                                    className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-center text-lg font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
                                                 >
                                                     Book Now
                                                 </a>
@@ -762,16 +753,15 @@ export default function Destinations() {
                                                     href="https://wa.me/6281234567890"
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    className="flex-1 rounded-xl border-2 border-amber-500 px-8 py-4 text-center text-lg font-bold text-amber-300 transition-all hover:bg-amber-500 hover:text-white hover:scale-105"
+                                                    className="flex-1 rounded-xl border-2 border-amber-500 px-8 py-4 text-center text-lg font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
                                                 >
                                                     Ask Questions
                                                 </a>
                                             </div>
                                         </div>
                                     </DialogContent>
-                                    </Dialog>
-                                );
-                            })}
+                                </Dialog>
+                            ))}
                         </div>
 
                         {/* CTA Section */}
@@ -796,7 +786,7 @@ export default function Destinations() {
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-10 py-5 text-lg font-bold text-white shadow-2xl transition-all hover:from-amber-400 hover:to-orange-400 hover:scale-105"
+                                    className="inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-10 py-5 text-lg font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
                                 >
                                     Free Consultation
                                     <ArrowRight className="h-6 w-6" />
@@ -805,7 +795,7 @@ export default function Destinations() {
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-amber-500 px-10 py-5 text-lg font-bold text-amber-300 transition-all hover:bg-amber-500 hover:text-white hover:scale-105"
+                                    className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-amber-500 px-10 py-5 text-lg font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
                                 >
                                     Custom Package
                                     <Plus className="h-6 w-6" />
@@ -832,7 +822,7 @@ export default function Destinations() {
                                         href={`https://${social.toLowerCase()}.com`}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="text-base font-semibold text-white/70 transition-all hover:text-amber-400 hover:scale-110"
+                                        className="text-base font-semibold text-white/70 transition-all hover:scale-110 hover:text-amber-400"
                                     >
                                         {social}
                                     </a>

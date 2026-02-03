@@ -1,8 +1,9 @@
+import SeoHead from '@/components/SeoHead';
 import { RippleButton } from '@/components/ui/ripple-button';
-import { Head, Link } from '@inertiajs/react';
+import { getR2Url } from '@/utils/imageHelper';
+import { Link } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
-import { getR2Url } from '@/utils/imageHelper';
 
 export default function SelectMode() {
     const [showSplash, setShowSplash] = useState(true);
@@ -174,7 +175,10 @@ export default function SelectMode() {
 
     return (
         <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-gradient-to-br from-black via-slate-950 to-black p-4 text-foreground sm:p-6">
-            <Head title="Welcome" />
+            <SeoHead
+                title="Cahaya Anbiya Travel"
+                description="Pilih mode layanan B2C atau B2B di Cahaya Anbiya Travel untuk perjalanan umrah dan wisata halal terbaik."
+            />
 
             {/* Cinematic Splash Screen with Enhanced Animations - ENLARGED MOBILE */}
             <AnimatePresence mode="wait">
@@ -228,10 +232,10 @@ export default function SelectMode() {
 
                         <div className="relative z-10 flex flex-col items-center justify-center px-4 text-center">
                             {/* Logo - Optimized with GPU acceleration */}
-                            <motion.div 
-                                variants={logoVariants} 
-                                initial="hidden" 
-                                animate="visible" 
+                            <motion.div
+                                variants={logoVariants}
+                                initial="hidden"
+                                animate="visible"
                                 className="mb-6 sm:mb-8 md:mb-12"
                                 style={{
                                     willChange: 'transform, opacity',
@@ -278,7 +282,7 @@ export default function SelectMode() {
                                 initial="hidden"
                                 animate="visible"
                                 className="mb-3 text-xl font-light tracking-wide text-white/90 sm:mb-4 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
-                                style={{ 
+                                style={{
                                     fontFamily: 'Poppins, sans-serif',
                                     willChange: 'transform, opacity',
                                     backfaceVisibility: 'hidden',
@@ -295,7 +299,7 @@ export default function SelectMode() {
                                 initial="hidden"
                                 animate="visible"
                                 className="relative mb-3 text-[32px] leading-[1.1] font-semibold tracking-tight sm:mb-3 sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
-                                style={{ 
+                                style={{
                                     fontFamily: 'Poppins, sans-serif',
                                     willChange: 'transform, opacity',
                                     backfaceVisibility: 'hidden',
@@ -322,8 +326,8 @@ export default function SelectMode() {
                                 initial="hidden"
                                 animate="visible"
                                 className="text-sm font-light tracking-widest text-white/50 sm:text-base md:text-lg lg:text-xl"
-                                style={{ 
-                                    fontFamily: 'Poppins, sans-serif', 
+                                style={{
+                                    fontFamily: 'Poppins, sans-serif',
                                     letterSpacing: '0.25em',
                                     willChange: 'transform, opacity',
                                     backfaceVisibility: 'hidden',
@@ -334,10 +338,10 @@ export default function SelectMode() {
                             </motion.p>
 
                             {/* Loading dots - Optimized with GPU acceleration */}
-                            <motion.div 
-                                variants={dotVariants} 
-                                initial="hidden" 
-                                animate="visible" 
+                            <motion.div
+                                variants={dotVariants}
+                                initial="hidden"
+                                animate="visible"
                                 className="mt-8 flex gap-2.5 sm:mt-10 md:mt-12"
                                 style={{
                                     willChange: 'transform, opacity',
@@ -377,8 +381,14 @@ export default function SelectMode() {
 
             {/* Optimized gradient background - Reduced blur for better performance */}
             <div className="pointer-events-none absolute inset-0" style={{ willChange: 'transform', transform: 'translateZ(0)' }}>
-                <div className="absolute -top-20 left-1/2 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.05),transparent_70%)] blur-xl sm:-top-40 sm:h-[600px] sm:w-[800px]" style={{ willChange: 'transform', transform: 'translateZ(0)' }} />
-                <div className="absolute right-0 -bottom-20 h-[300px] w-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,84,255,0.04),transparent_70%)] blur-xl sm:-bottom-40 sm:h-[500px] sm:w-[600px]" style={{ willChange: 'transform', transform: 'translateZ(0)' }} />
+                <div
+                    className="absolute -top-20 left-1/2 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.05),transparent_70%)] blur-xl sm:-top-40 sm:h-[600px] sm:w-[800px]"
+                    style={{ willChange: 'transform', transform: 'translateZ(0)' }}
+                />
+                <div
+                    className="absolute right-0 -bottom-20 h-[300px] w-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,84,255,0.04),transparent_70%)] blur-xl sm:-bottom-40 sm:h-[500px] sm:w-[600px]"
+                    style={{ willChange: 'transform', transform: 'translateZ(0)' }}
+                />
             </div>
 
             {/* Main content */}

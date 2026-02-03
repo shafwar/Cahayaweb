@@ -100,6 +100,54 @@ Route::get('/health', function () {
     ]);
 });
 
+// Robots.txt for SEO crawlers
+Route::get('/robots.txt', function () {
+    $baseUrl = config('app.url') ?: request()->getSchemeAndHttpHost();
+    $baseUrl = preg_replace('#^http://#', 'https://', $baseUrl);
+
+    $content = implode("\n", [
+        'User-agent: *',
+        'Allow: /',
+        'Sitemap: ' . rtrim($baseUrl, '/') . '/sitemap.xml',
+    ]);
+
+    return response($content, 200)->header('Content-Type', 'text/plain');
+});
+
+// Sitemap.xml for SEO indexing
+Route::get('/sitemap.xml', function () {
+    $baseUrl = config('app.url') ?: request()->getSchemeAndHttpHost();
+    $baseUrl = preg_replace('#^http://#', 'https://', $baseUrl);
+    $baseUrl = rtrim($baseUrl, '/');
+
+    $urls = [
+        '/',
+        '/home',
+        '/about',
+        '/destinations',
+        '/packages',
+        '/highlights',
+        '/blog',
+        '/contact',
+        '/search',
+    ];
+
+    $lastmod = now()->toAtomString();
+    $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    $xml .= "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
+    foreach ($urls as $path) {
+        $xml .= "  <url>\n";
+        $xml .= "    <loc>{$baseUrl}{$path}</loc>\n";
+        $xml .= "    <lastmod>{$lastmod}</lastmod>\n";
+        $xml .= "    <changefreq>weekly</changefreq>\n";
+        $xml .= "    <priority>0.8</priority>\n";
+        $xml .= "  </url>\n";
+    }
+    $xml .= "</urlset>\n";
+
+    return response($xml, 200)->header('Content-Type', 'application/xml');
+});
+
 Route::get('/', function () {
     return Inertia::render('landing/select-mode');
 })->name('home');

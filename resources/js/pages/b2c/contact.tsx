@@ -1,6 +1,6 @@
 import { EditableText } from '@/components/cms';
+import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
-import { Head } from '@inertiajs/react';
 import { Mail, MapPin, MessageSquare, Phone, Send } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -62,7 +62,10 @@ export default function Contact() {
 
     return (
         <PublicLayout>
-            <Head title="Contact Us - Cahaya Anbiya Travel" />
+            <SeoHead
+                title="Contact Us - Cahaya Anbiya Travel"
+                description="Hubungi tim Cahaya Anbiya Travel untuk konsultasi paket perjalanan, umrah, dan wisata halal. Kami siap membantu perjalanan terbaik Anda."
+            />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
                 {/* Hero Section */}

@@ -1,19 +1,9 @@
 import { EditableText } from '@/components/cms';
+import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
-import { Head } from '@inertiajs/react';
 import { Award, Globe, Heart, Shield, Star, TrendingUp, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 export default function About() {
-    const [editMode, setEditModeUI] = useState<boolean>(false);
-    useEffect(() => {
-        const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
-        check();
-        const handler = () => check();
-        window.addEventListener('cms:mode', handler as EventListener);
-        return () => window.removeEventListener('cms:mode', handler as EventListener);
-    }, []);
-
     const coreValues = [
         {
             id: 1,
@@ -56,7 +46,10 @@ export default function About() {
 
     return (
         <PublicLayout>
-            <Head title="About Us - Cahaya Anbiya Travel" />
+            <SeoHead
+                title="About Us - Cahaya Anbiya Travel"
+                description="Cahaya Anbiya Travel menghadirkan perjalanan halal yang aman, nyaman, dan berkesan dengan pelayanan profesional dan pengalaman spiritual terbaik."
+            />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
                 {/* Hero Section */}
