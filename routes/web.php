@@ -49,17 +49,10 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
 
     Route::post('/admin/update-section', [AdminController::class, 'updateSection']);
     Route::post('/admin/upload-image', [AdminController::class, 'uploadImage']);
+    Route::post('/admin/upload-video', [AdminController::class, 'uploadVideo']);
     Route::get('/admin/revisions', [AdminController::class, 'getRevisions']);
     Route::post('/admin/restore-revision', [AdminController::class, 'restoreRevision']);
     Route::post('/admin/reset-to-default', [AdminController::class, 'resetToDefault']);
-    Route::post('/admin/reset-all-heroes', [AdminController::class, 'resetAllHeroes']);
-
-    // Comprehensive Restore Center
-    Route::get('/admin/restore-center', fn () => Inertia::render('admin/restore-center'))->name('admin.restore-center');
-    Route::get('/admin/get-all-changes', [AdminController::class, 'getAllChanges']);
-    Route::post('/admin/reset-all-changes', [AdminController::class, 'resetAllChanges']);
-    Route::post('/admin/reset-by-page', [AdminController::class, 'resetByPage']);
-    Route::post('/admin/reset-by-type', [AdminController::class, 'resetByType']);
 
     // Agent Verification Management
     // IMPORTANT: More specific routes (with /all) must come BEFORE parameterized routes

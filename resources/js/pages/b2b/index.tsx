@@ -63,8 +63,14 @@ function LiveCounter({ end, label, delay = 0 }: { end: number; label: string; de
     );
 }
 
+const IMAGE_GUIDE = '1920×1080px recommended · Max 5MB · Auto-compressed · JPEG, PNG, WebP';
+
 export default function CahayaAnbiyaHero() {
-    const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
+    const { props } = usePage<{
+        sections?: Record<string, { content?: string; image?: string }>;
+        cmsMediaGuide?: { images?: { short?: string } };
+    }>();
+    const imageGuide = props.cmsMediaGuide?.images?.short ?? IMAGE_GUIDE;
 
     const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
     const [consultationStep, setConsultationStep] = useState<'start' | 'whatsapp' | 'phone' | 'office'>('start');
@@ -238,15 +244,15 @@ export default function CahayaAnbiyaHero() {
         start: {
             title: 'Start Your Journey',
             content: (
-                <div className="space-y-6">
-                    <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-950/40 via-amber-900/30 to-orange-950/40 p-6">
-                        <div className="mb-6 flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-2xl shadow-lg">
+                <div className="space-y-3">
+                    <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
+                        <div className="mb-2.5 flex items-center gap-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-amber-400 to-amber-600 text-base">
                                 ✨
                             </div>
-                            <h3 className="text-xl font-bold text-white">What You'll Get</h3>
+                            <h3 className="text-sm font-bold text-white">What You'll Get</h3>
                         </div>
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                             {[
                                 'Personalized pilgrimage planning',
                                 'Budget optimization guidance',
@@ -255,57 +261,50 @@ export default function CahayaAnbiyaHero() {
                             ].map((item, i) => (
                                 <motion.div
                                     key={i}
-                                    initial={{ opacity: 0, x: -20 }}
+                                    initial={{ opacity: 0, x: -8 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.1 }}
-                                    className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 transition-all hover:border-amber-400/40 hover:bg-amber-500/20"
+                                    transition={{ delay: i * 0.06 }}
+                                    className="flex items-center gap-2 rounded-md border border-amber-500/20 bg-amber-500/10 px-3 py-2 transition-all hover:border-amber-400/30"
                                 >
-                                    <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-amber-400 shadow-lg shadow-amber-400/50"></div>
-                                    <span className="text-sm font-medium text-amber-100">{item}</span>
+                                    <div className="h-1 w-1 flex-shrink-0 rounded-full bg-amber-400" />
+                                    <span className="text-xs font-medium text-amber-100">{item}</span>
                                 </motion.div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         <RippleButton
                             onClick={() => setConsultationStep('whatsapp')}
-                            className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 p-5 text-white shadow-xl shadow-green-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-green-500/30"
+                            className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-lg border border-green-500/30 bg-gradient-to-br from-green-500 to-emerald-600 p-3 text-white shadow-md transition-all hover:shadow-lg"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
-                            <div className="relative flex items-center gap-3">
-                                <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.487" />
-                                </svg>
-                                <span className="font-semibold">WhatsApp Chat</span>
-                            </div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                            <svg className="h-5 w-5 relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.487" />
+                            </svg>
+                            <span className="relative z-10 text-sm font-semibold">WhatsApp Chat</span>
                         </RippleButton>
 
                         <RippleButton
                             onClick={() => setConsultationStep('phone')}
-                            className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 p-5 text-white shadow-xl shadow-blue-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/30"
+                            className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-lg border border-blue-500/30 bg-gradient-to-br from-blue-500 to-indigo-600 p-3 text-white shadow-md transition-all hover:shadow-lg"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
-                            <div className="relative flex items-center gap-3">
-                                <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-                                </svg>
-                                <span className="font-semibold">Phone Call</span>
-                            </div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                            <svg className="h-5 w-5 relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+                            </svg>
+                            <span className="relative z-10 text-sm font-semibold">Phone Call</span>
                         </RippleButton>
                     </div>
 
                     <RippleButton
                         onClick={() => setConsultationStep('office')}
-                        className="group relative w-full overflow-hidden rounded-xl border border-gray-600 bg-gradient-to-br from-gray-800 to-gray-900 p-5 text-white shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-gray-500 hover:shadow-2xl"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/5 p-3 text-white transition-all hover:border-white/30 hover:bg-white/10"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
-                        <div className="relative flex items-center gap-3">
-                            <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                            </svg>
-                            <span className="font-semibold">Visit Our Office</span>
-                        </div>
+                        <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                        </svg>
+                        <span className="text-sm font-semibold">Visit Our Office</span>
                     </RippleButton>
                 </div>
             ),
@@ -313,41 +312,41 @@ export default function CahayaAnbiyaHero() {
         whatsapp: {
             title: 'WhatsApp Consultation',
             content: (
-                <div className="space-y-4">
-                    <div className="rounded-lg border border-green-500/20 bg-gradient-to-br from-green-950/40 via-emerald-900/30 to-green-950/40 p-4 sm:p-5">
-                        <div className="mb-3 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
-                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-green-400 to-emerald-600 text-lg shadow-md sm:h-12 sm:w-12 sm:text-xl">
+                <div className="space-y-3">
+                    <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+                        <div className="mb-2.5 flex items-center gap-2">
+                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-green-400 to-emerald-600 text-base">
                                 📱
                             </div>
-                            <div className="min-w-0 flex-1">
-                                <h3 className="text-sm font-semibold text-white sm:text-base lg:text-lg">Instant Support</h3>
-                                <p className="text-xs text-green-200/80 sm:text-sm">Available 24/7</p>
+                            <div>
+                                <h3 className="text-sm font-bold text-white">Instant Support</h3>
+                                <p className="text-xs text-green-200/80">Available 24/7</p>
                             </div>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             {[
                                 { label: 'Main Consultant', value: '+62 812-3456-7890' },
                                 { label: 'Hajj Specialist', value: '+62 812-3456-7891' },
                             ].map((item, i) => (
                                 <div
                                     key={i}
-                                    className="flex items-center justify-between rounded-md border border-green-500/20 bg-green-500/10 p-2.5 sm:p-3"
+                                    className="flex items-center justify-between rounded-md border border-green-500/20 bg-green-500/10 px-3 py-2"
                                 >
-                                    <span className="text-xs font-medium text-green-300 sm:text-sm">{item.label}</span>
-                                    <span className="font-mono text-xs font-semibold text-green-100 sm:text-sm">{item.value}</span>
+                                    <span className="text-xs font-medium text-green-300">{item.label}</span>
+                                    <span className="font-mono text-xs font-semibold text-green-100">{item.value}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
                     <RippleButton
                         onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
-                        className="w-full rounded-md bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-2.5 text-xs font-medium text-white shadow-sm transition-all hover:shadow-md sm:py-3 sm:text-sm"
+                        className="w-full rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 py-2.5 text-xs font-semibold text-white shadow-md"
                     >
                         Open WhatsApp Chat
                     </RippleButton>
                     <button
                         onClick={() => setConsultationStep('start')}
-                        className="w-full text-xs text-gray-400 transition-colors hover:text-gray-200 sm:text-sm"
+                        className="w-full py-1.5 text-xs text-gray-400 transition-colors hover:text-gray-200"
                     >
                         ← Back
                     </button>
@@ -357,18 +356,18 @@ export default function CahayaAnbiyaHero() {
         phone: {
             title: 'Phone Consultation',
             content: (
-                <div className="space-y-4">
-                    <div className="rounded-lg border border-blue-500/20 bg-gradient-to-br from-blue-950/40 via-indigo-900/30 to-blue-950/40 p-4 sm:p-5">
-                        <div className="mb-3 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
-                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-indigo-600 text-lg shadow-md sm:h-12 sm:w-12 sm:text-xl">
+                <div className="space-y-3">
+                    <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
+                        <div className="mb-2.5 flex items-center gap-2">
+                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-blue-400 to-indigo-600 text-base">
                                 📞
                             </div>
-                            <div className="min-w-0 flex-1">
-                                <h3 className="text-sm font-semibold text-white sm:text-base lg:text-lg">Direct Line</h3>
-                                <p className="text-xs text-blue-200/80 sm:text-sm">Professional advisors ready</p>
+                            <div>
+                                <h3 className="text-sm font-bold text-white">Direct Line</h3>
+                                <p className="text-xs text-blue-200/80">Professional advisors ready</p>
                             </div>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             {[
                                 { label: 'Main Office', value: '021-1234-5678' },
                                 { label: 'Toll-Free', value: '0800-1234-5678' },
@@ -376,17 +375,17 @@ export default function CahayaAnbiyaHero() {
                             ].map((item, i) => (
                                 <div
                                     key={i}
-                                    className="flex items-center justify-between rounded-md border border-blue-500/20 bg-blue-500/10 p-2.5 sm:p-3"
+                                    className="flex items-center justify-between rounded-md border border-blue-500/20 bg-blue-500/10 px-3 py-2"
                                 >
-                                    <span className="text-xs font-medium text-blue-300 sm:text-sm">{item.label}</span>
-                                    <span className="font-mono text-xs font-semibold text-blue-100 sm:text-sm">{item.value}</span>
+                                    <span className="text-xs font-medium text-blue-300">{item.label}</span>
+                                    <span className="font-mono text-xs font-semibold text-blue-100">{item.value}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
                     <button
                         onClick={() => setConsultationStep('start')}
-                        className="w-full text-xs text-gray-400 transition-colors hover:text-gray-200 sm:text-sm"
+                        className="w-full py-1.5 text-xs text-gray-400 transition-colors hover:text-gray-200"
                     >
                         ← Back
                     </button>
@@ -396,38 +395,37 @@ export default function CahayaAnbiyaHero() {
         office: {
             title: 'Visit Our Office',
             content: (
-                <div className="space-y-4">
-                    <div className="rounded-lg border border-gray-500/20 bg-gradient-to-br from-gray-900/40 via-gray-800/30 to-gray-900/40 p-4 sm:p-5">
-                        <div className="mb-3 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
-                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-gray-400 to-gray-600 text-lg shadow-md sm:h-12 sm:w-12 sm:text-xl">
+                <div className="space-y-3">
+                    <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                        <div className="mb-2.5 flex items-center gap-2">
+                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-gray-400 to-gray-600 text-base">
                                 🏢
                             </div>
-                            <div className="min-w-0 flex-1">
-                                <h3 className="text-sm font-semibold text-white sm:text-base lg:text-lg">In-Person</h3>
-                                <p className="text-xs text-gray-300/80 sm:text-sm">Face-to-face consultation</p>
+                            <div>
+                                <h3 className="text-sm font-bold text-white">In-Person</h3>
+                                <p className="text-xs text-gray-300/80">Face-to-face consultation</p>
                             </div>
                         </div>
-                        <div className="space-y-2">
-                            <div className="rounded-md border border-gray-500/20 bg-gray-700/30 p-2.5 sm:p-3">
-                                <span className="mb-1.5 block text-xs font-medium text-gray-300 sm:mb-2 sm:text-sm">Address</span>
-                                <span className="text-xs leading-relaxed text-gray-100 sm:text-sm">
-                                    Jl. Sudirman No. 123, Jakarta Pusat
-                                    <br />
+                        <div className="space-y-1.5">
+                            <div className="rounded-md border border-white/10 bg-black/30 px-3 py-2">
+                                <span className="mb-1 block text-[10px] font-medium text-gray-300">Address</span>
+                                <span className="text-xs leading-relaxed text-gray-100">
+                                    Jl. Sudirman No. 123, Jakarta Pusat<br />
                                     DKI Jakarta 10220, Indonesia
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between rounded-md border border-gray-500/20 bg-gray-700/30 p-2.5 sm:p-3">
-                                <span className="text-xs font-medium text-gray-300 sm:text-sm">Office Hours</span>
-                                <span className="text-xs font-semibold text-gray-100 sm:text-sm">Mon-Sat: 08:00-17:00</span>
+                            <div className="flex items-center justify-between rounded-md border border-white/10 bg-black/30 px-3 py-2">
+                                <span className="text-xs font-medium text-gray-300">Office Hours</span>
+                                <span className="text-xs font-semibold text-gray-100">Mon-Sat: 08:00-17:00</span>
                             </div>
                         </div>
                     </div>
-                    <RippleButton className="w-full rounded-md bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2.5 text-xs font-medium text-white shadow-sm transition-all hover:shadow-md sm:py-3 sm:text-sm">
+                    <RippleButton className="w-full rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 text-xs font-semibold text-white shadow-md">
                         Schedule Appointment
                     </RippleButton>
                     <button
                         onClick={() => setConsultationStep('start')}
-                        className="w-full text-xs text-gray-400 transition-colors hover:text-gray-200 sm:text-sm"
+                        className="w-full py-1.5 text-xs text-gray-400 transition-colors hover:text-gray-200"
                     >
                         ← Back
                     </button>
@@ -480,19 +478,24 @@ export default function CahayaAnbiyaHero() {
                         style={{ imageRendering: 'auto', willChange: 'auto' }}
                     />
 
-                    {/* Replace Image Button */}
+                    {/* Replace Image Button + Guide (Edit Mode) */}
                     {editMode && (
-                        <button
-                            onClick={() => {
-                                setImageTargetKey('b2b.hero.image');
-                                document.getElementById(hiddenImageInputId)?.click();
-                            }}
-                            className="absolute top-6 right-6 z-[30] flex h-12 w-12 items-center justify-center rounded-xl bg-white/95 text-gray-800 shadow-2xl ring-4 ring-white/20 transition-all hover:scale-110 hover:bg-white hover:shadow-amber-500/20"
-                            style={{ willChange: 'transform' }}
-                            title="Replace hero image"
-                        >
-                            <Camera className="h-6 w-6" />
-                        </button>
+                        <div className="absolute top-6 right-6 z-[30] flex flex-col items-end gap-2">
+                            <div className="rounded-lg border border-amber-500/30 bg-amber-900/30 px-3 py-2 text-xs text-amber-100 shadow-lg">
+                                {imageGuide}
+                            </div>
+                            <button
+                                onClick={() => {
+                                    setImageTargetKey('b2b.hero.image');
+                                    document.getElementById(hiddenImageInputId)?.click();
+                                }}
+                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/95 text-gray-800 shadow-2xl ring-4 ring-white/20 transition-all hover:scale-110 hover:bg-white hover:shadow-amber-500/20"
+                                style={{ willChange: 'transform' }}
+                                title="Replace hero image"
+                            >
+                                <Camera className="h-6 w-6" />
+                            </button>
+                        </div>
                     )}
 
                     {/* Premium Overlay System */}
@@ -609,16 +612,16 @@ export default function CahayaAnbiyaHero() {
                                         </RippleButton>
                                     </motion.div>
                                 </DialogTrigger>
-                                <DialogContent className="max-h-[90vh] w-[calc(100vw-0.5rem)] max-w-2xl overflow-y-auto border border-gray-800/50 bg-gray-950/95 sm:w-[calc(100vw-2rem)]">
-                                    <DialogHeader className="border-b border-gray-800/50 pb-4 sm:pb-5">
-                                        <DialogTitle className="text-lg font-semibold text-white sm:text-xl">
+                                <DialogContent className="max-h-[85vh] w-[min(480px,calc(100vw-1.5rem))] overflow-y-auto border border-white/10 bg-black/95">
+                                    <DialogHeader className="border-b border-white/10 pb-4">
+                                        <DialogTitle className="text-lg font-bold text-white">
                                             {consultationSteps[consultationStep].title}
                                         </DialogTitle>
-                                        <DialogDescription className="mt-1 text-xs text-gray-400 sm:text-sm">
+                                        <DialogDescription className="mt-1 text-sm text-gray-400">
                                             Connect with our expert consultants for personalized pilgrimage planning
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <div className="p-5 sm:p-6 lg:p-8">{consultationSteps[consultationStep].content}</div>
+                                    <div className="max-h-[calc(85vh-8rem)] overflow-y-auto p-4">{consultationSteps[consultationStep].content}</div>
                                 </DialogContent>
                             </Dialog>
 
@@ -637,12 +640,12 @@ export default function CahayaAnbiyaHero() {
                                         </RippleButton>
                                     </motion.div>
                                 </DialogTrigger>
-                                <DialogContent className="max-h-[90vh] w-[calc(100vw-0.5rem)] max-w-6xl overflow-y-auto border border-gray-800/50 bg-gray-950/95 sm:w-[calc(100vw-2rem)]">
-                                    <DialogHeader className="border-b border-gray-800/50 pb-4 sm:pb-5">
-                                        <DialogTitle className="text-lg font-semibold text-white sm:text-xl">
+                                <DialogContent className="max-h-[85vh] w-[min(560px,calc(100vw-1.5rem))] overflow-y-auto border border-white/10 bg-black/95">
+                                    <DialogHeader className="border-b border-white/10 pb-4">
+                                        <DialogTitle className="text-lg font-bold text-white">
                                             <EditableText sectionKey="b2b.packages_dialog.title" value="Premium Packages" tag="span" />
                                         </DialogTitle>
-                                        <DialogDescription className="mt-1 text-xs text-gray-400 sm:text-sm">
+                                        <DialogDescription className="mt-1 text-sm text-gray-400">
                                             <EditableText
                                                 sectionKey="b2b.packages_dialog.description"
                                                 value="Choose from our carefully curated packages for your spiritual journey"
@@ -651,110 +654,98 @@ export default function CahayaAnbiyaHero() {
                                         </DialogDescription>
                                     </DialogHeader>
 
-                                    <div className="space-y-4 p-5 sm:space-y-5 sm:p-6 lg:p-8">
+                                    <div className="max-h-[calc(85vh-10rem)] space-y-3 overflow-y-auto p-4">
                                         {packages.map((pkg, index) => (
                                             <motion.div
                                                 key={pkg.id}
-                                                initial={{ opacity: 0, y: 15 }}
+                                                initial={{ opacity: 0, y: 8 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                                                className={`rounded-lg border transition-all duration-200 ${
+                                                transition={{ delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                                                className={`rounded-xl border transition-all duration-200 ${
                                                     selectedPackage === pkg.id
-                                                        ? 'border-amber-500/30 bg-gray-900/50'
-                                                        : 'border-gray-800/50 bg-gray-900/30 hover:border-gray-700/50 hover:bg-gray-900/40'
+                                                        ? 'border-amber-500/40 bg-white/5 shadow-lg shadow-amber-500/10'
+                                                        : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]'
                                                 }`}
                                             >
-                                                <div className="p-5 sm:p-6">
-                                                    {/* Header Row - Improved Layout */}
-                                                    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-                                                        <div className="min-w-0 flex-1">
-                                                            <div className="mb-2 flex flex-wrap items-center gap-2">
-                                                                <h3 className="text-sm font-semibold text-white sm:text-base lg:text-lg">
-                                                                    <EditableText
-                                                                        sectionKey={`b2b.packages.${pkg.id}.name`}
-                                                                        value={pkg.name}
-                                                                        tag="span"
-                                                                    />
-                                                                </h3>
-                                                                <div
-                                                                    className={`rounded-full bg-gradient-to-r ${pkg.badgeColor} px-2 py-0.5 text-[9px] font-medium text-white sm:text-[10px]`}
-                                                                >
-                                                                    <EditableText
-                                                                        sectionKey={`b2b.packages.${pkg.id}.badge`}
-                                                                        value={pkg.badge}
-                                                                        tag="span"
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <p className="text-xs text-gray-400 sm:text-sm">
-                                                                📅{' '}
+                                                <div className="p-4">
+                                                    {/* Compact Header: Title + Badge + Duration + Price in one row */}
+                                                    <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+                                                        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                                                            <h3 className="text-sm font-bold text-white sm:text-base">
+                                                                <EditableText
+                                                                    sectionKey={`b2b.packages.${pkg.id}.name`}
+                                                                    value={pkg.name}
+                                                                    tag="span"
+                                                                />
+                                                            </h3>
+                                                            <span className={`rounded-full bg-gradient-to-r ${pkg.badgeColor} px-2 py-0.5 text-[10px] font-medium text-white`}>
+                                                                <EditableText
+                                                                    sectionKey={`b2b.packages.${pkg.id}.badge`}
+                                                                    value={pkg.badge}
+                                                                    tag="span"
+                                                                />
+                                                            </span>
+                                                            <span className="text-xs text-gray-400">
                                                                 <EditableText
                                                                     sectionKey={`b2b.packages.${pkg.id}.duration`}
                                                                     value={pkg.duration}
                                                                     tag="span"
                                                                 />
-                                                            </p>
+                                                            </span>
                                                         </div>
-                                                        <div className="flex-shrink-0 rounded-md bg-gradient-to-br from-amber-500/90 to-orange-600/90 px-4 py-2.5 text-center shadow-sm sm:px-5 sm:py-3">
-                                                            <p className="text-xs font-semibold text-white sm:text-sm lg:text-base">
+                                                        <div className="flex-shrink-0 rounded-md border border-amber-500/30 bg-amber-500/15 px-3 py-1.5 text-right">
+                                                            <p className="text-xs font-bold text-amber-200">
                                                                 <EditableText
                                                                     sectionKey={`b2b.packages.${pkg.id}.price`}
                                                                     value={pkg.price}
                                                                     tag="span"
                                                                 />
                                                             </p>
-                                                            <p className="text-[9px] text-white/80 sm:text-[10px]">per person</p>
                                                         </div>
                                                     </div>
 
-                                                    {/* Highlights - More Compact */}
-                                                    <div className="mb-4 rounded-md border border-amber-500/15 bg-amber-500/5 p-2.5 sm:p-3">
-                                                        <p className="text-xs leading-relaxed text-amber-200/80 sm:text-sm">
-                                                            <EditableText
-                                                                sectionKey={`b2b.packages.${pkg.id}.highlights`}
-                                                                value={pkg.highlights}
-                                                                tag="span"
-                                                            />
-                                                        </p>
-                                                    </div>
+                                                    {/* Highlights - compact */}
+                                                    <p className="mb-2.5 line-clamp-2 rounded-md border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs leading-relaxed text-amber-100/90">
+                                                        <EditableText
+                                                            sectionKey={`b2b.packages.${pkg.id}.highlights`}
+                                                            value={pkg.highlights}
+                                                            tag="span"
+                                                        />
+                                                    </p>
 
-                                                    {/* Features Toggle - Better Spacing */}
+                                                    {/* What's Included - compact toggle */}
                                                     <button
                                                         onClick={() => setSelectedPackage(selectedPackage === pkg.id ? null : pkg.id)}
-                                                        className="mb-3 flex w-full items-center justify-between rounded-md border border-gray-800/50 bg-gray-800/30 px-3 py-2.5 text-left transition-colors hover:border-gray-700/50 hover:bg-gray-800/40 sm:px-4"
+                                                        className="mb-2.5 flex w-full items-center justify-between rounded-md border border-white/10 bg-white/5 px-3 py-2 text-left transition-colors hover:border-white/20 hover:bg-white/10"
                                                     >
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-xs font-medium text-gray-300 sm:text-sm">What's Included</span>
-                                                            <span className="rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-medium text-amber-300 sm:text-[10px]">
-                                                                {pkg.features.length}
-                                                            </span>
-                                                        </div>
-                                                        <motion.svg
-                                                            animate={{ rotate: selectedPackage === pkg.id ? 180 : 0 }}
-                                                            transition={{ duration: 0.2 }}
-                                                            className="h-4 w-4 flex-shrink-0 text-gray-400"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                        </motion.svg>
+                                                        <span className="text-xs font-medium text-gray-300">What's Included</span>
+                                                        <span className="flex items-center gap-1.5">
+                                                            <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-medium text-amber-300">{pkg.features.length}</span>
+                                                            <motion.svg
+                                                                animate={{ rotate: selectedPackage === pkg.id ? 180 : 0 }}
+                                                                transition={{ duration: 0.2 }}
+                                                                className="h-3.5 w-3.5 text-gray-400"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                            </motion.svg>
+                                                        </span>
                                                     </button>
 
-                                                    {/* Features List - Better Grid */}
                                                     {selectedPackage === pkg.id && (
                                                         <motion.div
                                                             initial={{ opacity: 0, height: 0 }}
                                                             animate={{ opacity: 1, height: 'auto' }}
-                                                            exit={{ opacity: 0, height: 0 }}
-                                                            transition={{ duration: 0.25 }}
-                                                            className="mb-4 overflow-hidden"
+                                                            transition={{ duration: 0.2 }}
+                                                            className="mb-2.5 overflow-hidden"
                                                         >
-                                                            <div className="grid grid-cols-1 gap-2.5 rounded-md border border-gray-800/50 bg-gray-800/20 p-3 sm:grid-cols-2 lg:grid-cols-3">
+                                                            <div className="grid grid-cols-1 gap-1.5 rounded-md border border-white/10 bg-white/5 p-2.5 sm:grid-cols-2">
                                                                 {pkg.features.map((feature: string, idx: number) => (
-                                                                    <div key={idx} className="flex items-start gap-2 rounded-sm bg-gray-900/40 p-2.5">
-                                                                        <div className="mt-1 h-1 w-1 flex-shrink-0 rounded-full bg-green-400"></div>
-                                                                        <span className="text-xs leading-relaxed text-gray-300">
+                                                                    <div key={idx} className="flex items-start gap-1.5 rounded bg-black/30 px-2.5 py-1.5">
+                                                                        <div className="mt-1 h-1 w-1 flex-shrink-0 rounded-full bg-green-400" />
+                                                                        <span className="text-[11px] leading-snug text-gray-300">
                                                                             <EditableText
                                                                                 sectionKey={`b2b.packages.${pkg.id}.features.${idx}`}
                                                                                 value={feature}
@@ -767,10 +758,10 @@ export default function CahayaAnbiyaHero() {
                                                         </motion.div>
                                                     )}
 
-                                                    {/* CTA Button */}
                                                     <RippleButton
                                                         onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
-                                                        className="w-full rounded-md bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-2.5 text-xs font-medium text-white shadow-sm transition-all hover:shadow-md sm:py-3 sm:text-sm"
+                                                        className="w-full rounded-lg py-2.5 text-xs font-semibold text-white shadow-md transition-all hover:shadow-lg"
+                                                        style={{ background: 'linear-gradient(to right, rgb(34 197 94), rgb(5 150 105))' }}
                                                     >
                                                         Get Quote via WhatsApp
                                                     </RippleButton>
@@ -778,32 +769,25 @@ export default function CahayaAnbiyaHero() {
                                             </motion.div>
                                         ))}
 
-                                        {/* Custom Package - Improved */}
+                                        {/* Custom Package - compact */}
                                         <motion.div
-                                            initial={{ opacity: 0, y: 15 }}
+                                            initial={{ opacity: 0, y: 8 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.3 }}
-                                            className="rounded-lg border border-blue-500/20 bg-gradient-to-br from-blue-950/20 to-indigo-950/20 p-5 sm:p-6"
+                                            transition={{ delay: 0.2 }}
+                                            className="flex items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/5 p-4"
                                         >
-                                            <div className="mb-4 flex items-start gap-3">
-                                                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-lg shadow-sm sm:h-10 sm:w-10 sm:text-xl">
-                                                    🎯
-                                                </div>
-                                                <div className="flex-1">
-                                                    <h3 className="mb-1 text-sm font-semibold text-white sm:text-base lg:text-lg">
-                                                        Need a Custom Package?
-                                                    </h3>
-                                                    <p className="text-xs leading-relaxed text-gray-400 sm:text-sm">
-                                                        Tailored experiences for your unique spiritual journey
-                                                    </p>
-                                                </div>
+                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-lg">
+                                                🎯
                                             </div>
-
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="text-sm font-bold text-white">Need a Custom Package?</h3>
+                                                <p className="line-clamp-2 text-xs text-gray-400">Tailored experiences for your unique spiritual journey</p>
+                                            </div>
                                             <RippleButton
                                                 onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
-                                                className="w-full rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2.5 text-xs font-medium text-white shadow-sm transition-all hover:shadow-md sm:py-3 sm:text-sm"
+                                                className="flex-shrink-0 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-xs font-semibold text-white"
                                             >
-                                                Request Custom Quote
+                                                Request Quote
                                             </RippleButton>
                                         </motion.div>
                                     </div>
@@ -862,81 +846,96 @@ export default function CahayaAnbiyaHero() {
                                 <div className="absolute -top-1 -right-1 h-2.5 w-2.5 animate-pulse rounded-full border border-white bg-green-400 shadow-md sm:h-3 sm:w-3"></div>
                             </motion.button>
                         </DialogTrigger>
-                        <DialogContent className="max-h-[90vh] w-[calc(100vw-0.5rem)] max-w-3xl overflow-y-auto border border-gray-800/50 bg-gray-950/95 sm:w-[calc(100vw-2rem)]">
-                            <DialogHeader className="border-b border-gray-800/50 pb-4 sm:pb-5">
-                                <DialogTitle className="flex items-center gap-2 text-lg font-semibold text-white sm:gap-3 sm:text-xl">
+                        <DialogContent className="max-h-[85vh] w-[min(520px,calc(100vw-1.5rem))] overflow-y-auto border border-white/10 bg-black/95">
+                            <DialogHeader className="border-b border-white/10 pb-4">
+                                <DialogTitle className="flex items-center gap-2 text-lg font-bold text-white">
                                     <motion.div
                                         animate={{ scale: [1, 1.2, 1] }}
                                         transition={{ duration: 2, repeat: Infinity }}
-                                        className="h-2.5 w-2.5 rounded-full bg-green-400 shadow-md shadow-green-400/50 sm:h-3 sm:w-3"
+                                        className="h-2.5 w-2.5 rounded-full bg-green-400 shadow-md shadow-green-400/50"
                                     />
-                                    Live Support Center
+                                    <EditableText sectionKey="b2b.live_support.title" value="Live Support Center" tag="span" />
                                 </DialogTitle>
-                                <DialogDescription className="mt-1 text-xs text-gray-400 sm:text-sm">
-                                    Connect instantly with our expert consultants
+                                <DialogDescription className="mt-1 text-sm text-gray-400">
+                                    <EditableText
+                                        sectionKey="b2b.live_support.description"
+                                        value="Connect instantly with our expert consultants"
+                                        tag="span"
+                                    />
                                 </DialogDescription>
                             </DialogHeader>
 
-                            <div className="space-y-4 p-5 sm:space-y-5 sm:p-6 lg:p-8">
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+                            <div className="space-y-3 p-4">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     {/* WhatsApp */}
                                     <motion.div
-                                        initial={{ opacity: 0, y: 15 }}
+                                        initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                                        className="rounded-lg border border-green-500/20 bg-gradient-to-br from-green-950/40 to-emerald-950/40 p-4 sm:p-5"
+                                        transition={{ delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+                                        className="rounded-lg border border-green-500/20 bg-green-500/5 p-3"
                                     >
-                                        <div className="mb-3 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
-                                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-green-400 to-emerald-600 text-lg shadow-md sm:h-12 sm:w-12 sm:text-xl">
+                                        <div className="mb-2.5 flex items-center gap-2">
+                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-green-400 to-emerald-600 text-base">
                                                 📱
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h3 className="text-sm font-semibold text-white sm:text-base lg:text-lg">WhatsApp</h3>
-                                                <p className="text-xs text-green-200/80 sm:text-sm">Instant response</p>
+                                                <h3 className="text-sm font-bold text-white">
+                                                    <EditableText sectionKey="b2b.live_support.whatsapp.title" value="WhatsApp" tag="span" />
+                                                </h3>
+                                                <p className="text-xs text-green-200/80">
+                                                    <EditableText sectionKey="b2b.live_support.whatsapp.subtitle" value="Instant response" tag="span" />
+                                                </p>
                                             </div>
                                         </div>
-                                        <div className="mb-3 space-y-2 sm:mb-4">
-                                            <div className="flex items-center justify-between rounded-md border border-green-500/20 bg-green-500/10 p-2.5 sm:p-3">
-                                                <span className="text-xs font-medium text-green-300 sm:text-sm">Response Time</span>
-                                                <span className="text-xs font-semibold text-green-400 sm:text-sm">&lt; 2 min</span>
-                                            </div>
+                                        <div className="mb-2.5 flex items-center justify-between rounded-md border border-green-500/20 bg-green-500/10 px-3 py-2">
+                                            <span className="text-xs font-medium text-green-300">Response Time</span>
+                                            <span className="text-xs font-semibold text-green-400">
+                                                <EditableText sectionKey="b2b.live_support.whatsapp.response_time" value="< 2 min" tag="span" />
+                                            </span>
                                         </div>
                                         <RippleButton
                                             onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
-                                            className="w-full rounded-md bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-2.5 text-xs font-medium text-white shadow-sm transition-all hover:shadow-md sm:py-3 sm:text-sm"
+                                            className="w-full rounded-lg py-2.5 text-xs font-semibold text-white shadow-md"
+                                            style={{ background: 'linear-gradient(to right, rgb(34 197 94), rgb(5 150 105))' }}
                                         >
-                                            Start Chat
+                                            <EditableText sectionKey="b2b.live_support.whatsapp.button" value="Start Chat" tag="span" />
                                         </RippleButton>
                                     </motion.div>
 
                                     {/* Phone */}
                                     <motion.div
-                                        initial={{ opacity: 0, y: 15 }}
+                                        initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                                        className="rounded-lg border border-blue-500/20 bg-gradient-to-br from-blue-950/40 to-indigo-950/40 p-4 sm:p-5"
+                                        transition={{ delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+                                        className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3"
                                     >
-                                        <div className="mb-3 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
-                                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-indigo-600 text-lg shadow-md sm:h-12 sm:w-12 sm:text-xl">
+                                        <div className="mb-2.5 flex items-center gap-2">
+                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-indigo-600 text-base">
                                                 📞
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h3 className="text-sm font-semibold text-white sm:text-base lg:text-lg">Phone</h3>
-                                                <p className="text-xs text-blue-200/80 sm:text-sm">Direct line</p>
+                                                <h3 className="text-sm font-bold text-white">
+                                                    <EditableText sectionKey="b2b.live_support.phone.title" value="Phone" tag="span" />
+                                                </h3>
+                                                <p className="text-xs text-blue-200/80">
+                                                    <EditableText sectionKey="b2b.live_support.phone.subtitle" value="Direct line" tag="span" />
+                                                </p>
                                             </div>
                                         </div>
-                                        <div className="space-y-2">
-                                            <div className="rounded-md border border-blue-500/20 bg-blue-500/10 p-2.5 sm:p-3">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-xs font-medium text-blue-300 sm:text-sm">Main Office</span>
-                                                    <span className="font-mono text-xs text-blue-100 sm:text-sm">021-1234-5678</span>
-                                                </div>
+                                        <div className="space-y-1.5">
+                                            <div className="flex items-center justify-between rounded-md border border-blue-500/20 bg-blue-500/10 px-3 py-2">
+                                                <span className="text-xs font-medium text-blue-300">
+                                                    <EditableText sectionKey="b2b.live_support.phone.main_label" value="Main Office" tag="span" />
+                                                </span>
+                                                <span className="font-mono text-xs font-semibold text-blue-100">
+                                                    <EditableText sectionKey="b2b.live_support.phone.main_number" value="021-1234-5678" tag="span" />
+                                                </span>
                                             </div>
-                                            <div className="rounded-md border border-blue-500/20 bg-blue-500/10 p-2.5 sm:p-3">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-xs font-medium text-blue-300 sm:text-sm">Hours</span>
-                                                    <span className="text-xs text-blue-100 sm:text-sm">Mon-Fri: 08:00-17:00</span>
-                                                </div>
+                                            <div className="flex items-center justify-between rounded-md border border-blue-500/20 bg-blue-500/10 px-3 py-2">
+                                                <span className="text-xs font-medium text-blue-300">Hours</span>
+                                                <span className="text-xs font-semibold text-blue-100">
+                                                    <EditableText sectionKey="b2b.live_support.phone.hours" value="Mon-Fri: 08:00-17:00" tag="span" />
+                                                </span>
                                             </div>
                                         </div>
                                     </motion.div>
@@ -946,18 +945,26 @@ export default function CahayaAnbiyaHero() {
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                                    className="rounded-lg border border-gray-800/50 bg-gray-800/30 p-3 text-center sm:p-4"
+                                    transition={{ delay: 0.18 }}
+                                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-center"
                                 >
-                                    <div className="mb-1.5 flex items-center justify-center gap-2 sm:mb-2">
+                                    <div className="mb-1 flex items-center justify-center gap-2">
                                         <motion.div
                                             animate={{ scale: [1, 1.2, 1] }}
                                             transition={{ duration: 1.5, repeat: Infinity }}
-                                            className="h-2 w-2 rounded-full bg-green-400 shadow-md shadow-green-400/50 sm:h-2.5 sm:w-2.5"
+                                            className="h-2 w-2 rounded-full bg-green-400 shadow-md shadow-green-400/50"
                                         />
-                                        <span className="text-xs font-semibold text-green-400 sm:text-sm">Live Support Active</span>
+                                        <span className="text-xs font-semibold text-green-400">
+                                            <EditableText sectionKey="b2b.live_support.status" value="Live Support Active" tag="span" />
+                                        </span>
                                     </div>
-                                    <p className="text-xs text-gray-400 sm:text-sm">🔒 All consultations are confidential and free</p>
+                                    <p className="text-xs text-gray-400">
+                                        <EditableText
+                                            sectionKey="b2b.live_support.footer"
+                                            value="🔒 All consultations are confidential and free"
+                                            tag="span"
+                                        />
+                                    </p>
                                 </motion.div>
                             </div>
                         </DialogContent>
@@ -970,7 +977,7 @@ export default function CahayaAnbiyaHero() {
                 <input
                     id={hiddenImageInputId}
                     type="file"
-                    accept="image/jpeg,image/png"
+                    accept="image/jpeg,image/png,image/webp"
                     className="hidden"
                     onChange={async (e) => {
                         const file = e.target.files?.[0];
@@ -988,9 +995,11 @@ export default function CahayaAnbiyaHero() {
                                 headers: { 'Content-Type': 'multipart/form-data' },
                             });
 
-                            if (response.data?.success && response.data?.imageUrl) {
+                            const ok = response.data?.status === 'ok' || response.data?.success;
+                            const url = response.data?.url || response.data?.imageUrl;
+                            if (ok && url) {
                                 URL.revokeObjectURL(previewUrl);
-                                setHeroImage(response.data.imageUrl);
+                                setHeroImage(url);
 
                                 const notification = document.createElement('div');
                                 notification.className =

@@ -169,10 +169,13 @@ class HandleInertiaRequests extends Middleware
                 $sectionsData = [];
             }
 
+            $cmsMediaGuide = config('cms_media_guide', []);
+
             return [
                 ...$parentShare,
                 'name' => config('app.name', 'Cahaya Anbiya'),
                 'quote' => $quote,
+                'cmsMediaGuide' => $cmsMediaGuide,
                 'auth' => [
                     'user' => $user ? [
                         'id' => $user->id ?? null,
@@ -232,6 +235,7 @@ class HandleInertiaRequests extends Middleware
                 'ziggy' => $fallbackZiggy,
                 'sidebarOpen' => true,
                 'sections' => [],
+                'cmsMediaGuide' => config('cms_media_guide', []),
             ];
         }
     }

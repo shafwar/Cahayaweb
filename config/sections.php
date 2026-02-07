@@ -34,6 +34,10 @@ return [
             'type' => 'image',
             'public_path' => 'jordan.jpeg',
         ],
+        'home.hero.video' => [
+            'type' => 'video',
+            'video_path' => 'videos/b2cherosectionvideo.mp4',
+        ],
     ],
 ];
 

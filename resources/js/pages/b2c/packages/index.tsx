@@ -1,16 +1,23 @@
 import { EditableText } from '@/components/cms';
 import PlaceholderImage from '@/components/media/placeholder-image';
 import SeoHead from '@/components/SeoHead';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PublicLayout from '@/layouts/public-layout';
-import { getR2Url } from '@/utils/imageHelper';
+import { getImageUrl } from '@/utils/imageHelper';
 import axios from 'axios';
+import { router, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Camera, CheckCircle2, Edit3, Save, Sparkles } from 'lucide-react';
+import { ArrowRight, Edit3, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+const IMAGE_GUIDE = '1920×1080px recommended · Max 5MB · Auto-compressed · JPEG, PNG, WebP';
+
 export default function Packages() {
+    const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
+    const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
+    const getImageSrc = (sectionKey: string, fallbackPath: string) =>
+        getImageUrl(props.sections, sectionKey, fallbackPath);
+
     const [editMode, setEditModeUI] = useState<boolean>(false);
     useEffect(() => {
         const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
@@ -35,11 +42,15 @@ export default function Packages() {
         description: string;
     }>(null);
     const [saving, setSaving] = useState(false);
-    const [imageTargetKey, setImageTargetKey] = useState<string | null>(null);
-    const hiddenImageInputId = 'packages-image-replacer';
-    const [openDialogId, setOpenDialogId] = useState<number | null>(null);
-    const [dialogSaving, setDialogSaving] = useState(false);
-    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [galleryEditorOpen, setGalleryEditorOpen] = useState<null | {
+        id: number;
+        title: string;
+        subtitle: string;
+        description: string;
+        category: string;
+    }>(null);
+    const [galleryPendingFile, setGalleryPendingFile] = useState<File | null>(null);
 
     const packages = [
         {
@@ -309,25 +320,14 @@ export default function Packages() {
                     {/* Packages Grid - ✅ NO SCROLL ANIMATIONS */}
                     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                         {filteredPackages.map((pkg) => (
-                            <Dialog
+                            <article
                                 key={pkg.id}
-                                onOpenChange={(open) => {
-                                    if (open) {
-                                        setOpenDialogId(pkg.id);
-                                        setShowSuccessAlert(false);
-                                    } else {
-                                        if (editMode && openDialogId === pkg.id) window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                                        setOpenDialogId(null);
-                                        setTimeout(() => setShowSuccessAlert(false), 100);
-                                    }
-                                }}
+                                className="group overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl transition-all duration-300 hover:-translate-y-2.5 hover:scale-105"
                             >
-                                <DialogTrigger asChild>
-                                    <article className="group cursor-pointer overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl transition-all duration-300 hover:-translate-y-2.5 hover:scale-105">
                                         <div className="relative aspect-video overflow-hidden">
                                             <img
-                                                src={getR2Url(pkg.image)}
-                                                alt={pkg.title}
+                                                src={getImageSrc(`packages.${pkg.id}.image`, pkg.image)}
+                                                alt={getContent(`packages.${pkg.id}.title`, pkg.title)}
                                                 data-package-id={pkg.id}
                                                 loading="lazy"
                                                 decoding="async"
@@ -355,39 +355,29 @@ export default function Packages() {
 
                                             <div className="absolute top-4 left-4">
                                                 <span className="rounded-full bg-black/70 px-4 py-2 text-sm font-bold text-white shadow-xl">
-                                                    {pkg.type}
+                                                    {getContent(`packages.${pkg.id}.type`, pkg.type)}
                                                 </span>
                                             </div>
 
                                             {editMode && (
-                                                <div className="absolute top-4 left-4 z-10 flex flex-col gap-3">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setImageTargetKey(`packages.${pkg.id}.image`);
-                                                            document.getElementById(hiddenImageInputId)?.click();
-                                                        }}
-                                                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/95 text-gray-800 shadow-2xl ring-2 ring-white/50 transition-all hover:scale-110"
-                                                        title="Replace image"
-                                                    >
-                                                        <Camera className="h-6 w-6" strokeWidth={2.5} />
-                                                    </button>
+                                                <div className="absolute bottom-3 right-3 z-10">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setEditorOpen({
                                                                 id: pkg.id,
-                                                                title: pkg.title,
-                                                                location: pkg.location,
-                                                                duration: pkg.duration,
-                                                                price: pkg.price,
-                                                                pax: pkg.pax,
-                                                                type: pkg.type,
-                                                                description: pkg.description,
+                                                                title: getContent(`packages.${pkg.id}.title`, pkg.title),
+                                                                location: getContent(`packages.${pkg.id}.location`, pkg.location),
+                                                                duration: getContent(`packages.${pkg.id}.duration`, pkg.duration),
+                                                                price: getContent(`packages.${pkg.id}.price`, pkg.price),
+                                                                pax: getContent(`packages.${pkg.id}.pax`, pkg.pax),
+                                                                type: getContent(`packages.${pkg.id}.type`, pkg.type),
+                                                                description: getContent(`packages.${pkg.id}.description`, pkg.description),
                                                             });
+                                                            setPendingFile(null);
                                                         }}
                                                         className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-2xl ring-2 ring-blue-400/50 transition-all hover:scale-110 hover:rotate-12"
-                                                        title="Edit details"
+                                                        title="Edit content & image"
                                                     >
                                                         <Edit3 className="h-6 w-6" strokeWidth={2.5} />
                                                     </button>
@@ -399,254 +389,48 @@ export default function Packages() {
 
                                         <div className="p-6">
                                             <h3 className="mb-2 text-xl font-bold text-white transition-colors group-hover:text-amber-300 sm:text-2xl">
-                                                <EditableText sectionKey={`packages.${pkg.id}.title`} value={pkg.title} tag="span" />
+                                                {getContent(`packages.${pkg.id}.title`, pkg.title)}
                                             </h3>
                                             <p className="mb-3 text-sm leading-relaxed text-white/80 sm:text-base">
-                                                <EditableText sectionKey={`packages.${pkg.id}.location`} value={pkg.location} tag="span" /> •{' '}
-                                                <EditableText sectionKey={`packages.${pkg.id}.duration`} value={pkg.duration} tag="span" />
+                                                {getContent(`packages.${pkg.id}.location`, pkg.location)} •{' '}
+                                                {getContent(`packages.${pkg.id}.duration`, pkg.duration)}
                                             </p>
 
                                             <div className="mb-3 flex items-center justify-between">
                                                 <div className="text-xl font-bold text-amber-300 sm:text-2xl">
-                                                    <EditableText sectionKey={`packages.${pkg.id}.price`} value={pkg.price} tag="span" />
+                                                    {getContent(`packages.${pkg.id}.price`, pkg.price)}
                                                 </div>
                                                 <div className="text-xs font-medium text-white/70 sm:text-sm">
-                                                    <EditableText sectionKey={`packages.${pkg.id}.pax`} value={pkg.pax} tag="span" />
+                                                    {getContent(`packages.${pkg.id}.pax`, pkg.pax)}
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center justify-between">
-                                                <div className="text-sm font-semibold text-amber-300 transition-transform group-hover:scale-105 sm:text-base">
-                                                    View Details →
-                                                </div>
-                                                <div className="text-xs text-white/60 sm:text-sm">{pkg.highlights.length} highlights</div>
+                                            <p className="mb-3 line-clamp-2 text-xs text-white/70 sm:text-sm">
+                                                {getContent(`packages.${pkg.id}.description`, pkg.description)}
+                                            </p>
+
+                                            <div className="flex gap-3">
+                                                <a
+                                                    href="https://wa.me/6281234567890"
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-center text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
+                                                >
+                                                    Book Now
+                                                </a>
+                                                <a
+                                                    href="https://wa.me/6281234567890"
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="flex-1 rounded-xl border border-amber-500 px-4 py-2.5 text-center text-sm font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
+                                                >
+                                                    Ask
+                                                </a>
                                             </div>
                                         </div>
 
                                         <div className="h-1.5 origin-left scale-x-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-lg transition-transform duration-500 group-hover:scale-x-100" />
                                     </article>
-                                </DialogTrigger>
-
-                                <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl border-2 border-white/20 bg-gradient-to-br from-black/98 to-slate-900/98 shadow-2xl sm:max-w-3xl">
-                                    <DialogHeader>
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                                <DialogTitle className="text-2xl font-bold text-white sm:text-3xl">
-                                                    <EditableText sectionKey={`packages.${pkg.id}.title`} value={pkg.title} tag="span" />
-                                                </DialogTitle>
-                                                <DialogDescription className="mt-2 text-base leading-relaxed text-white/80 sm:text-lg">
-                                                    <EditableText sectionKey={`packages.${pkg.id}.description`} value={pkg.description} tag="span" />
-                                                </DialogDescription>
-                                            </div>
-                                            {editMode && (
-                                                <button
-                                                    onClick={() => {
-                                                        setDialogSaving(true);
-                                                        window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                                                        setTimeout(() => {
-                                                            setDialogSaving(false);
-                                                            setShowSuccessAlert(true);
-                                                            setTimeout(() => setShowSuccessAlert(false), 3000);
-                                                        }, 500);
-                                                    }}
-                                                    className="ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500 text-black shadow-2xl hover:bg-amber-400 disabled:opacity-50"
-                                                    disabled={dialogSaving}
-                                                >
-                                                    {dialogSaving ? (
-                                                        <motion.div
-                                                            animate={{ rotate: 360 }}
-                                                            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                                                        >
-                                                            <Save className="h-6 w-6" />
-                                                        </motion.div>
-                                                    ) : (
-                                                        <Save className="h-6 w-6" />
-                                                    )}
-                                                </button>
-                                            )}
-                                        </div>
-                                    </DialogHeader>
-
-                                    <AnimatePresence>
-                                        {showSuccessAlert && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0 }}
-                                                className="mt-6 rounded-2xl border-2 border-green-500/30 bg-green-500/25 p-6"
-                                            >
-                                                <div className="flex items-center gap-4">
-                                                    <CheckCircle2 className="h-7 w-7 text-green-400" />
-                                                    <div>
-                                                        <p className="text-base font-bold text-green-300">Changes saved successfully!</p>
-                                                        <p className="text-sm text-green-400/80">All your edits have been saved.</p>
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-
-                                    <div className="mt-6 space-y-5">
-                                        <div className="rounded-xl border border-white/20 bg-white/5 p-6 shadow-lg">
-                                            <h4 className="mb-4 text-lg font-bold text-amber-300 sm:text-xl">Package Details</h4>
-                                            <div className="grid grid-cols-2 gap-4 text-sm text-white/90 sm:text-base">
-                                                <div>
-                                                    <strong>Location:</strong>{' '}
-                                                    <EditableText sectionKey={`packages.${pkg.id}.location`} value={pkg.location} tag="span" />
-                                                </div>
-                                                <div>
-                                                    <strong>Duration:</strong>{' '}
-                                                    <EditableText sectionKey={`packages.${pkg.id}.duration`} value={pkg.duration} tag="span" />
-                                                </div>
-                                                <div>
-                                                    <strong>Price:</strong>{' '}
-                                                    <EditableText sectionKey={`packages.${pkg.id}.price`} value={pkg.price} tag="span" /> per person
-                                                </div>
-                                                <div>
-                                                    <strong>Group Size:</strong>{' '}
-                                                    <EditableText sectionKey={`packages.${pkg.id}.pax`} value={pkg.pax} tag="span" />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {pkg.features && (
-                                            <div className="rounded-xl border border-white/20 bg-white/5 p-6 shadow-lg">
-                                                <h4 className="mb-4 text-lg font-bold text-amber-300 sm:text-xl">What's Included</h4>
-                                                <ul className="space-y-2.5">
-                                                    {pkg.features.map((feature, index) => (
-                                                        <li key={index} className="flex items-center gap-3 text-sm text-white/90 sm:text-base">
-                                                            <svg
-                                                                className="h-6 w-6 flex-shrink-0 text-green-400"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={2.5}
-                                                                    d="M5 13l4 4L19 7"
-                                                                />
-                                                            </svg>
-                                                            <span>
-                                                                <EditableText
-                                                                    sectionKey={`packages.${pkg.id}.features.${index}`}
-                                                                    value={feature}
-                                                                    tag="span"
-                                                                />
-                                                            </span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        )}
-
-                                        {pkg.dates && pkg.dates.length > 0 && (
-                                            <div className="rounded-xl border border-white/20 bg-white/5 p-6 shadow-lg">
-                                                <h4 className="mb-4 text-lg font-bold text-amber-300 sm:text-xl">Available Dates</h4>
-                                                <div className="space-y-2.5">
-                                                    {pkg.dates.map((date, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4"
-                                                        >
-                                                            <span className="text-sm font-semibold text-white/90 sm:text-base">
-                                                                <EditableText
-                                                                    sectionKey={`packages.${pkg.id}.dates.${index}.date`}
-                                                                    value={date.date}
-                                                                    tag="span"
-                                                                />
-                                                            </span>
-                                                            <span
-                                                                className={`rounded-full px-3 py-1.5 text-xs font-bold sm:px-4 sm:py-2 sm:text-sm ${date.status === 'Available' ? 'bg-green-500/20 text-green-300' : date.status === 'Sold Out' ? 'bg-red-500/20 text-red-300' : 'bg-amber-500/20 text-amber-300'}`}
-                                                            >
-                                                                <EditableText
-                                                                    sectionKey={`packages.${pkg.id}.dates.${index}.status`}
-                                                                    value={date.status}
-                                                                    tag="span"
-                                                                />
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {pkg.hotels && pkg.hotels.length > 0 && (
-                                            <div className="rounded-xl border border-white/20 bg-white/5 p-6 shadow-lg">
-                                                <h4 className="mb-4 text-lg font-bold text-amber-300 sm:text-xl">Accommodations</h4>
-                                                <div className="space-y-2.5">
-                                                    {pkg.hotels.map((hotel, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4"
-                                                        >
-                                                            <div>
-                                                                <span className="text-sm font-bold text-white/90 sm:text-base">
-                                                                    <EditableText
-                                                                        sectionKey={`packages.${pkg.id}.hotels.${index}.name`}
-                                                                        value={hotel.name}
-                                                                        tag="span"
-                                                                    />
-                                                                </span>
-                                                                <div className="mt-1 text-xs text-white/70 sm:text-sm">
-                                                                    <EditableText
-                                                                        sectionKey={`packages.${pkg.id}.hotels.${index}.location`}
-                                                                        value={hotel.location}
-                                                                        tag="span"
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <div className="text-amber-300">
-                                                                {Array.from({ length: hotel.stars }, (_, i) => (
-                                                                    <span key={i} className="text-lg sm:text-xl">
-                                                                        ★
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        <div className="rounded-xl border border-white/20 bg-white/5 p-6 shadow-lg">
-                                            <h4 className="mb-4 text-lg font-bold text-amber-300 sm:text-xl">Highlights</h4>
-                                            <p className="text-sm leading-relaxed text-white/90 sm:text-base">
-                                                {pkg.highlights.map((highlight, index) => (
-                                                    <span key={index}>
-                                                        <EditableText
-                                                            sectionKey={`packages.${pkg.id}.highlights.${index}`}
-                                                            value={highlight}
-                                                            tag="span"
-                                                        />
-                                                        {index < pkg.highlights.length - 1 && ' • '}
-                                                    </span>
-                                                ))}
-                                            </p>
-                                        </div>
-
-                                        <div className="flex gap-3 sm:gap-4">
-                                            <a
-                                                href="https://wa.me/6281234567890"
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-3 text-center text-sm font-bold text-white shadow-xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 sm:px-8 sm:py-4 sm:text-base"
-                                            >
-                                                Book Now
-                                            </a>
-                                            <a
-                                                href="https://wa.me/6281234567890"
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="flex-1 rounded-xl border border-amber-500 px-6 py-3 text-center text-sm font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white sm:px-8 sm:py-4 sm:text-base"
-                                            >
-                                                Ask Questions
-                                            </a>
-                                        </div>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
                         ))}
                     </div>
 
@@ -743,8 +527,8 @@ export default function Packages() {
                                     >
                                         <div className="relative aspect-[4/3] overflow-hidden">
                                             <img
-                                                src={getR2Url(destination.image)}
-                                                alt={destination.title}
+                                                src={getImageSrc(`packages.gallery.${destination.id}.image`, destination.image)}
+                                                alt={getContent(`packages.gallery.${destination.id}.title`, destination.title)}
                                                 data-gallery-id={destination.id}
                                                 loading="lazy"
                                                 decoding="async"
@@ -772,21 +556,30 @@ export default function Packages() {
 
                                             <div className="absolute top-4 left-4">
                                                 <span className="rounded-full bg-black/70 px-4 py-2 text-sm font-bold text-white shadow-xl">
-                                                    {destination.category}
+                                                    {getContent(`packages.gallery.${destination.id}.category`, destination.category)}
                                                 </span>
                                             </div>
 
                                             {editMode && (
-                                                <button
-                                                    onClick={() => {
-                                                        setImageTargetKey(`packages.gallery.${destination.id}.image`);
-                                                        document.getElementById(hiddenImageInputId)?.click();
-                                                    }}
-                                                    className="absolute top-4 left-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/95 text-gray-800 shadow-2xl ring-2 ring-white/50 transition-all hover:scale-110"
-                                                    title="Replace image"
-                                                >
-                                                    <Camera className="h-6 w-6" strokeWidth={2.5} />
-                                                </button>
+                                                <div className="absolute bottom-4 right-4 z-20">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setGalleryEditorOpen({
+                                                                id: destination.id,
+                                                                title: getContent(`packages.gallery.${destination.id}.title`, destination.title),
+                                                                subtitle: getContent(`packages.gallery.${destination.id}.subtitle`, destination.subtitle),
+                                                                description: getContent(`packages.gallery.${destination.id}.description`, destination.description),
+                                                                category: getContent(`packages.gallery.${destination.id}.category`, destination.category),
+                                                            });
+                                                            setGalleryPendingFile(null);
+                                                        }}
+                                                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                                        title="Edit Gallery"
+                                                    >
+                                                        <Edit3 className="h-5 w-5" strokeWidth={2.5} />
+                                                    </button>
+                                                </div>
                                             )}
 
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
@@ -794,25 +587,13 @@ export default function Packages() {
 
                                         <div className="absolute right-0 bottom-0 left-0 p-5 text-white">
                                             <h3 className="mb-1.5 text-lg font-bold sm:text-xl">
-                                                <EditableText
-                                                    sectionKey={`packages.gallery.${destination.id}.title`}
-                                                    value={destination.title}
-                                                    tag="span"
-                                                />
+                                                {getContent(`packages.gallery.${destination.id}.title`, destination.title)}
                                             </h3>
                                             <p className="mb-1.5 text-sm font-semibold text-white/90 sm:text-base">
-                                                <EditableText
-                                                    sectionKey={`packages.gallery.${destination.id}.subtitle`}
-                                                    value={destination.subtitle}
-                                                    tag="span"
-                                                />
+                                                {getContent(`packages.gallery.${destination.id}.subtitle`, destination.subtitle)}
                                             </p>
                                             <p className="text-xs text-white/80 sm:text-sm">
-                                                <EditableText
-                                                    sectionKey={`packages.gallery.${destination.id}.description`}
-                                                    value={destination.description}
-                                                    tag="span"
-                                                />
+                                                {getContent(`packages.gallery.${destination.id}.description`, destination.description)}
                                             </p>
                                         </div>
 
@@ -871,150 +652,208 @@ export default function Packages() {
                 </footer>
             </div>
 
-            <input
-                id={hiddenImageInputId}
-                type="file"
-                accept="image/jpeg,image/png"
-                className="hidden"
-                onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (!f || !imageTargetKey) return;
-                    const formData = new FormData();
-                    formData.append('key', imageTargetKey);
-                    formData.append('image', f);
-                    setSaving(true);
-                    axios
-                        .post('/admin/upload-image', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-                        .then((r) => {
-                            if (r.data.success && r.data.imageUrl) {
-                                if (imageTargetKey.includes('gallery')) {
-                                    const galleryId = imageTargetKey.split('.')[2];
-                                    const img = document.querySelector(`img[data-gallery-id="${galleryId}"]`) as HTMLImageElement | null;
-                                    if (img) img.src = r.data.imageUrl;
-                                } else {
-                                    const pkgId = imageTargetKey.split('.')[1];
-                                    const img = document.querySelector(`img[data-package-id="${pkgId}"]`) as HTMLImageElement | null;
-                                    if (img) img.src = r.data.imageUrl;
-                                }
-                                window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                            }
-                        })
-                        .finally(() => {
-                            setSaving(false);
-                            setImageTargetKey(null);
-                            e.target.value = '';
-                        });
-                }}
-            />
-
-            {editorOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4" onClick={() => setEditorOpen(null)}>
-                    <div
-                        className="w-full max-w-2xl rounded-3xl border-2 border-amber-500/50 bg-gradient-to-br from-gray-900 to-gray-800 p-8 shadow-2xl"
-                        onClick={(e) => e.stopPropagation()}
+            {/* Editor Modal - floating bottom, same as Destinations */}
+            <AnimatePresence>
+                {editMode && editorOpen && (
+                    <motion.div
+                        key={editorOpen.id}
+                        className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/95 p-6 shadow-2xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
                     >
-                        <div className="mb-6 flex items-center justify-between">
-                            <h3 className="text-2xl font-bold text-white">✏️ Edit Package</h3>
-                            <button
-                                onClick={() => setEditorOpen(null)}
-                                className="rounded-xl bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
-                            >
-                                Close
-                            </button>
+                        <div className="mb-4 flex items-center justify-between">
+                            <span className="text-sm font-semibold text-white">Edit Package #{editorOpen.id}</span>
                         </div>
-                        <div className="space-y-5">
+                        <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2">
+                            {(['title', 'location', 'duration', 'price', 'pax', 'type'] as const).map((field) => (
+                                <div key={field}>
+                                    <label className="mb-1 block text-xs font-medium text-gray-300 capitalize">{field === 'pax' ? 'Group Size' : field}</label>
+                                    <input
+                                        type="text"
+                                        value={editorOpen[field]}
+                                        onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
+                                        className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                    />
+                                </div>
+                            ))}
                             <div>
-                                <label className="mb-2 block text-sm font-bold text-gray-200">Title</label>
-                                <input
-                                    type="text"
-                                    value={editorOpen.title}
-                                    onChange={(e) => setEditorOpen({ ...editorOpen, title: e.target.value })}
-                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900 px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-2 block text-sm font-bold text-gray-200">Location</label>
-                                <input
-                                    type="text"
-                                    value={editorOpen.location}
-                                    onChange={(e) => setEditorOpen({ ...editorOpen, location: e.target.value })}
-                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900 px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="mb-2 block text-sm font-bold text-gray-200">Duration</label>
-                                    <input
-                                        type="text"
-                                        value={editorOpen.duration}
-                                        onChange={(e) => setEditorOpen({ ...editorOpen, duration: e.target.value })}
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900 px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-2 block text-sm font-bold text-gray-200">Price</label>
-                                    <input
-                                        type="text"
-                                        value={editorOpen.price}
-                                        onChange={(e) => setEditorOpen({ ...editorOpen, price: e.target.value })}
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900 px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
-                                    />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="mb-2 block text-sm font-bold text-gray-200">Group Size</label>
-                                    <input
-                                        type="text"
-                                        value={editorOpen.pax}
-                                        onChange={(e) => setEditorOpen({ ...editorOpen, pax: e.target.value })}
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900 px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-2 block text-sm font-bold text-gray-200">Type</label>
-                                    <input
-                                        type="text"
-                                        value={editorOpen.type}
-                                        onChange={(e) => setEditorOpen({ ...editorOpen, type: e.target.value })}
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900 px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="mb-2 block text-sm font-bold text-gray-200">Description</label>
+                                <label className="mb-1 block text-xs font-medium text-gray-300">Description</label>
                                 <textarea
                                     value={editorOpen.description}
                                     onChange={(e) => setEditorOpen({ ...editorOpen, description: e.target.value })}
                                     rows={4}
-                                    className="w-full rounded-xl border-2 border-white/20 bg-gray-900 px-4 py-3 text-white focus:border-amber-500 focus:outline-none"
+                                    className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
                                 />
                             </div>
+                            <div>
+                                <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
+                                <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
+                                    {IMAGE_GUIDE}
+                                </p>
+                                <input
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    onChange={(e) => setPendingFile(e.target.files?.[0] ?? null)}
+                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
+                                />
+                            </div>
+                        </div>
+                        <div className="mt-6 flex items-center justify-end gap-3">
                             <button
                                 onClick={() => {
-                                    const updates = [
-                                        { key: `packages.${editorOpen.id}.title`, content: editorOpen.title },
-                                        { key: `packages.${editorOpen.id}.location`, content: editorOpen.location },
-                                        { key: `packages.${editorOpen.id}.duration`, content: editorOpen.duration },
-                                        { key: `packages.${editorOpen.id}.price`, content: editorOpen.price },
-                                        { key: `packages.${editorOpen.id}.pax`, content: editorOpen.pax },
-                                        { key: `packages.${editorOpen.id}.type`, content: editorOpen.type },
-                                        { key: `packages.${editorOpen.id}.description`, content: editorOpen.description },
-                                    ];
-                                    Promise.all(updates.map((u) => axios.post('/admin/update-section', u))).then(() => {
-                                        window.dispatchEvent(new CustomEvent('cms:flush-save'));
+                                    setEditorOpen(null);
+                                    setPendingFile(null);
+                                }}
+                                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 ring-1 ring-white/10 transition-all hover:bg-white/5"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    if (!editorOpen) return;
+                                    setSaving(true);
+                                    try {
+                                        const updates = [
+                                            { key: `packages.${editorOpen.id}.title`, content: editorOpen.title },
+                                            { key: `packages.${editorOpen.id}.location`, content: editorOpen.location },
+                                            { key: `packages.${editorOpen.id}.duration`, content: editorOpen.duration },
+                                            { key: `packages.${editorOpen.id}.price`, content: editorOpen.price },
+                                            { key: `packages.${editorOpen.id}.pax`, content: editorOpen.pax },
+                                            { key: `packages.${editorOpen.id}.type`, content: editorOpen.type },
+                                            { key: `packages.${editorOpen.id}.description`, content: editorOpen.description },
+                                        ];
+                                        await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
+                                        if (pendingFile) {
+                                            const form = new FormData();
+                                            form.append('key', `packages.${editorOpen.id}.image`);
+                                            form.append('image', pendingFile);
+                                            const r = await axios.post('/admin/upload-image', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                                            const url = r.data?.url || r.data?.imageUrl;
+                                            if (url) {
+                                                const img = document.querySelector(`img[data-package-id="${editorOpen.id}"]`) as HTMLImageElement | null;
+                                                if (img) img.src = url;
+                                            }
+                                        }
                                         setEditorOpen(null);
-                                    });
+                                        setPendingFile(null);
+                                        router.reload({ only: ['sections'] });
+                                    } catch (err) {
+                                        console.error(err);
+                                        alert('Failed to save');
+                                    } finally {
+                                        setSaving(false);
+                                    }
                                 }}
                                 disabled={saving}
-                                className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 text-base font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50"
+                                className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
                             >
-                                {saving ? 'Saving...' : '💾 Save All Changes'}
+                                {saving ? 'Saving…' : 'Save Changes'}
                             </button>
                         </div>
-                    </div>
-                </div>
-            )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Gallery Editor Modal - floating bottom, same structure */}
+            <AnimatePresence>
+                {editMode && galleryEditorOpen && (
+                    <motion.div
+                        key={`gallery-${galleryEditorOpen.id}`}
+                        className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/95 p-6 shadow-2xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                    >
+                        <div className="mb-4 flex items-center justify-between">
+                            <span className="text-sm font-semibold text-white">Edit Gallery #{galleryEditorOpen.id}</span>
+                        </div>
+                        <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2">
+                            {(['title', 'subtitle', 'category'] as const).map((field) => (
+                                <div key={field}>
+                                    <label className="mb-1 block text-xs font-medium text-gray-300 capitalize">{field}</label>
+                                    <input
+                                        type="text"
+                                        value={galleryEditorOpen[field]}
+                                        onChange={(e) => setGalleryEditorOpen({ ...galleryEditorOpen, [field]: e.target.value })}
+                                        className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                    />
+                                </div>
+                            ))}
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-gray-300">Description</label>
+                                <textarea
+                                    value={galleryEditorOpen.description}
+                                    onChange={(e) => setGalleryEditorOpen({ ...galleryEditorOpen, description: e.target.value })}
+                                    rows={4}
+                                    className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
+                                <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
+                                    {IMAGE_GUIDE}
+                                </p>
+                                <input
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    onChange={(e) => setGalleryPendingFile(e.target.files?.[0] ?? null)}
+                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
+                                />
+                            </div>
+                        </div>
+                        <div className="mt-6 flex items-center justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setGalleryEditorOpen(null);
+                                    setGalleryPendingFile(null);
+                                }}
+                                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 ring-1 ring-white/10 transition-all hover:bg-white/5"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    if (!galleryEditorOpen) return;
+                                    setSaving(true);
+                                    try {
+                                        const updates = [
+                                            { key: `packages.gallery.${galleryEditorOpen.id}.title`, content: galleryEditorOpen.title },
+                                            { key: `packages.gallery.${galleryEditorOpen.id}.subtitle`, content: galleryEditorOpen.subtitle },
+                                            { key: `packages.gallery.${galleryEditorOpen.id}.description`, content: galleryEditorOpen.description },
+                                            { key: `packages.gallery.${galleryEditorOpen.id}.category`, content: galleryEditorOpen.category },
+                                        ];
+                                        await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
+                                        if (galleryPendingFile) {
+                                            const form = new FormData();
+                                            form.append('key', `packages.gallery.${galleryEditorOpen.id}.image`);
+                                            form.append('image', galleryPendingFile);
+                                            const r = await axios.post('/admin/upload-image', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                                            const url = r.data?.url || r.data?.imageUrl;
+                                            if (url) {
+                                                const img = document.querySelector(`img[data-gallery-id="${galleryEditorOpen.id}"]`) as HTMLImageElement | null;
+                                                if (img) img.src = url;
+                                            }
+                                        }
+                                        setGalleryEditorOpen(null);
+                                        setGalleryPendingFile(null);
+                                        router.reload({ only: ['sections'] });
+                                    } catch (err) {
+                                        console.error(err);
+                                        alert('Failed to save');
+                                    } finally {
+                                        setSaving(false);
+                                    }
+                                }}
+                                disabled={saving}
+                                className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
+                            >
+                                {saving ? 'Saving…' : 'Save Changes'}
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </PublicLayout>
     );
 }

@@ -13,6 +13,7 @@ class SectionRevision extends Model
         'key',
         'content',
         'image',
+        'video',
         'changed_by',
         'change_type',
     ];

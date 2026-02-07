@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Section;
 use App\Models\SectionSnapshot;
+use App\Support\ImageCompressor;
 use App\Support\SectionDefaults;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -31,12 +32,32 @@ class AdminController extends Controller
 
     public function uploadImage(Request $request): JsonResponse
     {
+        $guide = config('cms_media_guide.images', []);
+        $maxMb = $guide['max_file_size_mb'] ?? 5;
         $validated = $request->validate([
             'key' => ['required', 'string', 'max:255'],
-            'image' => ['required', 'file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'image' => ['required', 'file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:' . ($maxMb * 1024)],
         ]);
 
-        // Use R2 disk instead of local 'public' disk
+        $file = $validated['image'];
+
+        // Auto-compress before upload (uses GD, falls back to original if unavailable)
+        $compressedPath = ImageCompressor::compress($file);
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        $filename = Str::uuid()->toString() . '.' . $ext;
+
+        try {
+            if ($compressedPath && is_readable($compressedPath)) {
+                $contents = file_get_contents($compressedPath);
+                @unlink($compressedPath);
+            } else {
+                $contents = $file->get();
+            }
+        } catch (\Throwable $e) {
+            $contents = $file->get();
+        }
+
+        // Use R2 disk
         $diskName = config('filesystems.default', 'r2');
         try {
             $disk = \App\Support\R2Helper::disk();
@@ -44,14 +65,11 @@ class AdminController extends Controller
             \Log::warning('Failed to get R2 disk in AdminController::uploadImage', [
                 'error' => $e->getMessage()
             ]);
-            // Fallback to public disk
             $disk = Storage::disk('public');
         }
-        
-        $filename = Str::uuid()->toString() . '.' . $validated['image']->getClientOriginalExtension();
-        
-        // Store in 'public/images/' folder (R2 root is 'public' so path becomes 'images/')
-        $storedPath = $disk->putFileAs('images', $validated['image'], $filename);
+
+        $storedPath = 'images/' . $filename;
+        $disk->put($storedPath, $contents);
         
         // Get the root directory configured in filesystems
         $root = trim((string) config("filesystems.disks.{$diskName}.root", ''), '/');
@@ -72,12 +90,58 @@ class AdminController extends Controller
         );
 
         return response()->json([
-            'status' => 'ok', 
+            'status' => 'ok',
+            'success' => true, // alias for frontend compatibility
             'path' => $storedPath,
             'objectPath' => $objectPath,
             'url' => $url,
+            'imageUrl' => $url, // alias for frontend compatibility
             'disk' => $diskName,
             'message' => 'Image uploaded to R2 with backup'
+        ]);
+    }
+
+    /**
+     * Upload video for CMS. Stored in R2. Max size from cms_media_guide.
+     */
+    public function uploadVideo(Request $request): JsonResponse
+    {
+        $guide = config('cms_media_guide.videos', []);
+        $maxMb = $guide['max_file_size_mb'] ?? 50;
+        $validated = $request->validate([
+            'key' => ['required', 'string', 'max:255'],
+            'video' => ['required', 'file', 'mimes:mp4,webm', 'max:' . ($maxMb * 1024)],
+        ]);
+
+        $file = $validated['video'];
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'mp4');
+        $filename = Str::uuid()->toString() . '.' . $ext;
+
+        try {
+            $disk = \App\Support\R2Helper::disk();
+        } catch (\Exception $e) {
+            \Log::warning('Failed to get R2 disk in AdminController::uploadVideo', [
+                'error' => $e->getMessage()
+            ]);
+            $disk = Storage::disk('public');
+        }
+
+        $storedPath = 'videos/' . $filename;
+        $disk->put($storedPath, $file->get());
+        $url = $disk->url($storedPath);
+
+        Section::updateWithBackup(
+            $validated['key'],
+            ['video' => $storedPath]
+        );
+
+        return response()->json([
+            'status' => 'ok',
+            'success' => true,
+            'path' => $storedPath,
+            'url' => $url,
+            'videoUrl' => $url,
+            'message' => 'Video uploaded to R2'
         ]);
     }
 
@@ -181,171 +245,6 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * Reset all hero images to original (delete all hero sections)
-     */
-    public function resetAllHeroes(Request $request): JsonResponse
-    {
-        $keys = $this->knownKeys()->filter(fn ($key) => Str::startsWith($key, 'home.hero.') && Str::endsWith($key, '.image'))->values()->all();
-
-        [$restored, $removed] = $this->restoreKeys($keys);
-
-        return response()->json([
-            'status' => 'ok',
-            'message' => 'Successfully reset all hero images',
-            'restored' => $restored,
-            'removed' => $removed,
-        ]);
-    }
-
-    /**
-     * Get all changed sections (comprehensive restore data)
-     * Shows all sections in database as changes (simplified - anything in DB = change)
-     */
-    public function getAllChanges(Request $request): JsonResponse
-    {
-        // Get all sections from database (anything in DB = changed from original)
-        // Simplified approach: if it's in DB, it's a change
-        $sections = Section::orderBy('updated_at', 'desc')->get();
-        
-        $diskName = config('filesystems.default', 'r2');
-        try {
-            $disk = \App\Support\R2Helper::disk();
-        } catch (\Exception $e) {
-            \Log::warning('Failed to get R2 disk in AdminController::getAllChanges', [
-                'error' => $e->getMessage()
-            ]);
-            $disk = Storage::disk('public');
-        }
-
-        $changes = $sections->map(function ($section) {
-            try {
-                // Parse section key to extract metadata
-                $parts = explode('.', $section->key);
-                $page = $parts[0] ?? 'unknown';
-                $sectionName = $parts[1] ?? 'unknown';
-                $id = $parts[2] ?? null;
-                $field = $parts[3] ?? $parts[2] ?? 'unknown';
-
-                // Determine type
-                $type = $section->image ? 'image' : 'text';
-                
-                // Generate correct R2 URL using R2Helper
-                $imageUrl = null;
-                if ($section->image) {
-                    try {
-                        $r2Url = \App\Support\R2Helper::url($section->image);
-                        if ($r2Url) {
-                            $imageUrl = $r2Url . '?v=' . $section->updated_at->timestamp;
-                        } else {
-                            $imageUrl = asset('storage/' . $section->image) . '?v=' . $section->updated_at->timestamp;
-                        }
-                    } catch (\Exception $e) {
-                        \Log::warning('Error generating image URL in getAllChanges', [
-                            'error' => $e->getMessage()
-                        ]);
-                        $imageUrl = asset('storage/' . $section->image) . '?v=' . $section->updated_at->timestamp;
-                    }
-                }
-
-                return [
-                    'id' => $section->id,
-                    'key' => $section->key,
-                    'page' => ucfirst($page),
-                    'section' => $sectionName,
-                    'field' => ucfirst($field),
-                    'type' => $type,
-                    'content' => $section->content,
-                    'image' => $imageUrl,
-                    'updated_at' => $section->updated_at->format('Y-m-d H:i:s'),
-                    'updated_at_human' => $section->updated_at->diffForHumans(),
-                ];
-            } catch (\Exception $e) {
-                \Log::warning('Error processing section in getAllChanges', [
-                    'key' => $section->key ?? 'unknown',
-                    'error' => $e->getMessage()
-                ]);
-                return [
-                    'id' => $section->id ?? 0,
-                    'key' => $section->key ?? 'unknown',
-                    'page' => 'Unknown',
-                    'section' => 'unknown',
-                    'field' => 'unknown',
-                    'type' => 'text',
-                    'content' => $section->content ?? null,
-                    'image' => null,
-                    'updated_at' => $section->updated_at?->format('Y-m-d H:i:s') ?? now()->format('Y-m-d H:i:s'),
-                    'updated_at_human' => $section->updated_at?->diffForHumans() ?? 'just now',
-                ];
-            }
-        });
-
-        return response()->json([
-            'status' => 'ok',
-            'changes' => $changes,
-            'total' => $changes->count(),
-        ]);
-    }
-
-    /**
-     * Reset all changes (delete all sections)
-     */
-    public function resetAllChanges(Request $request): JsonResponse
-    {
-        $keys = $this->knownKeys()->all();
-
-        [$restored, $removed] = $this->restoreKeys($keys);
-
-        return response()->json([
-            'status' => 'ok',
-            'message' => 'Successfully restored all changes from snapshot',
-            'restored' => $restored,
-            'removed' => $removed,
-        ]);
-    }
-
-    /**
-     * Reset by page (delete all sections for specific page)
-     */
-    public function resetByPage(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'page' => ['required', 'string'],
-        ]);
-
-        $page = strtolower($validated['page']);
-        $keys = $this->knownKeys()->filter(fn ($key) => Str::startsWith($key, "{$page}."))->values()->all();
-
-        [$restored, $removed] = $this->restoreKeys($keys);
-
-        return response()->json([
-            'status' => 'ok',
-            'message' => "Successfully reset all changes in {$page} page",
-            'restored' => $restored,
-            'removed' => $removed,
-        ]);
-    }
-
-    /**
-     * Reset by type (delete all text or all images)
-     */
-    public function resetByType(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'type' => ['required', 'in:text,image'],
-        ]);
-
-        $keys = $this->keysByType($validated['type']);
-
-        [$restored, $removed] = $this->restoreKeys($keys);
-
-        return response()->json([
-            'status' => 'ok',
-            'message' => "Successfully reset all {$validated['type']} changes",
-            'restored' => $restored,
-            'removed' => $removed,
-        ]);
-    }
 
     /**
      * Restore multiple section keys from snapshot (or remove if missing)
@@ -368,31 +267,29 @@ class AdminController extends Controller
                         $default = SectionDefaults::get($key);
                         
                         if ($payload) {
-                            // ALWAYS restore from snapshot if it exists
-                            // This preserves the original saved state
                             $restoreContent = $payload['content'] ?? null;
                             $restoreImage = $payload['image'] ?? null;
-                            
-                            // Restore from snapshot
+                            $restoreVideo = $payload['video'] ?? null;
+
                             $section = Section::updateOrCreate(
                                 ['key' => $key],
                                 [
                                     'content' => $restoreContent,
                                     'image' => $restoreImage,
+                                    'video' => $restoreVideo,
                                 ]
                             );
 
-                            // Verify restore was successful
                             $section->refresh();
                             $isRestored = false;
-                            
                             if ($restoreContent !== null) {
                                 $isRestored = $section->content === $restoreContent;
                             } elseif ($restoreImage !== null) {
                                 $isRestored = $section->image === $restoreImage;
+                            } elseif ($restoreVideo !== null) {
+                                $isRestored = $section->video === $restoreVideo;
                             } else {
-                                // Both null - check if both were null in snapshot
-                                $isRestored = ($section->content === null && $section->image === null);
+                                $isRestored = ($section->content === null && $section->image === null && $section->video === null);
                             }
 
                             if ($isRestored) {
@@ -471,40 +368,6 @@ class AdminController extends Controller
             ->unique();
     }
 
-    private function keysByType(string $type): array
-    {
-        $snapshotKeys = SectionSnapshot::latestPayload()
-            ->filter(function ($payload) use ($type) {
-                return $type === 'image'
-                    ? ! empty($payload['image'])
-                    : ! empty($payload['content']);
-            })
-            ->keys();
-
-        $liveKeys = Section::query()
-            ->when(
-                $type === 'image',
-                fn ($query) => $query->whereNotNull('image'),
-                fn ($query) => $query->whereNotNull('content')
-            )
-            ->pluck('key');
-
-        $defaultKeys = collect(SectionDefaults::all())
-            ->filter(function ($default) use ($type) {
-                return $type === 'image'
-                    ? ! empty($default['public_path'])
-                    : isset($default['content']);
-            })
-            ->keys();
-
-        return $snapshotKeys
-            ->merge($liveKeys)
-            ->merge($defaultKeys)
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
-    }
 }
 
 

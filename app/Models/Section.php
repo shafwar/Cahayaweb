@@ -18,6 +18,7 @@ class Section extends Model
         'key',
         'content',
         'image',
+        'video',
     ];
 
     protected $casts = [
@@ -44,9 +45,9 @@ class Section extends Model
             }
 
             $payload = static::orderBy('key')
-                ->get(['key', 'content', 'image'])
+                ->get(['key', 'content', 'image', 'video'])
                 ->mapWithKeys(fn (Section $section) => [
-                    $section->key => $section->only(['key', 'content', 'image']),
+                    $section->key => $section->only(['key', 'content', 'image', 'video']),
                 ])
                 ->all();
 
@@ -195,9 +196,34 @@ class Section extends Model
                     }
                 }
 
+                $videoUrl = null;
+                $videoPath = $section?->video ?? Arr::get($payload, 'video');
+                if ($videoPath) {
+                    try {
+                        $r2Url = R2Helper::url($videoPath);
+                        if ($r2Url) {
+                            $timestamp = optional($section?->updated_at)->timestamp ?? time();
+                            $videoUrl = $r2Url . (str_contains($r2Url, '?') ? '&' : '?') . 'v=' . $timestamp;
+                        } else {
+                            $r2BaseUrl = 'https://assets.cahayaanbiya.com';
+                            $cleanPath = trim($videoPath, '/');
+                            $videoUrl = $r2BaseUrl . '/public/' . (str_starts_with($cleanPath, 'videos/') ? $cleanPath : 'videos/' . $cleanPath) . '?v=' . (optional($section?->updated_at)->timestamp ?? time());
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning('Error generating video URL for section', ['key' => $key, 'error' => $e->getMessage()]);
+                    }
+                } elseif (isset($defaults[$key]['video_path'])) {
+                    try {
+                        $videoUrl = R2Helper::url($defaults[$key]['video_path']);
+                    } catch (\Exception $e) {
+                        // ignore
+                    }
+                }
+
                 return [$key => [
                     'content' => $content,
                     'image' => $imageUrl,
+                    'video' => $videoUrl,
                 ]];
             } catch (\Exception $e) {
                 Log::warning('Error processing section', [
@@ -208,11 +234,11 @@ class Section extends Model
                 return [$key => [
                     'content' => null,
                     'image' => null,
+                    'video' => null,
                 ]];
             }
             })->filter(function ($value) {
-                // Include if has content OR image (even if null, as long as key exists)
-                return $value['content'] !== null || $value['image'] !== null;
+                return $value['content'] !== null || $value['image'] !== null || $value['video'] !== null;
             })->toArray();
         } catch (\Throwable $e) {
             Log::error('Fatal error in getAllSections mapWithKeys', [
@@ -250,17 +276,15 @@ class Section extends Model
                     [
                         'content' => $payload['content'] ?? null,
                         'image' => $payload['image'] ?? null,
+                        'video' => $payload['video'] ?? null,
                     ],
                 );
 
-                // Verify restore was successful
                 $section->refresh();
-                
-                // Check if content matches
                 $contentMatch = ($payload['content'] ?? null) === $section->content;
                 $imageMatch = ($payload['image'] ?? null) === $section->image;
-                
-                $restored = $contentMatch && $imageMatch;
+                $videoMatch = ($payload['video'] ?? null) === ($section->video ?? null);
+                $restored = $contentMatch && $imageMatch && $videoMatch;
                 
                 if (!$restored) {
                     Log::warning('Restore verification failed in restoreFromSnapshot', [
@@ -303,6 +327,7 @@ class Section extends Model
             'key' => $this->key,
             'content' => $this->content,
             'image' => $this->image,
+            'video' => $this->video ?? null,
             'changed_by' => Auth::user()?->email ?? 'system',
             'change_type' => $changeType,
         ]);
@@ -344,6 +369,7 @@ class Section extends Model
         $this->update([
             'content' => $revision->content,
             'image' => $revision->image,
+            'video' => $revision->video ?? null,
         ]);
 
         return true;

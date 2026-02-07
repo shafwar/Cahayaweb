@@ -1,18 +1,217 @@
-import { EditableText } from '@/components/cms';
 import PlaceholderImage from '@/components/media/placeholder-image';
 import SeoHead from '@/components/SeoHead';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import PublicLayout from '@/layouts/public-layout';
 import { getImageUrl } from '@/utils/imageHelper';
-import { usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Camera, Check, Clock, Edit3, MapPin, Plus, X } from 'lucide-react';
+import { ArrowRight, Check, Clock, Edit3, MapPin, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 
-// ✅ KEEP modal animations - they don't block scroll
-type DestinationEditorData = {
+const IMAGE_GUIDE = '1920×1080px recommended · Max 5MB · Auto-compressed · JPEG, PNG, WebP';
+
+const destinations = [
+    {
+        id: 1,
+        title: 'Arab Saudi',
+        subtitle: 'Spiritual Journey to the Holy Land',
+        image: '/arabsaudi.jpg',
+        duration: '9D8N',
+        price: 'Rp 28.5M',
+        location: 'Makkah & Madinah',
+        highlights: '5-star hotels, direct flights, professional guide, spiritual guidance',
+        description:
+            'Embark on a profound spiritual journey to the holiest sites in Islam. Experience the sacred atmosphere of Makkah and Madinah with our premium Umrah packages.',
+        features: [
+            'Luxury 5-star hotel accommodations',
+            'Direct flights from Indonesia',
+            'Professional spiritual guide',
+            'VIP access to holy sites',
+            'Comprehensive travel insurance',
+            'Daily spiritual programs',
+        ],
+        badge: 'Premium',
+        category: 'Spiritual',
+    },
+    {
+        id: 2,
+        title: 'Turkey Heritage',
+        subtitle: 'Istanbul to Cappadocia Adventure',
+        image: '/TURKEY.jpeg',
+        duration: '8D7N',
+        price: 'Rp 15.8M',
+        location: 'Istanbul, Cappadocia, Pamukkale',
+        highlights: 'Historical sites, hot air balloon, cultural experience, thermal springs',
+        description:
+            'Discover the perfect blend of East and West in Turkey. Explore magnificent Hagia Sophia and Blue Mosque, soar above fairy chimneys in a hot air balloon.',
+        features: [
+            'Hot air balloon ride in Cappadocia',
+            'Guided tours of historical sites',
+            'Luxury hotel accommodations',
+            'Traditional Turkish bath experience',
+            'Bosphorus cruise in Istanbul',
+            'Local cuisine tasting tours',
+        ],
+        badge: 'Adventure',
+        category: 'Cultural',
+    },
+    {
+        id: 3,
+        title: 'Egypt Wonders',
+        subtitle: 'Pyramids & Nile River Expedition',
+        image: '/egypt.jpeg',
+        duration: '8D7N',
+        price: 'Rp 16.5M',
+        location: 'Cairo, Luxor, Aswan, Abu Simbel',
+        highlights: 'Pyramids of Giza, Nile cruise, ancient temples, Valley of the Kings',
+        description:
+            'Journey through the cradle of civilization and explore the mysteries of ancient Egypt. Marvel at the Great Pyramids of Giza and cruise the majestic Nile River.',
+        features: [
+            'Nile River luxury cruise',
+            'Pyramids of Giza guided tour',
+            'Valley of the Kings exploration',
+            'Abu Simbel temple visit',
+            'Egyptian Museum tour',
+            'Traditional felucca sailing',
+        ],
+        badge: 'Heritage',
+        category: 'Historical',
+    },
+    {
+        id: 4,
+        title: 'Dubai Luxury',
+        subtitle: 'Modern Wonders & Desert Adventures',
+        image: '/dubai1.jpeg',
+        duration: '5D4N',
+        price: 'Rp 14.2M',
+        location: 'Dubai, Abu Dhabi, Desert Safari',
+        highlights: 'Burj Khalifa, desert safari, luxury shopping, Ferrari World',
+        description:
+            'Experience the epitome of luxury and innovation in Dubai. Ascend the iconic Burj Khalifa, shop in world-class malls, and enjoy thrilling desert safaris.',
+        features: [
+            'Burj Khalifa observation deck access',
+            'Desert safari with dinner',
+            'Luxury shopping experience',
+            'Sheikh Zayed Mosque tour',
+            'Ferrari World theme park',
+            'Dhow cruise dinner',
+        ],
+        badge: 'Luxury',
+        category: 'Modern',
+    },
+    {
+        id: 5,
+        title: 'Oman Adventure',
+        subtitle: 'Muscat + Nizwa + Wahiba Sands',
+        image: '/oman.jpg',
+        duration: '6D5N',
+        price: 'Rp 18.9M',
+        location: 'Muscat, Nizwa, Wahiba Sands, Salalah',
+        highlights: 'Desert camping, ancient forts, wadis, traditional souks',
+        description:
+            'Explore the hidden gem of the Arabian Peninsula. Discover stunning fjords of Musandam, explore ancient forts in Nizwa, and camp under the stars in Wahiba Sands.',
+        features: [
+            'Desert camping in Wahiba Sands',
+            'Ancient fort exploration',
+            'Wadi hiking adventures',
+            'Traditional souk visits',
+            'Dolphin watching cruise',
+            'Mountain village tours',
+        ],
+        badge: 'Explorer',
+        category: 'Adventure',
+    },
+    {
+        id: 6,
+        title: 'Qatar Luxury',
+        subtitle: 'Doha + The Pearl + Desert Safari',
+        image: '/qatar.jpg',
+        duration: '5D4N',
+        price: 'Rp 16.2M',
+        location: 'Doha, The Pearl, Inland Sea, Al Wakrah',
+        highlights: 'Museum of Islamic Art, Souq Waqif, desert safari, luxury resorts',
+        description:
+            'Experience the perfect blend of tradition and modernity in Qatar. Visit the stunning Museum of Islamic Art and explore the vibrant Souq Waqif.',
+        features: [
+            'Museum of Islamic Art tour',
+            'Souq Waqif cultural experience',
+            'Desert safari adventure',
+            'The Pearl luxury experience',
+            'Katara Cultural Village',
+            'Luxury resort accommodations',
+        ],
+        badge: 'Premium',
+        category: 'Luxury',
+    },
+    {
+        id: 7,
+        title: 'Kuwait Heritage',
+        subtitle: 'Kuwait City + Failaka Island',
+        image: '/kuwait.jpg',
+        duration: '4D3N',
+        price: 'Rp 12.8M',
+        location: 'Kuwait City, Failaka Island, Al Jahra',
+        highlights: 'Kuwait Towers, Grand Mosque, island visit, cultural heritage',
+        description:
+            'Discover the rich heritage and modern charm of Kuwait. Visit the iconic Kuwait Towers and explore the magnificent Grand Mosque.',
+        features: [
+            'Kuwait Towers visit',
+            'Grand Mosque tour',
+            'Failaka Island exploration',
+            'Traditional dhow boat ride',
+            'Cultural heritage tours',
+            'Modern city exploration',
+        ],
+        badge: 'Heritage',
+        category: 'Cultural',
+    },
+    {
+        id: 8,
+        title: 'Bahrain Pearl',
+        subtitle: "Manama + Qal'at al-Bahrain",
+        image: '/bahrain.jpg',
+        duration: '4D3N',
+        price: 'Rp 11.5M',
+        location: "Manama, Qal'at al-Bahrain, Al Muharraq",
+        highlights: 'Pearl diving, ancient forts, Formula 1 circuit, traditional culture',
+        description:
+            'Experience the pearl of the Gulf with its rich history and modern attractions. Explore ancient forts and learn about traditional pearl diving.',
+        features: [
+            'Ancient fort exploration',
+            'Pearl diving experience',
+            'Formula 1 circuit tour',
+            'Traditional souk visits',
+            'Cultural heritage tours',
+            'Modern entertainment',
+        ],
+        badge: 'Culture',
+        category: 'Heritage',
+    },
+    {
+        id: 9,
+        title: 'Jordan Discovery',
+        subtitle: 'Wadi Rum & Petra Adventure',
+        image: '/jordan.jpeg',
+        duration: '7D6N',
+        price: 'Rp 17.2M',
+        location: 'Amman, Petra, Wadi Rum, Dead Sea',
+        highlights: 'Petra ancient city, desert camping, Dead Sea, biblical sites',
+        description:
+            'Journey through the ancient wonders of Jordan. Explore the magnificent rock-cut city of Petra and camp under the stars in Wadi Rum desert.',
+        features: [
+            'Petra ancient city exploration',
+            'Wadi Rum desert camping',
+            'Dead Sea floating experience',
+            'Biblical site visits',
+            'Traditional Bedouin experience',
+            'Luxury desert accommodations',
+        ],
+        badge: 'Adventure',
+        category: 'Historical',
+    },
+];
+
+type EditorData = {
     id: number;
     title: string;
     subtitle: string;
@@ -25,448 +224,61 @@ type DestinationEditorData = {
     badge: string;
 };
 
-function DestinationEditorModal({
-    destination,
-    onClose,
-    onSave,
-}: {
-    destination: DestinationEditorData;
-    onClose: () => void;
-    onSave: (data: DestinationEditorData) => Promise<void>;
-}) {
-    const [formData, setFormData] = useState(destination);
-    const [isSaving, setIsSaving] = useState(false);
-
-    useEffect(() => {
-        setFormData(destination);
-    }, [destination]);
-
-    const handleSave = async () => {
-        setIsSaving(true);
-        try {
-            await onSave(formData);
-        } catch (error) {
-            console.error('Save failed:', error);
-            alert('Failed to save changes');
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    return createPortal(
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-4"
-                onClick={onClose}
-            >
-                <motion.div
-                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                    className="relative w-full max-w-4xl rounded-3xl border-2 border-blue-500/50 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <div className="max-h-[85vh] overflow-y-auto">
-                        <div className="sticky top-0 z-10 border-b-2 border-white/10 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 px-8 py-6 backdrop-blur-sm">
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <h2 className="mb-2 text-3xl font-bold text-white">✏️ Edit Destination</h2>
-                                    <p className="text-base text-gray-300">Update all destination information</p>
-                                </div>
-                                <button
-                                    onClick={onClose}
-                                    className="rounded-xl p-3 text-gray-400 transition-all hover:rotate-90 hover:bg-white/10 hover:text-white"
-                                >
-                                    <X className="h-6 w-6" />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="px-8 py-8">
-                            <div className="space-y-6">
-                                <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Title</label>
-                                    <input
-                                        type="text"
-                                        value={formData.title}
-                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                        placeholder="Destination title"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Subtitle</label>
-                                    <input
-                                        type="text"
-                                        value={formData.subtitle}
-                                        onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                        placeholder="Short description"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Location</label>
-                                    <input
-                                        type="text"
-                                        value={formData.location}
-                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                        placeholder="e.g., Dubai, UAE"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="mb-3 block text-base font-bold text-gray-200">Duration</label>
-                                        <input
-                                            type="text"
-                                            value={formData.duration}
-                                            onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                            placeholder="e.g., 5D4N"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="mb-3 block text-base font-bold text-gray-200">Price</label>
-                                        <input
-                                            type="text"
-                                            value={formData.price}
-                                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                            placeholder="e.g., Rp 15M"
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Highlights</label>
-                                    <textarea
-                                        value={formData.highlights}
-                                        onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
-                                        rows={3}
-                                        className="w-full resize-none rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                        placeholder="Key features"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Description</label>
-                                    <textarea
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        rows={4}
-                                        className="w-full resize-none rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                        placeholder="Detailed description"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="mb-3 block text-base font-bold text-gray-200">Category</label>
-                                        <input
-                                            type="text"
-                                            value={formData.category}
-                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                            placeholder="e.g., Premium"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="mb-3 block text-base font-bold text-gray-200">Badge</label>
-                                        <input
-                                            type="text"
-                                            value={formData.badge}
-                                            onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                            placeholder="e.g., Best Seller"
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Replace Image</label>
-                                    <input
-                                        type="file"
-                                        accept="image/jpeg,image/png,image/webp"
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-base text-white transition-all file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-amber-500 file:to-orange-500 file:px-5 file:py-3 file:font-bold file:text-white hover:file:from-amber-400 hover:file:to-orange-400"
-                                        onChange={async (e) => {
-                                            const file = e.target.files?.[0];
-                                            if (!file) return;
-                                            setIsSaving(true);
-                                            try {
-                                                const formData = new FormData();
-                                                formData.append('key', `destinations.${destination.id}.image`);
-                                                formData.append('image', file);
-                                                const response = await axios.post('/admin/upload-image', formData, {
-                                                    headers: { 'Content-Type': 'multipart/form-data' },
-                                                });
-                                                if (response.data.success && response.data.imageUrl) {
-                                                    const img = document.querySelector(
-                                                        `img[data-destination-id="${destination.id}"]`,
-                                                    ) as HTMLImageElement | null;
-                                                    if (img) img.src = response.data.imageUrl;
-                                                }
-                                            } catch (error) {
-                                                console.error('Upload failed:', error);
-                                                alert('Failed to upload image');
-                                            } finally {
-                                                setIsSaving(false);
-                                                e.target.value = '';
-                                            }
-                                        }}
-                                    />
-                                    <p className="mt-3 text-sm text-gray-400">Supported: JPEG, PNG, WebP • Max 5MB</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="sticky bottom-0 border-t-2 border-white/10 bg-gray-900/95 px-8 py-5 backdrop-blur-sm">
-                            <div className="flex items-center justify-end gap-4">
-                                <button
-                                    onClick={onClose}
-                                    className="rounded-xl border-2 border-white/10 px-6 py-3 text-base font-semibold text-gray-300 transition-all hover:bg-white/5"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleSave}
-                                    disabled={isSaving}
-                                    className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-base font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50"
-                                >
-                                    {isSaving ? 'Saving...' : '💾 Save All Changes'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>,
-        document.body,
-    );
-}
-
 export default function Destinations() {
-    const [editMode, setEditModeUI] = useState<boolean>(false);
-    const [, setSaving] = useState(false);
+    const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
+    const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
+    const getImageSrc = (sectionKey: string, fallbackPath: string) =>
+        getImageUrl(props.sections, sectionKey, fallbackPath);
+
+    const [editMode, setEditMode] = useState(false);
+    const [editorOpen, setEditorOpen] = useState<EditorData | null>(null);
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
+        const check = () => setEditMode(document.documentElement.classList.contains('cms-edit'));
         check();
         const handler = () => check();
         window.addEventListener('cms:mode', handler as EventListener);
         return () => window.removeEventListener('cms:mode', handler as EventListener);
     }, []);
 
-    const [editorOpen, setEditorOpen] = useState<DestinationEditorData | null>(null);
-    const [openDialogId, setOpenDialogId] = useState<number | null>(null);
-
-    const [imageTargetKey, setImageTargetKey] = useState<string | null>(null);
-    const hiddenImageInputId = 'destinations-image-replacer';
-
-    const destinations = [
-        {
-            id: 1,
-            title: 'Arab Saudi',
-            subtitle: 'Spiritual Journey to the Holy Land',
-            image: '/arabsaudi.jpg',
-            duration: '9D8N',
-            price: 'Rp 28.5M',
-            location: 'Makkah & Madinah',
-            highlights: '5-star hotels, direct flights, professional guide, spiritual guidance',
-            description:
-                'Embark on a profound spiritual journey to the holiest sites in Islam. Experience the sacred atmosphere of Makkah and Madinah with our premium Umrah packages.',
-            features: [
-                'Luxury 5-star hotel accommodations',
-                'Direct flights from Indonesia',
-                'Professional spiritual guide',
-                'VIP access to holy sites',
-                'Comprehensive travel insurance',
-                'Daily spiritual programs',
-            ],
-            badge: 'Premium',
-            category: 'Spiritual',
-        },
-        {
-            id: 2,
-            title: 'Turkey Heritage',
-            subtitle: 'Istanbul to Cappadocia Adventure',
-            image: '/TURKEY.jpeg',
-            duration: '8D7N',
-            price: 'Rp 15.8M',
-            location: 'Istanbul, Cappadocia, Pamukkale',
-            highlights: 'Historical sites, hot air balloon, cultural experience, thermal springs',
-            description:
-                'Discover the perfect blend of East and West in Turkey. Explore magnificent Hagia Sophia and Blue Mosque, soar above fairy chimneys in a hot air balloon.',
-            features: [
-                'Hot air balloon ride in Cappadocia',
-                'Guided tours of historical sites',
-                'Luxury hotel accommodations',
-                'Traditional Turkish bath experience',
-                'Bosphorus cruise in Istanbul',
-                'Local cuisine tasting tours',
-            ],
-            badge: 'Adventure',
-            category: 'Cultural',
-        },
-        {
-            id: 3,
-            title: 'Egypt Wonders',
-            subtitle: 'Pyramids & Nile River Expedition',
-            image: '/egypt.jpeg',
-            duration: '8D7N',
-            price: 'Rp 16.5M',
-            location: 'Cairo, Luxor, Aswan, Abu Simbel',
-            highlights: 'Pyramids of Giza, Nile cruise, ancient temples, Valley of the Kings',
-            description:
-                'Journey through the cradle of civilization and explore the mysteries of ancient Egypt. Marvel at the Great Pyramids of Giza and cruise the majestic Nile River.',
-            features: [
-                'Nile River luxury cruise',
-                'Pyramids of Giza guided tour',
-                'Valley of the Kings exploration',
-                'Abu Simbel temple visit',
-                'Egyptian Museum tour',
-                'Traditional felucca sailing',
-            ],
-            badge: 'Heritage',
-            category: 'Historical',
-        },
-        {
-            id: 4,
-            title: 'Dubai Luxury',
-            subtitle: 'Modern Wonders & Desert Adventures',
-            image: '/dubai1.jpeg',
-            duration: '5D4N',
-            price: 'Rp 14.2M',
-            location: 'Dubai, Abu Dhabi, Desert Safari',
-            highlights: 'Burj Khalifa, desert safari, luxury shopping, Ferrari World',
-            description:
-                'Experience the epitome of luxury and innovation in Dubai. Ascend the iconic Burj Khalifa, shop in world-class malls, and enjoy thrilling desert safaris.',
-            features: [
-                'Burj Khalifa observation deck access',
-                'Desert safari with dinner',
-                'Luxury shopping experience',
-                'Sheikh Zayed Mosque tour',
-                'Ferrari World theme park',
-                'Dhow cruise dinner',
-            ],
-            badge: 'Luxury',
-            category: 'Modern',
-        },
-        {
-            id: 5,
-            title: 'Oman Adventure',
-            subtitle: 'Muscat + Nizwa + Wahiba Sands',
-            image: '/oman.jpg',
-            duration: '6D5N',
-            price: 'Rp 18.9M',
-            location: 'Muscat, Nizwa, Wahiba Sands, Salalah',
-            highlights: 'Desert camping, ancient forts, wadis, traditional souks',
-            description:
-                'Explore the hidden gem of the Arabian Peninsula. Discover stunning fjords of Musandam, explore ancient forts in Nizwa, and camp under the stars in Wahiba Sands.',
-            features: [
-                'Desert camping in Wahiba Sands',
-                'Ancient fort exploration',
-                'Wadi hiking adventures',
-                'Traditional souk visits',
-                'Dolphin watching cruise',
-                'Mountain village tours',
-            ],
-            badge: 'Explorer',
-            category: 'Adventure',
-        },
-        {
-            id: 6,
-            title: 'Qatar Luxury',
-            subtitle: 'Doha + The Pearl + Desert Safari',
-            image: '/qatar.jpg',
-            duration: '5D4N',
-            price: 'Rp 16.2M',
-            location: 'Doha, The Pearl, Inland Sea, Al Wakrah',
-            highlights: 'Museum of Islamic Art, Souq Waqif, desert safari, luxury resorts',
-            description:
-                'Experience the perfect blend of tradition and modernity in Qatar. Visit the stunning Museum of Islamic Art and explore the vibrant Souq Waqif.',
-            features: [
-                'Museum of Islamic Art tour',
-                'Souq Waqif cultural experience',
-                'Desert safari adventure',
-                'The Pearl luxury experience',
-                'Katara Cultural Village',
-                'Luxury resort accommodations',
-            ],
-            badge: 'Premium',
-            category: 'Luxury',
-        },
-        {
-            id: 7,
-            title: 'Kuwait Heritage',
-            subtitle: 'Kuwait City + Failaka Island',
-            image: '/kuwait.jpg',
-            duration: '4D3N',
-            price: 'Rp 12.8M',
-            location: 'Kuwait City, Failaka Island, Al Jahra',
-            highlights: 'Kuwait Towers, Grand Mosque, island visit, cultural heritage',
-            description:
-                'Discover the rich heritage and modern charm of Kuwait. Visit the iconic Kuwait Towers and explore the magnificent Grand Mosque.',
-            features: [
-                'Kuwait Towers visit',
-                'Grand Mosque tour',
-                'Failaka Island exploration',
-                'Traditional dhow boat ride',
-                'Cultural heritage tours',
-                'Modern city exploration',
-            ],
-            badge: 'Heritage',
-            category: 'Cultural',
-        },
-        {
-            id: 8,
-            title: 'Bahrain Pearl',
-            subtitle: "Manama + Qal'at al-Bahrain",
-            image: '/bahrain.jpg',
-            duration: '4D3N',
-            price: 'Rp 11.5M',
-            location: "Manama, Qal'at al-Bahrain, Al Muharraq",
-            highlights: 'Pearl diving, ancient forts, Formula 1 circuit, traditional culture',
-            description:
-                'Experience the pearl of the Gulf with its rich history and modern attractions. Explore ancient forts and learn about traditional pearl diving.',
-            features: [
-                'Ancient fort exploration',
-                'Pearl diving experience',
-                'Formula 1 circuit tour',
-                'Traditional souk visits',
-                'Cultural heritage tours',
-                'Modern entertainment',
-            ],
-            badge: 'Culture',
-            category: 'Heritage',
-        },
-        {
-            id: 9,
-            title: 'Jordan Discovery',
-            subtitle: 'Wadi Rum & Petra Adventure',
-            image: '/jordan.jpeg',
-            duration: '7D6N',
-            price: 'Rp 17.2M',
-            location: 'Amman, Petra, Wadi Rum, Dead Sea',
-            highlights: 'Petra ancient city, desert camping, Dead Sea, biblical sites',
-            description:
-                'Journey through the ancient wonders of Jordan. Explore the magnificent rock-cut city of Petra and camp under the stars in Wadi Rum desert.',
-            features: [
-                'Petra ancient city exploration',
-                'Wadi Rum desert camping',
-                'Dead Sea floating experience',
-                'Biblical site visits',
-                'Traditional Bedouin experience',
-                'Luxury desert accommodations',
-            ],
-            badge: 'Adventure',
-            category: 'Historical',
-        },
-    ];
-
-    const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
-
-    const getImageSrc = (sectionKey: string, fallbackPath: string) => {
-        return getImageUrl(props.sections, sectionKey, fallbackPath);
+    const handleSave = async () => {
+        if (!editorOpen) return;
+        setSaving(true);
+        try {
+            const updates = [
+                { key: `destinations.${editorOpen.id}.title`, content: editorOpen.title },
+                { key: `destinations.${editorOpen.id}.subtitle`, content: editorOpen.subtitle },
+                { key: `destinations.${editorOpen.id}.location`, content: editorOpen.location },
+                { key: `destinations.${editorOpen.id}.duration`, content: editorOpen.duration },
+                { key: `destinations.${editorOpen.id}.price`, content: editorOpen.price },
+                { key: `destinations.${editorOpen.id}.highlights`, content: editorOpen.highlights },
+                { key: `destinations.${editorOpen.id}.description`, content: editorOpen.description },
+                { key: `destinations.${editorOpen.id}.category`, content: editorOpen.category },
+                { key: `destinations.${editorOpen.id}.badge`, content: editorOpen.badge },
+            ];
+            await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
+            if (pendingFile) {
+                const form = new FormData();
+                form.append('key', `destinations.${editorOpen.id}.image`);
+                form.append('image', pendingFile);
+                const r = await axios.post('/admin/upload-image', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                const url = r.data?.url || r.data?.imageUrl;
+                if (url) {
+                    const img = document.querySelector(`img[data-destination-id="${editorOpen.id}"]`) as HTMLImageElement | null;
+                    if (img) img.src = url;
+                }
+            }
+            setEditorOpen(null);
+            setPendingFile(null);
+            router.reload({ only: ['sections'] });
+        } catch (err) {
+            console.error(err);
+            alert('Failed to save');
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -477,7 +289,6 @@ export default function Destinations() {
             />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
-                {/* Hero Section */}
                 <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
                     <div className="pointer-events-none absolute inset-0">
                         <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.06),transparent_70%)] blur-3xl" />
@@ -493,16 +304,13 @@ export default function Destinations() {
                                     </span>
                                 </div>
                             </div>
-
                             <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
                                 Discover Your Dream Destinations
                             </h1>
-
                             <p className="mx-auto mb-6 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
                                 Embark on extraordinary journeys across the Middle East and beyond. From spiritual pilgrimages to luxury adventures,
                                 we curate unforgettable experiences.
                             </p>
-
                             <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/70 sm:gap-6 sm:text-sm">
                                 <div className="flex items-center gap-2">
                                     <div className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 shadow-md" />
@@ -519,267 +327,138 @@ export default function Destinations() {
                             </div>
                         </div>
 
-                        {/* Destinations Grid - ✅ NO SCROLL ANIMATIONS */}
                         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
-                            {destinations.map((destination) => (
-                                <Dialog
-                                    key={destination.id}
-                                    open={openDialogId === destination.id}
-                                    onOpenChange={(open) => setOpenDialogId(open ? destination.id : null)}
+                            {destinations.map((d) => (
+                                <article
+                                    key={d.id}
+                                    className="group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1.5"
                                 >
-                                    <DialogTrigger asChild>
-                                        <article
-                                            className={`group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1.5 ${!editMode ? 'cursor-pointer' : 'cursor-default'}`}
-                                        >
-                                            <div className="relative aspect-video overflow-hidden">
-                                                <img
-                                                    src={getImageSrc(`destinations.${destination.id}.image`, destination.image)}
-                                                    alt={destination.title}
-                                                    data-destination-id={destination.id}
-                                                    loading="lazy"
-                                                    decoding="async"
-                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                                    onError={(e) => {
-                                                        e.currentTarget.style.display = 'none';
-                                                        const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                                        if (nextElement) nextElement.style.display = 'block';
-                                                    }}
-                                                />
-                                                <PlaceholderImage className="hidden h-full w-full object-cover" />
+                                    <div className="relative aspect-video overflow-hidden">
+                                        <img
+                                            src={getImageSrc(`destinations.${d.id}.image`, d.image)}
+                                            alt={getContent(`destinations.${d.id}.title`, d.title)}
+                                            data-destination-id={d.id}
+                                            loading="lazy"
+                                            decoding="async"
+                                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                                const next = e.currentTarget.nextElementSibling as HTMLElement;
+                                                if (next) next.style.display = 'block';
+                                            }}
+                                        />
+                                        <PlaceholderImage className="hidden h-full w-full object-cover" />
 
-                                                <div className="absolute top-0 right-0 z-10">
-                                                    <div className="flex h-9 items-center rounded-bl-xl bg-gradient-to-r from-amber-500 to-orange-600 px-3 py-1.5 text-xs font-bold text-white shadow-lg sm:px-4 sm:text-sm">
-                                                        <EditableText
-                                                            sectionKey={`destinations.${destination.id}.badge`}
-                                                            value={destination.badge}
-                                                            tag="span"
-                                                            className="text-white"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="absolute top-3 left-3">
-                                                    <span className="rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white shadow-lg sm:text-sm">
-                                                        {destination.category}
-                                                    </span>
-                                                </div>
-
-                                                {editMode && (
-                                                    <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                e.stopPropagation();
-                                                                setImageTargetKey(`destinations.${destination.id}.image`);
-                                                                document.getElementById(hiddenImageInputId)?.click();
-                                                            }}
-                                                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
-                                                        >
-                                                            <Camera className="h-5 w-5" strokeWidth={2.5} />
-                                                        </button>
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                e.stopPropagation();
-                                                                setEditorOpen({
-                                                                    id: destination.id,
-                                                                    title: destination.title,
-                                                                    subtitle: destination.subtitle,
-                                                                    location: destination.location,
-                                                                    duration: destination.duration,
-                                                                    price: destination.price,
-                                                                    highlights: destination.highlights,
-                                                                    description: destination.description,
-                                                                    category: destination.category,
-                                                                    badge: destination.badge,
-                                                                });
-                                                            }}
-                                                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
-                                                        >
-                                                            <Edit3 className="h-5 w-5" strokeWidth={2.5} />
-                                                        </button>
-                                                    </div>
-                                                )}
-
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                                            </div>
-
-                                            <div className="p-5 sm:p-6">
-                                                <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl">
-                                                    <EditableText
-                                                        sectionKey={`destinations.${destination.id}.title`}
-                                                        value={destination.title}
-                                                        tag="span"
-                                                    />
-                                                </h3>
-                                                <p className="mb-3 text-sm leading-relaxed text-white/80 sm:text-base">
-                                                    <EditableText
-                                                        sectionKey={`destinations.${destination.id}.subtitle`}
-                                                        value={destination.subtitle}
-                                                        tag="span"
-                                                    />
-                                                </p>
-
-                                                <div className="mb-3 flex items-center justify-between">
-                                                    <div className="text-lg font-bold text-amber-300 sm:text-xl">
-                                                        <EditableText
-                                                            sectionKey={`destinations.${destination.id}.price`}
-                                                            value={destination.price}
-                                                            tag="span"
-                                                        />
-                                                    </div>
-                                                    <div className="flex items-center gap-1.5 text-xs font-semibold text-white/70 sm:text-sm">
-                                                        <Clock className="h-4 w-4" />
-                                                        <span>
-                                                            <EditableText
-                                                                sectionKey={`destinations.${destination.id}.duration`}
-                                                                value={destination.duration}
-                                                                tag="span"
-                                                            />
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-white/70 sm:text-sm">
-                                                    <MapPin className="h-4 w-4" />
-                                                    <span>
-                                                        <EditableText
-                                                            sectionKey={`destinations.${destination.id}.location`}
-                                                            value={destination.location}
-                                                            tag="span"
-                                                        />
-                                                    </span>
-                                                </div>
-
-                                                <div className="mb-4 line-clamp-2 text-xs text-white/70 sm:text-sm">{destination.highlights}</div>
-
-                                                <div className="flex items-center justify-between">
-                                                    <div className="text-sm font-bold text-amber-300 transition-transform group-hover:scale-105 sm:text-base">
-                                                        View Details →
-                                                    </div>
-                                                    <div className="text-xs text-white/60 sm:text-sm">{destination.features.length} features</div>
-                                                </div>
-                                            </div>
-
-                                            <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-transform duration-500 group-hover:scale-x-100" />
-                                        </article>
-                                    </DialogTrigger>
-
-                                    <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto rounded-3xl border-2 border-white/20 bg-gradient-to-br from-black/98 to-slate-900/98 shadow-2xl">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-3xl font-bold text-white">
-                                                <EditableText
-                                                    sectionKey={`destinations.${destination.id}.title`}
-                                                    value={destination.title}
-                                                    tag="span"
-                                                />
-                                            </DialogTitle>
-                                            <DialogDescription className="text-lg leading-relaxed text-white/80">
-                                                <EditableText
-                                                    sectionKey={`destinations.${destination.id}.description`}
-                                                    value={destination.description}
-                                                    tag="span"
-                                                />
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="mt-8 space-y-6">
-                                            <div className="rounded-2xl border-2 border-white/20 bg-white/5 p-8 shadow-xl">
-                                                <h4 className="mb-5 text-xl font-bold text-amber-300">Package Details</h4>
-                                                <div className="grid grid-cols-2 gap-5 text-base text-white/90">
-                                                    <div>
-                                                        <strong>Location:</strong>{' '}
-                                                        <EditableText
-                                                            sectionKey={`destinations.${destination.id}.location`}
-                                                            value={destination.location}
-                                                            tag="span"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <strong>Duration:</strong>{' '}
-                                                        <EditableText
-                                                            sectionKey={`destinations.${destination.id}.duration`}
-                                                            value={destination.duration}
-                                                            tag="span"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <strong>Price:</strong>{' '}
-                                                        <EditableText
-                                                            sectionKey={`destinations.${destination.id}.price`}
-                                                            value={destination.price}
-                                                            tag="span"
-                                                        />{' '}
-                                                        per person
-                                                    </div>
-                                                    <div>
-                                                        <strong>Category:</strong> {destination.category}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="rounded-2xl border-2 border-white/20 bg-white/5 p-8 shadow-xl">
-                                                <h4 className="mb-5 text-xl font-bold text-amber-300">Highlights</h4>
-                                                <p className="text-base leading-relaxed text-white/90">
-                                                    <EditableText
-                                                        sectionKey={`destinations.${destination.id}.highlights`}
-                                                        value={destination.highlights}
-                                                        tag="span"
-                                                    />
-                                                </p>
-                                            </div>
-
-                                            <div className="rounded-2xl border-2 border-white/20 bg-white/5 p-8 shadow-xl">
-                                                <h4 className="mb-5 text-xl font-bold text-amber-300">What's Included</h4>
-                                                <ul className="space-y-3">
-                                                    {destination.features.map((feature, index) => (
-                                                        <li key={index} className="flex items-center gap-3 text-base text-white/90">
-                                                            <Check className="h-6 w-6 flex-shrink-0 text-green-400" />
-                                                            <span>{feature}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-
-                                            <div className="flex gap-4">
-                                                <a
-                                                    href="https://wa.me/6281234567890"
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-center text-lg font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
-                                                >
-                                                    Book Now
-                                                </a>
-                                                <a
-                                                    href="https://wa.me/6281234567890"
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="flex-1 rounded-xl border-2 border-amber-500 px-8 py-4 text-center text-lg font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
-                                                >
-                                                    Ask Questions
-                                                </a>
+                                        <div className="absolute top-0 right-0 z-10">
+                                            <div className="flex h-9 items-center rounded-bl-xl bg-gradient-to-r from-amber-500 to-orange-600 px-3 py-1.5 text-xs font-bold text-white shadow-lg sm:px-4 sm:text-sm">
+                                                {getContent(`destinations.${d.id}.badge`, d.badge)}
                                             </div>
                                         </div>
-                                    </DialogContent>
-                                </Dialog>
+                                        <div className="absolute top-3 left-3">
+                                            <span className="rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white shadow-lg sm:text-sm">
+                                                {getContent(`destinations.${d.id}.category`, d.category)}
+                                            </span>
+                                        </div>
+
+                                        {editMode && (
+                                            <div className="absolute bottom-3 right-3 z-20">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setEditorOpen({
+                                                            id: d.id,
+                                                            title: getContent(`destinations.${d.id}.title`, d.title),
+                                                            subtitle: getContent(`destinations.${d.id}.subtitle`, d.subtitle),
+                                                            location: getContent(`destinations.${d.id}.location`, d.location),
+                                                            duration: getContent(`destinations.${d.id}.duration`, d.duration),
+                                                            price: getContent(`destinations.${d.id}.price`, d.price),
+                                                            highlights: getContent(`destinations.${d.id}.highlights`, d.highlights),
+                                                            description: getContent(`destinations.${d.id}.description`, d.description),
+                                                            category: getContent(`destinations.${d.id}.category`, d.category),
+                                                            badge: getContent(`destinations.${d.id}.badge`, d.badge),
+                                                        });
+                                                        setPendingFile(null);
+                                                    }}
+                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                                    title="Edit"
+                                                >
+                                                    <Edit3 className="h-5 w-5" strokeWidth={2.5} />
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                    </div>
+
+                                    <div className="p-5 sm:p-6">
+                                        <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl">
+                                            {getContent(`destinations.${d.id}.title`, d.title)}
+                                        </h3>
+                                        <p className="mb-3 text-sm leading-relaxed text-white/80 sm:text-base">
+                                            {getContent(`destinations.${d.id}.subtitle`, d.subtitle)}
+                                        </p>
+                                        <div className="mb-3 flex items-center justify-between">
+                                            <div className="text-lg font-bold text-amber-300 sm:text-xl">
+                                                {getContent(`destinations.${d.id}.price`, d.price)}
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-xs font-semibold text-white/70 sm:text-sm">
+                                                <Clock className="h-4 w-4" />
+                                                <span>{getContent(`destinations.${d.id}.duration`, d.duration)}</span>
+                                            </div>
+                                        </div>
+                                        <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-white/70 sm:text-sm">
+                                            <MapPin className="h-4 w-4" />
+                                            <span>{getContent(`destinations.${d.id}.location`, d.location)}</span>
+                                        </div>
+                                        <p className="mb-3 line-clamp-2 text-xs text-white/70 sm:text-sm">
+                                            {getContent(`destinations.${d.id}.highlights`, d.highlights)}
+                                        </p>
+                                        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                                            <h4 className="mb-2 text-xs font-bold text-amber-300 sm:text-sm">What&apos;s Included</h4>
+                                            <ul className="space-y-1.5 text-xs text-white/90 sm:text-sm">
+                                                {d.features.slice(0, 4).map((f, i) => (
+                                                    <li key={i} className="flex items-center gap-2">
+                                                        <Check className="h-3.5 w-3.5 flex-shrink-0 text-green-400" />
+                                                        <span>{f}</span>
+                                                    </li>
+                                                ))}
+                                                {d.features.length > 4 && <li className="text-white/60">+{d.features.length - 4} more</li>}
+                                            </ul>
+                                        </div>
+                                        <div className="mt-4 flex gap-3">
+                                            <a
+                                                href="https://wa.me/6281234567890"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-center text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
+                                            >
+                                                Book Now
+                                            </a>
+                                            <a
+                                                href="https://wa.me/6281234567890"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="flex-1 rounded-xl border border-amber-500 px-4 py-2.5 text-center text-sm font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
+                                            >
+                                                Ask Questions
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-transform duration-500 group-hover:scale-x-100" />
+                                </article>
                             ))}
                         </div>
 
-                        {/* CTA Section */}
                         <div className="mt-20 text-center">
                             <div className="mb-8 inline-flex items-center rounded-full border-2 border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-8 py-4 shadow-xl">
-                                <span className="text-base font-bold text-amber-200">
-                                    <EditableText sectionKey="destinations.cta.badge" value="✨ Custom Packages Available" tag="span" />
-                                </span>
+                                <span className="text-base font-bold text-amber-200">✨ Custom Packages Available</span>
                             </div>
                             <h3 className="mb-6 text-4xl font-bold text-white md:text-5xl">
-                                <EditableText sectionKey="destinations.cta.title" value="Can't Find the Perfect Destination?" tag="span" />
+                                Can&apos;t Find the Perfect Destination?
                             </h3>
                             <p className="mx-auto mb-10 max-w-3xl text-xl text-white/80">
-                                <EditableText
-                                    sectionKey="destinations.cta.description"
-                                    value="Our travel experts are here to create the perfect custom itinerary just for you. Whether you're looking for a spiritual journey, cultural adventure, or luxury escape."
-                                    tag="span"
-                                />
+                                Our travel experts are here to create the perfect custom itinerary just for you. Whether you&apos;re looking for a spiritual journey, cultural adventure, or luxury escape.
                             </p>
                             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
                                 <a
@@ -805,7 +484,6 @@ export default function Destinations() {
                     </div>
                 </section>
 
-                {/* Footer */}
                 <footer className="relative border-t border-white/10 bg-black/70">
                     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
                         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
@@ -814,7 +492,6 @@ export default function Destinations() {
                                 <div className="mt-2 font-semibold">WhatsApp: +62 812-3456-7890</div>
                                 <div className="mt-2 font-semibold">24/7 Customer Support</div>
                             </div>
-
                             <div className="flex items-center gap-8">
                                 {['Instagram', 'TikTok', 'YouTube'].map((social) => (
                                     <a
@@ -829,7 +506,6 @@ export default function Destinations() {
                                 ))}
                             </div>
                         </div>
-
                         <div className="mt-10 border-t border-white/10 pt-8 text-center">
                             <p className="text-sm text-white/50">© 2024 Cahaya Anbiya Travel. All rights reserved.</p>
                         </div>
@@ -837,58 +513,74 @@ export default function Destinations() {
                 </footer>
             </div>
 
-            <input
-                id={hiddenImageInputId}
-                type="file"
-                accept="image/jpeg,image/png"
-                className="hidden"
-                onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (!f || !imageTargetKey) return;
-                    const formData = new FormData();
-                    formData.append('key', imageTargetKey);
-                    formData.append('image', f);
-                    setSaving(true);
-                    axios
-                        .post('/admin/upload-image', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-                        .then((r) => {
-                            if (r.data.success && r.data.imageUrl) {
-                                const destId = imageTargetKey.split('.')[1];
-                                const img = document.querySelector(`img[data-destination-id="${destId}"]`) as HTMLImageElement | null;
-                                if (img) img.src = r.data.imageUrl;
-                                window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                            }
-                        })
-                        .finally(() => {
-                            setSaving(false);
-                            setImageTargetKey(null);
-                            e.target.value = '';
-                        });
-                }}
-            />
-
-            {editorOpen && (
-                <DestinationEditorModal
-                    destination={editorOpen}
-                    onClose={() => setEditorOpen(null)}
-                    onSave={async (data) => {
-                        const updates = [
-                            { key: `destinations.${data.id}.title`, content: data.title },
-                            { key: `destinations.${data.id}.subtitle`, content: data.subtitle },
-                            { key: `destinations.${data.id}.location`, content: data.location },
-                            { key: `destinations.${data.id}.duration`, content: data.duration },
-                            { key: `destinations.${data.id}.price`, content: data.price },
-                            { key: `destinations.${data.id}.highlights`, content: data.highlights },
-                            { key: `destinations.${data.id}.description`, content: data.description },
-                            { key: `destinations.${data.id}.category`, content: data.category },
-                            { key: `destinations.${data.id}.badge`, content: data.badge },
-                        ];
-                        await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
-                        window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                        setEditorOpen(null);
-                    }}
-                />
-            )}
+            {/* Editor Modal - Home-style floating bottom */}
+            <AnimatePresence>
+                {editMode && editorOpen && (
+                    <motion.div
+                        key={editorOpen.id}
+                        className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/95 p-6 shadow-2xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                    >
+                        <div className="mb-4 flex items-center justify-between">
+                            <span className="text-sm font-semibold text-white">Edit Destination #{editorOpen.id}</span>
+                        </div>
+                        <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2">
+                            {(['title', 'subtitle', 'location', 'duration', 'price', 'highlights', 'description', 'category', 'badge'] as const).map((field) => (
+                                <div key={field}>
+                                    <label className="mb-1 block text-xs font-medium text-gray-300 capitalize">{field}</label>
+                                    {field === 'highlights' || field === 'description' ? (
+                                        <textarea
+                                            value={editorOpen[field]}
+                                            onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
+                                            rows={field === 'description' ? 4 : 2}
+                                            className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                        />
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            value={editorOpen[field]}
+                                            onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
+                                            className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                            <div>
+                                <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
+                                <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
+                                    {IMAGE_GUIDE}
+                                </p>
+                                <input
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    onChange={(e) => setPendingFile(e.target.files?.[0] ?? null)}
+                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
+                                />
+                            </div>
+                        </div>
+                        <div className="mt-6 flex items-center justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setEditorOpen(null);
+                                    setPendingFile(null);
+                                }}
+                                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 ring-1 ring-white/10 transition-all hover:bg-white/5"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={saving}
+                                className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
+                            >
+                                {saving ? 'Saving…' : 'Save Changes'}
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </PublicLayout>
     );
 }

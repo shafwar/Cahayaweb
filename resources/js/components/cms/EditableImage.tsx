@@ -19,7 +19,11 @@ export default function EditableImage({
     imgClassName?: string;
 }) {
     const { isAdmin, editMode, markDirty } = useEditMode();
-    const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
+    const { props } = usePage<{
+        sections?: Record<string, { content?: string; image?: string }>;
+        cmsMediaGuide?: { images?: { short?: string } };
+    }>();
+    const guide = props.cmsMediaGuide?.images ?? {};
     
     // Prioritize data from database, fallback to default src
     const dbImage = props.sections?.[sectionKey]?.image;
@@ -133,11 +137,21 @@ export default function EditableImage({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 grid place-items-center rounded-md bg-black/30 ring-2 ring-blue-400/50"
+                        className="absolute inset-0 z-[9999] flex flex-col items-center justify-center gap-3 rounded-md bg-black/70 backdrop-blur-md"
                         onClick={() => inputRef.current?.click()}
+                        style={{ pointerEvents: 'auto' }}
                     >
-                        <span className="rounded bg-white/90 px-3 py-1 text-xs font-medium text-gray-800">Drag & Drop image or Click to replace</span>
-                        <input ref={inputRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={onFileChange} />
+                        <div className="flex flex-col items-center gap-3 rounded-xl border-2 border-blue-400/50 bg-black/90 p-6 shadow-2xl backdrop-blur-sm">
+                            <span className="rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-gray-900 shadow-lg">
+                                Drag & Drop image or Click to replace
+                            </span>
+                            {guide.short && (
+                                <span className="rounded-lg border-2 border-amber-400 bg-gradient-to-r from-amber-900 to-orange-900 px-5 py-2.5 text-xs font-bold text-amber-50 shadow-lg">
+                                    {guide.short}
+                                </span>
+                            )}
+                        </div>
+                        <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={onFileChange} />
                     </motion.div>
                 )}
             </AnimatePresence>

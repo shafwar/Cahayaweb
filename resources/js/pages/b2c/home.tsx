@@ -1,4 +1,4 @@
-import { EditableText } from '@/components/cms';
+import { EditableText, EditableVideo, triggerVideoUpload, useEditMode } from '@/components/cms';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
@@ -6,7 +6,7 @@ import { getImageUrl, getVideoUrl } from '@/utils/imageHelper';
 import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Camera, ChevronDown, Edit3, Sparkles } from 'lucide-react';
+import { ArrowRight, ChevronDown, Edit3, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 // Video component with R2 fallback - Simplified and safer
@@ -332,6 +332,20 @@ const staggerContainer = {
     },
 };
 
+function HeroVideoUploadTrigger() {
+    const { isAdmin, editMode } = useEditMode();
+    if (!isAdmin || !editMode) return null;
+    return (
+        <button
+            type="button"
+            onClick={() => triggerVideoUpload('home.hero.video')}
+            className="group inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white/90 shadow-lg transition-all hover:border-blue-400/50 hover:bg-blue-500/20 hover:text-white"
+        >
+            <span className="opacity-80 group-hover:opacity-100">Drag & Drop video or Click to replace</span>
+        </button>
+    );
+}
+
 export default function Home() {
     const [editMode, setEditModeUI] = useState<boolean>(false);
 
@@ -369,7 +383,14 @@ export default function Home() {
     const [pendingImageUploads, setPendingImageUploads] = useState<Map<string, File>>(new Map());
     const [imagePreviewUrls, setImagePreviewUrls] = useState<Map<string, string>>(new Map());
 
-    const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
+    const { props } = usePage<{
+        sections?: Record<string, { content?: string; image?: string; video?: string }>;
+        cmsMediaGuide?: { images?: { short?: string } };
+    }>();
+    const imageGuide = props.cmsMediaGuide?.images?.short ?? '1920×1080px recommended · Max 5MB · Auto-compressed';
+
+    // Helper to get content from sections (no inline edit - edit only via pencil modal)
+    const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
 
     // Helper function to get image URL with R2 support
     const getImageSrc = (sectionKey: string, fallbackPath: string) => {
@@ -459,23 +480,14 @@ export default function Home() {
                                 willChange: 'transform', // GPU acceleration hint
                             }}
                         >
-                            {(() => {
-                                try {
-                                    const r2VideoUrl = getVideoUrl('/b2cherosectionvideo.mp4');
-                                    // Always use R2 URL, never local path
-                                    return (
-                                        <VideoWithFallback
-                                            r2Url={r2VideoUrl}
-                                            fallbackUrl={r2VideoUrl} // Use R2 URL as fallback too
-                                        />
-                                    );
-                                } catch (error) {
-                                    console.error('Error getting video URL:', error);
-                                    // Even on error, use R2 URL structure
-                                    const fallbackR2Url = 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4';
-                                    return <VideoWithFallback r2Url={fallbackR2Url} fallbackUrl={fallbackR2Url} />;
-                                }
-                            })()}
+                            <EditableVideo
+                                sectionKey="home.hero.video"
+                                src={props.sections?.['home.hero.video']?.video}
+                                fallbackSrc="videos/b2cherosectionvideo.mp4"
+                                className="absolute inset-0 h-full w-full"
+                                videoClassName="h-full w-full object-cover"
+                                inlineTrigger
+                            />
                         </motion.div>
 
                         {/* Enhanced gradient overlay - Lighter for better visibility */}
@@ -499,16 +511,19 @@ export default function Home() {
                             />
                         </div>
 
-                        {/* Hero Content - Clean Single Line */}
-                        <div className="relative z-10 flex h-full items-center justify-center px-4 pb-20 sm:pb-24">
-                            <motion.h1
-                                className="max-w-5xl text-center text-4xl leading-tight font-light text-white drop-shadow-2xl md:text-6xl lg:text-7xl"
+                        {/* Hero Content - Clean Single Line + Video Upload Trigger */}
+                        <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 pb-20 sm:pb-24">
+                            <motion.div
+                                className="flex max-w-5xl flex-col items-center gap-4 text-center"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                             >
-                                <EditableText sectionKey="home.hero.tagline" value="Where ancient wonders meet extraordinary journeys" tag="span" />
-                            </motion.h1>
+                                <h1 className="text-4xl leading-tight font-light text-white drop-shadow-2xl md:text-6xl lg:text-7xl">
+                                    <EditableText sectionKey="home.hero.tagline" value="Where ancient wonders meet extraordinary journeys" tag="span" />
+                                </h1>
+                                <HeroVideoUploadTrigger />
+                            </motion.div>
                         </div>
 
                         {/* Scroll Down Button - Elegant & Subtle */}
@@ -646,53 +661,34 @@ export default function Home() {
                                                         </motion.div>
                                                     </div>
 
-                                                    {/* Edit Controls */}
+                                                    {/* Edit Control - Pencil only */}
                                                     {editMode && (
-                                                        <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setImageTargetKey(`home.bestsellers.${item.id}.image`);
-                                                                    const el = document.getElementById(hiddenImageInputId) as HTMLInputElement | null;
-                                                                    el?.click();
-                                                                }}
-                                                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
-                                                            >
-                                                                <Camera className="h-5 w-5" strokeWidth={2.5} />
-                                                            </button>
-
+                                                        <div className="absolute top-4 left-4 z-10">
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
                                                                     setEditorOpen({
                                                                         section: 'bestsellers',
                                                                         id: item.id,
-                                                                        title: item.title,
-                                                                        subtitle: item.subtitle,
+                                                                        title: getContent(`home.bestsellers.${item.id}.title`, item.title),
+                                                                        subtitle: getContent(`home.bestsellers.${item.id}.subtitle`, item.subtitle),
                                                                     });
                                                                 }}
                                                                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                                                title="Edit content & image"
                                                             >
                                                                 <Edit3 className="h-5 w-5" strokeWidth={2.5} />
                                                             </button>
                                                         </div>
                                                     )}
 
-                                                    {/* Content Overlay */}
+                                                    {/* Content Overlay - Static display (edit via pencil) */}
                                                     <div className="absolute right-0 bottom-0 left-0 p-6">
                                                         <h3 className="mb-2 text-2xl font-bold text-white">
-                                                            <EditableText
-                                                                sectionKey={`home.bestsellers.${item.id}.title`}
-                                                                value={item.title}
-                                                                tag="span"
-                                                            />
+                                                            {getContent(`home.bestsellers.${item.id}.title`, item.title)}
                                                         </h3>
                                                         <p className="text-white/70">
-                                                            <EditableText
-                                                                sectionKey={`home.bestsellers.${item.id}.subtitle`}
-                                                                value={item.subtitle}
-                                                                tag="span"
-                                                            />
+                                                            {getContent(`home.bestsellers.${item.id}.subtitle`, item.subtitle)}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -780,49 +776,32 @@ export default function Home() {
                                             </div>
 
                                             {editMode && (
-                                                <div className="absolute top-6 left-6 z-10 flex gap-2">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setImageTargetKey(`home.new.${newDestinations[0].id}.image`);
-                                                            document.getElementById(hiddenImageInputId)?.click();
-                                                        }}
-                                                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/95 text-gray-800 shadow-2xl ring-2 ring-white/50 transition-all hover:scale-110"
-                                                    >
-                                                        <Camera className="h-5 w-5" strokeWidth={2.5} />
-                                                    </button>
+                                                <div className="absolute top-6 left-6 z-10">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setEditorOpen({
                                                                 section: 'new',
                                                                 id: newDestinations[0].id,
-                                                                title: newDestinations[0].title,
-                                                                subtitle: newDestinations[0].subtitle,
+                                                                title: getContent(`home.new.${newDestinations[0].id}.title`, newDestinations[0].title),
+                                                                subtitle: getContent(`home.new.${newDestinations[0].id}.subtitle`, newDestinations[0].subtitle),
                                                             });
                                                         }}
                                                         className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-2xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                                        title="Edit content & image"
                                                     >
                                                         <Edit3 className="h-5 w-5" strokeWidth={2.5} />
                                                     </button>
                                                 </div>
                                             )}
 
-                                            {/* Clean Content Overlay */}
+                                            {/* Content Overlay - Static (edit via pencil) */}
                                             <div className="absolute right-0 bottom-0 left-0 p-6">
                                                 <h3 className="mb-2 text-xl font-bold text-white drop-shadow-md md:text-2xl lg:text-3xl">
-                                                    <EditableText
-                                                        sectionKey={`home.new.${newDestinations[0].id}.title`}
-                                                        value={newDestinations[0].title}
-                                                        tag="span"
-                                                    />
+                                                    {getContent(`home.new.${newDestinations[0].id}.title`, newDestinations[0].title)}
                                                 </h3>
                                                 <p className="mb-3 text-sm text-white/80 md:text-base">
-                                                    <EditableText
-                                                        sectionKey={`home.new.${newDestinations[0].id}.subtitle`}
-                                                        value={newDestinations[0].subtitle}
-                                                        tag="span"
-                                                    />
+                                                    {getContent(`home.new.${newDestinations[0].id}.subtitle`, newDestinations[0].subtitle)}
                                                 </p>
                                                 <div className="inline-flex items-center gap-2 text-orange-400">
                                                     <span className="text-sm font-medium">Explore</span>
@@ -868,49 +847,32 @@ export default function Home() {
                                             </div>
 
                                             {editMode && (
-                                                <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setImageTargetKey(`home.new.${newDestinations[1].id}.image`);
-                                                            document.getElementById(hiddenImageInputId)?.click();
-                                                        }}
-                                                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
-                                                    >
-                                                        <Camera className="h-5 w-5" strokeWidth={2.5} />
-                                                    </button>
+                                                <div className="absolute top-4 left-4 z-10">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setEditorOpen({
                                                                 section: 'new',
                                                                 id: newDestinations[1].id,
-                                                                title: newDestinations[1].title,
-                                                                subtitle: newDestinations[1].subtitle,
+                                                                title: getContent(`home.new.${newDestinations[1].id}.title`, newDestinations[1].title),
+                                                                subtitle: getContent(`home.new.${newDestinations[1].id}.subtitle`, newDestinations[1].subtitle),
                                                             });
                                                         }}
                                                         className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                                        title="Edit content & image"
                                                     >
                                                         <Edit3 className="h-5 w-5" strokeWidth={2.5} />
                                                     </button>
                                                 </div>
                                             )}
 
-                                            {/* Clean Content */}
+                                            {/* Clean Content - Static (edit via pencil) */}
                                             <div className="absolute right-0 bottom-0 left-0 p-6">
                                                 <h3 className="mb-2 text-xl font-bold text-white drop-shadow-md md:text-2xl lg:text-3xl">
-                                                    <EditableText
-                                                        sectionKey={`home.new.${newDestinations[1].id}.title`}
-                                                        value={newDestinations[1].title}
-                                                        tag="span"
-                                                    />
+                                                    {getContent(`home.new.${newDestinations[1].id}.title`, newDestinations[1].title)}
                                                 </h3>
                                                 <p className="mb-3 text-sm text-white/80 md:text-base">
-                                                    <EditableText
-                                                        sectionKey={`home.new.${newDestinations[1].id}.subtitle`}
-                                                        value={newDestinations[1].subtitle}
-                                                        tag="span"
-                                                    />
+                                                    {getContent(`home.new.${newDestinations[1].id}.subtitle`, newDestinations[1].subtitle)}
                                                 </p>
                                                 <div className="inline-flex items-center gap-2 text-orange-400">
                                                     <span className="text-sm font-medium">Explore</span>
@@ -956,49 +918,32 @@ export default function Home() {
                                             </div>
 
                                             {editMode && (
-                                                <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setImageTargetKey(`home.new.${newDestinations[2].id}.image`);
-                                                            document.getElementById(hiddenImageInputId)?.click();
-                                                        }}
-                                                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
-                                                    >
-                                                        <Camera className="h-5 w-5" strokeWidth={2.5} />
-                                                    </button>
+                                                <div className="absolute top-4 left-4 z-10">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setEditorOpen({
                                                                 section: 'new',
                                                                 id: newDestinations[2].id,
-                                                                title: newDestinations[2].title,
-                                                                subtitle: newDestinations[2].subtitle,
+                                                                title: getContent(`home.new.${newDestinations[2].id}.title`, newDestinations[2].title),
+                                                                subtitle: getContent(`home.new.${newDestinations[2].id}.subtitle`, newDestinations[2].subtitle),
                                                             });
                                                         }}
                                                         className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                                        title="Edit content & image"
                                                     >
                                                         <Edit3 className="h-5 w-5" strokeWidth={2.5} />
                                                     </button>
                                                 </div>
                                             )}
 
-                                            {/* Clean Content */}
+                                            {/* Clean Content - Static (edit via pencil) */}
                                             <div className="absolute right-0 bottom-0 left-0 p-6">
                                                 <h3 className="mb-2 text-xl font-bold text-white drop-shadow-md md:text-2xl lg:text-3xl">
-                                                    <EditableText
-                                                        sectionKey={`home.new.${newDestinations[2].id}.title`}
-                                                        value={newDestinations[2].title}
-                                                        tag="span"
-                                                    />
+                                                    {getContent(`home.new.${newDestinations[2].id}.title`, newDestinations[2].title)}
                                                 </h3>
                                                 <p className="mb-3 text-sm text-white/80 md:text-base">
-                                                    <EditableText
-                                                        sectionKey={`home.new.${newDestinations[2].id}.subtitle`}
-                                                        value={newDestinations[2].subtitle}
-                                                        tag="span"
-                                                    />
+                                                    {getContent(`home.new.${newDestinations[2].id}.subtitle`, newDestinations[2].subtitle)}
                                                 </p>
                                                 <div className="inline-flex items-center gap-2 text-orange-400">
                                                     <span className="text-sm font-medium">Explore</span>
@@ -1044,49 +989,32 @@ export default function Home() {
                                             </div>
 
                                             {editMode && (
-                                                <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setImageTargetKey(`home.new.${newDestinations[3].id}.image`);
-                                                            document.getElementById(hiddenImageInputId)?.click();
-                                                        }}
-                                                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
-                                                    >
-                                                        <Camera className="h-5 w-5" strokeWidth={2.5} />
-                                                    </button>
+                                                <div className="absolute top-4 left-4 z-10">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setEditorOpen({
                                                                 section: 'new',
                                                                 id: newDestinations[3].id,
-                                                                title: newDestinations[3].title,
-                                                                subtitle: newDestinations[3].subtitle,
+                                                                title: getContent(`home.new.${newDestinations[3].id}.title`, newDestinations[3].title),
+                                                                subtitle: getContent(`home.new.${newDestinations[3].id}.subtitle`, newDestinations[3].subtitle),
                                                             });
                                                         }}
                                                         className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                                        title="Edit content & image"
                                                     >
                                                         <Edit3 className="h-5 w-5" strokeWidth={2.5} />
                                                     </button>
                                                 </div>
                                             )}
 
-                                            {/* Clean Content */}
+                                            {/* Clean Content - Static (edit via pencil) */}
                                             <div className="absolute right-0 bottom-0 left-0 p-6">
                                                 <h3 className="mb-2 text-xl font-bold text-white drop-shadow-md md:text-2xl lg:text-3xl">
-                                                    <EditableText
-                                                        sectionKey={`home.new.${newDestinations[3].id}.title`}
-                                                        value={newDestinations[3].title}
-                                                        tag="span"
-                                                    />
+                                                    {getContent(`home.new.${newDestinations[3].id}.title`, newDestinations[3].title)}
                                                 </h3>
                                                 <p className="mb-3 text-sm text-white/80 md:text-base">
-                                                    <EditableText
-                                                        sectionKey={`home.new.${newDestinations[3].id}.subtitle`}
-                                                        value={newDestinations[3].subtitle}
-                                                        tag="span"
-                                                    />
+                                                    {getContent(`home.new.${newDestinations[3].id}.subtitle`, newDestinations[3].subtitle)}
                                                 </p>
                                                 <div className="inline-flex items-center gap-2 text-orange-400">
                                                     <span className="text-sm font-medium">Explore</span>
@@ -1187,43 +1115,32 @@ export default function Home() {
                                                 </div>
 
                                                 {editMode && (
-                                                    <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setImageTargetKey(`home.hl.${item.id}.image`);
-                                                                const el = document.getElementById(hiddenImageInputId) as HTMLInputElement | null;
-                                                                el?.click();
-                                                            }}
-                                                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
-                                                        >
-                                                            <Camera className="h-5 w-5" strokeWidth={2.5} />
-                                                        </button>
-
+                                                    <div className="absolute top-4 left-4 z-10">
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 setEditorOpen({
                                                                     section: 'hl',
                                                                     id: item.id,
-                                                                    title: item.title,
-                                                                    subtitle: item.subtitle,
+                                                                    title: getContent(`home.hl.${item.id}.title`, item.title),
+                                                                    subtitle: getContent(`home.hl.${item.id}.subtitle`, item.subtitle),
                                                                 });
                                                             }}
                                                             className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                                            title="Edit content & image"
                                                         >
                                                             <Edit3 className="h-5 w-5" strokeWidth={2.5} />
                                                         </button>
                                                     </div>
                                                 )}
 
-                                                {/* Enhanced Content Overlay */}
+                                                {/* Content Overlay - Static (edit via pencil) */}
                                                 <div className="absolute right-0 bottom-0 left-0 p-6 md:p-8">
                                                     <h3 className="mb-2 text-2xl leading-tight font-bold text-white drop-shadow-lg md:text-3xl">
-                                                        <EditableText sectionKey={`home.hl.${item.id}.title`} value={item.title} tag="span" />
+                                                        {getContent(`home.hl.${item.id}.title`, item.title)}
                                                     </h3>
                                                     <p className="text-base leading-relaxed text-white/80 md:text-lg">
-                                                        <EditableText sectionKey={`home.hl.${item.id}.subtitle`} value={item.subtitle} tag="span" />
+                                                        {getContent(`home.hl.${item.id}.subtitle`, item.subtitle)}
                                                     </p>
                                                 </div>
                                             </div>
@@ -1278,9 +1195,12 @@ export default function Home() {
                                 </div>
                                 <div>
                                     <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
+                                    <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
+                                        {imageGuide}
+                                    </p>
                                     <input
                                         type="file"
-                                        accept="image/jpeg,image/png"
+                                        accept="image/jpeg,image/png,image/webp"
                                         onChange={(e) => setPendingFile(e.target.files?.[0] ?? null)}
                                         className="w-full text-sm text-gray-300 transition-all file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
                                     />

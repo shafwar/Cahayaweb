@@ -1,337 +1,193 @@
-import { EditableText } from '@/components/cms';
 import PlaceholderImage from '@/components/media/placeholder-image';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
-import { getR2Url } from '@/utils/imageHelper';
+import { router, usePage } from '@inertiajs/react';
+import { getImageUrl } from '@/utils/imageHelper';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Camera, Check, Edit3, Star, X } from 'lucide-react';
+import { ArrowRight, Check, Edit3, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 
-// ✅ KEEP modal animations - they don't block scroll
-function HighlightEditorModal({
-    highlight,
-    onClose,
-    onSave,
-}: {
-    highlight: {
-        id: number;
-        title: string;
-        subtitle: string;
-        description: string;
-        category: string;
-        badge: string;
-    };
-    onClose: () => void;
-    onSave: (data: { id: number; title: string; subtitle: string; description: string; category: string; badge: string }) => Promise<void>;
-}) {
-    const [formData, setFormData] = useState(highlight);
-    const [isSaving, setIsSaving] = useState(false);
+const IMAGE_GUIDE = '1920×1080px recommended · Max 5MB · Auto-compressed · JPEG, PNG, WebP';
 
-    useEffect(() => {
-        setFormData(highlight);
-    }, [highlight]);
+const highlights = [
+    {
+        id: 1,
+        title: 'Spiritual Journey to the Holy Land',
+        subtitle: 'Umrah & Hajj Experiences',
+        description:
+            'Experience the profound spiritual journey to Makkah and Madinah. Our Umrah and Hajj packages provide complete guidance, luxury accommodations, and authentic spiritual experiences that connect you with the sacred traditions of Islam.',
+        image: '/umrah.jpeg',
+        category: 'Spiritual',
+        features: [
+            'Professional spiritual guidance',
+            '5-star hotel accommodations',
+            'Direct flights from Indonesia',
+            'VIP access to holy sites',
+            'Comprehensive travel insurance',
+            'Daily spiritual programs',
+        ],
+        stats: { travelers: '5000+', satisfaction: '98%', experience: '15+ years' },
+        badge: 'Featured',
+    },
+    {
+        id: 2,
+        title: 'Cultural Heritage of Turkey',
+        subtitle: 'Istanbul to Cappadocia Adventure',
+        description:
+            "Discover the perfect blend of East and West in Turkey. From the magnificent Hagia Sophia and Blue Mosque in Istanbul to the magical hot air balloon rides over Cappadocia's fairy chimneys.",
+        image: '/TURKEY.jpeg',
+        category: 'Cultural',
+        features: [
+            'Hot air balloon experience',
+            'Historical site guided tours',
+            'Traditional Turkish bath',
+            'Bosphorus cruise',
+            'Local cuisine tasting',
+            'Cultural workshops',
+        ],
+        stats: { travelers: '3200+', satisfaction: '96%', experience: '12+ years' },
+        badge: 'Popular',
+    },
+    {
+        id: 3,
+        title: 'Ancient Wonders of Egypt',
+        subtitle: 'Pyramids & Nile River Expedition',
+        description:
+            'Journey through the cradle of civilization and explore the magnificent wonders of ancient Egypt. From the Great Pyramids of Giza to the majestic Nile River cruises, experience the magic of pharaonic history.',
+        image: '/egypt.jpeg',
+        category: 'Historical',
+        features: [
+            'Nile River luxury cruise',
+            'Pyramids guided exploration',
+            'Valley of the Kings tour',
+            'Abu Simbel temple visit',
+            'Egyptian Museum tour',
+            'Traditional felucca sailing',
+        ],
+        stats: { travelers: '2800+', satisfaction: '95%', experience: '10+ years' },
+        badge: 'Heritage',
+    },
+    {
+        id: 4,
+        title: 'Luxury Dubai Experience',
+        subtitle: 'Modern Wonders & Desert Adventures',
+        description:
+            'Experience the epitome of luxury and innovation in Dubai. From the iconic Burj Khalifa to thrilling desert safaris, discover why Dubai is the ultimate destination for luxury travelers seeking modern Arabian hospitality.',
+        image: '/dubai1.jpeg',
+        category: 'Luxury',
+        features: [
+            'Burj Khalifa observation deck',
+            'Desert safari with dinner',
+            'Luxury shopping experience',
+            'Sheikh Zayed Mosque tour',
+            'Ferrari World theme park',
+            'Dhow cruise dinner',
+        ],
+        stats: { travelers: '4500+', satisfaction: '97%', experience: '14+ years' },
+        badge: 'Premium',
+    },
+    {
+        id: 5,
+        title: 'Oman Adventure Discovery',
+        subtitle: 'Hidden Gems of the Arabian Peninsula',
+        description:
+            'Explore the hidden gem of the Arabian Peninsula. From the stunning fjords of Musandam to the ancient forts of Nizwa, discover authentic Arabian experiences away from the crowds in this pristine destination.',
+        image: '/oman.jpg',
+        category: 'Adventure',
+        features: [
+            'Desert camping in Wahiba Sands',
+            'Ancient fort exploration',
+            'Wadi hiking adventures',
+            'Traditional souk visits',
+            'Dolphin watching cruise',
+            'Mountain village tours',
+        ],
+        stats: { travelers: '1800+', satisfaction: '99%', experience: '8+ years' },
+        badge: 'Explorer',
+    },
+    {
+        id: 6,
+        title: 'Qatar Luxury & Culture',
+        subtitle: 'Tradition Meets Modernity',
+        description:
+            'Experience the perfect blend of tradition and modernity in Qatar. From the stunning Museum of Islamic Art to luxury at The Pearl, discover why Qatar is becoming a premier travel destination in the Gulf region.',
+        image: '/qatar.jpg',
+        category: 'Luxury',
+        features: [
+            'Museum of Islamic Art tour',
+            'Souq Waqif cultural experience',
+            'Desert safari adventure',
+            'The Pearl luxury experience',
+            'Katara Cultural Village',
+            'Luxury resort accommodations',
+        ],
+        stats: { travelers: '2200+', satisfaction: '94%', experience: '9+ years' },
+        badge: 'Premium',
+    },
+];
 
-    const handleSave = async () => {
-        setIsSaving(true);
-        try {
-            await onSave(formData);
-        } catch (error) {
-            console.error('Save failed:', error);
-            alert('Failed to save changes');
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    return createPortal(
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-4"
-                onClick={onClose}
-            >
-                <motion.div
-                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                    className="relative w-full max-w-4xl rounded-3xl border-2 border-amber-500/50 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <div className="max-h-[85vh] overflow-y-auto">
-                        <div className="sticky top-0 z-10 border-b-2 border-white/10 bg-gradient-to-r from-amber-600/20 to-orange-600/20 px-8 py-6 backdrop-blur-sm">
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <h2 className="mb-2 text-3xl font-bold text-white">✨ Edit Highlight</h2>
-                                    <p className="text-base text-gray-300">Update highlight information</p>
-                                </div>
-                                <button
-                                    onClick={onClose}
-                                    className="rounded-xl p-3 text-gray-400 transition-all hover:rotate-90 hover:bg-white/10 hover:text-white"
-                                >
-                                    <X className="h-6 w-6" />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="px-8 py-8">
-                            <div className="space-y-6">
-                                <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Title</label>
-                                    <input
-                                        type="text"
-                                        value={formData.title}
-                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                                        placeholder="Highlight title"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Subtitle</label>
-                                    <input
-                                        type="text"
-                                        value={formData.subtitle}
-                                        onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                                        placeholder="Short description"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Description</label>
-                                    <textarea
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        rows={5}
-                                        className="w-full resize-none rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                                        placeholder="Detailed description"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="mb-3 block text-base font-bold text-gray-200">Category</label>
-                                        <input
-                                            type="text"
-                                            value={formData.category}
-                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                                            placeholder="e.g., Premium"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="mb-3 block text-base font-bold text-gray-200">Badge</label>
-                                        <input
-                                            type="text"
-                                            value={formData.badge}
-                                            onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                                            className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-lg text-white transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                                            placeholder="e.g., Featured"
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="mb-3 block text-base font-bold text-gray-200">Replace Image</label>
-                                    <input
-                                        type="file"
-                                        accept="image/jpeg,image/png,image/webp"
-                                        className="w-full rounded-xl border-2 border-white/20 bg-gray-900/50 px-5 py-3 text-base text-white transition-all file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-amber-500 file:to-orange-500 file:px-5 file:py-3 file:font-bold file:text-white hover:file:from-amber-400 hover:file:to-orange-400"
-                                        onChange={async (e) => {
-                                            const file = e.target.files?.[0];
-                                            if (!file) return;
-                                            setIsSaving(true);
-                                            try {
-                                                const formData = new FormData();
-                                                formData.append('key', `highlights.${highlight.id}.image`);
-                                                formData.append('image', file);
-                                                const response = await axios.post('/admin/upload-image', formData, {
-                                                    headers: { 'Content-Type': 'multipart/form-data' },
-                                                });
-                                                if (response.data.success && response.data.imageUrl) {
-                                                    const img = document.querySelector(
-                                                        `img[data-highlight-id="${highlight.id}"]`,
-                                                    ) as HTMLImageElement | null;
-                                                    if (img) img.src = response.data.imageUrl;
-                                                }
-                                            } catch (error) {
-                                                console.error('Upload failed:', error);
-                                                alert('Failed to upload image');
-                                            } finally {
-                                                setIsSaving(false);
-                                                e.target.value = '';
-                                            }
-                                        }}
-                                    />
-                                    <p className="mt-3 text-sm text-gray-400">Supported: JPEG, PNG, WebP • Max 5MB</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="sticky bottom-0 border-t-2 border-white/10 bg-gray-900/95 px-8 py-5 backdrop-blur-sm">
-                            <div className="flex items-center justify-end gap-4">
-                                <button
-                                    onClick={onClose}
-                                    className="rounded-xl border-2 border-white/10 px-6 py-3 text-base font-semibold text-gray-300 transition-all hover:bg-white/5"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleSave}
-                                    disabled={isSaving}
-                                    className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-4 text-base font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50"
-                                >
-                                    {isSaving ? 'Saving...' : '💾 Save All Changes'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>,
-        document.body,
-    );
-}
+type EditorData = {
+    id: number;
+    title: string;
+    subtitle: string;
+    description: string;
+    category: string;
+    badge: string;
+};
 
 export default function Highlights() {
-    const [editMode, setEditModeUI] = useState<boolean>(false);
+    const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
+    const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
+    const getImageSrc = (sectionKey: string, fallbackPath: string) =>
+        getImageUrl(props.sections, sectionKey, fallbackPath);
+
+    const [editMode, setEditMode] = useState(false);
+    const [editorOpen, setEditorOpen] = useState<EditorData | null>(null);
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
+        const check = () => setEditMode(document.documentElement.classList.contains('cms-edit'));
         check();
         const handler = () => check();
         window.addEventListener('cms:mode', handler as EventListener);
         return () => window.removeEventListener('cms:mode', handler as EventListener);
     }, []);
 
-    const [editorOpen, setEditorOpen] = useState<null | {
-        id: number;
-        title: string;
-        subtitle: string;
-        description: string;
-        category: string;
-        badge: string;
-    }>(null);
-    const [imageTargetKey, setImageTargetKey] = useState<string | null>(null);
-    const hiddenImageInputId = 'highlights-image-replacer';
-
-    const highlights = [
-        {
-            id: 1,
-            title: 'Spiritual Journey to the Holy Land',
-            subtitle: 'Umrah & Hajj Experiences',
-            description:
-                'Experience the profound spiritual journey to Makkah and Madinah. Our Umrah and Hajj packages provide complete guidance, luxury accommodations, and authentic spiritual experiences that connect you with the sacred traditions of Islam.',
-            image: '/umrah.jpeg',
-            category: 'Spiritual',
-            features: [
-                'Professional spiritual guidance',
-                '5-star hotel accommodations',
-                'Direct flights from Indonesia',
-                'VIP access to holy sites',
-                'Comprehensive travel insurance',
-                'Daily spiritual programs',
-            ],
-            stats: { travelers: '5000+', satisfaction: '98%', experience: '15+ years' },
-            badge: 'Featured',
-        },
-        {
-            id: 2,
-            title: 'Cultural Heritage of Turkey',
-            subtitle: 'Istanbul to Cappadocia Adventure',
-            description:
-                "Discover the perfect blend of East and West in Turkey. From the magnificent Hagia Sophia and Blue Mosque in Istanbul to the magical hot air balloon rides over Cappadocia's fairy chimneys.",
-            image: '/TURKEY.jpeg',
-            category: 'Cultural',
-            features: [
-                'Hot air balloon experience',
-                'Historical site guided tours',
-                'Traditional Turkish bath',
-                'Bosphorus cruise',
-                'Local cuisine tasting',
-                'Cultural workshops',
-            ],
-            stats: { travelers: '3200+', satisfaction: '96%', experience: '12+ years' },
-            badge: 'Popular',
-        },
-        {
-            id: 3,
-            title: 'Ancient Wonders of Egypt',
-            subtitle: 'Pyramids & Nile River Expedition',
-            description:
-                'Journey through the cradle of civilization and explore the magnificent wonders of ancient Egypt. From the Great Pyramids of Giza to the majestic Nile River cruises, experience the magic of pharaonic history.',
-            image: '/egypt.jpeg',
-            category: 'Historical',
-            features: [
-                'Nile River luxury cruise',
-                'Pyramids guided exploration',
-                'Valley of the Kings tour',
-                'Abu Simbel temple visit',
-                'Egyptian Museum tour',
-                'Traditional felucca sailing',
-            ],
-            stats: { travelers: '2800+', satisfaction: '95%', experience: '10+ years' },
-            badge: 'Heritage',
-        },
-        {
-            id: 4,
-            title: 'Luxury Dubai Experience',
-            subtitle: 'Modern Wonders & Desert Adventures',
-            description:
-                'Experience the epitome of luxury and innovation in Dubai. From the iconic Burj Khalifa to thrilling desert safaris, discover why Dubai is the ultimate destination for luxury travelers seeking modern Arabian hospitality.',
-            image: '/dubai1.jpeg',
-            category: 'Luxury',
-            features: [
-                'Burj Khalifa observation deck',
-                'Desert safari with dinner',
-                'Luxury shopping experience',
-                'Sheikh Zayed Mosque tour',
-                'Ferrari World theme park',
-                'Dhow cruise dinner',
-            ],
-            stats: { travelers: '4500+', satisfaction: '97%', experience: '14+ years' },
-            badge: 'Premium',
-        },
-        {
-            id: 5,
-            title: 'Oman Adventure Discovery',
-            subtitle: 'Hidden Gems of the Arabian Peninsula',
-            description:
-                'Explore the hidden gem of the Arabian Peninsula. From the stunning fjords of Musandam to the ancient forts of Nizwa, discover authentic Arabian experiences away from the crowds in this pristine destination.',
-            image: '/oman.jpg',
-            category: 'Adventure',
-            features: [
-                'Desert camping in Wahiba Sands',
-                'Ancient fort exploration',
-                'Wadi hiking adventures',
-                'Traditional souk visits',
-                'Dolphin watching cruise',
-                'Mountain village tours',
-            ],
-            stats: { travelers: '1800+', satisfaction: '99%', experience: '8+ years' },
-            badge: 'Explorer',
-        },
-        {
-            id: 6,
-            title: 'Qatar Luxury & Culture',
-            subtitle: 'Tradition Meets Modernity',
-            description:
-                'Experience the perfect blend of tradition and modernity in Qatar. From the stunning Museum of Islamic Art to luxury at The Pearl, discover why Qatar is becoming a premier travel destination in the Gulf region.',
-            image: '/qatar.jpg',
-            category: 'Luxury',
-            features: [
-                'Museum of Islamic Art tour',
-                'Souq Waqif cultural experience',
-                'Desert safari adventure',
-                'The Pearl luxury experience',
-                'Katara Cultural Village',
-                'Luxury resort accommodations',
-            ],
-            stats: { travelers: '2200+', satisfaction: '94%', experience: '9+ years' },
-            badge: 'Premium',
-        },
-    ];
+    const handleSave = async () => {
+        if (!editorOpen) return;
+        setSaving(true);
+        try {
+            const updates = [
+                { key: `highlights.${editorOpen.id}.title`, content: editorOpen.title },
+                { key: `highlights.${editorOpen.id}.subtitle`, content: editorOpen.subtitle },
+                { key: `highlights.${editorOpen.id}.description`, content: editorOpen.description },
+                { key: `highlights.${editorOpen.id}.category`, content: editorOpen.category },
+                { key: `highlights.${editorOpen.id}.badge`, content: editorOpen.badge },
+            ];
+            await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
+            if (pendingFile) {
+                const form = new FormData();
+                form.append('key', `highlights.${editorOpen.id}.image`);
+                form.append('image', pendingFile);
+                const r = await axios.post('/admin/upload-image', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                const url = r.data?.url || r.data?.imageUrl;
+                if (url) {
+                    const img = document.querySelector(`img[data-highlight-id="${editorOpen.id}"]`) as HTMLImageElement | null;
+                    if (img) img.src = url;
+                }
+            }
+            setEditorOpen(null);
+            setPendingFile(null);
+            router.reload({ only: ['sections'] });
+        } catch (err) {
+            console.error(err);
+            alert('Failed to save');
+        } finally {
+            setSaving(false);
+        }
+    };
 
     return (
         <PublicLayout>
@@ -342,13 +198,11 @@ export default function Highlights() {
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
                 <section className="relative mx-auto max-w-7xl px-4 pt-12 pb-8 sm:px-6 md:pt-16 md:pb-10">
-                    {/* Ambient Effects */}
                     <div className="pointer-events-none absolute inset-0">
                         <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.06),transparent_70%)] blur-3xl" />
                         <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_70%)] blur-3xl" />
                     </div>
 
-                    {/* Hero Section */}
                     <div className="relative mb-8 text-center md:mb-10">
                         <div className="mb-4 inline-block">
                             <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
@@ -357,16 +211,13 @@ export default function Highlights() {
                                 </span>
                             </div>
                         </div>
-
                         <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
                             Travel Highlights & Experiences
                         </h1>
-
                         <p className="mx-auto mb-6 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
                             Discover our most popular and unforgettable travel experiences. From spiritual journeys to luxury adventures, each
                             highlight represents the best of what we offer.
                         </p>
-
                         <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/70 sm:gap-6 sm:text-sm">
                             <div className="flex items-center gap-2">
                                 <div className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 shadow-md" />
@@ -383,34 +234,29 @@ export default function Highlights() {
                         </div>
                     </div>
 
-                    {/* Highlights Grid - ✅ NO SCROLL ANIMATIONS */}
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
-                        {highlights.map((highlight) => (
+                        {highlights.map((h) => (
                             <article
-                                key={highlight.id}
-                                className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1.5"
+                                key={h.id}
+                                className="group flex h-full flex-col overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1.5"
                             >
                                 <div className="relative aspect-video overflow-hidden">
                                     <img
-                                        src={getR2Url(highlight.image)}
-                                        alt={highlight.title}
-                                        data-highlight-id={highlight.id}
+                                        src={getImageSrc(`highlights.${h.id}.image`, h.image)}
+                                        alt={getContent(`highlights.${h.id}.title`, h.title)}
+                                        data-highlight-id={h.id}
                                         loading="lazy"
                                         decoding="async"
                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                         onError={(e) => {
                                             const target = e.currentTarget;
-                                            if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
-                                                const currentUrl = target.src;
-                                                if (currentUrl.includes('/public/')) {
-                                                    target.src = currentUrl.replace('/public/', '/');
-                                                } else {
-                                                    target.src = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
-                                                }
+                                            if (target.src?.includes('assets.cahayaanbiya.com')) {
+                                                const u = target.src;
+                                                target.src = u.includes('/public/') ? u.replace('/public/', '/') : u.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
                                             } else {
                                                 target.style.display = 'none';
-                                                const nextElement = target.nextElementSibling as HTMLElement;
-                                                if (nextElement) nextElement.style.display = 'block';
+                                                const next = target.nextElementSibling as HTMLElement;
+                                                if (next) next.style.display = 'block';
                                             }
                                         }}
                                     />
@@ -418,33 +264,26 @@ export default function Highlights() {
 
                                     <div className="absolute top-3 left-3">
                                         <span className="rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white shadow-lg sm:text-sm">
-                                            {highlight.category}
+                                            {getContent(`highlights.${h.id}.category`, h.category)}
                                         </span>
                                     </div>
 
                                     {editMode && (
-                                        <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+                                        <div className="absolute bottom-3 right-3 z-10">
                                             <button
                                                 onClick={() => {
-                                                    setImageTargetKey(`highlights.${highlight.id}.image`);
-                                                    document.getElementById(hiddenImageInputId)?.click();
-                                                }}
-                                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/95 text-gray-800 shadow-xl ring-2 ring-white/40 transition-all hover:scale-105"
-                                            >
-                                                <Camera className="h-5 w-5" strokeWidth={2.5} />
-                                            </button>
-                                            <button
-                                                onClick={() =>
                                                     setEditorOpen({
-                                                        id: highlight.id,
-                                                        title: highlight.title,
-                                                        subtitle: highlight.subtitle,
-                                                        description: highlight.description,
-                                                        category: highlight.category,
-                                                        badge: highlight.badge,
-                                                    })
-                                                }
+                                                        id: h.id,
+                                                        title: getContent(`highlights.${h.id}.title`, h.title),
+                                                        subtitle: getContent(`highlights.${h.id}.subtitle`, h.subtitle),
+                                                        description: getContent(`highlights.${h.id}.description`, h.description),
+                                                        category: getContent(`highlights.${h.id}.category`, h.category),
+                                                        badge: getContent(`highlights.${h.id}.badge`, h.badge),
+                                                    });
+                                                    setPendingFile(null);
+                                                }}
                                                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                                title="Edit"
                                             >
                                                 <Edit3 className="h-5 w-5" strokeWidth={2.5} />
                                             </button>
@@ -456,76 +295,57 @@ export default function Highlights() {
 
                                 <div className="flex flex-1 flex-col p-5 sm:p-6">
                                     <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl">
-                                        <EditableText sectionKey={`highlights.${highlight.id}.title`} value={highlight.title} tag="span" />
+                                        {getContent(`highlights.${h.id}.title`, h.title)}
                                     </h3>
                                     <p className="mb-3 text-sm font-semibold text-amber-300 sm:text-base">
-                                        <EditableText sectionKey={`highlights.${highlight.id}.subtitle`} value={highlight.subtitle} tag="span" />
+                                        {getContent(`highlights.${h.id}.subtitle`, h.subtitle)}
                                     </p>
-
                                     <p className="mb-4 text-sm leading-relaxed text-white/80 sm:text-base">
-                                        <EditableText
-                                            sectionKey={`highlights.${highlight.id}.description`}
-                                            value={highlight.description}
-                                            tag="span"
-                                        />
+                                        {getContent(`highlights.${h.id}.description`, h.description)}
                                     </p>
 
                                     <div className="mb-4 grid grid-cols-3 gap-3 rounded-xl border border-white/10 bg-white/5 p-4 shadow-lg">
                                         <div className="text-center">
                                             <div className="text-lg font-bold text-amber-300 sm:text-xl">
-                                                <EditableText
-                                                    sectionKey={`highlights.${highlight.id}.stats.travelers`}
-                                                    value={highlight.stats.travelers}
-                                                    tag="span"
-                                                />
+                                                {getContent(`highlights.${h.id}.stats.travelers`, h.stats.travelers)}
                                             </div>
                                             <div className="text-xs font-medium text-white/70">Travelers</div>
                                         </div>
                                         <div className="text-center">
                                             <div className="text-lg font-bold text-amber-300 sm:text-xl">
-                                                <EditableText
-                                                    sectionKey={`highlights.${highlight.id}.stats.satisfaction`}
-                                                    value={highlight.stats.satisfaction}
-                                                    tag="span"
-                                                />
+                                                {getContent(`highlights.${h.id}.stats.satisfaction`, h.stats.satisfaction)}
                                             </div>
                                             <div className="text-xs font-medium text-white/70">Satisfaction</div>
                                         </div>
                                         <div className="text-center">
                                             <div className="text-lg font-bold text-amber-300 sm:text-xl">
-                                                <EditableText
-                                                    sectionKey={`highlights.${highlight.id}.stats.experience`}
-                                                    value={highlight.stats.experience}
-                                                    tag="span"
-                                                />
+                                                {getContent(`highlights.${h.id}.stats.experience`, h.stats.experience)}
                                             </div>
                                             <div className="text-xs font-medium text-white/70">Experience</div>
                                         </div>
                                     </div>
 
                                     <div className="mb-4">
-                                        <h4 className="mb-2 text-sm font-bold text-white sm:text-base">Key Features:</h4>
+                                        <h4 className="mb-2 text-sm font-bold text-white sm:text-base">Key Features</h4>
                                         <ul className="space-y-1.5 text-xs text-white/80 sm:text-sm">
-                                            {highlight.features.map((feature, idx) => (
+                                            {h.features.map((f, idx) => (
                                                 <li key={idx} className="flex items-center gap-2">
                                                     <Check className="h-3.5 w-3.5 flex-shrink-0 text-green-400" />
-                                                    <span>
-                                                        <EditableText
-                                                            sectionKey={`highlights.${highlight.id}.features.${idx}`}
-                                                            value={feature}
-                                                            tag="span"
-                                                        />
-                                                    </span>
+                                                    <span>{getContent(`highlights.${h.id}.features.${idx}`, f)}</span>
                                                 </li>
                                             ))}
                                         </ul>
                                     </div>
 
-                                    <div className="mt-auto flex items-center justify-between">
-                                        <button className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 sm:px-6 sm:py-3 sm:text-base">
-                                            Learn More
-                                        </button>
-                                        <div className="text-xs font-semibold text-white/60 sm:text-sm">{highlight.features.length} features</div>
+                                    <div className="mt-auto">
+                                        <a
+                                            href="https://wa.me/6281234567890"
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="block rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-center text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 sm:px-6 sm:py-3 sm:text-base"
+                                        >
+                                            Contact Us
+                                        </a>
                                     </div>
                                 </div>
 
@@ -534,7 +354,6 @@ export default function Highlights() {
                         ))}
                     </div>
 
-                    {/* CTA Section */}
                     <div className="relative mt-12 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-8 text-center shadow-xl md:mt-16">
                         <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/10" />
                         <div className="relative mx-auto max-w-3xl">
@@ -563,48 +382,26 @@ export default function Highlights() {
                         </div>
                     </div>
 
-                    {/* Testimonials */}
                     <div className="mt-12 md:mt-16">
                         <h3 className="mb-8 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-center text-2xl font-bold text-transparent sm:text-3xl md:text-4xl">
                             What Our Travelers Say
                         </h3>
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
                             {[
-                                {
-                                    name: 'Ahmad Rizki',
-                                    location: 'Jakarta',
-                                    testimonial: 'The Umrah experience with Cahaya Anbiya was truly spiritual and well-organized.',
-                                    rating: 5,
-                                    trip: 'Umrah Package',
-                                },
-                                {
-                                    name: 'Sarah Putri',
-                                    location: 'Bandung',
-                                    testimonial: 'Our Turkey adventure was beyond expectations. The hot air balloon ride was magical!',
-                                    rating: 5,
-                                    trip: 'Turkey Heritage',
-                                },
-                                {
-                                    name: 'Budi Santoso',
-                                    location: 'Surabaya',
-                                    testimonial: 'Dubai luxury experience was incredible. The desert safari was a highlight!',
-                                    rating: 5,
-                                    trip: 'Dubai Luxury',
-                                },
-                            ].map((testimonial, index) => (
-                                <div
-                                    key={index}
-                                    className="rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-xl sm:p-6"
-                                >
+                                { name: 'Ahmad Rizki', location: 'Jakarta', testimonial: 'The Umrah experience with Cahaya Anbiya was truly spiritual and well-organized.', rating: 5, trip: 'Umrah Package' },
+                                { name: 'Sarah Putri', location: 'Bandung', testimonial: 'Our Turkey adventure was beyond expectations. The hot air balloon ride was magical!', rating: 5, trip: 'Turkey Heritage' },
+                                { name: 'Budi Santoso', location: 'Surabaya', testimonial: 'Dubai luxury experience was incredible. The desert safari was a highlight!', rating: 5, trip: 'Dubai Luxury' },
+                            ].map((t, i) => (
+                                <div key={i} className="rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-xl sm:p-6">
                                     <div className="mb-4 flex items-center gap-1">
-                                        {[...Array(testimonial.rating)].map((_, i) => (
-                                            <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400 sm:h-5 sm:w-5" />
+                                        {[...Array(t.rating)].map((_, j) => (
+                                            <Star key={j} className="h-4 w-4 fill-amber-400 text-amber-400 sm:h-5 sm:w-5" />
                                         ))}
                                     </div>
-                                    <p className="mb-4 text-sm leading-relaxed text-white/80 sm:text-base">"{testimonial.testimonial}"</p>
+                                    <p className="mb-4 text-sm leading-relaxed text-white/80 sm:text-base">&quot;{t.testimonial}&quot;</p>
                                     <div className="flex items-center justify-between border-t border-white/10 pt-4">
-                                        <div className="text-xs text-white/60 sm:text-sm">{testimonial.location}</div>
-                                        <div className="text-xs font-bold text-amber-300 sm:text-sm">{testimonial.trip}</div>
+                                        <div className="text-xs text-white/60 sm:text-sm">{t.location}</div>
+                                        <div className="text-xs font-bold text-amber-300 sm:text-sm">{t.trip}</div>
                                     </div>
                                 </div>
                             ))}
@@ -612,7 +409,6 @@ export default function Highlights() {
                     </div>
                 </section>
 
-                {/* Footer */}
                 <footer className="relative border-t border-white/10 bg-black/70">
                     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
                         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
@@ -642,52 +438,73 @@ export default function Highlights() {
                 </footer>
             </div>
 
-            <input
-                id={hiddenImageInputId}
-                type="file"
-                accept="image/jpeg,image/png"
-                className="hidden"
-                onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (!f || !imageTargetKey) return;
-                    const formData = new FormData();
-                    formData.append('key', imageTargetKey);
-                    formData.append('image', f);
-                    axios
-                        .post('/admin/upload-image', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-                        .then((r) => {
-                            if (r.data.success && r.data.imageUrl) {
-                                const highlightId = imageTargetKey.split('.')[1];
-                                const img = document.querySelector(`img[data-highlight-id="${highlightId}"]`) as HTMLImageElement | null;
-                                if (img) img.src = r.data.imageUrl;
-                                window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                            }
-                        })
-                        .finally(() => {
-                            setImageTargetKey(null);
-                            e.target.value = '';
-                        });
-                }}
-            />
-
-            {editorOpen && (
-                <HighlightEditorModal
-                    highlight={editorOpen}
-                    onClose={() => setEditorOpen(null)}
-                    onSave={async (data) => {
-                        const updates = [
-                            { key: `highlights.${data.id}.title`, content: data.title },
-                            { key: `highlights.${data.id}.subtitle`, content: data.subtitle },
-                            { key: `highlights.${data.id}.description`, content: data.description },
-                            { key: `highlights.${data.id}.category`, content: data.category },
-                            { key: `highlights.${data.id}.badge`, content: data.badge },
-                        ];
-                        await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
-                        window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                        setEditorOpen(null);
-                    }}
-                />
-            )}
+            <AnimatePresence>
+                {editMode && editorOpen && (
+                    <motion.div
+                        key={editorOpen.id}
+                        className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/95 p-6 shadow-2xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                    >
+                        <div className="mb-4 flex items-center justify-between">
+                            <span className="text-sm font-semibold text-white">Edit Highlight #{editorOpen.id}</span>
+                        </div>
+                        <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2">
+                            {(['title', 'subtitle', 'description', 'category', 'badge'] as const).map((field) => (
+                                <div key={field}>
+                                    <label className="mb-1 block text-xs font-medium text-gray-300 capitalize">{field}</label>
+                                    {field === 'description' ? (
+                                        <textarea
+                                            value={editorOpen[field]}
+                                            onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
+                                            rows={4}
+                                            className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                        />
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            value={editorOpen[field]}
+                                            onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
+                                            className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                            <div>
+                                <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
+                                <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
+                                    {IMAGE_GUIDE}
+                                </p>
+                                <input
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    onChange={(e) => setPendingFile(e.target.files?.[0] ?? null)}
+                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
+                                />
+                            </div>
+                        </div>
+                        <div className="mt-6 flex items-center justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setEditorOpen(null);
+                                    setPendingFile(null);
+                                }}
+                                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 ring-1 ring-white/10 transition-all hover:bg-white/5"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={saving}
+                                className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
+                            >
+                                {saving ? 'Saving…' : 'Save Changes'}
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </PublicLayout>
     );
 }

@@ -18,7 +18,6 @@ import {
     Package,
     Phone,
     Plus,
-    RotateCcw,
     Save,
     Search,
     Shield,
@@ -294,16 +293,6 @@ const MobileMenuPortal: React.FC<{
                                 >
                                     <Shield className="h-5 w-5" />
                                     <span>Admin Dashboard</span>
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        router.visit('/admin/restore-center');
-                                        onClose();
-                                    }}
-                                    className="flex w-full items-center gap-3 rounded-xl border border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-4 py-3 text-sm font-medium text-purple-300"
-                                >
-                                    <RotateCcw className="h-5 w-5" />
-                                    <span>Restore Center</span>
                                 </button>
                                 <button
                                     onClick={() => {
@@ -600,15 +589,6 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                         title="Admin Dashboard"
                                     >
                                         <Shield className="h-4 w-4" />
-                                    </motion.button>
-                                    <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => router.visit('/admin/restore-center')}
-                                        className="hidden items-center gap-2 rounded-xl border border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-3 py-2 text-sm font-semibold text-purple-300 transition-all hover:from-purple-500/20 hover:to-pink-500/20 md:flex"
-                                    >
-                                        <RotateCcw className="h-4 w-4" />
-                                        <span className="hidden lg:inline">Restore</span>
                                     </motion.button>
                                     <AnimatePresence mode="wait">
                                         {editCtx.dirty ? (
