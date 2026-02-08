@@ -1161,7 +1161,9 @@ export default function Packages() {
                                             const form = new FormData();
                                             form.append('key', `packages.${editorOpen.id}.image`);
                                             form.append('image', pendingFile);
-                                            const r = await axios.post('/admin/upload-image', form);
+                                            const r = await axios.post('/admin/upload-image', form, {
+                                                headers: { Accept: 'application/json' },
+                                            });
                                             const url = r.data?.url || r.data?.imageUrl;
                                             if (url) {
                                                 const img = document.querySelector(`img[data-package-id="${editorOpen.id}"]`) as HTMLImageElement | null;
@@ -1171,9 +1173,16 @@ export default function Packages() {
                                         setEditorOpen(null);
                                         setPendingFile(null);
                                         router.reload({ only: ['sections'] });
-                                    } catch (err) {
+                                    } catch (err: unknown) {
                                         console.error(err);
-                                        alert('Failed to save');
+                                        const ax = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
+                                        const data = ax?.response?.data;
+                                        let msg = data?.message || (err instanceof Error ? err.message : 'Failed to save');
+                                        if (data?.errors && typeof data.errors === 'object') {
+                                            const flat = Object.values(data.errors).flat().filter(Boolean);
+                                            if (flat.length) msg = flat.join('. ');
+                                        }
+                                        alert(msg);
                                     } finally {
                                         setSaving(false);
                                     }
@@ -1261,7 +1270,9 @@ export default function Packages() {
                                             const form = new FormData();
                                             form.append('key', `packages.gallery.${galleryEditorOpen.id}.image`);
                                             form.append('image', galleryPendingFile);
-                                            const r = await axios.post('/admin/upload-image', form);
+                                            const r = await axios.post('/admin/upload-image', form, {
+                                                headers: { Accept: 'application/json' },
+                                            });
                                             const url = r.data?.url || r.data?.imageUrl;
                                             if (url) {
                                                 const img = document.querySelector(`img[data-gallery-id="${galleryEditorOpen.id}"]`) as HTMLImageElement | null;
@@ -1271,9 +1282,16 @@ export default function Packages() {
                                         setGalleryEditorOpen(null);
                                         setGalleryPendingFile(null);
                                         router.reload({ only: ['sections'] });
-                                    } catch (err) {
+                                    } catch (err: unknown) {
                                         console.error(err);
-                                        alert('Failed to save');
+                                        const ax = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
+                                        const data = ax?.response?.data;
+                                        let msg = data?.message || (err instanceof Error ? err.message : 'Failed to save');
+                                        if (data?.errors && typeof data.errors === 'object') {
+                                            const flat = Object.values(data.errors).flat().filter(Boolean);
+                                            if (flat.length) msg = flat.join('. ');
+                                        }
+                                        alert(msg);
                                     } finally {
                                         setSaving(false);
                                     }

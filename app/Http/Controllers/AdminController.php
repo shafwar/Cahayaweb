@@ -32,77 +32,99 @@ class AdminController extends Controller
 
     public function uploadImage(Request $request): JsonResponse
     {
-        $guide = config('cms_media_guide.images', []);
-        $maxMb = $guide['max_file_size_mb'] ?? 5;
-        $validated = $request->validate([
-            'key' => ['required', 'string', 'max:255'],
-            'image' => ['required', 'file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:' . ($maxMb * 1024)],
-        ]);
-
-        $file = $validated['image'];
-
-        // Auto-compress before upload (uses GD, falls back to original if unavailable)
-        $compressedPath = ImageCompressor::compress($file);
-        $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
-        $filename = Str::uuid()->toString() . '.' . $ext;
-
         try {
-            if ($compressedPath && is_readable($compressedPath)) {
-                $contents = file_get_contents($compressedPath);
-                @unlink($compressedPath);
-            } else {
-                $contents = $file->get();
+            // Early check: file must be received (handles multipart parsing issues)
+            if (!$request->hasFile('image')) {
+                \Log::warning('AdminController::uploadImage - no file received', [
+                    'key' => $request->input('key'),
+                    'hasFiles' => $request->hasFile('image'),
+                    'contentType' => $request->header('Content-Type'),
+                ]);
+                return response()->json([
+                    'message' => 'File tidak diterima. Pastikan ukuran max 5MB dan format JPEG/PNG/WebP. Jika pakai FormData, jangan set Content-Type manual.',
+                    'errors' => ['image' => ['The image file could not be received.']],
+                ], 422);
             }
-        } catch (\Throwable $e) {
-            $contents = $file->get();
-        }
 
-        // Use R2 disk
-        $diskName = config('filesystems.default', 'r2');
-        try {
-            $disk = \App\Support\R2Helper::disk();
-        } catch (\Exception $e) {
-            \Log::warning('Failed to get R2 disk in AdminController::uploadImage', [
-                'error' => $e->getMessage()
+            $guide = config('cms_media_guide.images', []);
+            $maxMb = $guide['max_file_size_mb'] ?? 5;
+            // Use 'mimes' + 'file' only - avoid 'image' rule which can reject some WhatsApp/camera JPEGs (getimagesize fails)
+            $validated = $request->validate([
+                'key' => ['required', 'string', 'max:255'],
+                'image' => ['required', 'file', 'mimes:jpeg,png,jpg,webp', 'max:' . ($maxMb * 1024)],
             ]);
-            $disk = Storage::disk('public');
+
+            $file = $validated['image'];
+
+            // Auto-compress before upload (uses GD, falls back to original if unavailable)
+            $compressedPath = ImageCompressor::compress($file);
+            $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+            $filename = Str::uuid()->toString() . '.' . $ext;
+
+            $contents = $file->get();
+            if ($compressedPath && is_readable($compressedPath)) {
+                try {
+                    $contents = file_get_contents($compressedPath);
+                } catch (\Throwable $e) {
+                    // keep original contents
+                } finally {
+                    @unlink($compressedPath);
+                }
+            }
+
+            $diskName = config('filesystems.default', 'r2');
+            try {
+                $disk = \App\Support\R2Helper::disk();
+            } catch (\Exception $e) {
+                \Log::warning('Failed to get R2 disk in AdminController::uploadImage', [
+                    'error' => $e->getMessage()
+                ]);
+                $disk = Storage::disk('public');
+            }
+
+            $storedPath = 'images/' . $filename;
+            $disk->put($storedPath, $contents);
+
+            $root = trim((string) config("filesystems.disks.{$diskName}.root", ''), '/');
+            $objectPath = $root ? $root . '/' . $storedPath : $storedPath;
+            $objectPath = ltrim(preg_replace('#/+#', '/', $objectPath), '/');
+
+            $url = $disk->url($storedPath);
+
+            Section::updateWithBackup(
+                $validated['key'],
+                ['image' => $storedPath]
+            );
+
+            \App\Models\SectionSnapshot::clearCache();
+            \Illuminate\Support\Facades\Cache::forget('sections.all');
+
+            return response()->json([
+                'status' => 'ok',
+                'success' => true,
+                'path' => $storedPath,
+                'objectPath' => $objectPath,
+                'url' => $url,
+                'imageUrl' => $url,
+                'disk' => $diskName,
+                'message' => 'Image uploaded successfully'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            \Log::error('AdminController::uploadImage failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'key' => $request->input('key'),
+            ]);
+            $userMessage = app()->environment('local')
+                ? 'Upload gagal: ' . $e->getMessage()
+                : 'Upload gagal. Silakan cek ukuran file (max 5MB) dan format (JPEG/PNG/WebP), lalu coba lagi.';
+            return response()->json([
+                'message' => $userMessage,
+                'errors' => ['server' => [$userMessage]],
+            ], 500);
         }
-
-        $storedPath = 'images/' . $filename;
-        $disk->put($storedPath, $contents);
-        
-        // Get the root directory configured in filesystems
-        $root = trim((string) config("filesystems.disks.{$diskName}.root", ''), '/');
-        
-        // Build the object path as stored in R2
-        // If root is 'public', then full path is 'public/images/filename'
-        $objectPath = $root ? $root . '/' . $storedPath : $storedPath;
-        $objectPath = ltrim(preg_replace('#/+#', '/', $objectPath), '/');
-        
-        // Generate public URL using AWS_URL (custom domain)
-        $url = $disk->url($storedPath);
-
-        // Use updateWithBackup to automatically create revision
-        // Store the path relative to R2 root (e.g., 'images/uuid.jpg')
-        Section::updateWithBackup(
-            $validated['key'],
-            ['image' => $storedPath]
-        );
-
-        // Clear snapshot cache so next request (e.g. Inertia reload) gets fresh sections
-        \App\Models\SectionSnapshot::clearCache();
-        \Illuminate\Support\Facades\Cache::forget('sections.all');
-
-        return response()->json([
-            'status' => 'ok',
-            'success' => true, // alias for frontend compatibility
-            'path' => $storedPath,
-            'objectPath' => $objectPath,
-            'url' => $url,
-            'imageUrl' => $url, // alias for frontend compatibility
-            'disk' => $diskName,
-            'message' => 'Image uploaded to R2 with backup'
-        ]);
     }
 
     /**

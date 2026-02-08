@@ -61,7 +61,9 @@ export default function EditableVideo({
             form.append('video', file);
 
             try {
-                await axios.post('/admin/upload-video', form);
+                await axios.post('/admin/upload-video', form, {
+                    headers: { Accept: 'application/json' },
+                });
 
                 setSaved(true);
                 setTimeout(() => setSaved(false), 900);
@@ -72,8 +74,16 @@ export default function EditableVideo({
                     only: ['sections'],
                     onSuccess: () => console.log('✅ Video reloaded:', sectionKey),
                 });
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error('Failed to upload video:', error);
+                const ax = error && typeof error === 'object' && 'response' in error ? (error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
+                const data = ax?.response?.data;
+                let msg = data?.message || (error instanceof Error ? error.message : 'Failed to upload video');
+                if (data?.errors && typeof data.errors === 'object') {
+                    const flat = Object.values(data.errors).flat().filter(Boolean);
+                    if (flat.length) msg = flat.join('. ');
+                }
+                alert(msg);
                 URL.revokeObjectURL(tempPreview);
                 setPreview(undefined);
             }

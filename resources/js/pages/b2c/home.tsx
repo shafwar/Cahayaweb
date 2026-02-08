@@ -411,7 +411,9 @@ export default function Home() {
                     form.append('key', key);
                     form.append('image', file);
 
-                    const response = await axios.post('/admin/upload-image', form);
+                    const response = await axios.post('/admin/upload-image', form, {
+                        headers: { Accept: 'application/json' },
+                    });
                     return response;
                 });
 
@@ -1234,7 +1236,9 @@ export default function Home() {
                                                 const form = new FormData();
                                                 form.append('key', `home.${editorOpen.section}.${editorOpen.id}.image`);
                                                 form.append('image', pendingFile);
-                                                const uploadRes = await axios.post('/admin/upload-image', form);
+                                                const uploadRes = await axios.post('/admin/upload-image', form, {
+                                                    headers: { Accept: 'application/json' },
+                                                });
                                                 if (!uploadRes?.data?.success && !uploadRes?.data?.status) {
                                                     throw new Error(uploadRes?.data?.message || 'Upload gagal');
                                                 }
@@ -1264,9 +1268,14 @@ export default function Home() {
                                                 },
                                             });
                                         } catch (err: unknown) {
-                                            const msg = err instanceof Error ? err.message : 'Gagal menyimpan';
-                                            const res = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string } } }).response?.data?.message : null;
-                                            alert(res || msg);
+                                            const ax = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string }) : null;
+                                            const data = ax?.response?.data;
+                                            let msg = data?.message || ax?.message || (err instanceof Error ? err.message : 'Gagal menyimpan');
+                                            if (data?.errors && typeof data.errors === 'object') {
+                                                const flat = Object.values(data.errors).flat().filter(Boolean);
+                                                if (flat.length) msg = flat.join('. ');
+                                            }
+                                            alert(msg);
                                         } finally {
                                             setSaving(false);
                                         }

@@ -991,7 +991,9 @@ export default function CahayaAnbiyaHero() {
                             const form = new FormData();
                             form.append('key', imageTargetKey);
                             form.append('image', file);
-                            const response = await axios.post('/admin/upload-image', form);
+                            const response = await axios.post('/admin/upload-image', form, {
+                                headers: { Accept: 'application/json' },
+                            });
 
                             const ok = response.data?.status === 'ok' || response.data?.success;
                             const url = response.data?.url || response.data?.imageUrl;
@@ -1021,12 +1023,19 @@ export default function CahayaAnbiyaHero() {
                                 clearDirty();
                                 router.reload({ only: ['sections'] });
                             }
-                        } catch (error) {
+                        } catch (error: unknown) {
                             console.error('Image upload failed:', error);
                             URL.revokeObjectURL(previewUrl);
                             const originalImage = props.sections?.['b2b.hero.image']?.image || '/b2b.jpeg';
                             setHeroImage(originalImage);
-                            alert('Failed to upload image. Please try again.');
+                            const ax = error && typeof error === 'object' && 'response' in error ? (error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
+                            const data = ax?.response?.data;
+                            let msg = data?.message || (error instanceof Error ? error.message : 'Failed to upload image');
+                            if (data?.errors && typeof data.errors === 'object') {
+                                const flat = Object.values(data.errors).flat().filter(Boolean);
+                                if (flat.length) msg = flat.join('. ');
+                            }
+                            alert(msg);
                         } finally {
                             setImageTargetKey(null);
                             (e.target as HTMLInputElement).value = '';

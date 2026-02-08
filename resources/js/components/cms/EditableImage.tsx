@@ -55,7 +55,9 @@ export default function EditableImage({
             form.append('image', file);
             
             try {
-                await axios.post('/admin/upload-image', form);
+                await axios.post('/admin/upload-image', form, {
+                    headers: { Accept: 'application/json' },
+                });
                 
                 setSaved(true);
                 setTimeout(() => setSaved(false), 900);
@@ -74,9 +76,16 @@ export default function EditableImage({
                         console.log('✅ Image reloaded from database:', sectionKey);
                     }
                 });
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error('Failed to upload image:', error);
-                // Revert preview on error
+                const ax = error && typeof error === 'object' && 'response' in error ? (error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
+                const data = ax?.response?.data;
+                let msg = data?.message || (error instanceof Error ? error.message : 'Failed to upload image');
+                if (data?.errors && typeof data.errors === 'object') {
+                    const flat = Object.values(data.errors).flat().filter(Boolean);
+                    if (flat.length) msg = flat.join('. ');
+                }
+                alert(msg);
                 URL.revokeObjectURL(tempPreview);
                 setPreview(undefined);
             }
