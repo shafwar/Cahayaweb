@@ -1161,7 +1161,7 @@ export default function Packages() {
                                             const form = new FormData();
                                             form.append('key', `packages.${editorOpen.id}.image`);
                                             form.append('image', pendingFile);
-                                            const r = await axios.post('/admin/upload-image', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                                            const r = await axios.post('/admin/upload-image', form);
                                             const url = r.data?.url || r.data?.imageUrl;
                                             if (url) {
                                                 const img = document.querySelector(`img[data-package-id="${editorOpen.id}"]`) as HTMLImageElement | null;
@@ -1261,7 +1261,7 @@ export default function Packages() {
                                             const form = new FormData();
                                             form.append('key', `packages.gallery.${galleryEditorOpen.id}.image`);
                                             form.append('image', galleryPendingFile);
-                                            const r = await axios.post('/admin/upload-image', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                                            const r = await axios.post('/admin/upload-image', form);
                                             const url = r.data?.url || r.data?.imageUrl;
                                             if (url) {
                                                 const img = document.querySelector(`img[data-gallery-id="${galleryEditorOpen.id}"]`) as HTMLImageElement | null;

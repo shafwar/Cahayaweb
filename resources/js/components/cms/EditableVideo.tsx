@@ -61,9 +61,7 @@ export default function EditableVideo({
             form.append('video', file);
 
             try {
-                await axios.post('/admin/upload-video', form, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                });
+                await axios.post('/admin/upload-video', form);
 
                 setSaved(true);
                 setTimeout(() => setSaved(false), 900);

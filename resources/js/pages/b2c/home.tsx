@@ -411,9 +411,7 @@ export default function Home() {
                     form.append('key', key);
                     form.append('image', file);
 
-                    const response = await axios.post('/admin/upload-image', form, {
-                        headers: { 'Content-Type': 'multipart/form-data' },
-                    });
+                    const response = await axios.post('/admin/upload-image', form);
                     return response;
                 });
 
@@ -601,7 +599,9 @@ export default function Home() {
                                 viewport={{ once: true, margin: '-50px' }}
                             >
                                 {bestSellers.map((item) => {
-                                    const imageSrc = getImageSrc(`home.bestsellers.${item.id}.image`, item.image);
+                                    const sectionKey = `home.bestsellers.${item.id}.image`;
+                                    const imageSrc = getImageSrc(sectionKey, item.image);
+                                    const sectionImageUrl = props.sections?.[sectionKey]?.image ?? '';
                                     return (
                                         <motion.div key={item.id} variants={fadeInUp} transition={{ duration: 0.7, ease }} className="group">
                                             <motion.div
@@ -611,6 +611,7 @@ export default function Home() {
                                             >
                                                 <div className="relative aspect-[16/10] overflow-hidden">
                                                     <motion.img
+                                                        key={`bestseller-img-${item.id}-${sectionImageUrl || imageSrc}`}
                                                         src={imageSrc}
                                                         alt={item.title}
                                                         className="h-full w-full object-cover"
@@ -1233,7 +1234,10 @@ export default function Home() {
                                                 const form = new FormData();
                                                 form.append('key', `home.${editorOpen.section}.${editorOpen.id}.image`);
                                                 form.append('image', pendingFile);
-                                                await axios.post('/admin/upload-image', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                                                const uploadRes = await axios.post('/admin/upload-image', form);
+                                                if (!uploadRes?.data?.success && !uploadRes?.data?.status) {
+                                                    throw new Error(uploadRes?.data?.message || 'Upload gagal');
+                                                }
                                             }
                                             setEditorOpen(null);
                                             setPendingFile(null);
@@ -1259,6 +1263,10 @@ export default function Home() {
                                                     setTimeout(() => notification.remove(), 3000);
                                                 },
                                             });
+                                        } catch (err: unknown) {
+                                            const msg = err instanceof Error ? err.message : 'Gagal menyimpan';
+                                            const res = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string } } }).response?.data?.message : null;
+                                            alert(res || msg);
                                         } finally {
                                             setSaving(false);
                                         }

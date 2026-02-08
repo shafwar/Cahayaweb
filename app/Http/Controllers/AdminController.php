@@ -89,6 +89,10 @@ class AdminController extends Controller
             ['image' => $storedPath]
         );
 
+        // Clear snapshot cache so next request (e.g. Inertia reload) gets fresh sections
+        \App\Models\SectionSnapshot::clearCache();
+        \Illuminate\Support\Facades\Cache::forget('sections.all');
+
         return response()->json([
             'status' => 'ok',
             'success' => true, // alias for frontend compatibility

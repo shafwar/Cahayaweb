@@ -171,7 +171,7 @@ export default function Highlights() {
                 const form = new FormData();
                 form.append('key', `highlights.${editorOpen.id}.image`);
                 form.append('image', pendingFile);
-                const r = await axios.post('/admin/upload-image', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                const r = await axios.post('/admin/upload-image', form);
                 const url = r.data?.url || r.data?.imageUrl;
                 if (url) {
                     const img = document.querySelector(`img[data-highlight-id="${editorOpen.id}"]`) as HTMLImageElement | null;

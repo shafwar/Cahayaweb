@@ -55,9 +55,7 @@ export default function EditableImage({
             form.append('image', file);
             
             try {
-                await axios.post('/admin/upload-image', form, { 
-                    headers: { 'Content-Type': 'multipart/form-data' } 
-                });
+                await axios.post('/admin/upload-image', form);
                 
                 setSaved(true);
                 setTimeout(() => setSaved(false), 900);

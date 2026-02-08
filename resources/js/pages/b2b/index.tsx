@@ -991,9 +991,7 @@ export default function CahayaAnbiyaHero() {
                             const form = new FormData();
                             form.append('key', imageTargetKey);
                             form.append('image', file);
-                            const response = await axios.post('/admin/upload-image', form, {
-                                headers: { 'Content-Type': 'multipart/form-data' },
-                            });
+                            const response = await axios.post('/admin/upload-image', form);
 
                             const ok = response.data?.status === 'ok' || response.data?.success;
                             const url = response.data?.url || response.data?.imageUrl;
