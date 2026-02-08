@@ -1,9 +1,10 @@
 <?php
 
 /**
- * Upload public/packages/ folder to R2
- * Path in R2: public/packages/ (since R2 root is 'public')
- * URL: https://assets.cahayaanbiya.com/public/packages/*.png
+ * Upload public/images/packages/ folder to R2
+ * Path in R2: public/images/packages/ (since R2 root is 'public')
+ * URL: https://assets.cahayaanbiya.com/public/images/packages/*.png
+ * NOTE: Images moved from public/packages/ to avoid route conflict with /packages page
  */
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -14,12 +15,12 @@ $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 use Illuminate\Support\Facades\Storage;
 
 $disk = Storage::disk('r2');
-$packagesPath = __DIR__ . '/../public/packages';
+$packagesPath = __DIR__ . '/../public/images/packages';
 
-echo "=== UPLOAD PACKAGES FOLDER TO R2 ===\n\n";
+echo "=== UPLOAD PACKAGE IMAGES TO R2 ===\n\n";
 
 if (!is_dir($packagesPath)) {
-    echo "✗ ERROR: public/packages/ directory not found\n";
+    echo "✗ ERROR: public/images/packages/ directory not found\n";
     exit(1);
 }
 
@@ -44,19 +45,19 @@ foreach ($allFiles ?: [] as $f) {
 $files = array_unique($files);
 
 if (empty($files)) {
-    echo "⚠ No image files found in public/packages/\n";
+    echo "⚠ No image files found in public/images/packages/\n";
     exit(0);
 }
 
-echo "Found " . count($files) . " files in public/packages/\n\n";
+echo "Found " . count($files) . " files in public/images/packages/\n\n";
 
 $uploaded = 0;
 $failed = 0;
 
 foreach ($files as $file) {
     $filename = basename($file);
-    // R2 root is 'public', so we put to 'packages/filename'
-    $r2Path = "packages/{$filename}";
+    // R2 root is 'public', so we put to 'images/packages/filename'
+    $r2Path = "images/packages/{$filename}";
 
     try {
         if (!file_exists($file)) {
@@ -86,8 +87,8 @@ foreach ($files as $file) {
 
 echo "\n=== Verification ===\n";
 try {
-    $r2Files = $disk->files('packages');
-    echo "Files in R2 (packages/): " . count($r2Files) . "\n";
+    $r2Files = $disk->files('images/packages');
+    echo "Files in R2 (images/packages/): " . count($r2Files) . "\n";
     foreach ($r2Files as $f) {
         echo "  - {$f}\n";
     }
@@ -100,8 +101,8 @@ echo "  Uploaded: {$uploaded}\n";
 echo "  Failed: {$failed}\n";
 
 if ($uploaded > 0) {
-    echo "\n✓ Packages folder uploaded to R2 successfully!\n";
-    echo "  URL base: https://assets.cahayaanbiya.com/public/packages/\n";
+    echo "\n✓ Package images uploaded to R2 successfully!\n";
+    echo "  URL base: https://assets.cahayaanbiya.com/public/images/packages/\n";
 } else {
     echo "\n✗ No files uploaded. Check errors above.\n";
     exit(1);
