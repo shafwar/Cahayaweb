@@ -122,17 +122,200 @@ export default function Packages() {
                 { name: 'Azal Pyramid', location: 'Cairo', stars: 4 },
             ],
         },
+        // --- New packages from client (Packages Cahaya Anbiya) ---
+        {
+            id: 4,
+            title: 'PROGRAM 3TAN 2026',
+            location: 'Uzbekistan | Kyrgyzstan | Kazakhstan',
+            duration: '8 Hari',
+            price: 'Rp 26,9 JT',
+            priceNote: 'Exc. Asuransi & Tipping',
+            pax: 'Seat Terbatas',
+            type: 'Cultural',
+            image: '/images/packages/packages-cahaya-4.jpeg',
+            imageCaption: 'Paket 3TAN 2026 - Arsitektur Islam Asia Tengah dengan kubah biru, Masjid Samarkand, dan pemandangan budaya Uzbekistan, Kyrgyzstan, Kazakhstan.',
+            highlights: ['Cable car Shymbulak', 'Train high-speed', 'Arsitektur Islam Asia Tengah', 'Samarkand & Bukhara'],
+            description: 'Moment Lebaran di 3TAN 2026! Jelajahi Uzbekistan, Kyrgyzstan, dan Kazakhstan dalam 8 hari. Include tiket pesawat PP, hotel bintang 3, transportasi, sarapan, tourleader & guide lokal. FREE Cable car di Shymbulak & train high-speed ticket.',
+            features: ['Tiket Pesawat PP', 'Hotel ★★★', 'Transportasi', 'Sarapan', 'Tourleader & Guide Lokal', 'FREE Cable car Shymbulak', 'FREE Train high-speed ticket'],
+            freeBadge: 'FREE Cable car & Train',
+            dates: [
+                { date: '4 Februari 2026 (Winter)', status: 'Available' },
+                { date: '19 Maret 2026 (Spring)', status: 'Available' },
+                { date: '9 April 2026 (Spring)', status: 'Available' },
+                { date: '29 Juni 2026 (School Holiday)', status: 'Available' },
+                { date: '24 Desember 2026 (Year-End)', status: 'Limited' },
+            ],
+        },
+        {
+            id: 5,
+            title: 'MESIR AQSA JORDAN',
+            location: 'Jordan • Aqsa • Mesir',
+            duration: '10 Hari',
+            price: '$2,350',
+            priceOriginal: '$2,500',
+            priceNote: 'Exc. Tips Guide $80 & Asuransi $25',
+            pax: 'Seat Terbatas',
+            type: 'Religious',
+            image: '/images/packages/packages-cahaya-5.jpeg',
+            imageCaption: 'Konsorsium Paket 10 Hari - Dome of the Rock (Al-Aqsa Jerusalem), Piramida Giza Mesir, dan landscape Wadi Rum Jordan.',
+            highlights: ['Pyramid & Sphinx', 'Sinai', 'Komplek Al-Aqsa', 'Jericho', 'Maqam Nabi Musa', 'Hebron', 'Bethlehem', 'Petra', 'Wadirum', 'Gua Ashhabul Kahfi'],
+            description: 'Konsorsium Paket 10 Hari (JORDAN-AQSA-MESIR). BONUS: Free Nile cruise, Free Tiket Museum Mummy, Free Jeep Tour Wadirum, Free Tiket Petra. Total ALL IN: $2,455.',
+            features: ['Free Nile Cruise', 'Free Tiket Museum Mummy', 'Free Jeep Tour Wadirum', 'Free Tiket Petra'],
+            freeBadge: 'FREE Nile, Mummy, Petra, Wadirum',
+            dates: [{ date: '14 April 2026', status: 'Available' }],
+            hotels: [
+                { name: 'Pyramid/Azal/setaraf', location: 'Cairo', stars: 4 },
+                { name: 'Mega Club/setaraf', location: 'Taba', stars: 4 },
+                { name: 'National/setaraf', location: 'Jerusalem', stars: 3 },
+                { name: 'Sulaf luxury/setaraf', location: 'Amman', stars: 4 },
+            ],
+        },
+        {
+            id: 6,
+            title: 'MESIR AQSA JORDAN Idul Adha',
+            location: 'Jordan • Aqsa • Mesir',
+            duration: '9 Hari',
+            price: '$2,450',
+            priceOriginal: '$2,700',
+            priceNote: 'Exc. Asuransi $25 & Tipping $80',
+            pax: 'Seat Terbatas',
+            type: 'Religious',
+            image: '/images/packages/packages-cahaya-6.jpeg',
+            imageCaption: 'Spesial Moment Idul Adha di Aqsa - Dome of the Rock Jerusalem, Piramida Giza, dan simbol Idul Adha.',
+            highlights: ['Moment Idul Adha di Aqsa', 'Nile Cruise', 'Tiket Mummy', 'Petra', 'Wadirum'],
+            description: 'Spesial Moment Idul Adha di Aqsa! Perjalanan 9 hari ke Jordan, Aqsa, dan Mesir. FREE Nile Cruise, Tiket Mummy, Tiket Petra, Wadirum.',
+            features: ['Nile Cruise', 'Tiket Mummy', 'Tiket Petra', 'Wadirum'],
+            freeBadge: 'FREE',
+            dates: [{ date: '22 Mei 2026', status: 'Available' }],
+            hotels: [
+                { name: 'Armada/Sulaf', location: 'Jordan', stars: 4 },
+                { name: 'National', location: 'Aqsa', stars: 4 },
+                { name: 'Pyramid Front/Azal', location: 'Cairo', stars: 4 },
+                { name: 'Nuweiba', location: 'Taba', stars: 4 },
+            ],
+        },
+        {
+            id: 7,
+            title: 'JORDAN AQSA',
+            location: 'Jordan & Palestina',
+            duration: '8 Hari',
+            price: '$2,150',
+            priceOriginal: '$2,190',
+            pax: 'Seat Terbatas',
+            type: 'Religious',
+            image: '/images/packages/packages-cahaya-7.jpeg',
+            imageCaption: 'Paket Jordan Aqsa 2026 - Panorama Petra, Dome of the Rock Jerusalem, dan landscape Wadi Rum.',
+            highlights: ['100% FREE Tiket Petra Wadirum', 'Dome of the Rock', 'Petra', 'Wadi Rum'],
+            description: 'PAKET 2026 PERJALANAN - 8 Hari Jordan Aqsa. 100% FREE Tiket Petra Wadirum! Hotel Jordan & Aqsa bintang 4. Daftar sekarang, seat terbatas!',
+            features: ['100% FREE Tiket Petra Wadirum', 'Hotel Jordan Armada/Sulaf ★★★★', 'Hotel Aqsa National ★★★★'],
+            freeBadge: '100% FREE Petra Wadirum',
+            dates: [
+                { date: '9 Februari 2026', status: 'Available' },
+                { date: '3 Maret 2026', status: 'Available' },
+                { date: '13 April 2026', status: 'Available' },
+                { date: '16 Juni 2026', status: 'Available' },
+                { date: '20 Juli 2026', status: 'Available' },
+                { date: '24 Agustus 2026', status: 'Available' },
+                { date: '15 September 2026', status: 'Available' },
+                { date: '20 Oktober 2026', status: 'Available' },
+                { date: '17 November 2026', status: 'Available' },
+            ],
+            hotels: [
+                { name: 'Armada/Sulaf', location: 'Jordan', stars: 4 },
+                { name: 'National', location: 'Aqsa', stars: 4 },
+            ],
+        },
+        {
+            id: 8,
+            title: 'JORDAN MESIR AQSA',
+            location: 'Jordan • Mesir • Aqsa',
+            duration: '9 Hari',
+            price: '$2,350',
+            priceOriginal: '$2,550',
+            pax: 'Seat Terbatas',
+            type: 'Religious',
+            image: '/images/packages/packages-cahaya-8.jpeg',
+            imageCaption: 'Paket Jordan Mesir Aqsa 2026 - Al-Aqsa Mosque complex, Piramida Giza, dan pemandangan tiga negara.',
+            highlights: ['Tiket Museum Mummy', 'Nile Cruise', 'Tiket Petra', 'Pyramid & Sphinx', 'Al-Aqsa'],
+            description: 'PAKET 2026 PERJALANAN - 9 Hari Jordan Mesir Aqsa. FREE Tiket Museum Mummy, Nile Cruise, Tiket Petra. Hotel bintang 4 di semua destinasi.',
+            features: ['Tiket Museum Mummy', 'Nile Cruise', 'Tiket Petra'],
+            freeBadge: 'FREE',
+            dates: [
+                { date: '13 April 2026', status: 'Available' },
+                { date: '29 Juni 2026', status: 'Available' },
+                { date: '20 Juli 2026', status: 'Available' },
+                { date: '24 Agustus 2026', status: 'Available' },
+                { date: '15 September 2026', status: 'Available' },
+                { date: '20 Oktober 2026', status: 'Available' },
+                { date: '17 November 2026', status: 'Available' },
+            ],
+            hotels: [
+                { name: 'Armada/Sulaf', location: 'Jordan', stars: 4 },
+                { name: 'National', location: 'Aqsa', stars: 4 },
+                { name: 'Azal Pyramid/Pyramid Front', location: 'Mesir', stars: 4 },
+            ],
+        },
+        {
+            id: 9,
+            title: 'PERLENGKAPAN UMROH',
+            location: 'Dari Cahaya Anbiya',
+            duration: 'Bonus Paket',
+            price: 'Include',
+            pax: '6 Item',
+            type: 'Religious',
+            image: '/images/packages/packages-cahaya-9.jpeg',
+            imageCaption: 'Perlengkapan Umroh dari Cahaya Anbiya - Koper 26", Seragam, Mukena, Kain Ihram, Tas Selempang, Ikat Pinggang. Latar Kaaba & Abraj Al-Bait.',
+            highlights: ['Koper 26"', 'Seragam', 'Mukena', 'Kain Ihram', 'Tas Selempang', 'Ikat Pinggang'],
+            description: 'Perlengkapan lengkap untuk ibadah Umroh: Koper 26", Seragam, Mukena, Kain Ihram, Tas Selempang, Ikat Pinggang. Dari Cahaya Anbiya dengan kualitas terjamin.',
+            features: ['Koper 26"', 'Seragam', 'Mukena', 'Kain Ihram', 'Tas Selempang', 'Ikat Pinggang'],
+            freeBadge: '6 Item',
+        },
+        {
+            id: 10,
+            title: 'Paket Wisata Premium',
+            location: 'Various Destinations',
+            duration: 'Flexible',
+            price: 'Contact Us',
+            pax: 'Custom',
+            type: 'Cultural',
+            image: '/images/packages/packages-cahaya-10.jpeg',
+            imageCaption: 'Paket wisata premium Cahaya Anbiya - destinasi pilihan dengan fasilitas lengkap dan layanan prima.',
+            highlights: ['Destinasi pilihan', 'Fasilitas lengkap', 'Layanan prima'],
+            description: 'Temukan paket wisata premium sesuai kebutuhan Anda. Hubungi kami untuk informasi lengkap dan penawaran spesial.',
+            features: ['Custom itinerary', 'Expert guide', 'Premium accommodation'],
+        },
+        {
+            id: 11,
+            title: 'Paket Spiritual & Budaya',
+            location: 'Destinasi Religius',
+            duration: 'Various',
+            price: 'Contact Us',
+            pax: 'Custom',
+            type: 'Religious',
+            image: '/images/packages/packages-cahaya-11.jpeg',
+            imageCaption: 'Paket perjalanan spiritual dan budaya - napak tilas para nabi, wisata sejarah, dan pengalaman bermakna.',
+            highlights: ['Napak tilas', 'Wisata sejarah', 'Pengalaman spiritual'],
+            description: 'Perjalanan spiritual dan budaya yang bermakna. Jelajahi destinasi suci dan warisan sejarah dengan pemandu ahli.',
+            features: ['Halal certified', 'Cultural immersion', 'Spiritual guide'],
+        },
     ];
 
     const typeOptions = ['All', 'Religious', 'Cultural', 'Adventure', 'Luxury'];
-    const priceOptions = ['All', 'Under $2,000', '$2,000 - $2,500', '$2,500 - $3,000', 'Over $3,000'];
+    const priceOptions = ['All', 'Under $2,000', '$2,000 - $2,500', '$2,500 - $3,000', 'Over $3,000', 'Rp 25-30 JT'];
     const durationOptions = ['All', '4-6 Days', '7-9 Days', '10+ Days'];
     const paxOptions = ['All', 'Small Group (15-25)', 'Medium Group (25-35)', 'Large Group (35+)'];
 
     const filteredPackages = packages.filter((pkg) => {
         if (selectedType && selectedType !== 'All' && pkg.type !== selectedType) return false;
         if (selectedPrice && selectedPrice !== 'All') {
-            const price = parseInt(pkg.price.replace('$', '').replace(',', ''));
+            const isRp = (pkg.price || '').includes('Rp') || (pkg.price || '').includes('JT');
+            if (selectedPrice === 'Rp 25-30 JT') {
+                if (!isRp) return false;
+                return true;
+            }
+            if (isRp) return false; // $ filters exclude Rp packages
+            const price = parseInt((pkg.price || '').replace(/\$/g, '').replace(/,/g, ''));
+            if (isNaN(price)) return true; // Contact Us, Include etc. show for non-Rp filter
             switch (selectedPrice) {
                 case 'Under $2,000':
                     if (price >= 2000) return false;
@@ -328,6 +511,7 @@ export default function Packages() {
                                             <img
                                                 src={getImageSrc(`packages.${pkg.id}.image`, pkg.image)}
                                                 alt={getContent(`packages.${pkg.id}.title`, pkg.title)}
+                                                title={(pkg as { imageCaption?: string }).imageCaption}
                                                 data-package-id={pkg.id}
                                                 loading="lazy"
                                                 decoding="async"
@@ -353,10 +537,15 @@ export default function Packages() {
                                             />
                                             <PlaceholderImage className="hidden h-full w-full object-cover" />
 
-                                            <div className="absolute top-4 left-4">
+                                            <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                                                 <span className="rounded-full bg-black/70 px-4 py-2 text-sm font-bold text-white shadow-xl">
                                                     {getContent(`packages.${pkg.id}.type`, pkg.type)}
                                                 </span>
+                                                {(pkg as { freeBadge?: string }).freeBadge && (
+                                                    <span className="rounded-full bg-amber-500/90 px-3 py-1.5 text-xs font-bold text-black shadow-xl">
+                                                        {(pkg as { freeBadge?: string }).freeBadge}
+                                                    </span>
+                                                )}
                                             </div>
 
                                             {editMode && (
@@ -386,6 +575,11 @@ export default function Packages() {
 
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                         </div>
+                                        {(pkg as { imageCaption?: string }).imageCaption && (
+                                            <p className="border-b border-white/10 px-4 py-2 text-xs leading-snug text-white/60" title={(pkg as { imageCaption?: string }).imageCaption}>
+                                                <span className="line-clamp-2">{(pkg as { imageCaption?: string }).imageCaption}</span>
+                                            </p>
+                                        )}
 
                                         <div className="p-6">
                                             <h3 className="mb-2 text-xl font-bold text-white transition-colors group-hover:text-amber-300 sm:text-2xl">
@@ -396,9 +590,23 @@ export default function Packages() {
                                                 {getContent(`packages.${pkg.id}.duration`, pkg.duration)}
                                             </p>
 
-                                            <div className="mb-3 flex items-center justify-between">
-                                                <div className="text-xl font-bold text-amber-300 sm:text-2xl">
-                                                    {getContent(`packages.${pkg.id}.price`, pkg.price)}
+                                            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                                                <div className="flex flex-col gap-0.5">
+                                                    <div className="flex items-center gap-2">
+                                                        {(pkg as { priceOriginal?: string }).priceOriginal && (
+                                                            <span className="text-sm font-medium text-white/50 line-through">
+                                                                {(pkg as { priceOriginal?: string }).priceOriginal}
+                                                            </span>
+                                                        )}
+                                                        <span className="text-xl font-bold text-amber-300 sm:text-2xl">
+                                                            {getContent(`packages.${pkg.id}.price`, pkg.price)}
+                                                        </span>
+                                                    </div>
+                                                    {(pkg as { priceNote?: string }).priceNote && (
+                                                        <span className="text-xs text-white/60">
+                                                            {(pkg as { priceNote?: string }).priceNote}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <div className="text-xs font-medium text-white/70 sm:text-sm">
                                                     {getContent(`packages.${pkg.id}.pax`, pkg.pax)}
@@ -411,20 +619,20 @@ export default function Packages() {
 
                                             <div className="flex gap-3">
                                                 <a
-                                                    href="https://wa.me/6281234567890"
+                                                    href="https://wa.me/6285285522122"
                                                     target="_blank"
                                                     rel="noreferrer"
                                                     className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-center text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
                                                 >
-                                                    Book Now
+                                                    Daftar Sekarang
                                                 </a>
                                                 <a
-                                                    href="https://wa.me/6281234567890"
+                                                    href="https://wa.me/6285285522121"
                                                     target="_blank"
                                                     rel="noreferrer"
                                                     className="flex-1 rounded-xl border border-amber-500 px-4 py-2.5 text-center text-sm font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
                                                 >
-                                                    Ask
+                                                    Tanya
                                                 </a>
                                             </div>
                                         </div>
