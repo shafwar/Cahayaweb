@@ -7,7 +7,7 @@ import { getImageUrl } from '@/utils/imageHelper';
 import axios from 'axios';
 import { router, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Edit3, Sparkles } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronUp, Edit3, ImageIcon, Sparkles, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const IMAGE_GUIDE = '1920×1080px recommended · Max 5MB · Auto-compressed · JPEG, PNG, WebP';
@@ -51,6 +51,21 @@ export default function Packages() {
         category: string;
     }>(null);
     const [galleryPendingFile, setGalleryPendingFile] = useState<File | null>(null);
+    const [expandedPackageId, setExpandedPackageId] = useState<number | null>(null);
+    const [imageLightbox, setImageLightbox] = useState<{ src: string; alt: string; caption?: string } | null>(null);
+
+    useEffect(() => {
+        if (!imageLightbox) return;
+        const onEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setImageLightbox(null);
+        };
+        document.addEventListener('keydown', onEscape);
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.removeEventListener('keydown', onEscape);
+            document.body.style.overflow = '';
+        };
+    }, [imageLightbox]);
 
     const packages = [
         {
@@ -500,18 +515,43 @@ export default function Packages() {
                         </div>
                     </div>
 
-                    {/* Packages Grid - ✅ NO SCROLL ANIMATIONS */}
+                    {/* Packages Grid - ✅ Click to expand for full details */}
                     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                         {filteredPackages.map((pkg) => (
                             <article
                                 key={pkg.id}
-                                className="group overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl transition-all duration-300 hover:-translate-y-2.5 hover:scale-105"
+                                onClick={() => setExpandedPackageId((prev) => (prev === pkg.id ? null : pkg.id))}
+                                className="group cursor-pointer overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl transition-all duration-300 hover:-translate-y-2.5 hover:scale-105 hover:border-amber-500/40"
                             >
-                                        <div className="relative aspect-video overflow-hidden">
+                                        <div
+                                            className="relative aspect-video cursor-zoom-in overflow-hidden"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setImageLightbox({
+                                                    src: getImageSrc(`packages.${pkg.id}.image`, pkg.image),
+                                                    alt: getContent(`packages.${pkg.id}.title`, pkg.title),
+                                                    caption: (pkg as { imageCaption?: string }).imageCaption,
+                                                });
+                                            }}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setImageLightbox({
+                                                        src: getImageSrc(`packages.${pkg.id}.image`, pkg.image),
+                                                        alt: getContent(`packages.${pkg.id}.title`, pkg.title),
+                                                        caption: (pkg as { imageCaption?: string }).imageCaption,
+                                                    });
+                                                }
+                                            }}
+                                            aria-label="Klik untuk lihat gambar full size"
+                                        >
                                             <img
                                                 src={getImageSrc(`packages.${pkg.id}.image`, pkg.image)}
                                                 alt={getContent(`packages.${pkg.id}.title`, pkg.title)}
-                                                title={(pkg as { imageCaption?: string }).imageCaption}
+                                                title="Klik untuk lihat full size"
                                                 data-package-id={pkg.id}
                                                 loading="lazy"
                                                 decoding="async"
@@ -537,6 +577,12 @@ export default function Packages() {
                                             />
                                             <PlaceholderImage className="hidden h-full w-full object-cover" />
 
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/30 group-hover:opacity-100">
+                                                <div className="rounded-full bg-white/20 p-3 backdrop-blur-sm">
+                                                    <ImageIcon className="h-8 w-8 text-white" strokeWidth={2} />
+                                                </div>
+                                            </div>
+
                                             <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                                                 <span className="rounded-full bg-black/70 px-4 py-2 text-sm font-bold text-white shadow-xl">
                                                     {getContent(`packages.${pkg.id}.type`, pkg.type)}
@@ -551,6 +597,7 @@ export default function Packages() {
                                             {editMode && (
                                                 <div className="absolute bottom-3 right-3 z-10">
                                                     <button
+                                                        type="button"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setEditorOpen({
@@ -613,31 +660,112 @@ export default function Packages() {
                                                 </div>
                                             </div>
 
-                                            <p className="mb-3 line-clamp-2 text-xs text-white/70 sm:text-sm">
+                                            <p className={`mb-3 text-xs text-white/70 sm:text-sm ${expandedPackageId === pkg.id ? 'line-clamp-none' : 'line-clamp-2'}`}>
                                                 {getContent(`packages.${pkg.id}.description`, pkg.description)}
                                             </p>
 
-                                            <div className="flex gap-3">
-                                                <a
-                                                    href="https://wa.me/6285285522122"
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-center text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
-                                                >
-                                                    Daftar Sekarang
-                                                </a>
-                                                <a
-                                                    href="https://wa.me/6285285522121"
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="flex-1 rounded-xl border border-amber-500 px-4 py-2.5 text-center text-sm font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
-                                                >
-                                                    Tanya
-                                                </a>
+                                            <AnimatePresence>
+                                                {expandedPackageId === pkg.id && (
+                                                    <motion.div
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: 'auto', opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                                        className="overflow-hidden"
+                                                    >
+                                                        <div className="space-y-4 border-t border-white/10 pt-4">
+                                                            {pkg.highlights && pkg.highlights.length > 0 && (
+                                                                <div>
+                                                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Highlight</h4>
+                                                                    <ul className="flex flex-wrap gap-1.5">
+                                                                        {pkg.highlights.map((h, i) => (
+                                                                            <li key={i} className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs text-white/90">
+                                                                                {h}
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                </div>
+                                                            )}
+                                                            {pkg.features && pkg.features.length > 0 && (
+                                                                <div>
+                                                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Include</h4>
+                                                                    <ul className="space-y-1 text-xs text-white/80">
+                                                                        {pkg.features.map((f, i) => (
+                                                                            <li key={i} className="flex items-center gap-2">
+                                                                                <span className="text-amber-400">✓</span> {f}
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                </div>
+                                                            )}
+                                                            {pkg.dates && pkg.dates.length > 0 && (
+                                                                <div>
+                                                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Tanggal Keberangkatan</h4>
+                                                                    <ul className="space-y-1 text-xs text-white/80">
+                                                                        {pkg.dates.map((d, i) => (
+                                                                            <li key={i} className="flex items-center justify-between gap-2">
+                                                                                <span>{d.date}</span>
+                                                                                <span className={`rounded px-2 py-0.5 text-[10px] font-medium ${d.status === 'Available' ? 'bg-green-500/30 text-green-200' : d.status === 'Limited' ? 'bg-amber-500/30 text-amber-200' : 'bg-red-500/30 text-red-200'}`}>
+                                                                                    {d.status}
+                                                                                </span>
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                </div>
+                                                            )}
+                                                            {pkg.hotels && pkg.hotels.length > 0 && (
+                                                                <div>
+                                                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Hotel</h4>
+                                                                    <ul className="space-y-1.5 text-xs text-white/80">
+                                                                        {pkg.hotels.map((h, i) => (
+                                                                            <li key={i} className="flex items-center gap-2">
+                                                                                <span className="text-amber-400">{'★'.repeat(h.stars)}</span>
+                                                                                <span className="font-medium">{h.name}</span>
+                                                                                <span className="text-white/50">• {h.location}</span>
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+
+                                            <div className="mt-4 flex items-center justify-between gap-3">
+                                                <span className="flex items-center gap-1 text-xs font-medium text-amber-300/90">
+                                                    {expandedPackageId === pkg.id ? (
+                                                        <>
+                                                            <ChevronUp className="h-4 w-4" /> Tutup detail
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <ChevronDown className="h-4 w-4" /> Klik untuk detail lengkap
+                                                        </>
+                                                    )}
+                                                </span>
+                                                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                                                    <a
+                                                        href="https://wa.me/6285285522122"
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
+                                                    >
+                                                        Daftar Sekarang
+                                                    </a>
+                                                    <a
+                                                        href="https://wa.me/6285285522121"
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="rounded-xl border border-amber-500 px-4 py-2 text-center text-xs font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
+                                                    >
+                                                        Tanya
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div className="h-1.5 origin-left scale-x-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-lg transition-transform duration-500 group-hover:scale-x-100" />
+                                        <div className={`h-1.5 origin-left bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-lg transition-transform duration-500 ${expandedPackageId === pkg.id ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
                                     </article>
                         ))}
                     </div>
@@ -859,6 +987,51 @@ export default function Packages() {
                     </div>
                 </footer>
             </div>
+
+            {/* Image Lightbox - klik gambar untuk full size */}
+            <AnimatePresence>
+                {imageLightbox && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/95 p-4"
+                        onClick={() => setImageLightbox(null)}
+                        role="button"
+                        tabIndex={-1}
+                        aria-label="Tutup preview gambar"
+                    >
+                        <button
+                            type="button"
+                            onClick={() => setImageLightbox(null)}
+                            className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2 text-white transition-all hover:bg-white/20"
+                            aria-label="Tutup"
+                        >
+                            <X className="h-6 w-6" />
+                        </button>
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="relative max-h-[90vh] max-w-[90vw]"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <img
+                                src={imageLightbox.src}
+                                alt={imageLightbox.alt}
+                                className="max-h-[85vh] w-auto max-w-full rounded-lg object-contain shadow-2xl"
+                                draggable={false}
+                                style={{ pointerEvents: 'none' }}
+                            />
+                            {imageLightbox.caption && (
+                                <p className="mt-3 max-w-2xl text-center text-sm text-white/80">{imageLightbox.caption}</p>
+                            )}
+                        </motion.div>
+                        <p className="mt-2 text-xs text-white/50">Klik di luar atau tekan ESC untuk menutup</p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Editor Modal - floating bottom, same as Destinations */}
             <AnimatePresence>
