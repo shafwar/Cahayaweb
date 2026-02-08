@@ -4,6 +4,7 @@ import { RippleButton } from '@/components/ui/ripple-button';
 import B2BLayout from '@/layouts/b2b-layout';
 import { Head, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
+import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { motion } from 'framer-motion';
 import { Camera } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -988,9 +989,10 @@ export default function CahayaAnbiyaHero() {
                         markDirty();
 
                         try {
+                            const compressed = await compressImageForUpload(file);
                             const form = new FormData();
                             form.append('key', imageTargetKey);
-                            form.append('image', file);
+                            form.append('image', compressed);
                             const response = await axios.post('/admin/upload-image', form, {
                                 headers: { Accept: 'application/json' },
                             });

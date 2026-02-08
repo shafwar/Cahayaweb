@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { router, usePage } from '@inertiajs/react';
 import { useCallback, useRef, useState } from 'react';
 import { useEditMode } from './EditModeProvider';
+import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getR2Url } from '@/utils/imageHelper';
 
 export default function EditableImage({
@@ -50,10 +51,11 @@ export default function EditableImage({
             setPreview(tempPreview);
             markDirty();
 
+            const compressed = await compressImageForUpload(file);
             const form = new FormData();
             form.append('key', sectionKey);
-            form.append('image', file);
-            
+            form.append('image', compressed);
+
             try {
                 await axios.post('/admin/upload-image', form, {
                     headers: { Accept: 'application/json' },

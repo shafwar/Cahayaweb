@@ -14,10 +14,10 @@ return [
         'recommended_height' => 1080,
         'min_width' => 400,
         'min_height' => 300,
-        'max_file_size_mb' => 5,
+        'max_file_size_mb' => 10, // Client compresses to ~2MB; 10MB allows fallback
         'formats' => 'JPEG, PNG, WebP',
-        'description' => 'Recommended: 1920×1080px, max 5MB. Images are auto-compressed before upload to R2.',
-        'short' => '1920×1080px recommended · Max 5MB · Auto-compressed',
+        'description' => 'Recommended: 1920×1080px. Client auto-compresses before upload. Images stored in R2.',
+        'short' => '1920×1080px recommended · Client auto-compressed · JPEG, PNG, WebP',
     ],
 
     'videos' => [

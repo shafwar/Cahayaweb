@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 class R2Helper
 {
     /**
-     * Get the R2 disk instance
+     * Get the R2 disk instance (respects filesystems.default).
      */
     public static function disk()
     {
@@ -32,6 +32,25 @@ class R2Helper
     }
 
     /**
+     * Get disk for CMS uploads (images, videos).
+     * ALWAYS uses R2 when configured, regardless of FILESYSTEM_DISK.
+     * This ensures CMS images are stored in R2 and publicly accessible via assets.cahayaanbiya.com.
+     */
+    public static function diskForCms()
+    {
+        if (self::isR2DiskConfigured()) {
+            try {
+                return Storage::disk('r2');
+            } catch (\Exception $e) {
+                Log::warning('R2 disk available but failed to init, falling back to public', [
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+        return Storage::disk('public');
+    }
+
+    /**
      * Generate R2 URL for a given path
      *
      * @param string|null $path Path relative to R2 root (e.g., 'images/filename.jpg' or 'public/images/filename.jpg')
@@ -44,14 +63,11 @@ class R2Helper
         }
 
         try {
-            $diskName = config('filesystems.default', 'r2');
-
-            // Check if disk exists in config
-            $diskConfig = config("filesystems.disks.{$diskName}");
-
-            // Get base URL and root from config
-            $baseUrl = $diskConfig['url'] ?? 'https://assets.cahayaanbiya.com';
-            $root = trim($diskConfig['root'] ?? 'public', '/');
+            // Use R2 config when available for consistent URL structure
+            $r2Config = config('filesystems.disks.r2');
+            $useR2 = self::isR2DiskConfigured() && $r2Config;
+            $baseUrl = $useR2 ? ($r2Config['url'] ?? 'https://assets.cahayaanbiya.com') : 'https://assets.cahayaanbiya.com';
+            $root = $useR2 ? trim($r2Config['root'] ?? 'public', '/') : 'public';
 
             // Clean the path (remove leading/trailing slashes)
             $cleanPath = trim($path, '/');

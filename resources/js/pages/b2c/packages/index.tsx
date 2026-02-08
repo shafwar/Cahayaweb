@@ -3,6 +3,7 @@ import PlaceholderImage from '@/components/media/placeholder-image';
 import SeoHead from '@/components/SeoHead';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PublicLayout from '@/layouts/public-layout';
+import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getImageUrl } from '@/utils/imageHelper';
 import axios from 'axios';
 import { router, usePage } from '@inertiajs/react';
@@ -1158,9 +1159,10 @@ export default function Packages() {
                                         ];
                                         await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
                                         if (pendingFile) {
+                                            const compressed = await compressImageForUpload(pendingFile);
                                             const form = new FormData();
                                             form.append('key', `packages.${editorOpen.id}.image`);
-                                            form.append('image', pendingFile);
+                                            form.append('image', compressed);
                                             const r = await axios.post('/admin/upload-image', form, {
                                                 headers: { Accept: 'application/json' },
                                             });
@@ -1267,9 +1269,10 @@ export default function Packages() {
                                         ];
                                         await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
                                         if (galleryPendingFile) {
+                                            const compressed = await compressImageForUpload(galleryPendingFile);
                                             const form = new FormData();
                                             form.append('key', `packages.gallery.${galleryEditorOpen.id}.image`);
-                                            form.append('image', galleryPendingFile);
+                                            form.append('image', compressed);
                                             const r = await axios.post('/admin/upload-image', form, {
                                                 headers: { Accept: 'application/json' },
                                             });

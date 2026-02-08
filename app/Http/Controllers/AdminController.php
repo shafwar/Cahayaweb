@@ -72,24 +72,21 @@ class AdminController extends Controller
                 }
             }
 
-            $diskName = config('filesystems.default', 'r2');
-            try {
-                $disk = \App\Support\R2Helper::disk();
-            } catch (\Exception $e) {
-                \Log::warning('Failed to get R2 disk in AdminController::uploadImage', [
-                    'error' => $e->getMessage()
-                ]);
-                $disk = Storage::disk('public');
-            }
+            // CMS uploads: ALWAYS use R2 when configured (regardless of FILESYSTEM_DISK)
+            $disk = \App\Support\R2Helper::diskForCms();
+            $diskName = \App\Support\R2Helper::isR2DiskConfigured() ? 'r2' : 'public';
 
             $storedPath = 'images/' . $filename;
-            $disk->put($storedPath, $contents);
+            if (!$disk->put($storedPath, $contents)) {
+                throw new \RuntimeException('Gagal menyimpan file ke storage. Cek konfigurasi R2 atau disk.');
+            }
 
-            $root = trim((string) config("filesystems.disks.{$diskName}.root", ''), '/');
+            $root = trim((string) config("filesystems.disks.r2.root", 'public'), '/');
             $objectPath = $root ? $root . '/' . $storedPath : $storedPath;
             $objectPath = ltrim(preg_replace('#/+#', '/', $objectPath), '/');
 
-            $url = $disk->url($storedPath);
+            // Use R2Helper::url() to ensure correct R2 URL format (https://assets.cahayaanbiya.com/public/images/...)
+            $url = \App\Support\R2Helper::url($storedPath) ?? $disk->url($storedPath);
 
             Section::updateWithBackup(
                 $validated['key'],
@@ -119,7 +116,7 @@ class AdminController extends Controller
             ]);
             $userMessage = app()->environment('local')
                 ? 'Upload gagal: ' . $e->getMessage()
-                : 'Upload gagal. Silakan cek ukuran file (max 5MB) dan format (JPEG/PNG/WebP), lalu coba lagi.';
+                : 'Upload gagal. Gambar akan otomatis dikompresi oleh sistem. Jika masih gagal, coba gambar lain atau refresh halaman.';
             return response()->json([
                 'message' => $userMessage,
                 'errors' => ['server' => [$userMessage]],
@@ -143,18 +140,12 @@ class AdminController extends Controller
         $ext = strtolower($file->getClientOriginalExtension() ?: 'mp4');
         $filename = Str::uuid()->toString() . '.' . $ext;
 
-        try {
-            $disk = \App\Support\R2Helper::disk();
-        } catch (\Exception $e) {
-            \Log::warning('Failed to get R2 disk in AdminController::uploadVideo', [
-                'error' => $e->getMessage()
-            ]);
-            $disk = Storage::disk('public');
-        }
-
+        $disk = \App\Support\R2Helper::diskForCms();
         $storedPath = 'videos/' . $filename;
-        $disk->put($storedPath, $file->get());
-        $url = $disk->url($storedPath);
+        if (!$disk->put($storedPath, $file->get())) {
+            throw new \RuntimeException('Gagal menyimpan video ke storage. Cek konfigurasi R2.');
+        }
+        $url = \App\Support\R2Helper::url($storedPath) ?? $disk->url($storedPath);
 
         Section::updateWithBackup(
             $validated['key'],

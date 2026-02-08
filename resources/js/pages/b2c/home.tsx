@@ -2,6 +2,7 @@ import { EditableText, EditableVideo, triggerVideoUpload, useEditMode } from '@/
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
+import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getImageUrl, getVideoUrl } from '@/utils/imageHelper';
 import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
@@ -407,9 +408,10 @@ export default function Home() {
 
             try {
                 const uploadPromises = Array.from(pendingImageUploads.entries()).map(async ([key, file]) => {
+                    const compressed = await compressImageForUpload(file);
                     const form = new FormData();
                     form.append('key', key);
-                    form.append('image', file);
+                    form.append('image', compressed);
 
                     const response = await axios.post('/admin/upload-image', form, {
                         headers: { Accept: 'application/json' },
@@ -1233,9 +1235,10 @@ export default function Home() {
                                                 content: editorOpen.subtitle,
                                             });
                                             if (pendingFile) {
+                                                const compressed = await compressImageForUpload(pendingFile);
                                                 const form = new FormData();
                                                 form.append('key', `home.${editorOpen.section}.${editorOpen.id}.image`);
-                                                form.append('image', pendingFile);
+                                                form.append('image', compressed);
                                                 const uploadRes = await axios.post('/admin/upload-image', form, {
                                                     headers: { Accept: 'application/json' },
                                                 });

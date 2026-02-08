@@ -2,6 +2,7 @@ import PlaceholderImage from '@/components/media/placeholder-image';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
 import { router, usePage } from '@inertiajs/react';
+import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getImageUrl } from '@/utils/imageHelper';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -168,9 +169,10 @@ export default function Highlights() {
             ];
             await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
             if (pendingFile) {
+                const compressed = await compressImageForUpload(pendingFile);
                 const form = new FormData();
                 form.append('key', `highlights.${editorOpen.id}.image`);
-                form.append('image', pendingFile);
+                form.append('image', compressed);
                 const r = await axios.post('/admin/upload-image', form, {
                     headers: { Accept: 'application/json' },
                 });

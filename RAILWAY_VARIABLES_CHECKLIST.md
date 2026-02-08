@@ -54,9 +54,9 @@ Agar **dokumen verifikasi B2B** (business license, tax certificate, company prof
 
 **Penting:**
 
-- **R2_ENDPOINT wajib** agar R2 dianggap terkonfigurasi untuk upload B2B (Cloudflare R2 memakai endpoint S3-compatible custom). Tanpa endpoint, aplikasi pakai disk `public` untuk upload.
+- **R2_ENDPOINT wajib** agar R2 dianggap terkonfigurasi untuk upload B2B dan CMS gambar (Cloudflare R2 memakai endpoint S3-compatible custom). Tanpa endpoint, aplikasi pakai disk `public` untuk upload.
 - **Tidak perlu** mengubah `FILESYSTEM_DISK` ke `r2` untuk seluruh app (opsional; jika set `r2`, default storage pakai R2).
-- Cukup set variabel R2/AWS di atas; upload B2B otomatis pakai disk `r2` jika terkonfigurasi.
+- Cukup set variabel R2/AWS di atas; upload B2B dan **CMS gambar** otomatis pakai R2 jika terkonfigurasi. Gambar CMS akan tersimpan di R2 dan link-nya akan mengarah ke `https://assets.cahayaanbiya.com/public/images/...`.
 - Admin download dokumen melalui Laravel (stream dari R2), bukan URL publik.
 
 ---
