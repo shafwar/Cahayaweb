@@ -61,5 +61,10 @@ File: `config/cms_media_guide.php`
 
 - **Gambar:** `images/{uuid}.{ext}`
 - **Video:** `videos/{uuid}.{ext}`
+- **Package images (fallback):** `packages/packages1.png`, `packages/packages2.png`, dll.
 
 Path relatif (misal `images/xxx.jpg`, `videos/xxx.mp4`) disimpan di database table `sections` kolom `image` atau `video`.
+
+### Folder `public/packages/`
+
+Gambar package (packages1.png, packages2.png, packages3.png, dll.) disimpan di `public/packages/` untuk konsistensi dan R2. Pastikan folder ini di-upload ke R2 di path `public/packages/` agar fallback image berfungsi di production.

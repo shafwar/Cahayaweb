@@ -64,9 +64,9 @@ export function getR2Url(path: string): string {
         const r2BaseUrl = 'https://assets.cahayaanbiya.com';
         
         // Try multiple path variations based on common R2 bucket structures:
-        // 1. If path already includes folder structure (images/ or videos/)
-        if (cleanPath.startsWith('images/') || cleanPath.startsWith('videos/')) {
-            // Try with /public/ prefix first (most common)
+        // 1. If path already includes folder structure (images/, videos/, packages/)
+        if (cleanPath.startsWith('images/') || cleanPath.startsWith('videos/') || cleanPath.startsWith('packages/')) {
+            // Use /public/ prefix (R2 bucket structure)
             return `${r2BaseUrl}/public/${cleanPath}`;
         }
         
@@ -80,7 +80,10 @@ export function getR2Url(path: string): string {
             return `${r2BaseUrl}/public/videos/${cleanPath}`;
         }
         
-        // 3. Image file - use images folder with /public/ prefix
+        // 3. Image file - use public path (packages/ for package images, else images/)
+        if (cleanPath.startsWith('packages/')) {
+            return `${r2BaseUrl}/public/${cleanPath}`;
+        }
         return `${r2BaseUrl}/public/images/${cleanPath}`;
     } catch (error) {
         console.error('Error in getR2Url:', error);

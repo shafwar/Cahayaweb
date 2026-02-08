@@ -107,8 +107,8 @@ class R2Helper
                 return $r2BaseUrl . '/public/' . $cleanPath;
             }
 
-            // Handle images and videos folders
-            if (str_starts_with($cleanPath, 'images/') || str_starts_with($cleanPath, 'videos/')) {
+            // Handle images, videos, and packages folders
+            if (str_starts_with($cleanPath, 'images/') || str_starts_with($cleanPath, 'videos/') || str_starts_with($cleanPath, 'packages/')) {
                 return $r2BaseUrl . '/public/' . $cleanPath;
             }
 
@@ -139,6 +139,10 @@ class R2Helper
             // If it's a document and path contains agent-verifications, use documents/agent-verifications folder
             if ($isDocument && str_contains($cleanPath, 'agent-verification')) {
                 return $r2BaseUrl . '/public/documents/agent-verifications/' . basename($cleanPath);
+            }
+
+            if (str_starts_with($cleanPath, 'packages/')) {
+                return $r2BaseUrl . '/public/' . $cleanPath;
             }
 
             return $r2BaseUrl . '/public/images/' . $cleanPath;
