@@ -660,22 +660,59 @@ export default function Packages() {
                                                 </div>
                                             </div>
 
-                                            <p className={`mb-3 text-xs text-white/70 sm:text-sm ${expandedPackageId === pkg.id ? 'line-clamp-none' : 'line-clamp-2'}`}>
+                                            <p className={`mb-3 text-xs text-white/70 sm:text-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${expandedPackageId === pkg.id ? 'line-clamp-none' : 'line-clamp-2'}`}>
                                                 {getContent(`packages.${pkg.id}.description`, pkg.description)}
                                             </p>
 
-                                            <AnimatePresence>
+                                            <AnimatePresence initial={false}>
                                                 {expandedPackageId === pkg.id && (
                                                     <motion.div
                                                         initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: 'auto', opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                                        animate={{
+                                                            height: 'auto',
+                                                            opacity: 1,
+                                                            transition: {
+                                                                height: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+                                                                opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                                                            },
+                                                        }}
+                                                        exit={{
+                                                            height: 0,
+                                                            opacity: 0,
+                                                            transition: {
+                                                                height: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                                                                opacity: { duration: 0.25, ease: [0.22, 1, 0.36, 1] },
+                                                            },
+                                                        }}
                                                         className="overflow-hidden"
                                                     >
-                                                        <div className="space-y-4 border-t border-white/10 pt-4">
+                                                        <motion.div
+                                                            initial="closed"
+                                                            animate="open"
+                                                            exit="closed"
+                                                            variants={{
+                                                                open: {
+                                                                    transition: {
+                                                                        staggerChildren: 0.06,
+                                                                        delayChildren: 0.08,
+                                                                    },
+                                                                },
+                                                                closed: {
+                                                                    transition: {
+                                                                        staggerChildren: 0.03,
+                                                                        staggerDirection: -1,
+                                                                    },
+                                                                },
+                                                            }}
+                                                            className="space-y-4 border-t border-white/10 pt-4"
+                                                        >
                                                             {pkg.highlights && pkg.highlights.length > 0 && (
-                                                                <div>
+                                                                <motion.div
+                                                                    variants={{
+                                                                        open: { opacity: 1, y: 0 },
+                                                                        closed: { opacity: 0, y: -8 },
+                                                                    }}
+                                                                >
                                                                     <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Highlight</h4>
                                                                     <ul className="flex flex-wrap gap-1.5">
                                                                         {pkg.highlights.map((h, i) => (
@@ -684,10 +721,15 @@ export default function Packages() {
                                                                             </li>
                                                                         ))}
                                                                     </ul>
-                                                                </div>
+                                                                </motion.div>
                                                             )}
                                                             {pkg.features && pkg.features.length > 0 && (
-                                                                <div>
+                                                                <motion.div
+                                                                    variants={{
+                                                                        open: { opacity: 1, y: 0 },
+                                                                        closed: { opacity: 0, y: -8 },
+                                                                    }}
+                                                                >
                                                                     <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Include</h4>
                                                                     <ul className="space-y-1 text-xs text-white/80">
                                                                         {pkg.features.map((f, i) => (
@@ -696,10 +738,15 @@ export default function Packages() {
                                                                             </li>
                                                                         ))}
                                                                     </ul>
-                                                                </div>
+                                                                </motion.div>
                                                             )}
                                                             {pkg.dates && pkg.dates.length > 0 && (
-                                                                <div>
+                                                                <motion.div
+                                                                    variants={{
+                                                                        open: { opacity: 1, y: 0 },
+                                                                        closed: { opacity: 0, y: -8 },
+                                                                    }}
+                                                                >
                                                                     <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Tanggal Keberangkatan</h4>
                                                                     <ul className="space-y-1 text-xs text-white/80">
                                                                         {pkg.dates.map((d, i) => (
@@ -711,10 +758,15 @@ export default function Packages() {
                                                                             </li>
                                                                         ))}
                                                                     </ul>
-                                                                </div>
+                                                                </motion.div>
                                                             )}
                                                             {pkg.hotels && pkg.hotels.length > 0 && (
-                                                                <div>
+                                                                <motion.div
+                                                                    variants={{
+                                                                        open: { opacity: 1, y: 0 },
+                                                                        closed: { opacity: 0, y: -8 },
+                                                                    }}
+                                                                >
                                                                     <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Hotel</h4>
                                                                     <ul className="space-y-1.5 text-xs text-white/80">
                                                                         {pkg.hotels.map((h, i) => (
@@ -725,22 +777,22 @@ export default function Packages() {
                                                                             </li>
                                                                         ))}
                                                                     </ul>
-                                                                </div>
+                                                                </motion.div>
                                                             )}
-                                                        </div>
+                                                        </motion.div>
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
 
                                             <div className="mt-4 flex items-center justify-between gap-3">
-                                                <span className="flex items-center gap-1 text-xs font-medium text-amber-300/90">
+                                                <span className="flex items-center gap-1 text-xs font-medium text-amber-300/90 transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]">
                                                     {expandedPackageId === pkg.id ? (
                                                         <>
-                                                            <ChevronUp className="h-4 w-4" /> Tutup detail
+                                                            <ChevronUp className="h-4 w-4 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]" /> Tutup detail
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <ChevronDown className="h-4 w-4" /> Klik untuk detail lengkap
+                                                            <ChevronDown className="h-4 w-4 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]" /> Klik untuk detail lengkap
                                                         </>
                                                     )}
                                                 </span>
@@ -765,7 +817,7 @@ export default function Packages() {
                                             </div>
                                         </div>
 
-                                        <div className={`h-1.5 origin-left bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-lg transition-transform duration-500 ${expandedPackageId === pkg.id ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+                                        <div className={`h-1.5 origin-left bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-lg transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${expandedPackageId === pkg.id ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
                                     </article>
                         ))}
                     </div>
