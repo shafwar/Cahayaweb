@@ -84,22 +84,31 @@ $r2Vars = [
     check('R2_ENDPOINT', env('R2_ENDPOINT') ?: env('AWS_ENDPOINT'), false),
 ];
 
-echo "3. R2 (B2B document upload)\n";
+echo "3. R2 (B2B docs + CMS image upload)\n";
 foreach ($r2Vars as $v) {
     $status = $v['set'] ? '✓' : '○';
     echo "   {$status} {$v['key']}: {$v['display']}\n";
 }
 
 $r2Configured = R2Helper::isR2DiskConfigured();
-echo "   " . ($r2Configured ? "✓ R2 disk configured: YES (B2B docs will use R2)" : "○ R2 disk: NOT CONFIGURED (B2B docs will use local storage)") . "\n";
+echo "   " . ($r2Configured ? "✓ R2 disk configured: YES (B2B + CMS images will use R2)" : "✗ R2 disk: NOT CONFIGURED (CMS image upload will FAIL with 500)") . "\n";
 
 if ($r2Configured) {
     try {
         $disk = \Illuminate\Support\Facades\Storage::disk('r2');
         $agentFiles = $disk->allFiles('documents/agent-verifications');
         echo "   ✓ R2 B2B documents (documents/agent-verifications) count: " . count($agentFiles) . "\n";
+        // Test CMS upload path (images/)
+        $testPath = 'images/verify-' . uniqid() . '.txt';
+        $ok = $disk->put($testPath, 'R2 CMS upload test ' . date('c'));
+        if ($ok) {
+            $disk->delete($testPath);
+            echo "   ✓ R2 CMS upload test (images/): OK\n";
+        } else {
+            echo "   ✗ R2 CMS upload test: put() returned false\n";
+        }
     } catch (\Throwable $e) {
-        echo "   ✗ R2 list error: " . $e->getMessage() . "\n";
+        echo "   ✗ R2 error: " . $e->getMessage() . "\n";
     }
 }
 echo "\n";
@@ -134,10 +143,10 @@ if (!$dbOk && env('DB_CONNECTION') === 'mysql') {
 }
 
 if (!$r2Configured) {
-    echo "○ R2 not configured. B2B document uploads will use local storage; admin download may fail if files are not on this instance.\n";
-    echo "  To enable R2: set R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_URL, R2_ENDPOINT in Railway variables.\n";
+    echo "✗ R2 NOT configured. CMS image upload akan GAGAL (500). B2B docs pakai local storage.\n";
+    echo "  Untuk memperbaiki: set R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_URL, R2_ENDPOINT di Railway variables.\n";
 } else {
-    echo "✓ R2 configured. B2B documents will be stored in R2 and admin can download via Laravel.\n";
+    echo "✓ R2 configured. B2B docs + CMS images akan tersimpan di R2.\n";
 }
 
 echo "\n=== Done ===\n";

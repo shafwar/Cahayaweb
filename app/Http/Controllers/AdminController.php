@@ -72,20 +72,40 @@ class AdminController extends Controller
                 }
             }
 
-            // CMS uploads: ALWAYS use R2 when configured (regardless of FILESYSTEM_DISK)
+            $storedPath = 'images/' . $filename;
+
+            // CMS uploads: try R2 first when configured, then public disk
             $disk = \App\Support\R2Helper::diskForCms();
             $diskName = \App\Support\R2Helper::isR2DiskConfigured() ? 'r2' : 'public';
 
-            $storedPath = 'images/' . $filename;
-            if (!$disk->put($storedPath, $contents)) {
-                throw new \RuntimeException('Gagal menyimpan file ke storage. Cek konfigurasi R2 atau disk.');
+            $putSuccess = false;
+            try {
+                $putSuccess = $disk->put($storedPath, $contents);
+            } catch (\Throwable $putEx) {
+                \Log::error('AdminController::uploadImage disk->put() threw', [
+                    'error' => $putEx->getMessage(),
+                    'disk' => $diskName,
+                    'class' => get_class($putEx),
+                ]);
+                throw new \RuntimeException(
+                    'Storage gagal: ' . $putEx->getMessage() . '. ' .
+                    ($diskName === 'r2'
+                        ? 'Cek R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_URL, R2_ENDPOINT di Railway variables.'
+                        : 'Cek konfigurasi disk public.'),
+                    0,
+                    $putEx
+                );
+            }
+            if (!$putSuccess) {
+                throw new \RuntimeException(
+                    'disk->put() returned false. ' .
+                    ($diskName === 'r2' ? 'Cek R2 credentials di Railway.' : 'Cek disk public.')
+                );
             }
 
             $root = trim((string) config("filesystems.disks.r2.root", 'public'), '/');
             $objectPath = $root ? $root . '/' . $storedPath : $storedPath;
             $objectPath = ltrim(preg_replace('#/+#', '/', $objectPath), '/');
-
-            // Use R2Helper::url() to ensure correct R2 URL format (https://assets.cahayaanbiya.com/public/images/...)
             $url = \App\Support\R2Helper::url($storedPath) ?? $disk->url($storedPath);
 
             Section::updateWithBackup(
@@ -114,9 +134,8 @@ class AdminController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'key' => $request->input('key'),
             ]);
-            $userMessage = app()->environment('local')
-                ? 'Upload gagal: ' . $e->getMessage()
-                : 'Upload gagal. Gambar akan otomatis dikompresi oleh sistem. Jika masih gagal, coba gambar lain atau refresh halaman.';
+            // Return actual error to admin for debugging (admin-only endpoint)
+            $userMessage = 'Upload gagal: ' . $e->getMessage();
             return response()->json([
                 'message' => $userMessage,
                 'errors' => ['server' => [$userMessage]],
