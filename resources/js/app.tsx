@@ -247,6 +247,13 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
 // Wrap entire Inertia app creation in try-catch for safety
 let inertiaAppCreated = false;
 
+// Ensure DOM is ready before initializing Inertia
+function initializeInertia() {
+    if (inertiaAppCreated) {
+        console.warn('[App] Inertia app already created, skipping');
+        return;
+    }
+
 try {
     createInertiaApp({
         title: (title) => {
@@ -524,6 +531,28 @@ try {
         `;
         document.body.appendChild(errorDiv);
     }
+}
+
+// Initialize when DOM is ready
+if (typeof window !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeInertia);
+    } else {
+        // DOM already loaded
+        initializeInertia();
+    }
+    
+    // Fallback: try again after a short delay if not initialized
+    setTimeout(function() {
+        if (!inertiaAppCreated && typeof window !== 'undefined') {
+            console.warn('[App] Inertia app not initialized after delay, retrying...');
+            try {
+                initializeInertia();
+            } catch (e) {
+                console.error('[App] Retry failed:', e);
+            }
+        }
+    }, 1000);
 }
 
 // This will set light / dark mode on load...

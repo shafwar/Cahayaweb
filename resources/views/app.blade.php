@@ -121,5 +121,61 @@
     </head>
     <body class="font-sans antialiased">
         @inertia
+        
+        <!-- Fallback: Ensure page always renders even if Inertia fails -->
+        <noscript>
+            <div style="padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">JavaScript Required</h1>
+                <p style="color: #6b7280; margin-bottom: 0.5rem;">Please enable JavaScript to view this website.</p>
+            </div>
+        </noscript>
+        
+        <!-- Fallback: Show loading indicator if Inertia takes too long -->
+        <script>
+            (function() {
+                'use strict';
+                // Check if Inertia app has initialized after 5 seconds
+                setTimeout(function() {
+                    const inertiaElement = document.querySelector('[data-page]');
+                    const appElement = document.getElementById('app');
+                    
+                    // If no Inertia element and body is empty/blank, show error
+                    if (!inertiaElement && (!appElement || appElement.children.length === 0)) {
+                        const body = document.body;
+                        if (body && body.children.length <= 1) { // Only @inertia and noscript
+                            console.error('[App] Inertia app did not initialize - showing fallback');
+                            const fallback = document.createElement('div');
+                            fallback.id = 'app-fallback';
+                            fallback.style.cssText = 'padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;';
+                            fallback.innerHTML = `
+                                <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Loading...</h1>
+                                <p style="color: #6b7280; margin-bottom: 1rem;">If this page doesn't load, please refresh.</p>
+                                <button onclick="window.location.reload()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;">
+                                    Refresh Page
+                                </button>
+                            `;
+                            body.appendChild(fallback);
+                        }
+                    }
+                }, 5000);
+                
+                // Also check for Vite assets loading errors
+                window.addEventListener('error', function(e) {
+                    if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+                        const src = e.target.src || e.target.href;
+                        if (src && (src.includes('/build/') || src.includes('vite'))) {
+                            console.error('[App] Vite asset failed to load:', src);
+                            // Try to reload after a delay
+                            setTimeout(function() {
+                                if (!document.querySelector('[data-page]')) {
+                                    console.warn('[App] Reloading page due to asset load failure');
+                                    window.location.reload();
+                                }
+                            }, 2000);
+                        }
+                    }
+                }, true);
+            })();
+        </script>
     </body>
 </html>
