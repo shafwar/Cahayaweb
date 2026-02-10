@@ -12,12 +12,38 @@ export function getImageUrl(
         // First, try to get from sections (database) - this is the highest priority
         const sectionImage = sections?.[sectionKey]?.image;
         if (sectionImage && typeof sectionImage === 'string' && sectionImage.trim()) {
-            // If it's already a full URL, return as is
+            // CRITICAL FIX: Check if URL uses wrong domain (cahayaanbiya.com instead of assets.cahayaanbiya.com)
             if (sectionImage.startsWith('http://') || sectionImage.startsWith('https://')) {
+                // If URL uses wrong domain, convert to R2 URL
+                if (sectionImage.includes('cahayaanbiya.com') && !sectionImage.includes('assets.cahayaanbiya.com')) {
+                    // Extract path from wrong URL and convert to R2 URL
+                    try {
+                        const url = new URL(sectionImage);
+                        const path = url.pathname; // e.g., "/public/images/destinations/cahayaanbiya/05282.jpeg"
+                        // Remove leading slash and convert to R2 URL
+                        const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+                        return getR2Url(cleanPath);
+                    } catch {
+                        // If URL parsing fails, try to extract path manually
+                        const pathMatch = sectionImage.match(/\/public\/images\/(.+)$/);
+                        if (pathMatch) {
+                            return getR2Url(`images/${pathMatch[1]}`);
+                        }
+                        // Fallback: try to extract filename
+                        const filenameMatch = sectionImage.match(/\/([^\/]+\.(jpeg|jpg|png|webp))$/i);
+                        if (filenameMatch) {
+                            return getR2Url(`images/${filenameMatch[1]}`);
+                        }
+                    }
+                }
+                // If URL is already correct R2 URL, return as is
+                if (sectionImage.includes('assets.cahayaanbiya.com')) {
+                    return sectionImage;
+                }
+                // For other URLs, return as is (might be external URLs)
                 return sectionImage;
             }
-            // If it's a relative path, check if it's already R2 URL from backend
-            // Backend should return R2 URLs, but if not, convert it
+            // If it's a relative path, convert to R2 URL
             if (!sectionImage.startsWith('http')) {
                 // Backend returned relative path - convert to R2 URL
                 return getR2Url(sectionImage);
@@ -25,8 +51,29 @@ export function getImageUrl(
             return sectionImage;
         }
 
-        // If fallback path is already a full URL (starts with http), return as is
+        // If fallback path is already a full URL (starts with http), check domain
         if (fallbackPath.startsWith('http://') || fallbackPath.startsWith('https://')) {
+            // Check if URL uses wrong domain
+            if (fallbackPath.includes('cahayaanbiya.com') && !fallbackPath.includes('assets.cahayaanbiya.com')) {
+                // Convert wrong URL to R2 URL
+                try {
+                    const url = new URL(fallbackPath);
+                    const path = url.pathname;
+                    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+                    return getR2Url(cleanPath);
+                } catch {
+                    // Fallback: extract path manually
+                    const pathMatch = fallbackPath.match(/\/public\/images\/(.+)$/);
+                    if (pathMatch) {
+                        return getR2Url(`images/${pathMatch[1]}`);
+                    }
+                }
+            }
+            // If already correct R2 URL, return as is
+            if (fallbackPath.includes('assets.cahayaanbiya.com')) {
+                return fallbackPath;
+            }
+            // For other URLs, return as is
             return fallbackPath;
         }
 
