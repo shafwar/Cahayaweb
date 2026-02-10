@@ -48,6 +48,7 @@ export function getImageUrl(
  * Get R2 URL for a given path
  * IMPORTANT: Always returns R2 URL, never local path
  * Tries multiple path variations to handle different R2 bucket structures
+ * Automatically encodes special characters (spaces, etc.) in filename for proper URL handling
  */
 export function getR2Url(path: string): string {
     try {
@@ -63,11 +64,25 @@ export function getR2Url(path: string): string {
         const cleanPath = path.startsWith('/') ? path.slice(1) : path;
         const r2BaseUrl = 'https://assets.cahayaanbiya.com';
         
+        // Split path into directory and filename for proper encoding
+        const lastSlashIndex = cleanPath.lastIndexOf('/');
+        let directory = '';
+        let filename = cleanPath;
+        
+        if (lastSlashIndex !== -1) {
+            directory = cleanPath.substring(0, lastSlashIndex + 1);
+            filename = cleanPath.substring(lastSlashIndex + 1);
+        }
+        
+        // Encode filename to handle spaces and special characters (e.g., "Destination Cahaya 1.jpeg" -> "Destination%20Cahaya%201.jpeg")
+        const encodedFilename = encodeURIComponent(filename);
+        const encodedPath = directory + encodedFilename;
+        
         // Try multiple path variations based on common R2 bucket structures:
         // 1. If path already includes folder structure (images/, videos/, packages/)
         if (cleanPath.startsWith('images/') || cleanPath.startsWith('videos/') || cleanPath.startsWith('packages/')) {
             // Use /public/ prefix (R2 bucket structure)
-            return `${r2BaseUrl}/public/${cleanPath}`;
+            return `${r2BaseUrl}/public/${encodedPath}`;
         }
         
         // 2. Check file extension to determine folder
@@ -77,31 +92,26 @@ export function getR2Url(path: string): string {
         
         if (isVideo) {
             // Video file - try videos folder with /public/ prefix
-            return `${r2BaseUrl}/public/videos/${cleanPath}`;
+            return `${r2BaseUrl}/public/videos/${encodedPath}`;
         }
         
-        // 3. Image file - check if it's a known image filename from public root
-        // These files are stored in R2 at public/images/filename
-        const knownPublicImages = [
-            'arabsaudi.jpg', 'TURKEY.jpeg', 'egypt.jpeg', 'jordan.jpeg', 'umrah.jpeg',
-            'dubai1.jpeg', 'b2b.jpeg', 'bali.jpeg', 'bahrain.jpg', 'kuwait.jpg',
-            'oman.jpg', 'qatar.jpg', 'turkey2.jpg', 'cahayanbiyalogo.png',
-            'apple-touch-icon.png', 'packages1.png', 'packages2.png',
-            'packages2(1).png', 'packages2(2).png', 'packages2(3).png', 'packages3.png'
-        ];
-        
-        if (knownPublicImages.includes(cleanPath)) {
-            // Known public root image - stored in R2 at public/images/filename
-            return `${r2BaseUrl}/public/images/${cleanPath}`;
+        // 3. Image file - use public path (packages/ for package images, else images/)
+        // For images like "Destination Cahaya X.jpeg", they go to images/ folder
+        if (cleanPath.startsWith('packages/')) {
+            return `${r2BaseUrl}/public/${encodedPath}`;
         }
-        
-        // 4. Default: assume it's an image in images/ folder
-        return `${r2BaseUrl}/public/images/${cleanPath}`;
+        // All other images (including "Destination Cahaya X.jpeg") go to images/ folder
+        return `${r2BaseUrl}/public/images/${encodedPath}`;
     } catch (error) {
         console.error('Error in getR2Url:', error);
-        // Even on error, try to return R2 URL structure
-        const cleanPath = (path || '').startsWith('/') ? (path || '').slice(1) : (path || '');
-        return `https://assets.cahayaanbiya.com/public/images/${cleanPath}`;
+        // Even on error, try to return R2 URL structure with encoding
+        try {
+            const cleanPath = (path || '').startsWith('/') ? (path || '').slice(1) : (path || '');
+            const encodedPath = encodeURIComponent(cleanPath);
+            return `https://assets.cahayaanbiya.com/public/images/${encodedPath}`;
+        } catch {
+            return path || '';
+        }
     }
 }
 
