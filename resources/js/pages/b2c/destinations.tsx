@@ -3,7 +3,7 @@ import PlaceholderImage from '@/components/media/placeholder-image';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
-import { getImageUrl } from '@/utils/imageHelper';
+import { getImageUrl, getR2Url } from '@/utils/imageHelper';
 import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -61,7 +61,7 @@ const destinations = [
         id: 3,
         title: 'Egypt Wonders',
         subtitle: 'Pyramids & Nile River Expedition',
-        image: '/images/destinations/image-5669512f-42d3-400d-8e9b-85a9e475d948.png',
+        image: 'images/destinations/image-5669512f-42d3-400d-8e9b-85a9e475d948.png',
         duration: '8D7N',
         price: 'Rp 16.5M',
         location: 'Mesir - Pyramid',
@@ -193,7 +193,7 @@ const destinations = [
         id: 9,
         title: 'Jordan Discovery',
         subtitle: 'Wadi Rum, Petra & Ashabul Kahfi Adventure',
-        image: '/images/destinations/image-55499739-5e9d-4bdc-a97e-a6fd07682015.png',
+        image: 'images/destinations/image-55499739-5e9d-4bdc-a97e-a6fd07682015.png',
         duration: '7D6N',
         price: 'Rp 17.2M',
         location: 'Amman - Petra, Wadi Rum, Goa Ashabul Kahfi',
@@ -215,7 +215,7 @@ const destinations = [
         id: 10,
         title: 'Aqsa & Palestine',
         subtitle: 'Jerusalem, Al-Aqsa Complex & Mount of Olives',
-        image: '/images/destinations/image-361cb5f0-a259-4a75-ae10-6e69ee18077a.png',
+        image: 'images/destinations/image-361cb5f0-a259-4a75-ae10-6e69ee18077a.png',
         duration: '5D4N',
         price: 'Rp 19.5M',
         location: 'Aqsa - Jericho, Komplek Al-Aqsa, Bukit Zaitun',
@@ -237,7 +237,7 @@ const destinations = [
         id: 11,
         title: 'Sinai Heritage',
         subtitle: 'Mount Sinai & Historical Sites',
-        image: '/images/destinations/image-868751bf-4fc6-4655-b7f9-b2286d6602af.png',
+        image: 'images/destinations/image-868751bf-4fc6-4655-b7f9-b2286d6602af.png',
         duration: '4D3N',
         price: 'Rp 15.8M',
         location: 'Sinai - Patung Samiri',
@@ -396,7 +396,7 @@ export default function Destinations() {
                                 >
                                     <div className="relative aspect-video overflow-hidden">
                                         <img
-                                            src={getImageSrc(`destinations.${d.id}.image`, d.image)}
+                                            src={getImageSrc(`destinations.${d.id}.image`, getR2Url(d.image))}
                                             alt={getContent(`destinations.${d.id}.title`, d.title)}
                                             data-destination-id={d.id}
                                             loading="lazy"

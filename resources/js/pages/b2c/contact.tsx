@@ -1,6 +1,7 @@
 import { EditableText } from '@/components/cms';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
+import { getR2Url } from '@/utils/imageHelper';
 import { Mail, MapPin, MessageSquare, Phone, Send } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -71,12 +72,12 @@ export default function Contact() {
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
                 {/* Hero Section */}
                 <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
-                    {/* Professional Background Image */}
+                    {/* Professional Background Image from R2 */}
                     <div className="pointer-events-none absolute inset-0">
                         <div 
                             className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
                             style={{
-                                backgroundImage: 'url(/images/destinations/image-55499739-5e9d-4bdc-a97e-a6fd07682015.png)',
+                                backgroundImage: `url(${getR2Url('images/destinations/image-55499739-5e9d-4bdc-a97e-a6fd07682015.png')})`,
                                 filter: 'blur(2px) brightness(0.3)',
                             }}
                         />
