@@ -22,3 +22,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Destination Cahaya images (already uploaded to R2)
+/public/Destination Cahaya*.jpeg
+/public/Destination Cahaya.jpeg
