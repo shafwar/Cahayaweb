@@ -1103,7 +1103,7 @@ export default function Packages() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/95 p-4"
+                        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4"
                         onClick={() => setImageLightbox(null)}
                         role="button"
                         tabIndex={-1}
@@ -1122,19 +1122,25 @@ export default function Packages() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="relative max-h-[90vh] max-w-[90vw]"
+                            className="flex flex-col items-center justify-center gap-4 w-full h-full"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <img
-                                src={imageLightbox.src}
-                                alt={imageLightbox.alt}
-                                className="max-h-[85vh] w-auto max-w-full rounded-lg object-contain shadow-2xl"
-                                draggable={false}
-                                style={{ pointerEvents: 'none' }}
-                            />
-                            {imageLightbox.caption && <p className="mt-3 max-w-2xl text-center text-sm text-white/80">{imageLightbox.caption}</p>}
+                            <div className="flex items-center justify-center w-full h-full max-h-[90vh] max-w-[90vw]">
+                                <img
+                                    src={imageLightbox.src}
+                                    alt={imageLightbox.alt}
+                                    className="max-h-[85vh] max-w-[85vw] w-auto h-auto rounded-lg object-contain shadow-2xl"
+                                    draggable={false}
+                                    style={{ pointerEvents: 'none', display: 'block', margin: '0 auto' }}
+                                />
+                            </div>
+                            {imageLightbox.caption && (
+                                <p className="max-w-2xl text-center text-sm text-white/80 px-4 mt-2">
+                                    {imageLightbox.caption}
+                                </p>
+                            )}
+                            <p className="text-xs text-white/50 text-center mt-2">Klik di luar atau tekan ESC untuk menutup</p>
                         </motion.div>
-                        <p className="mt-2 text-xs text-white/50">Klik di luar atau tekan ESC untuk menutup</p>
                     </motion.div>
                 )}
             </AnimatePresence>
