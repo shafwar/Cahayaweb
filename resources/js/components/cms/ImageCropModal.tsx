@@ -1,14 +1,16 @@
 import { useCallback, useState, useEffect } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { XIcon } from 'lucide-react';
 import {
     Dialog,
-    DialogContent,
     DialogFooter,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { getCroppedImage } from '@/utils/getCroppedImage';
+import { cn } from '@/lib/utils';
 import 'react-easy-crop/react-easy-crop.css';
 
 interface ImageCropModalProps {
@@ -124,9 +126,16 @@ export default function ImageCropModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent
-                className="max-h-[90vh] max-w-2xl overflow-hidden p-0 data-[state=open]:scale-100 data-[state=closed]:scale-100 sm:max-w-2xl"
-            >
+            <DialogPrimitive.Portal>
+                {/* Custom overlay with higher z-index */}
+                <DialogPrimitive.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-[99999] bg-black/80" />
+                {/* Custom content with higher z-index */}
+                <DialogPrimitive.Content
+                    className={cn(
+                        "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-[99999] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border shadow-lg duration-200 sm:max-w-2xl",
+                        "max-h-[90vh] overflow-hidden p-0 data-[state=open]:scale-100 data-[state=closed]:scale-100"
+                    )}
+                >
                 <DialogHeader className="border-b px-6 py-4">
                     <DialogTitle>Atur posisi gambar</DialogTitle>
                 </DialogHeader>
@@ -194,7 +203,12 @@ export default function ImageCropModal({
                         {applying ? 'Memproses...' : 'Simpan'}
                     </Button>
                 </DialogFooter>
-            </DialogContent>
+                <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
+                    <XIcon className="h-4 w-4" />
+                    <span className="sr-only">Close</span>
+                </DialogPrimitive.Close>
+            </DialogPrimitive.Content>
+            </DialogPrimitive.Portal>
         </Dialog>
     );
 }
