@@ -63,33 +63,6 @@ class R2Helper
         }
 
         try {
-            // CRITICAL FIX: If path is already a full URL with wrong domain, extract path and convert
-            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-                // Check if URL uses wrong domain (cahayaanbiya.com instead of assets.cahayaanbiya.com)
-                if (str_contains($path, 'cahayaanbiya.com') && !str_contains($path, 'assets.cahayaanbiya.com')) {
-                    // Extract path from URL
-                    try {
-                        $parsedUrl = parse_url($path);
-                        $urlPath = $parsedUrl['path'] ?? '';
-                        // Remove leading slash
-                        $urlPath = ltrim($urlPath, '/');
-                        // Recursively call with extracted path
-                        return self::url($urlPath);
-                    } catch (\Exception $e) {
-                        Log::warning('Failed to parse URL in R2Helper::url', [
-                            'path' => $path,
-                            'error' => $e->getMessage()
-                        ]);
-                    }
-                }
-                // If URL is already correct R2 URL, return as is
-                if (str_contains($path, 'assets.cahayaanbiya.com')) {
-                    return $path;
-                }
-                // For other external URLs, return as is (might be external CDN, etc.)
-                return $path;
-            }
-
             // Use R2 config when available for consistent URL structure
             $r2Config = config('filesystems.disks.r2');
             $useR2 = self::isR2DiskConfigured() && $r2Config;

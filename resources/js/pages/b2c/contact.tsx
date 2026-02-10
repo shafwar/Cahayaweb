@@ -69,33 +69,30 @@ export default function Contact() {
                 keywords="kontak cahaya anbiya, alamat cahaya anbiya, telepon cahaya anbiya, customer service cahaya anbiya, jakarta selatan"
             />
 
-            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
-                {/* Hero Section with Background Image */}
-                <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
-                    {/* Professional Background Image */}
-                    <div className="absolute inset-0 z-0">
-                        <img
-                            src={getR2Url('Destination Cahaya 7.jpeg')}
-                            alt="Travel Background"
-                            className="h-full w-full object-cover opacity-20"
-                            style={{
-                                filter: 'blur(2px) brightness(0.4)',
-                            }}
-                            onError={(e) => {
-                                // Fallback jika gambar tidak ditemukan
-                                e.currentTarget.style.display = 'none';
-                            }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
-                    </div>
-                    
-                    {/* Ambient Background Overlay */}
-                    <div className="pointer-events-none absolute inset-0 z-[1]">
-                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.06),transparent_70%)] blur-3xl" />
-                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_70%)] blur-3xl" />
+            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black relative">
+                {/* Professional Background Image */}
+                <div 
+                    className="fixed inset-0 z-0"
+                    style={{
+                        backgroundImage: `url(${getR2Url('Destination Cahaya 2.jpeg')})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                    }}
+                >
+                    {/* Overlay for readability */}
+                    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+                </div>
+                
+                {/* Hero Section */}
+                <section className="relative z-10 overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
+                    {/* Ambient Background - Reduced opacity to work with image background */}
+                    <div className="pointer-events-none absolute inset-0">
+                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.03),transparent_70%)] blur-3xl" />
+                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.03),transparent_70%)] blur-3xl" />
                     </div>
 
-                    <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
+                    <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
                         {/* Header */}
                         <div className="mb-8 text-center md:mb-10">
                             <div className="mb-4 inline-block">

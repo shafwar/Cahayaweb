@@ -171,7 +171,7 @@ function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl:
     }
 }
 
-// Hero slides data
+// Hero slides data - Updated with new images from Mba Hanum
 const slides = [
     {
         id: 1,
@@ -194,14 +194,20 @@ const slides = [
     {
         id: 4,
         title: 'Egypt Adventures',
-        subtitle: 'Ancient wonders await',
-        image: '/egypt.jpeg',
+        subtitle: 'Pyramid & Ancient wonders',
+        image: 'Destination Cahaya.jpeg', // Updated: Mesir - Pyramid (from chat)
     },
     {
         id: 5,
         title: 'Jordan Explorer',
-        subtitle: 'Petra and beyond',
-        image: '/jordan.jpeg',
+        subtitle: 'Petra, Wadi Rum & Ashabul Kahfi',
+        image: 'Destination Cahaya 1.jpeg', // Updated: Amman - Petra - peserta melihat 7 keajaban dunia di petra
+    },
+    {
+        id: 6,
+        title: 'Palestine & Aqsa',
+        subtitle: 'Jerusalem & Mount of Olives',
+        image: 'Destination Cahaya 4.jpeg', // Updated: Palestine - Peserta menikmati bukit zaitun
     },
 ];
 
@@ -216,23 +222,23 @@ const bestSellers = [
     },
     {
         id: 2,
-        title: 'Mesir - Pyramid',
-        subtitle: 'Pyramids of Giza',
-        image: 'Destination Cahaya 2.jpeg',
+        title: 'Turkey Heritage',
+        subtitle: 'Istanbul to Cappadocia',
+        image: '/TURKEY.jpeg',
         tag: 'Best Seller',
     },
     {
         id: 3,
-        title: 'Jordan - Petra',
-        subtitle: 'Petra & Wadi Rum',
-        image: 'Destination Cahaya 4.jpeg',
+        title: 'Egypt Wonders',
+        subtitle: 'Pyramid & Pyramids',
+        image: 'Destination Cahaya.jpeg', // Updated: Mesir - Pyramid
         tag: 'Best Seller',
     },
     {
         id: 4,
-        title: 'Aqsa & Palestine',
-        subtitle: 'Al-Aqsa & Bukit Zaitun',
-        image: 'Destination Cahaya 6.jpeg',
+        title: 'Dubai Luxury',
+        subtitle: 'Modern wonders',
+        image: '/dubai1.jpeg',
         tag: 'Best Seller',
     },
 ];
@@ -241,30 +247,30 @@ const bestSellers = [
 const newDestinations = [
     {
         id: 1,
-        title: 'Jordan - Wadi Rum',
-        subtitle: 'Jeep Tour di Lembah Wadi Rum',
-        image: 'Destination Cahaya 1.jpeg',
+        title: 'Oman Adventure',
+        subtitle: 'Muscat + Nizwa + Wahiba Sands',
+        image: '/oman.jpg',
         tag: 'New',
     },
     {
         id: 2,
-        title: 'Aqsa - Jericho',
-        subtitle: 'Kota Tertua di Dunia',
-        image: 'Destination Cahaya 5.jpeg',
+        title: 'Qatar Luxury',
+        subtitle: 'Doha + The Pearl + Desert',
+        image: '/qatar.jpg',
         tag: 'New',
     },
     {
         id: 3,
-        title: 'Sinai - Patung Samiri',
-        subtitle: 'Napak Tilas Sejarah Nabi',
-        image: 'Destination Cahaya 3.jpeg',
+        title: 'Kuwait Heritage',
+        subtitle: 'Kuwait City + Failaka Island',
+        image: '/kuwait.jpg',
         tag: 'New',
     },
     {
         id: 4,
-        title: 'Jordan - Ashabul Kahfi',
-        subtitle: 'Goa Ashabul Kahfi di Amman',
-        image: 'Destination Cahaya 8.jpeg',
+        title: 'Bahrain Pearl',
+        subtitle: "Manama + Qal'at al-Bahrain",
+        image: '/bahrain.jpg',
         tag: 'New',
     },
 ];
@@ -280,23 +286,37 @@ const highlights = [
     },
     {
         id: 2,
-        title: 'Petra - 7 Keajaiban Dunia',
-        subtitle: 'Petra ancient city exploration',
-        image: 'Destination Cahaya 4.jpeg',
+        title: 'Cappadocia Magic',
+        subtitle: 'Hot air balloon adventure',
+        image: '/TURKEY.jpeg',
         tag: 'Featured',
     },
     {
         id: 3,
         title: 'Pyramids Wonder',
-        subtitle: 'Pyramids of Giza - Mesir',
-        image: 'Destination Cahaya 2.jpeg',
+        subtitle: 'Pyramid & Ancient Egyptian marvels',
+        image: 'Destination Cahaya.jpeg', // Updated: Mesir - Pyramid
+        tag: 'Featured',
+    },
+    {
+        id: 5,
+        title: 'Petra Ancient City',
+        subtitle: '7 Wonders of the World',
+        image: 'Destination Cahaya 1.jpeg', // Petra - 7 keajaban dunia
+        tag: 'Featured',
+    },
+    {
+        id: 6,
+        title: 'Palestine Spiritual Journey',
+        subtitle: 'Mount of Olives & Aqsa',
+        image: 'Destination Cahaya 4.jpeg', // Palestine - Bukit Zaitun
         tag: 'Featured',
     },
     {
         id: 4,
-        title: 'Aqsa - Dome of the Rock',
-        subtitle: 'Komplek Al-Aqsa spiritual journey',
-        image: 'Destination Cahaya 6.jpeg',
+        title: 'Dubai Desert',
+        subtitle: 'Luxury desert safari',
+        image: '/dubai1.jpeg',
         tag: 'Featured',
     },
 ];

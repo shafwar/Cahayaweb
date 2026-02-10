@@ -79,7 +79,7 @@ export default function Packages() {
             price: '$2,300',
             pax: 'Max 25 pax',
             type: 'Religious',
-            image: 'Destination Cahaya 4.jpeg',
+            image: '/images/packages/packages1.png',
             highlights: ['Petra', 'Museum Mummy', 'Camel', 'Nile Cruise', 'Pyramid & Sphinx', 'Masjid Al Aqsa'],
             description:
                 'Tempat mana yang paling bikin hati bergetar? Disinilah tempatnya yaitu napak tilas tiga negara sekaligus. Di Mesir, Di Aqsa, Di Jordan. Perjalanan ini bukan sekadar wisata, kita napak tilas belajar sejarah kisah nabi sebelumnya hingga merasakan khidmat dalam perjalanan ini agar kita terus bersyukur dan mengambil Pelajaran dari setiap kisah dan perjalanan ini.',
@@ -100,7 +100,7 @@ export default function Packages() {
             price: '$2,300',
             pax: 'Kuota Terbatas',
             type: 'Religious',
-            image: 'Destination Cahaya 6.jpeg',
+            image: '/images/packages/packages2.png',
             highlights: ['Napak tilas Para Nabi', 'Wisata sejarah', 'Healing untuk hati', 'Momen tenang'],
             description:
                 '⚠️ Breaking News! 🌏 Sekali Jalan Langsung 3 Negara Sekaligus! Yes! Kamu nggak salah baca. Jordan, Palestina, dan Mesir bisa kamu jelajahi hanya dalam 1 trip selama 10 hari!! Include menapak jejak Para Nabi, wisata sejarah, dan healing untuk hati yang rindu momen tenang ⭐️',
@@ -115,7 +115,7 @@ export default function Packages() {
             price: '$2,300',
             pax: 'Max 30 pax',
             type: 'Religious',
-            image: 'Destination Cahaya 2.jpeg',
+            image: '/images/packages/packages3.png',
             highlights: ['Museum Mummy Firaun', 'Petra', 'Nile Cruise', 'Camel Ride', 'FREE WiFi', 'Waktu Shalat Terjaga'],
             description:
                 'Bayangkan jika… Kamu sedang berdiri di depan Al-Aqsa, merasakan damainya doa di tempat suci. Langkahmu menyusuri Petra yang megah, berlayar di Sungai Nil, dan menyaksikan matahari tenggelam di balik Piramida. Ini bukan sekadar wisata, tapi perjalanan spiritual, sejarah, dan makna semua dalam satu pengalaman selama 10 hari ke Jordan, Aqsa & Mesir.',
@@ -184,7 +184,7 @@ export default function Packages() {
             priceNote: 'Exc. Tips Guide $80 & Asuransi $25',
             pax: 'Seat Terbatas',
             type: 'Religious',
-            image: 'Destination Cahaya 4.jpeg',
+            image: '/images/packages/packages-cahaya-5.jpeg',
             imageCaption: 'Konsorsium Paket 10 Hari - Dome of the Rock (Al-Aqsa Jerusalem), Piramida Giza Mesir, dan landscape Wadi Rum Jordan.',
             highlights: [
                 'Pyramid & Sphinx',
@@ -220,7 +220,7 @@ export default function Packages() {
             priceNote: 'Exc. Asuransi $25 & Tipping $80',
             pax: 'Seat Terbatas',
             type: 'Religious',
-            image: 'Destination Cahaya 6.jpeg',
+            image: '/images/packages/packages-cahaya-6.jpeg',
             imageCaption: 'Spesial Moment Idul Adha di Aqsa - Dome of the Rock Jerusalem, Piramida Giza, dan simbol Idul Adha.',
             highlights: ['Moment Idul Adha di Aqsa', 'Nile Cruise', 'Tiket Mummy', 'Petra', 'Wadirum'],
             description:
@@ -244,7 +244,7 @@ export default function Packages() {
             priceOriginal: '$2,190',
             pax: 'Seat Terbatas',
             type: 'Religious',
-            image: 'Destination Cahaya 7.jpeg',
+            image: '/images/packages/packages-cahaya-7.jpeg',
             imageCaption: 'Paket Jordan Aqsa 2026 - Panorama Petra, Dome of the Rock Jerusalem, dan landscape Wadi Rum.',
             highlights: ['100% FREE Tiket Petra Wadirum', 'Dome of the Rock', 'Petra', 'Wadi Rum'],
             description:
@@ -276,7 +276,7 @@ export default function Packages() {
             priceOriginal: '$2,550',
             pax: 'Seat Terbatas',
             type: 'Religious',
-            image: 'Destination Cahaya 2.jpeg',
+            image: '/images/packages/packages-cahaya-8.jpeg',
             imageCaption: 'Paket Jordan Mesir Aqsa 2026 - Al-Aqsa Mosque complex, Piramida Giza, dan pemandangan tiga negara.',
             highlights: ['Tiket Museum Mummy', 'Nile Cruise', 'Tiket Petra', 'Pyramid & Sphinx', 'Al-Aqsa'],
             description:
@@ -911,50 +911,50 @@ export default function Packages() {
                                     {
                                         id: 1,
                                         title: 'Petra, Jordan',
-                                        subtitle: '7 Keajaiban Dunia',
-                                        image: 'Destination Cahaya 4.jpeg',
-                                        description: 'Petra - peserta melihat 7 keajaiban dunia di petra',
+                                        subtitle: 'The Rose City',
+                                        image: '/TURKEY.jpeg',
+                                        description: 'Ancient Nabataean city carved into red sandstone cliffs',
                                         category: 'Historical',
                                     },
                                     {
                                         id: 2,
                                         title: 'Dome of the Rock',
                                         subtitle: 'Jerusalem, Palestine',
-                                        image: 'Destination Cahaya 6.jpeg',
-                                        description: 'Peserta di kawasan komplek Aqsa - Dome of the Rock yang megah',
+                                        image: '/umrah.jpeg',
+                                        description: 'Sacred Islamic shrine with stunning golden dome',
                                         category: 'Religious',
                                     },
                                     {
                                         id: 3,
                                         title: 'Pyramids of Giza',
                                         subtitle: 'Cairo, Egypt',
-                                        image: 'Destination Cahaya 2.jpeg',
-                                        description: 'Lokasi: Mesir - Destinasi: Pyramid',
+                                        image: '/egypt.jpeg',
+                                        description: 'Ancient wonders of the world',
                                         category: 'Historical',
                                     },
                                     {
                                         id: 4,
-                                        title: 'Wadi Rum, Jordan',
-                                        subtitle: 'Lembah Wadi Rum',
-                                        image: 'Destination Cahaya 1.jpeg',
-                                        description: 'Lokasi: Amman - Destinasi: Lembah Wadirum - Menikmati jeep tour',
+                                        title: 'Cappadocia',
+                                        subtitle: 'Turkey',
+                                        image: '/jordan.jpeg',
+                                        description: 'Fairy chimneys and hot air balloon rides',
                                         category: 'Adventure',
                                     },
                                     {
                                         id: 5,
-                                        title: 'Bukit Zaitun',
-                                        subtitle: 'Palestine',
-                                        image: 'Destination Cahaya 5.jpeg',
-                                        description: 'Lokasi: Palestine - Peserta menikmati bukit zaitun',
-                                        category: 'Religious',
+                                        title: 'Dubai Desert',
+                                        subtitle: 'UAE',
+                                        image: '/dubai1.jpeg',
+                                        description: 'Golden sand dunes and desert adventures',
+                                        category: 'Adventure',
                                     },
                                     {
                                         id: 6,
-                                        title: 'Sinai - Patung Samiri',
-                                        subtitle: 'Sinai',
-                                        image: 'Destination Cahaya 3.jpeg',
-                                        description: 'Lokasi: Sinai - Peserta melihat kisah patung samiri yang ada di sinai',
-                                        category: 'Spiritual',
+                                        title: 'Oman Desert',
+                                        subtitle: 'Muscat, Oman',
+                                        image: '/oman.jpg',
+                                        description: 'Ancient forts and traditional markets',
+                                        category: 'Cultural',
                                     },
                                 ].map((destination) => (
                                     <div
@@ -1123,24 +1123,22 @@ export default function Packages() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="flex flex-col items-center justify-center gap-4 w-full h-full"
+                            className="flex h-full w-full flex-col items-center justify-center gap-4"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="flex items-center justify-center w-full h-full max-h-[90vh] max-w-[90vw]">
+                            <div className="flex h-full max-h-[90vh] w-full max-w-[90vw] items-center justify-center">
                                 <img
                                     src={imageLightbox.src}
                                     alt={imageLightbox.alt}
-                                    className="max-h-[85vh] max-w-[85vw] w-auto h-auto rounded-lg object-contain shadow-2xl"
+                                    className="h-auto max-h-[85vh] w-auto max-w-[85vw] rounded-lg object-contain shadow-2xl"
                                     draggable={false}
                                     style={{ pointerEvents: 'none', display: 'block', margin: '0 auto' }}
                                 />
                             </div>
                             {imageLightbox.caption && (
-                                <p className="max-w-2xl text-center text-sm text-white/80 px-4 mt-2">
-                                    {imageLightbox.caption}
-                                </p>
+                                <p className="mt-2 max-w-2xl px-4 text-center text-sm text-white/80">{imageLightbox.caption}</p>
                             )}
-                            <p className="text-xs text-white/50 text-center mt-2">Klik di luar atau tekan ESC untuk menutup</p>
+                            <p className="mt-2 text-center text-xs text-white/50">Klik di luar atau tekan ESC untuk menutup</p>
                         </motion.div>
                     </motion.div>
                 )}
