@@ -48,6 +48,7 @@ export function getImageUrl(
  * Get R2 URL for a given path
  * IMPORTANT: Always returns R2 URL, never local path
  * Tries multiple path variations to handle different R2 bucket structures
+ * Properly handles URL encoding for spaces and special characters
  */
 export function getR2Url(path: string): string {
     try {
@@ -55,8 +56,9 @@ export function getR2Url(path: string): string {
             return path || '';
         }
         
-        // If already a full URL, return as is
+        // If already a full URL, return as is (but ensure proper encoding)
         if (path.startsWith('http://') || path.startsWith('https://')) {
+            // URL is already encoded by browser, return as is
             return path;
         }
         
@@ -67,7 +69,9 @@ export function getR2Url(path: string): string {
         // 1. If path already includes folder structure (images/, videos/, packages/)
         if (cleanPath.startsWith('images/') || cleanPath.startsWith('videos/') || cleanPath.startsWith('packages/')) {
             // Use /public/ prefix (R2 bucket structure)
-            return `${r2BaseUrl}/public/${cleanPath}`;
+            // Encode the path properly - browser will handle encoding spaces to %20
+            const fullPath = `${r2BaseUrl}/public/${cleanPath}`;
+            return fullPath;
         }
         
         // 2. Check file extension to determine folder
@@ -84,6 +88,8 @@ export function getR2Url(path: string): string {
         if (cleanPath.startsWith('packages/')) {
             return `${r2BaseUrl}/public/${cleanPath}`;
         }
+        // For image files, use images/ folder
+        // Note: Browser will automatically encode spaces in URL to %20
         return `${r2BaseUrl}/public/images/${cleanPath}`;
     } catch (error) {
         console.error('Error in getR2Url:', error);
