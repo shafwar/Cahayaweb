@@ -3,7 +3,7 @@ import PlaceholderImage from '@/components/media/placeholder-image';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
-import { getImageUrl, getR2Url } from '@/utils/imageHelper';
+import { getImageUrl } from '@/utils/imageHelper';
 import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -59,201 +59,91 @@ const destinations = [
     },
     {
         id: 3,
-        title: 'Egypt Wonders',
-        subtitle: 'Pyramids & Nile River Expedition',
-        image: 'images/destinations/image-5669512f-42d3-400d-8e9b-85a9e475d948.png',
+        title: 'Mesir - Pyramid',
+        subtitle: 'Pyramids of Giza & Ancient Wonders',
+        image: 'Destination Cahaya 2.jpeg',
         duration: '8D7N',
         price: 'Rp 16.5M',
         location: 'Mesir - Pyramid',
-        highlights: 'Pyramids of Giza, Nile cruise, ancient temples, Valley of the Kings',
+        highlights: 'Pyramids of Giza, ancient Egyptian marvels, historical exploration',
         description:
-            'Journey through the cradle of civilization and explore the mysteries of ancient Egypt. Marvel at the Great Pyramids of Giza and cruise the majestic Nile River. Experience the grandeur of ancient Egyptian civilization.',
+            'Jelajahi keajaiban Mesir kuno dengan melihat langsung Piramida Giza yang megah. Perjalanan spiritual dan sejarah yang mengesankan ke salah satu keajaiban dunia.',
         features: [
-            'Pyramids of Giza guided tour',
-            'Nile River luxury cruise',
-            'Valley of the Kings exploration',
-            'Abu Simbel temple visit',
-            'Egyptian Museum tour',
-            'Traditional felucca sailing',
+            'Kunjungan ke Piramida Giza',
+            'Pemandu profesional berbahasa Indonesia',
+            'Akomodasi hotel bintang 5',
+            'Tur ke situs-situs bersejarah',
+            'Pengalaman budaya Mesir kuno',
+            'Fasilitas lengkap dari Cahaya Anbiya',
         ],
         badge: 'Heritage',
         category: 'Historical',
     },
     {
         id: 4,
-        title: 'Dubai Luxury',
-        subtitle: 'Modern Wonders & Desert Adventures',
-        image: '/dubai1.jpeg',
-        duration: '5D4N',
-        price: 'Rp 14.2M',
-        location: 'Dubai, Abu Dhabi, Desert Safari',
-        highlights: 'Burj Khalifa, desert safari, luxury shopping, Ferrari World',
-        description:
-            'Experience the epitome of luxury and innovation in Dubai. Ascend the iconic Burj Khalifa, shop in world-class malls, and enjoy thrilling desert safaris.',
-        features: [
-            'Burj Khalifa observation deck access',
-            'Desert safari with dinner',
-            'Luxury shopping experience',
-            'Sheikh Zayed Mosque tour',
-            'Ferrari World theme park',
-            'Dhow cruise dinner',
-        ],
-        badge: 'Luxury',
-        category: 'Modern',
-    },
-    {
-        id: 5,
-        title: 'Oman Adventure',
-        subtitle: 'Muscat + Nizwa + Wahiba Sands',
-        image: '/oman.jpg',
-        duration: '6D5N',
-        price: 'Rp 18.9M',
-        location: 'Muscat, Nizwa, Wahiba Sands, Salalah',
-        highlights: 'Desert camping, ancient forts, wadis, traditional souks',
-        description:
-            'Explore the hidden gem of the Arabian Peninsula. Discover stunning fjords of Musandam, explore ancient forts in Nizwa, and camp under the stars in Wahiba Sands.',
-        features: [
-            'Desert camping in Wahiba Sands',
-            'Ancient fort exploration',
-            'Wadi hiking adventures',
-            'Traditional souk visits',
-            'Dolphin watching cruise',
-            'Mountain village tours',
-        ],
-        badge: 'Explorer',
-        category: 'Adventure',
-    },
-    {
-        id: 6,
-        title: 'Qatar Luxury',
-        subtitle: 'Doha + The Pearl + Desert Safari',
-        image: '/qatar.jpg',
-        duration: '5D4N',
-        price: 'Rp 16.2M',
-        location: 'Doha, The Pearl, Inland Sea, Al Wakrah',
-        highlights: 'Museum of Islamic Art, Souq Waqif, desert safari, luxury resorts',
-        description:
-            'Experience the perfect blend of tradition and modernity in Qatar. Visit the stunning Museum of Islamic Art and explore the vibrant Souq Waqif.',
-        features: [
-            'Museum of Islamic Art tour',
-            'Souq Waqif cultural experience',
-            'Desert safari adventure',
-            'The Pearl luxury experience',
-            'Katara Cultural Village',
-            'Luxury resort accommodations',
-        ],
-        badge: 'Premium',
-        category: 'Luxury',
-    },
-    {
-        id: 7,
-        title: 'Kuwait Heritage',
-        subtitle: 'Kuwait City + Failaka Island',
-        image: '/kuwait.jpg',
-        duration: '4D3N',
-        price: 'Rp 12.8M',
-        location: 'Kuwait City, Failaka Island, Al Jahra',
-        highlights: 'Kuwait Towers, Grand Mosque, island visit, cultural heritage',
-        description:
-            'Discover the rich heritage and modern charm of Kuwait. Visit the iconic Kuwait Towers and explore the magnificent Grand Mosque.',
-        features: [
-            'Kuwait Towers visit',
-            'Grand Mosque tour',
-            'Failaka Island exploration',
-            'Traditional dhow boat ride',
-            'Cultural heritage tours',
-            'Modern city exploration',
-        ],
-        badge: 'Heritage',
-        category: 'Cultural',
-    },
-    {
-        id: 8,
-        title: 'Bahrain Pearl',
-        subtitle: "Manama + Qal'at al-Bahrain",
-        image: '/bahrain.jpg',
-        duration: '4D3N',
-        price: 'Rp 11.5M',
-        location: "Manama, Qal'at al-Bahrain, Al Muharraq",
-        highlights: 'Pearl diving, ancient forts, Formula 1 circuit, traditional culture',
-        description:
-            'Experience the pearl of the Gulf with its rich history and modern attractions. Explore ancient forts and learn about traditional pearl diving.',
-        features: [
-            'Ancient fort exploration',
-            'Pearl diving experience',
-            'Formula 1 circuit tour',
-            'Traditional souk visits',
-            'Cultural heritage tours',
-            'Modern entertainment',
-        ],
-        badge: 'Culture',
-        category: 'Heritage',
-    },
-    {
-        id: 9,
-        title: 'Jordan Discovery',
-        subtitle: 'Wadi Rum, Petra & Ashabul Kahfi Adventure',
-        image: 'images/destinations/image-55499739-5e9d-4bdc-a97e-a6fd07682015.png',
+        title: 'Jordan - Petra & Wadi Rum',
+        subtitle: 'Petra, Wadi Rum & Ashabul Kahfi',
+        image: 'Destination Cahaya 4.jpeg',
         duration: '7D6N',
         price: 'Rp 17.2M',
-        location: 'Amman - Petra, Wadi Rum, Goa Ashabul Kahfi',
-        highlights: 'Petra (7 keajaiban dunia), Wadi Rum jeep tour, Goa Ashabul Kahfi, Dead Sea, biblical sites',
+        location: 'Amman - Yordania',
+        highlights: 'Petra (7 keajaiban dunia), Lembah Wadi Rum jeep tour, Goa Ashabul Kahfi',
         description:
-            'Journey through the ancient wonders of Jordan. Explore the magnificent rock-cut city of Petra (one of the 7 wonders of the world), enjoy jeep tour in Wadi Rum Valley, visit the Cave of Ashabul Kahfi, and experience the Dead Sea.',
+            'Perjalanan spiritual dan petualangan ke Yordania. Lihat langsung 7 keajaiban dunia di Petra, nikmati jeep tour di Lembah Wadi Rum, dan kunjungi Goa Ashabul Kahfi yang bersejarah.',
         features: [
-            'Petra ancient city exploration (7 wonders of the world)',
-            'Wadi Rum Valley jeep tour',
-            'Cave of Ashabul Kahfi visit',
-            'Dead Sea floating experience',
-            'Biblical site visits',
-            'Traditional Bedouin experience',
+            'Kunjungan ke Petra - 7 keajaiban dunia',
+            'Jeep tour di Lembah Wadi Rum (fasilitas gratis dari Cahaya Anbiya)',
+            'Kunjungan ke Goa Ashabul Kahfi',
+            'Pemandu profesional berbahasa Indonesia',
+            'Akomodasi hotel bintang 5',
+            'Pengalaman Bedouin tradisional',
         ],
         badge: 'Adventure',
         category: 'Historical',
     },
     {
-        id: 10,
+        id: 5,
         title: 'Aqsa & Palestine',
-        subtitle: 'Jerusalem, Al-Aqsa Complex & Mount of Olives',
-        image: 'images/destinations/image-361cb5f0-a259-4a75-ae10-6e69ee18077a.png',
-        duration: '5D4N',
+        subtitle: 'Al-Aqsa, Bukit Zaitun & Jericho',
+        image: 'Destination Cahaya 6.jpeg',
+        duration: '8D7N',
         price: 'Rp 19.5M',
-        location: 'Aqsa - Jericho, Komplek Al-Aqsa, Bukit Zaitun',
-        highlights: 'Dome of the Rock, Al-Aqsa Mosque, Mount of Olives, Jericho, Mount of Temptation',
+        location: 'Aqsa - Palestine',
+        highlights: 'Komplek Al-Aqsa, Dome of the Rock, Bukit Zaitun, Jericho',
         description:
-            'Embark on a profound spiritual journey to the holy land. Visit the Al-Aqsa complex with the iconic Dome of the Rock, experience the serenity of Mount of Olives, explore ancient Jericho, and visit the Mount of Temptation.',
+            'Perjalanan spiritual ke Tanah Suci. Kunjungi Komplek Al-Aqsa dengan Dome of the Rock yang megah, nikmati pemandangan dari Bukit Zaitun, dan jelajahi Jericho - kota tertua di dunia.',
         features: [
-            'Al-Aqsa complex visit (Dome of the Rock)',
-            'Mount of Olives experience',
-            'Jericho exploration',
-            'Mount of Temptation visit',
-            'Spiritual guidance',
-            'Historical site tours',
+            'Kunjungan ke Komplek Al-Aqsa',
+            'Dome of the Rock exploration',
+            'Bukit Zaitun (Mount of Olives)',
+            'Kunjungan ke Jericho',
+            'Pemandu spiritual profesional',
+            'Akomodasi hotel bintang 5',
         ],
         badge: 'Spiritual',
-        category: 'Religious',
+        category: 'Spiritual',
     },
     {
-        id: 11,
-        title: 'Sinai Heritage',
-        subtitle: 'Mount Sinai & Historical Sites',
-        image: 'images/destinations/image-868751bf-4fc6-4655-b7f9-b2286d6602af.png',
-        duration: '4D3N',
+        id: 6,
+        title: 'Sinai - Patung Samiri',
+        subtitle: 'Napak Tilas Sejarah Nabi',
+        image: 'Destination Cahaya 3.jpeg',
+        duration: '6D5N',
         price: 'Rp 15.8M',
-        location: 'Sinai - Patung Samiri',
-        highlights: 'Mount Sinai, Samiri statue, biblical sites, historical exploration',
+        location: 'Sinai',
+        highlights: 'Kisah Patung Samiri, napak tilas sejarah nabi, perjalanan spiritual',
         description:
-            'Discover the historical and spiritual significance of Sinai. Visit the Samiri statue and explore the biblical sites where important events took place. Experience the rich history and spiritual atmosphere of this sacred region.',
+            'Perjalanan spiritual ke Sinai untuk melihat kisah Patung Samiri. Napak tilas sejarah nabi dan mengambil pelajaran berharga dari setiap kisah perjalanan ini.',
         features: [
-            'Samiri statue visit',
-            'Mount Sinai exploration',
-            'Biblical site tours',
-            'Historical site visits',
-            'Spiritual guidance',
-            'Cultural heritage experience',
+            'Kunjungan ke situs Patung Samiri',
+            'Napak tilas sejarah nabi',
+            'Pemandu spiritual profesional',
+            'Akomodasi hotel bintang 5',
+            'Pengalaman spiritual mendalam',
+            'Fasilitas lengkap dari Cahaya Anbiya',
         ],
-        badge: 'Heritage',
-        category: 'Religious',
+        badge: 'Spiritual',
+        category: 'Spiritual',
     },
 ];
 
@@ -273,11 +163,7 @@ type EditorData = {
 export default function Destinations() {
     const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
     const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
-    const getImageSrc = (sectionKey: string, fallbackPath: string) => {
-        // Always ensure fallback path uses R2 URL
-        const r2Fallback = fallbackPath.startsWith('http') ? fallbackPath : getR2Url(fallbackPath);
-        return getImageUrl(props.sections, sectionKey, r2Fallback);
-    };
+    const getImageSrc = (sectionKey: string, fallbackPath: string) => getImageUrl(props.sections, sectionKey, fallbackPath);
 
     const [editMode, setEditMode] = useState(false);
     const [editorOpen, setEditorOpen] = useState<EditorData | null>(null);
@@ -379,7 +265,7 @@ export default function Destinations() {
                             <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/70 sm:gap-6 sm:text-sm">
                                 <div className="flex items-center gap-2">
                                     <div className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 shadow-md" />
-                                    <span className="font-medium">11 Premium Destinations</span>
+                                    <span className="font-medium">9 Premium Destinations</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="h-2 w-2 rounded-full bg-gradient-to-r from-orange-400 to-red-400 shadow-md" />
@@ -407,7 +293,6 @@ export default function Destinations() {
                                             decoding="async"
                                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                             onError={(e) => {
-                                                console.error('Image failed to load:', e.currentTarget.src);
                                                 e.currentTarget.style.display = 'none';
                                                 const next = e.currentTarget.nextElementSibling as HTMLElement;
                                                 if (next) next.style.display = 'block';
