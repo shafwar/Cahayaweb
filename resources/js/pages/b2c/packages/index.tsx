@@ -1,4 +1,4 @@
-import { EditableText } from '@/components/cms';
+import { EditableText, ImageCropModal } from '@/components/cms';
 import PlaceholderImage from '@/components/media/placeholder-image';
 import SeoHead from '@/components/SeoHead';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -43,6 +43,9 @@ export default function Packages() {
     }>(null);
     const [saving, setSaving] = useState(false);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [cropModalOpen, setCropModalOpen] = useState(false);
+    const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+    const [cropModalTarget, setCropModalTarget] = useState<'package' | 'gallery' | null>(null);
     const [galleryEditorOpen, setGalleryEditorOpen] = useState<null | {
         id: number;
         title: string;
@@ -1180,9 +1183,18 @@ export default function Packages() {
                                 <input
                                     type="file"
                                     accept="image/jpeg,image/png,image/webp"
-                                    onChange={(e) => setPendingFile(e.target.files?.[0] ?? null)}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setCropImageSrc(URL.createObjectURL(file));
+                                            setCropModalTarget('package');
+                                            setCropModalOpen(true);
+                                        }
+                                        e.target.value = '';
+                                    }}
                                     className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
                                 />
+                                {pendingFile && <p className="mt-2 text-xs text-emerald-400">✓ Gambar siap (sudah di-adjust)</p>}
                             </div>
                         </div>
                         <div className="mt-6 flex items-center justify-end gap-3">
@@ -1298,9 +1310,18 @@ export default function Packages() {
                                 <input
                                     type="file"
                                     accept="image/jpeg,image/png,image/webp"
-                                    onChange={(e) => setGalleryPendingFile(e.target.files?.[0] ?? null)}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setCropImageSrc(URL.createObjectURL(file));
+                                            setCropModalTarget('gallery');
+                                            setCropModalOpen(true);
+                                        }
+                                        e.target.value = '';
+                                    }}
                                     className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
                                 />
+                                {galleryPendingFile && <p className="mt-2 text-xs text-emerald-400">✓ Gambar siap (sudah di-adjust)</p>}
                             </div>
                         </div>
                         <div className="mt-6 flex items-center justify-end gap-3">
@@ -1370,6 +1391,28 @@ export default function Packages() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {cropImageSrc && (
+                <ImageCropModal
+                    open={cropModalOpen}
+                    onOpenChange={setCropModalOpen}
+                    imageSrc={cropImageSrc}
+                    aspect={16 / 9}
+                    onApply={async (blob) => {
+                        const file = new File([blob], 'image.jpg', { type: blob.type });
+                        if (cropModalTarget === 'package') setPendingFile(file);
+                        else if (cropModalTarget === 'gallery') setGalleryPendingFile(file);
+                        URL.revokeObjectURL(cropImageSrc);
+                        setCropImageSrc(null);
+                        setCropModalTarget(null);
+                    }}
+                    onCancel={() => {
+                        URL.revokeObjectURL(cropImageSrc);
+                        setCropImageSrc(null);
+                        setCropModalTarget(null);
+                    }}
+                />
+            )}
         </PublicLayout>
     );
 }

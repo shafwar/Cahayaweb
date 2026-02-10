@@ -1,9 +1,10 @@
+import { ImageCropModal } from '@/components/cms';
 import PlaceholderImage from '@/components/media/placeholder-image';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
-import { router, usePage } from '@inertiajs/react';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getImageUrl } from '@/utils/imageHelper';
+import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Check, Edit3, Star } from 'lucide-react';
@@ -11,122 +12,122 @@ import { useEffect, useState } from 'react';
 
 const IMAGE_GUIDE = '1920×1080px recommended · Max 5MB · Auto-compressed · JPEG, PNG, WebP';
 
-    const highlights = [
-        {
-            id: 1,
-            title: 'Spiritual Journey to the Holy Land',
-            subtitle: 'Umrah & Hajj Experiences',
-            description:
-                'Experience the profound spiritual journey to Makkah and Madinah. Our Umrah and Hajj packages provide complete guidance, luxury accommodations, and authentic spiritual experiences that connect you with the sacred traditions of Islam.',
-            image: '/umrah.jpeg',
-            category: 'Spiritual',
-            features: [
-                'Professional spiritual guidance',
-                '5-star hotel accommodations',
-                'Direct flights from Indonesia',
-                'VIP access to holy sites',
-                'Comprehensive travel insurance',
-                'Daily spiritual programs',
-            ],
-            stats: { travelers: '5000+', satisfaction: '98%', experience: '15+ years' },
-            badge: 'Featured',
-        },
-        {
-            id: 2,
-            title: 'Cultural Heritage of Turkey',
-            subtitle: 'Istanbul to Cappadocia Adventure',
-            description:
-                "Discover the perfect blend of East and West in Turkey. From the magnificent Hagia Sophia and Blue Mosque in Istanbul to the magical hot air balloon rides over Cappadocia's fairy chimneys.",
-            image: '/TURKEY.jpeg',
-            category: 'Cultural',
-            features: [
-                'Hot air balloon experience',
-                'Historical site guided tours',
-                'Traditional Turkish bath',
-                'Bosphorus cruise',
-                'Local cuisine tasting',
-                'Cultural workshops',
-            ],
-            stats: { travelers: '3200+', satisfaction: '96%', experience: '12+ years' },
-            badge: 'Popular',
-        },
-        {
-            id: 3,
-            title: 'Ancient Wonders of Egypt',
-            subtitle: 'Pyramids & Nile River Expedition',
-            description:
-                'Journey through the cradle of civilization and explore the magnificent wonders of ancient Egypt. From the Great Pyramids of Giza to the majestic Nile River cruises, experience the magic of pharaonic history.',
-            image: '/egypt.jpeg',
-            category: 'Historical',
-            features: [
-                'Nile River luxury cruise',
-                'Pyramids guided exploration',
-                'Valley of the Kings tour',
-                'Abu Simbel temple visit',
-                'Egyptian Museum tour',
-                'Traditional felucca sailing',
-            ],
-            stats: { travelers: '2800+', satisfaction: '95%', experience: '10+ years' },
-            badge: 'Heritage',
-        },
-        {
-            id: 4,
-            title: 'Luxury Dubai Experience',
-            subtitle: 'Modern Wonders & Desert Adventures',
-            description:
-                'Experience the epitome of luxury and innovation in Dubai. From the iconic Burj Khalifa to thrilling desert safaris, discover why Dubai is the ultimate destination for luxury travelers seeking modern Arabian hospitality.',
-            image: '/dubai1.jpeg',
-            category: 'Luxury',
-            features: [
-                'Burj Khalifa observation deck',
-                'Desert safari with dinner',
-                'Luxury shopping experience',
-                'Sheikh Zayed Mosque tour',
-                'Ferrari World theme park',
-                'Dhow cruise dinner',
-            ],
-            stats: { travelers: '4500+', satisfaction: '97%', experience: '14+ years' },
-            badge: 'Premium',
-        },
-        {
-            id: 5,
-            title: 'Oman Adventure Discovery',
-            subtitle: 'Hidden Gems of the Arabian Peninsula',
-            description:
-                'Explore the hidden gem of the Arabian Peninsula. From the stunning fjords of Musandam to the ancient forts of Nizwa, discover authentic Arabian experiences away from the crowds in this pristine destination.',
-            image: '/oman.jpg',
-            category: 'Adventure',
-            features: [
-                'Desert camping in Wahiba Sands',
-                'Ancient fort exploration',
-                'Wadi hiking adventures',
-                'Traditional souk visits',
-                'Dolphin watching cruise',
-                'Mountain village tours',
-            ],
-            stats: { travelers: '1800+', satisfaction: '99%', experience: '8+ years' },
-            badge: 'Explorer',
-        },
-        {
-            id: 6,
-            title: 'Qatar Luxury & Culture',
-            subtitle: 'Tradition Meets Modernity',
-            description:
-                'Experience the perfect blend of tradition and modernity in Qatar. From the stunning Museum of Islamic Art to luxury at The Pearl, discover why Qatar is becoming a premier travel destination in the Gulf region.',
-            image: '/qatar.jpg',
-            category: 'Luxury',
-            features: [
-                'Museum of Islamic Art tour',
-                'Souq Waqif cultural experience',
-                'Desert safari adventure',
-                'The Pearl luxury experience',
-                'Katara Cultural Village',
-                'Luxury resort accommodations',
-            ],
-            stats: { travelers: '2200+', satisfaction: '94%', experience: '9+ years' },
-            badge: 'Premium',
-        },
-    ];
+const highlights = [
+    {
+        id: 1,
+        title: 'Spiritual Journey to the Holy Land',
+        subtitle: 'Umrah & Hajj Experiences',
+        description:
+            'Experience the profound spiritual journey to Makkah and Madinah. Our Umrah and Hajj packages provide complete guidance, luxury accommodations, and authentic spiritual experiences that connect you with the sacred traditions of Islam.',
+        image: '/umrah.jpeg',
+        category: 'Spiritual',
+        features: [
+            'Professional spiritual guidance',
+            '5-star hotel accommodations',
+            'Direct flights from Indonesia',
+            'VIP access to holy sites',
+            'Comprehensive travel insurance',
+            'Daily spiritual programs',
+        ],
+        stats: { travelers: '5000+', satisfaction: '98%', experience: '15+ years' },
+        badge: 'Featured',
+    },
+    {
+        id: 2,
+        title: 'Cultural Heritage of Turkey',
+        subtitle: 'Istanbul to Cappadocia Adventure',
+        description:
+            "Discover the perfect blend of East and West in Turkey. From the magnificent Hagia Sophia and Blue Mosque in Istanbul to the magical hot air balloon rides over Cappadocia's fairy chimneys.",
+        image: '/TURKEY.jpeg',
+        category: 'Cultural',
+        features: [
+            'Hot air balloon experience',
+            'Historical site guided tours',
+            'Traditional Turkish bath',
+            'Bosphorus cruise',
+            'Local cuisine tasting',
+            'Cultural workshops',
+        ],
+        stats: { travelers: '3200+', satisfaction: '96%', experience: '12+ years' },
+        badge: 'Popular',
+    },
+    {
+        id: 3,
+        title: 'Ancient Wonders of Egypt',
+        subtitle: 'Pyramids & Nile River Expedition',
+        description:
+            'Journey through the cradle of civilization and explore the magnificent wonders of ancient Egypt. From the Great Pyramids of Giza to the majestic Nile River cruises, experience the magic of pharaonic history.',
+        image: '/egypt.jpeg',
+        category: 'Historical',
+        features: [
+            'Nile River luxury cruise',
+            'Pyramids guided exploration',
+            'Valley of the Kings tour',
+            'Abu Simbel temple visit',
+            'Egyptian Museum tour',
+            'Traditional felucca sailing',
+        ],
+        stats: { travelers: '2800+', satisfaction: '95%', experience: '10+ years' },
+        badge: 'Heritage',
+    },
+    {
+        id: 4,
+        title: 'Luxury Dubai Experience',
+        subtitle: 'Modern Wonders & Desert Adventures',
+        description:
+            'Experience the epitome of luxury and innovation in Dubai. From the iconic Burj Khalifa to thrilling desert safaris, discover why Dubai is the ultimate destination for luxury travelers seeking modern Arabian hospitality.',
+        image: '/dubai1.jpeg',
+        category: 'Luxury',
+        features: [
+            'Burj Khalifa observation deck',
+            'Desert safari with dinner',
+            'Luxury shopping experience',
+            'Sheikh Zayed Mosque tour',
+            'Ferrari World theme park',
+            'Dhow cruise dinner',
+        ],
+        stats: { travelers: '4500+', satisfaction: '97%', experience: '14+ years' },
+        badge: 'Premium',
+    },
+    {
+        id: 5,
+        title: 'Oman Adventure Discovery',
+        subtitle: 'Hidden Gems of the Arabian Peninsula',
+        description:
+            'Explore the hidden gem of the Arabian Peninsula. From the stunning fjords of Musandam to the ancient forts of Nizwa, discover authentic Arabian experiences away from the crowds in this pristine destination.',
+        image: '/oman.jpg',
+        category: 'Adventure',
+        features: [
+            'Desert camping in Wahiba Sands',
+            'Ancient fort exploration',
+            'Wadi hiking adventures',
+            'Traditional souk visits',
+            'Dolphin watching cruise',
+            'Mountain village tours',
+        ],
+        stats: { travelers: '1800+', satisfaction: '99%', experience: '8+ years' },
+        badge: 'Explorer',
+    },
+    {
+        id: 6,
+        title: 'Qatar Luxury & Culture',
+        subtitle: 'Tradition Meets Modernity',
+        description:
+            'Experience the perfect blend of tradition and modernity in Qatar. From the stunning Museum of Islamic Art to luxury at The Pearl, discover why Qatar is becoming a premier travel destination in the Gulf region.',
+        image: '/qatar.jpg',
+        category: 'Luxury',
+        features: [
+            'Museum of Islamic Art tour',
+            'Souq Waqif cultural experience',
+            'Desert safari adventure',
+            'The Pearl luxury experience',
+            'Katara Cultural Village',
+            'Luxury resort accommodations',
+        ],
+        stats: { travelers: '2200+', satisfaction: '94%', experience: '9+ years' },
+        badge: 'Premium',
+    },
+];
 
 type EditorData = {
     id: number;
@@ -140,12 +141,13 @@ type EditorData = {
 export default function Highlights() {
     const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
     const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
-    const getImageSrc = (sectionKey: string, fallbackPath: string) =>
-        getImageUrl(props.sections, sectionKey, fallbackPath);
+    const getImageSrc = (sectionKey: string, fallbackPath: string) => getImageUrl(props.sections, sectionKey, fallbackPath);
 
     const [editMode, setEditMode] = useState(false);
     const [editorOpen, setEditorOpen] = useState<EditorData | null>(null);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [cropModalOpen, setCropModalOpen] = useState(false);
+    const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -187,7 +189,10 @@ export default function Highlights() {
             router.reload({ only: ['sections'] });
         } catch (err: unknown) {
             console.error(err);
-            const ax = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
+            const ax =
+                err && typeof err === 'object' && 'response' in err
+                    ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
+                    : null;
             const data = ax?.response?.data;
             let msg = data?.message || (err instanceof Error ? err.message : 'Failed to save');
             if (data?.errors && typeof data.errors === 'object') {
@@ -263,7 +268,9 @@ export default function Highlights() {
                                             const target = e.currentTarget;
                                             if (target.src?.includes('assets.cahayaanbiya.com')) {
                                                 const u = target.src;
-                                                target.src = u.includes('/public/') ? u.replace('/public/', '/') : u.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
+                                                target.src = u.includes('/public/')
+                                                    ? u.replace('/public/', '/')
+                                                    : u.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
                                             } else {
                                                 target.style.display = 'none';
                                                 const next = target.nextElementSibling as HTMLElement;
@@ -280,7 +287,7 @@ export default function Highlights() {
                                     </div>
 
                                     {editMode && (
-                                        <div className="absolute bottom-3 right-3 z-10">
+                                        <div className="absolute right-3 bottom-3 z-10">
                                             <button
                                                 onClick={() => {
                                                     setEditorOpen({
@@ -399,11 +406,32 @@ export default function Highlights() {
                         </h3>
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
                             {[
-                                { name: 'Ahmad Rizki', location: 'Jakarta', testimonial: 'The Umrah experience with Cahaya Anbiya was truly spiritual and well-organized.', rating: 5, trip: 'Umrah Package' },
-                                { name: 'Sarah Putri', location: 'Bandung', testimonial: 'Our Turkey adventure was beyond expectations. The hot air balloon ride was magical!', rating: 5, trip: 'Turkey Heritage' },
-                                { name: 'Budi Santoso', location: 'Surabaya', testimonial: 'Dubai luxury experience was incredible. The desert safari was a highlight!', rating: 5, trip: 'Dubai Luxury' },
+                                {
+                                    name: 'Ahmad Rizki',
+                                    location: 'Jakarta',
+                                    testimonial: 'The Umrah experience with Cahaya Anbiya was truly spiritual and well-organized.',
+                                    rating: 5,
+                                    trip: 'Umrah Package',
+                                },
+                                {
+                                    name: 'Sarah Putri',
+                                    location: 'Bandung',
+                                    testimonial: 'Our Turkey adventure was beyond expectations. The hot air balloon ride was magical!',
+                                    rating: 5,
+                                    trip: 'Turkey Heritage',
+                                },
+                                {
+                                    name: 'Budi Santoso',
+                                    location: 'Surabaya',
+                                    testimonial: 'Dubai luxury experience was incredible. The desert safari was a highlight!',
+                                    rating: 5,
+                                    trip: 'Dubai Luxury',
+                                },
                             ].map((t, i) => (
-                                <div key={i} className="rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-xl sm:p-6">
+                                <div
+                                    key={i}
+                                    className="rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-xl sm:p-6"
+                                >
                                     <div className="mb-4 flex items-center gap-1">
                                         {[...Array(t.rating)].map((_, j) => (
                                             <Star key={j} className="h-4 w-4 fill-amber-400 text-amber-400 sm:h-5 sm:w-5" />
@@ -487,18 +515,26 @@ export default function Highlights() {
                                 <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
                                     {IMAGE_GUIDE}
                                 </p>
-            <input
-                type="file"
+                                <input
+                                    type="file"
                                     accept="image/jpeg,image/png,image/webp"
-                                    onChange={(e) => setPendingFile(e.target.files?.[0] ?? null)}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setCropImageSrc(URL.createObjectURL(file));
+                                            setCropModalOpen(true);
+                                        }
+                                        e.target.value = '';
+                                    }}
                                     className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
                                 />
+                                {pendingFile && <p className="mt-2 text-xs text-emerald-400">✓ Gambar siap (sudah di-adjust)</p>}
                             </div>
                         </div>
                         <div className="mt-6 flex items-center justify-end gap-3">
                             <button
                                 onClick={() => {
-                        setEditorOpen(null);
+                                    setEditorOpen(null);
                                     setPendingFile(null);
                                 }}
                                 className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 ring-1 ring-white/10 transition-all hover:bg-white/5"
@@ -516,6 +552,25 @@ export default function Highlights() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {cropImageSrc && (
+                <ImageCropModal
+                    open={cropModalOpen}
+                    onOpenChange={setCropModalOpen}
+                    imageSrc={cropImageSrc}
+                    aspect={16 / 9}
+                    onApply={async (blob) => {
+                        const file = new File([blob], 'image.jpg', { type: blob.type });
+                        setPendingFile(file);
+                        URL.revokeObjectURL(cropImageSrc);
+                        setCropImageSrc(null);
+                    }}
+                    onCancel={() => {
+                        URL.revokeObjectURL(cropImageSrc);
+                        setCropImageSrc(null);
+                    }}
+                />
+            )}
         </PublicLayout>
     );
 }

@@ -1,3 +1,4 @@
+import { ImageCropModal } from '@/components/cms';
 import PlaceholderImage from '@/components/media/placeholder-image';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
@@ -228,12 +229,13 @@ type EditorData = {
 export default function Destinations() {
     const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
     const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
-    const getImageSrc = (sectionKey: string, fallbackPath: string) =>
-        getImageUrl(props.sections, sectionKey, fallbackPath);
+    const getImageSrc = (sectionKey: string, fallbackPath: string) => getImageUrl(props.sections, sectionKey, fallbackPath);
 
     const [editMode, setEditMode] = useState(false);
     const [editorOpen, setEditorOpen] = useState<EditorData | null>(null);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [cropModalOpen, setCropModalOpen] = useState(false);
+    const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -279,7 +281,10 @@ export default function Destinations() {
             router.reload({ only: ['sections'] });
         } catch (err: unknown) {
             console.error(err);
-            const ax = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
+            const ax =
+                err && typeof err === 'object' && 'response' in err
+                    ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
+                    : null;
             const data = ax?.response?.data;
             let msg = data?.message || (err instanceof Error ? err.message : 'Failed to save');
             if (data?.errors && typeof data.errors === 'object') {
@@ -372,7 +377,7 @@ export default function Destinations() {
                                         </div>
 
                                         {editMode && (
-                                            <div className="absolute bottom-3 right-3 z-20">
+                                            <div className="absolute right-3 bottom-3 z-20">
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -465,11 +470,10 @@ export default function Destinations() {
                             <div className="mb-8 inline-flex items-center rounded-full border-2 border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-8 py-4 shadow-xl">
                                 <span className="text-base font-bold text-amber-200">✨ Custom Packages Available</span>
                             </div>
-                            <h3 className="mb-6 text-4xl font-bold text-white md:text-5xl">
-                                Can&apos;t Find the Perfect Destination?
-                            </h3>
+                            <h3 className="mb-6 text-4xl font-bold text-white md:text-5xl">Can&apos;t Find the Perfect Destination?</h3>
                             <p className="mx-auto mb-10 max-w-3xl text-xl text-white/80">
-                                Our travel experts are here to create the perfect custom itinerary just for you. Whether you&apos;re looking for a spiritual journey, cultural adventure, or luxury escape.
+                                Our travel experts are here to create the perfect custom itinerary just for you. Whether you&apos;re looking for a
+                                spiritual journey, cultural adventure, or luxury escape.
                             </p>
                             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
                                 <a
@@ -538,26 +542,28 @@ export default function Destinations() {
                             <span className="text-sm font-semibold text-white">Edit Destination #{editorOpen.id}</span>
                         </div>
                         <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2">
-                            {(['title', 'subtitle', 'location', 'duration', 'price', 'highlights', 'description', 'category', 'badge'] as const).map((field) => (
-                                <div key={field}>
-                                    <label className="mb-1 block text-xs font-medium text-gray-300 capitalize">{field}</label>
-                                    {field === 'highlights' || field === 'description' ? (
-                                        <textarea
-                                            value={editorOpen[field]}
-                                            onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
-                                            rows={field === 'description' ? 4 : 2}
-                                            className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
-                                        />
-                                    ) : (
-                                        <input
-                                            type="text"
-                                            value={editorOpen[field]}
-                                            onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
-                                            className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
-                                        />
-                                    )}
-                                </div>
-                            ))}
+                            {(['title', 'subtitle', 'location', 'duration', 'price', 'highlights', 'description', 'category', 'badge'] as const).map(
+                                (field) => (
+                                    <div key={field}>
+                                        <label className="mb-1 block text-xs font-medium text-gray-300 capitalize">{field}</label>
+                                        {field === 'highlights' || field === 'description' ? (
+                                            <textarea
+                                                value={editorOpen[field]}
+                                                onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
+                                                rows={field === 'description' ? 4 : 2}
+                                                className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                            />
+                                        ) : (
+                                            <input
+                                                type="text"
+                                                value={editorOpen[field]}
+                                                onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
+                                                className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                            />
+                                        )}
+                                    </div>
+                                ),
+                            )}
                             <div>
                                 <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
                                 <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
@@ -566,9 +572,17 @@ export default function Destinations() {
                                 <input
                                     type="file"
                                     accept="image/jpeg,image/png,image/webp"
-                                    onChange={(e) => setPendingFile(e.target.files?.[0] ?? null)}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setCropImageSrc(URL.createObjectURL(file));
+                                            setCropModalOpen(true);
+                                        }
+                                        e.target.value = '';
+                                    }}
                                     className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
                                 />
+                                {pendingFile && <p className="mt-2 text-xs text-emerald-400">✓ Gambar siap (sudah di-adjust)</p>}
                             </div>
                         </div>
                         <div className="mt-6 flex items-center justify-end gap-3">
@@ -592,6 +606,25 @@ export default function Destinations() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {cropImageSrc && (
+                <ImageCropModal
+                    open={cropModalOpen}
+                    onOpenChange={setCropModalOpen}
+                    imageSrc={cropImageSrc}
+                    aspect={16 / 9}
+                    onApply={async (blob) => {
+                        const file = new File([blob], 'image.jpg', { type: blob.type });
+                        setPendingFile(file);
+                        URL.revokeObjectURL(cropImageSrc);
+                        setCropImageSrc(null);
+                    }}
+                    onCancel={() => {
+                        URL.revokeObjectURL(cropImageSrc);
+                        setCropImageSrc(null);
+                    }}
+                />
+            )}
         </PublicLayout>
     );
 }

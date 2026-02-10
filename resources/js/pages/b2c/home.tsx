@@ -1,4 +1,4 @@
-import { EditableText, EditableVideo, triggerVideoUpload, useEditMode } from '@/components/cms';
+import { EditableText, EditableVideo, ImageCropModal, triggerVideoUpload, useEditMode } from '@/components/cms';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
@@ -377,6 +377,8 @@ export default function Home() {
 
     const [editorOpen, setEditorOpen] = useState<null | { section: 'bestsellers' | 'new' | 'hl'; id: number; title: string; subtitle: string }>(null);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [cropModalOpen, setCropModalOpen] = useState(false);
+    const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
     const [imageTargetKey, setImageTargetKey] = useState<string | null>(null);
     const hiddenImageInputId = 'home-image-replacer';
     const [saving, setSaving] = useState(false);
@@ -522,7 +524,11 @@ export default function Home() {
                                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                             >
                                 <h1 className="text-4xl leading-tight font-light text-white drop-shadow-2xl md:text-6xl lg:text-7xl">
-                                    <EditableText sectionKey="home.hero.tagline" value="Where ancient wonders meet extraordinary journeys" tag="span" />
+                                    <EditableText
+                                        sectionKey="home.hero.tagline"
+                                        value="Where ancient wonders meet extraordinary journeys"
+                                        tag="span"
+                                    />
                                 </h1>
                                 <HeroVideoUploadTrigger />
                             </motion.div>
@@ -788,8 +794,14 @@ export default function Home() {
                                                             setEditorOpen({
                                                                 section: 'new',
                                                                 id: newDestinations[0].id,
-                                                                title: getContent(`home.new.${newDestinations[0].id}.title`, newDestinations[0].title),
-                                                                subtitle: getContent(`home.new.${newDestinations[0].id}.subtitle`, newDestinations[0].subtitle),
+                                                                title: getContent(
+                                                                    `home.new.${newDestinations[0].id}.title`,
+                                                                    newDestinations[0].title,
+                                                                ),
+                                                                subtitle: getContent(
+                                                                    `home.new.${newDestinations[0].id}.subtitle`,
+                                                                    newDestinations[0].subtitle,
+                                                                ),
                                                             });
                                                         }}
                                                         className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-2xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
@@ -859,8 +871,14 @@ export default function Home() {
                                                             setEditorOpen({
                                                                 section: 'new',
                                                                 id: newDestinations[1].id,
-                                                                title: getContent(`home.new.${newDestinations[1].id}.title`, newDestinations[1].title),
-                                                                subtitle: getContent(`home.new.${newDestinations[1].id}.subtitle`, newDestinations[1].subtitle),
+                                                                title: getContent(
+                                                                    `home.new.${newDestinations[1].id}.title`,
+                                                                    newDestinations[1].title,
+                                                                ),
+                                                                subtitle: getContent(
+                                                                    `home.new.${newDestinations[1].id}.subtitle`,
+                                                                    newDestinations[1].subtitle,
+                                                                ),
                                                             });
                                                         }}
                                                         className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
@@ -930,8 +948,14 @@ export default function Home() {
                                                             setEditorOpen({
                                                                 section: 'new',
                                                                 id: newDestinations[2].id,
-                                                                title: getContent(`home.new.${newDestinations[2].id}.title`, newDestinations[2].title),
-                                                                subtitle: getContent(`home.new.${newDestinations[2].id}.subtitle`, newDestinations[2].subtitle),
+                                                                title: getContent(
+                                                                    `home.new.${newDestinations[2].id}.title`,
+                                                                    newDestinations[2].title,
+                                                                ),
+                                                                subtitle: getContent(
+                                                                    `home.new.${newDestinations[2].id}.subtitle`,
+                                                                    newDestinations[2].subtitle,
+                                                                ),
                                                             });
                                                         }}
                                                         className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
@@ -1001,8 +1025,14 @@ export default function Home() {
                                                             setEditorOpen({
                                                                 section: 'new',
                                                                 id: newDestinations[3].id,
-                                                                title: getContent(`home.new.${newDestinations[3].id}.title`, newDestinations[3].title),
-                                                                subtitle: getContent(`home.new.${newDestinations[3].id}.subtitle`, newDestinations[3].subtitle),
+                                                                title: getContent(
+                                                                    `home.new.${newDestinations[3].id}.title`,
+                                                                    newDestinations[3].title,
+                                                                ),
+                                                                subtitle: getContent(
+                                                                    `home.new.${newDestinations[3].id}.subtitle`,
+                                                                    newDestinations[3].subtitle,
+                                                                ),
                                                             });
                                                         }}
                                                         className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
@@ -1206,9 +1236,17 @@ export default function Home() {
                                     <input
                                         type="file"
                                         accept="image/jpeg,image/png,image/webp"
-                                        onChange={(e) => setPendingFile(e.target.files?.[0] ?? null)}
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setCropImageSrc(URL.createObjectURL(file));
+                                                setCropModalOpen(true);
+                                            }
+                                            e.target.value = '';
+                                        }}
                                         className="w-full text-sm text-gray-300 transition-all file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
                                     />
+                                    {pendingFile && <p className="mt-2 text-xs text-emerald-400">✓ Gambar siap (sudah di-adjust)</p>}
                                 </div>
                             </div>
                             <div className="mt-6 flex items-center justify-end gap-3">
@@ -1271,7 +1309,13 @@ export default function Home() {
                                                 },
                                             });
                                         } catch (err: unknown) {
-                                            const ax = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string }) : null;
+                                            const ax =
+                                                err && typeof err === 'object' && 'response' in err
+                                                    ? (err as {
+                                                          response?: { data?: { message?: string; errors?: Record<string, string[]> } };
+                                                          message?: string;
+                                                      })
+                                                    : null;
                                             const data = ax?.response?.data;
                                             let msg = data?.message || ax?.message || (err instanceof Error ? err.message : 'Gagal menyimpan');
                                             if (data?.errors && typeof data.errors === 'object') {
@@ -1290,6 +1334,25 @@ export default function Home() {
                                 </button>
                             </div>
                         </motion.div>
+                    )}
+
+                    {cropImageSrc && (
+                        <ImageCropModal
+                            open={cropModalOpen}
+                            onOpenChange={setCropModalOpen}
+                            imageSrc={cropImageSrc}
+                            aspect={16 / 9}
+                            onApply={async (blob) => {
+                                const file = new File([blob], 'image.jpg', { type: blob.type });
+                                setPendingFile(file);
+                                URL.revokeObjectURL(cropImageSrc);
+                                setCropImageSrc(null);
+                            }}
+                            onCancel={() => {
+                                URL.revokeObjectURL(cropImageSrc);
+                                setCropImageSrc(null);
+                            }}
+                        />
                     )}
 
                     {/* Hidden Image Input */}
