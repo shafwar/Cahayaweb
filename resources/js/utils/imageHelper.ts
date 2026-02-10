@@ -80,10 +80,22 @@ export function getR2Url(path: string): string {
             return `${r2BaseUrl}/public/videos/${cleanPath}`;
         }
         
-        // 3. Image file - use public path (packages/ for package images, else images/)
-        if (cleanPath.startsWith('packages/')) {
-            return `${r2BaseUrl}/public/${cleanPath}`;
+        // 3. Image file - check if it's a known image filename from public root
+        // These files are stored in R2 at public/images/filename
+        const knownPublicImages = [
+            'arabsaudi.jpg', 'TURKEY.jpeg', 'egypt.jpeg', 'jordan.jpeg', 'umrah.jpeg',
+            'dubai1.jpeg', 'b2b.jpeg', 'bali.jpeg', 'bahrain.jpg', 'kuwait.jpg',
+            'oman.jpg', 'qatar.jpg', 'turkey2.jpg', 'cahayanbiyalogo.png',
+            'apple-touch-icon.png', 'packages1.png', 'packages2.png',
+            'packages2(1).png', 'packages2(2).png', 'packages2(3).png', 'packages3.png'
+        ];
+        
+        if (knownPublicImages.includes(cleanPath)) {
+            // Known public root image - stored in R2 at public/images/filename
+            return `${r2BaseUrl}/public/images/${cleanPath}`;
         }
+        
+        // 4. Default: assume it's an image in images/ folder
         return `${r2BaseUrl}/public/images/${cleanPath}`;
     } catch (error) {
         console.error('Error in getR2Url:', error);

@@ -273,7 +273,11 @@ type EditorData = {
 export default function Destinations() {
     const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
     const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
-    const getImageSrc = (sectionKey: string, fallbackPath: string) => getImageUrl(props.sections, sectionKey, fallbackPath);
+    const getImageSrc = (sectionKey: string, fallbackPath: string) => {
+        // Always ensure fallback path uses R2 URL
+        const r2Fallback = fallbackPath.startsWith('http') ? fallbackPath : getR2Url(fallbackPath);
+        return getImageUrl(props.sections, sectionKey, r2Fallback);
+    };
 
     const [editMode, setEditMode] = useState(false);
     const [editorOpen, setEditorOpen] = useState<EditorData | null>(null);
@@ -396,13 +400,14 @@ export default function Destinations() {
                                 >
                                     <div className="relative aspect-video overflow-hidden">
                                         <img
-                                            src={getImageSrc(`destinations.${d.id}.image`, getR2Url(d.image))}
+                                            src={getImageSrc(`destinations.${d.id}.image`, d.image)}
                                             alt={getContent(`destinations.${d.id}.title`, d.title)}
                                             data-destination-id={d.id}
                                             loading="lazy"
                                             decoding="async"
                                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                             onError={(e) => {
+                                                console.error('Image failed to load:', e.currentTarget.src);
                                                 e.currentTarget.style.display = 'none';
                                                 const next = e.currentTarget.nextElementSibling as HTMLElement;
                                                 if (next) next.style.display = 'block';
