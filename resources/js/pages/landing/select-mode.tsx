@@ -7,8 +7,20 @@ import React, { useEffect, useState } from 'react';
 
 export default function SelectMode() {
     const [showSplash, setShowSplash] = useState(true);
+    const [nextPath, setNextPath] = useState<string | null>(null);
 
     useEffect(() => {
+        // Support redirect back after forced splash (e.g. user clicked /home from Google).
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const next = params.get('next');
+            if (next && next.startsWith('/') && !next.startsWith('//')) {
+                setNextPath(next);
+            }
+        } catch {
+            // ignore
+        }
+
         const visited = localStorage.getItem('cahaya-anbiya-visited');
         const sessionVisited = sessionStorage.getItem('cahaya-anbiya-session');
 
@@ -489,7 +501,18 @@ export default function SelectMode() {
                             </p>
 
                             <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-                                <Link href="/home" className="flex-1">
+                                <Link 
+                                    href={nextPath || '/home'} 
+                                    className="flex-1"
+                                    onClick={() => {
+                                        // Set sessionStorage immediately when clicking B2C to prevent redirect loop
+                                        try {
+                                            sessionStorage.setItem('cahaya-anbiya-session', 'true');
+                                        } catch {
+                                            // ignore if storage not available
+                                        }
+                                    }}
+                                >
                                     <RippleButton className="w-full bg-gradient-to-r from-orange-600 to-orange-500 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/40 sm:px-6 sm:py-3.5 sm:text-base sm:font-medium">
                                         Explore Destinations
                                     </RippleButton>
