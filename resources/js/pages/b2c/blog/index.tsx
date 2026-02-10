@@ -162,7 +162,7 @@ export default function BlogIndex() {
         <PublicLayout>
             <SeoHead
                 title="Blog - Cahaya Anbiya Travel"
-                description="Artikel dan informasi seputar umrah, wisata halal, dan perjalanan premium dari Cahaya Anbiya Travel."
+                description="Articles and information about Umrah, halal travel, and premium journeys from Cahaya Anbiya Travel."
             />
 
             <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 md:px-10 md:py-16">

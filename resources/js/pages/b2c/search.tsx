@@ -140,33 +140,33 @@ const packages = [
         image: '/images/packages/packages1.png',
         highlights: ['Petra', 'Museum Mummy', 'Camel', 'Nile Cruise', 'Pyramid & Sphinx', 'Masjid Al Aqsa'],
         description:
-            'Tempat mana yang paling bikin hati bergetar? Disinilah tempatnya yaitu napak tilas tiga negara sekaligus. Di Mesir, Di Aqsa, Di Jordan. Perjalanan ini bukan sekadar wisata, kita napak tilas belajar sejarah kisah nabi sebelumnya hingga merasakan khidmat dalam perjalanan ini agar kita terus bersyukur dan mengambil Pelajaran dari setiap kisah dan perjalanan ini.',
+            'Where does the heart stir most? Trace three countries in one journey—Egypt, Aqsa, and Jordan. Follow the paths of the prophets and find meaning in every step.',
     },
     {
         id: 2,
-        title: '3 Negara dalam 1 Perjalanan',
-        location: 'Jordan, Palestina & Mesir',
+        title: '3 Countries in 1 Journey',
+        location: 'Jordan, Palestine & Egypt',
         duration: '10D9N',
         price: '$2,300',
-        pax: 'Kuota Terbatas',
+        pax: 'Limited Seats',
         type: 'Religious',
         image: '/images/packages/packages2.png',
-        highlights: ['Napak tilas Para Nabi', 'Wisata sejarah', 'Healing untuk hati', 'Momen tenang'],
+        highlights: ['Footsteps of the Prophets', 'Historical travel', 'Spiritual renewal', 'Peaceful moments'],
         description:
-            '⚠️ Breaking News! 🌏 Sekali Jalan Langsung 3 Negara Sekaligus! Yes! Kamu nggak salah baca. Jordan, Palestina, dan Mesir bisa kamu jelajahi hanya dalam 1 trip selama 10 hari!! Include menapak jejak Para Nabi, wisata sejarah, dan healing untuk hati yang rindu momen tenang ⭐️',
+            'Three countries in one trip: Jordan, Palestine, and Egypt in 10 days. Follow the footsteps of the Prophets, explore history, and find peace.',
     },
     {
         id: 3,
-        title: '10 Hari Jordan Aqsa Mesir',
-        location: 'Jordan, Aqsa & Mesir',
+        title: '10 Days Jordan Aqsa Egypt',
+        location: 'Jordan, Aqsa & Egypt',
         duration: '10D9N',
         price: '$2,300',
         pax: 'Max 30 pax',
         type: 'Religious',
         image: '/images/packages/packages3.png',
-        highlights: ['Museum Mummy Firaun', 'Petra', 'Nile Cruise', 'Camel Ride', 'FREE WiFi', 'Waktu Shalat Terjaga'],
+        highlights: ['Pharaoh Mummy Museum', 'Petra', 'Nile Cruise', 'Camel Ride', 'FREE WiFi', 'Prayer times observed'],
         description:
-            'Bayangkan jika… Kamu sedang berdiri di depan Al-Aqsa, merasakan damainya doa di tempat suci. Langkahmu menyusuri Petra yang megah, berlayar di Sungai Nil, dan menyaksikan matahari tenggelam di balik Piramida. Ini bukan sekadar wisata, tapi perjalanan spiritual, sejarah, dan makna semua dalam satu pengalaman selama 10 hari ke Jordan, Aqsa & Mesir.',
+            'Imagine standing before Al-Aqsa, feeling the peace of prayer. Walk through Petra, sail the Nile, watch the sun set behind the Pyramids. A 10-day spiritual journey to Jordan, Aqsa & Egypt.',
     },
 ];
 
@@ -175,58 +175,58 @@ const pages = [
     {
         id: 'home',
         title: 'Home',
-        subtitle: 'Halaman Utama',
-        description: 'Beranda Cahaya Anbiya Travel - Temukan paket wisata terbaik untuk perjalanan spiritual dan budaya Anda',
+        subtitle: 'Main Page',
+        description: 'Cahaya Anbiya Travel homepage - Find the best travel packages for your spiritual and cultural journey',
         href: '/home',
-        keywords: ['beranda', 'halaman utama', 'utama', 'homepage', 'home'],
+        keywords: ['homepage', 'main', 'home'],
     },
     {
         id: 'about',
         title: 'About Us',
-        subtitle: 'Tentang Kami',
-        description: 'Pelajari lebih lanjut tentang Cahaya Anbiya Travel, agen perjalanan terpercaya untuk wisata spiritual dan budaya',
+        subtitle: 'About Us',
+        description: 'Learn more about Cahaya Anbiya Travel, trusted agency for spiritual and cultural travel',
         href: '/about',
-        keywords: ['tentang', 'tentang kami', 'about us', 'profil', 'sejarah', 'about'],
+        keywords: ['about', 'about us', 'profile', 'history'],
     },
     {
         id: 'destinations',
         title: 'Destinations',
-        subtitle: 'Destinasi Wisata',
-        description: 'Jelajahi berbagai destinasi wisata menarik di seluruh dunia dengan Cahaya Anbiya Travel',
+        subtitle: 'Travel Destinations',
+        description: 'Explore travel destinations worldwide with Cahaya Anbiya Travel',
         href: '/destinations',
-        keywords: ['destinasi', 'tempat wisata', 'lokasi', 'wisata', 'travel', 'destinations'],
+        keywords: ['destinations', 'places', 'locations', 'travel'],
     },
     {
         id: 'packages',
         title: 'Packages',
-        subtitle: 'Paket Wisata',
-        description: 'Pilih paket wisata terbaik yang sesuai dengan kebutuhan dan budget Anda',
+        subtitle: 'Travel Packages',
+        description: 'Choose the best travel packages to suit your needs and budget',
         href: '/packages',
-        keywords: ['paket', 'paket wisata', 'tour', 'perjalanan', 'trip', 'packages'],
+        keywords: ['packages', 'tours', 'trips', 'packages'],
     },
     {
         id: 'highlights',
         title: 'Highlights',
-        subtitle: 'Unggulan',
-        description: 'Lihat highlight dan paket wisata unggulan dari Cahaya Anbiya Travel',
+        subtitle: 'Highlights',
+        description: 'View highlights and featured travel packages from Cahaya Anbiya Travel',
         href: '/highlights',
-        keywords: ['highlight', 'unggulan', 'favorit', 'populer', 'terbaik', 'highlights'],
+        keywords: ['highlights', 'featured', 'popular', 'best'],
     },
     {
         id: 'contact',
         title: 'Contact',
-        subtitle: 'Kontak Kami',
-        description: 'Hubungi kami untuk informasi lebih lanjut tentang paket wisata dan layanan kami',
+        subtitle: 'Contact Us',
+        description: 'Contact us for more information about our travel packages and services',
         href: '/contact',
-        keywords: ['kontak', 'hubungi', 'customer service', 'cs', 'bantuan', 'contact'],
+        keywords: ['contact', 'customer service', 'support'],
     },
     {
         id: 'blog',
         title: 'Blog',
-        subtitle: 'Artikel & Berita',
-        description: 'Baca artikel dan berita terbaru tentang wisata, tips perjalanan, dan informasi destinasi',
+        subtitle: 'Articles & News',
+        description: 'Read the latest articles and news about travel, tips, and destination information',
         href: '/blog',
-        keywords: ['artikel', 'berita', 'news', 'informasi', 'blog'],
+        keywords: ['articles', 'news', 'information', 'blog'],
     },
 ];
 
@@ -265,7 +265,7 @@ export default function SearchPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
-            <SeoHead title="Search - Cahaya Anbiya Travel" description="Cari paket perjalanan dan destinasi terbaik dari Cahaya Anbiya Travel." />
+            <SeoHead title="Search - Cahaya Anbiya Travel" description="Search for the best travel packages and destinations from Cahaya Anbiya Travel." />
             <GlobalHeader variant="b2c" />
 
             <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6 lg:py-12">
@@ -283,7 +283,7 @@ export default function SearchPage() {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Cari destinasi, paket, atau lokasi..."
+                                placeholder="Search destinations, packages, or locations..."
                                 className="flex-1 border-none bg-transparent py-5 text-base font-medium text-white placeholder:text-white/40 focus:outline-none focus:placeholder:text-white/30 lg:text-lg"
                                 autoFocus
                             />
@@ -317,14 +317,14 @@ export default function SearchPage() {
                         {results.length === 0 ? (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center">
                                 <SearchIcon className="mx-auto mb-4 h-16 w-16 text-white/20" />
-                                <h3 className="mb-2 text-xl font-semibold text-white/70">Tidak ada hasil ditemukan</h3>
-                                <p className="text-white/50">Coba gunakan kata kunci lain atau periksa ejaan Anda</p>
+                                <h3 className="mb-2 text-xl font-semibold text-white/70">No results found</h3>
+                                <p className="text-white/50">Try different keywords or check your spelling</p>
                             </motion.div>
                         ) : (
                             <>
                                 {/* Summary */}
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-white/60">
-                                    Ditemukan <span className="font-semibold text-amber-400">{results.length}</span> hasil untuk &quot;
+                                    Found <span className="font-semibold text-amber-400">{results.length}</span> results for &quot;
                                     <span className="font-semibold text-white">{searchQuery}</span>&quot;
                                 </motion.div>
 
@@ -333,7 +333,7 @@ export default function SearchPage() {
                                     <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
                                         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
                                             <FileText className="h-5 w-5 text-amber-500" />
-                                            Halaman ({groupedResults.pages.length})
+                                            Pages ({groupedResults.pages.length})
                                         </h2>
                                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                             {groupedResults.pages.map((result, index) => (

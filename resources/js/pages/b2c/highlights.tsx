@@ -76,7 +76,7 @@ const highlights = [
         title: 'Jordan Discovery',
         subtitle: 'Petra, Wadi Rum & Ashabul Kahfi',
         description:
-            'Peserta melihat 7 keajaban dunia di petra, menikmati jeep tour di Lembah Wadirum, dan berada di goa ashabul kahfi. Journey through the ancient wonders of Jordan with Petra (one of the 7 wonders of the world), Wadi Rum desert jeep tours, and the historical Ashabul Kahfi cave.',
+            'Journey through the ancient wonders of Jordan. See one of the 7 wonders of the world at Petra, enjoy a jeep tour in Wadi Rum Valley, and visit the Cave of the Seven Sleepers (Ashabul Kahfi).',
         image: 'Destination Cahaya 1.jpeg', // Petra - 7 keajaban dunia
         category: 'Historical',
         features: [
@@ -95,7 +95,7 @@ const highlights = [
         title: 'Palestine & Aqsa Spiritual Journey',
         subtitle: 'Jerusalem, Jericho & Mount of Olives',
         description:
-            'Peserta menikmati bukit zaitun, berada di jericho, dan di kawasan komplek aqsa. Experience the sacred sites of Palestine and Jerusalem. Visit the Dome of the Rock in the Aqsa complex, enjoy the Mount of Olives, and explore ancient Jericho.',
+            'Experience the sacred sites of Palestine and Jerusalem. Enjoy the Mount of Olives, explore ancient Jericho, and visit the Aqsa complex. See the Dome of the Rock and immerse yourself in this holy land.',
         image: 'Destination Cahaya 4.jpeg', // Palestine - Bukit Zaitun
         category: 'Spiritual',
         features: [
@@ -114,7 +114,7 @@ const highlights = [
         title: 'Sinai Heritage',
         subtitle: 'Mount Sinai & Patung Samiri',
         description:
-            'Peserta melihat kisah patung samiri yang ada di sinai. Experience a profound spiritual journey to Mount Sinai, where history and faith converge in this sacred desert landscape.',
+            'Experience a profound spiritual journey to Mount Sinai. Discover the story of the Samiri statue in Sinai, where history and faith converge in this sacred desert landscape.',
         image: 'Destination Cahaya 3.jpeg', // Sinai - Patung Samiri
         category: 'Historical',
         features: [
@@ -267,7 +267,7 @@ export default function Highlights() {
         <PublicLayout>
             <SeoHead
                 title="Highlights - Cahaya Anbiya Travel"
-                description="Rangkuman pengalaman terbaik dan highlight perjalanan Cahaya Anbiya Travel untuk umrah dan wisata premium."
+                description="Best travel experiences and highlights from Cahaya Anbiya Travel for Umrah and premium travel."
             />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">

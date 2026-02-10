@@ -84,16 +84,16 @@ const destinations = [
         id: 10,
         title: 'Sinai Heritage',
         subtitle: 'Spiritual Journey to Mount Sinai',
-        image: 'Destination Cahaya 3.jpeg', // Updated: Sinai - Peserta melihat kisah patung samiri yang ada di sinai
+        image: 'Destination Cahaya 3.jpeg',
         duration: '6D5N',
         price: 'Rp 15.8M',
         location: 'Sinai, Mount Sinai',
-        highlights: 'Mount Sinai, Patung Samiri, biblical sites, spiritual journey, historical exploration',
+        highlights: 'Mount Sinai, Samiri statue site, biblical sites, spiritual journey, historical exploration',
         description:
-            'Peserta melihat kisah patung samiri yang ada di sinai. Experience a profound spiritual journey to Mount Sinai, where history and faith converge in this sacred desert landscape. Explore the historical significance of Patung Samiri and connect with biblical heritage.',
+            'Experience a profound spiritual journey to Mount Sinai. Participants discover the story of the Samiri statue in Sinai, where history and faith converge in this sacred desert landscape. Explore biblical heritage and connect with this historic site.',
         features: [
             'Mount Sinai sunrise trek',
-            'Patung Samiri historical site visit',
+            'Samiri statue historical site visit',
             'Biblical site exploration',
             'Desert camping experience',
             'Spiritual guidance',
@@ -216,18 +216,18 @@ const destinations = [
         id: 9,
         title: 'Jordan Discovery',
         subtitle: 'Amman, Petra, Wadi Rum & Ashabul Kahfi',
-        image: 'Destination Cahaya 1.jpeg', // Updated: Amman - Petra - peserta melihat 7 keajaban dunia di petra
+        image: 'Destination Cahaya 1.jpeg',
         duration: '7D6N',
         price: 'Rp 17.2M',
-        location: 'Amman, Petra, Wadi Rum, Lembah Wadirum, Goa Ashabul Kahfi',
-        highlights: 'Petra (7 keajaban dunia), Wadi Rum jeep tour, Lembah Wadirum, Ashabul Kahfi cave, desert camping, Dead Sea',
+        location: 'Amman, Petra, Wadi Rum, Wadi Rum Valley, Cave of the Seven Sleepers',
+        highlights: 'Petra (7 wonders of the world), Wadi Rum jeep tour, Cave of the Seven Sleepers, desert camping, Dead Sea',
         description:
-            'Journey through the ancient wonders of Jordan. Peserta melihat 7 keajaban dunia di petra, menikmati jeep tour di Lembah Wadirum, dan berada di goa ashabul kahfi. Explore the magnificent rock-cut city of Petra (one of the 7 wonders of the world), enjoy jeep tour in Wadi Rum Valley, visit the historical Ashabul Kahfi cave, and camp under the stars in the desert.',
+            'Journey through the ancient wonders of Jordan. See one of the 7 wonders of the world at Petra, enjoy a jeep tour in Wadi Rum Valley, and visit the Cave of the Seven Sleepers (Ashabul Kahfi). Explore the rock-cut city of Petra, camp under the stars in the desert, and experience biblical heritage.',
         features: [
             'Petra ancient city exploration (7 wonders of the world)',
             'Wadi Rum jeep tour experience',
-            'Lembah Wadirum desert adventure',
-            'Ashabul Kahfi cave visit',
+            'Wadi Rum Valley desert adventure',
+            'Cave of the Seven Sleepers (Ashabul Kahfi) visit',
             'Dead Sea floating experience',
             'Biblical site visits',
             'Traditional Bedouin experience',
@@ -240,18 +240,18 @@ const destinations = [
         id: 11,
         title: 'Palestine & Aqsa',
         subtitle: 'Jerusalem, Jericho & Mount of Olives',
-        image: 'Destination Cahaya 4.jpeg', // Updated: Palestine - Peserta menikmati bukit zaitun
+        image: 'Destination Cahaya 4.jpeg',
         duration: '8D7N',
         price: 'Rp 19.5M',
-        location: 'Palestine, Aqsa, Jericho, Bukit Zaitun, Komplek Aqsa',
-        highlights: 'Komplek Aqsa, Dome of the Rock, Bukit Zaitun, Jericho, Mount of Temptation, Peserta di kawasan komplek aqsa',
+        location: 'Palestine, Aqsa, Jericho, Mount of Olives, Aqsa Complex',
+        highlights: 'Aqsa Complex, Dome of the Rock, Mount of Olives, Jericho, Mount of Temptation',
         description:
-            'Peserta menikmati bukit zaitun, berada di jericho, dan di kawasan komplek aqsa. Experience the sacred sites of Palestine and Jerusalem. Visit the Dome of the Rock in the Aqsa complex, enjoy the Mount of Olives (Bukit Zaitun), explore ancient Jericho, and immerse yourself in the spiritual atmosphere of this holy land.',
+            'Experience the sacred sites of Palestine and Jerusalem. Enjoy the Mount of Olives, explore ancient Jericho, and visit the Aqsa complex. See the Dome of the Rock, walk the Old City, and immerse yourself in the spiritual atmosphere of this holy land.',
         features: [
-            'Komplek Aqsa exploration',
+            'Aqsa Complex exploration',
             'Dome of the Rock visit',
-            'Bukit Zaitun (Mount of Olives) experience',
-            'Jericho ancient city tour (Peserta sedang berada di jericho)',
+            'Mount of Olives experience',
+            'Jericho ancient city tour',
             'Mount of Temptation visit',
             'Old City of Jerusalem walking tour',
             'Spiritual guidance',
@@ -350,8 +350,8 @@ export default function Destinations() {
         <PublicLayout>
             <SeoHead
                 title="Destinations - Cahaya Anbiya Travel"
-                description="Jelajahi destinasi wisata halal terbaik dari Cahaya Anbiya Travel. Paket perjalanan ke berbagai destinasi menarik dengan layanan premium dan terpercaya."
-                keywords="destinasi wisata halal, paket wisata, destinasi umrah, destinasi haji, paket perjalanan"
+                description="Explore the best halal travel destinations from Cahaya Anbiya Travel. Premium travel packages to inspiring destinations with trusted, premium service."
+                keywords="halal travel destinations, travel packages, Umrah destinations, Hajj destinations, premium travel"
             />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">

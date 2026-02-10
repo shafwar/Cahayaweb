@@ -65,7 +65,7 @@ export default function Contact() {
         <PublicLayout>
             <SeoHead
                 title="Contact Us - Cahaya Anbiya Travel"
-                description="Hubungi PT. Cahaya Anbiya Wisata Indonesia - Telepon: 0812-1237-9190. Lokasi: Jakarta Selatan. Jam operasional: Senin-Sabtu 08:00-17:00 WIB. Konsultasi paket Umrah, Haji, dan wisata halal."
+                description="Contact PT. Cahaya Anbiya Wisata Indonesia - Phone: 0812-1237-9190. Location: South Jakarta. Hours: Mon-Sat 08:00-17:00 WIB. Consult on Umrah, Hajj, and halal travel packages."
                 keywords="kontak cahaya anbiya, alamat cahaya anbiya, telepon cahaya anbiya, customer service cahaya anbiya, jakarta selatan"
             />
 

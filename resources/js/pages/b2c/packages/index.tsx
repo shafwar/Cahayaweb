@@ -82,8 +82,8 @@ export default function Packages() {
             image: '/images/packages/packages1.png',
             highlights: ['Petra', 'Museum Mummy', 'Camel', 'Nile Cruise', 'Pyramid & Sphinx', 'Masjid Al Aqsa'],
             description:
-                'Tempat mana yang paling bikin hati bergetar? Disinilah tempatnya yaitu napak tilas tiga negara sekaligus. Di Mesir, Di Aqsa, Di Jordan. Perjalanan ini bukan sekadar wisata, kita napak tilas belajar sejarah kisah nabi sebelumnya hingga merasakan khidmat dalam perjalanan ini agar kita terus bersyukur dan mengambil Pelajaran dari setiap kisah dan perjalanan ini.',
-            features: ['Dinner Nile Cruise', 'Camel di Mesir', 'Petra', 'Museum Mummy', 'Tips Guide $80 (tidak termasuk)'],
+                'Where does the heart stir most? Here: trace the footsteps of three countries in one journey—Egypt, Aqsa, and Jordan. This is not just tourism; we follow the paths of the prophets, learn their stories, and find meaning in every step.',
+            features: ['Dinner Nile Cruise', 'Camel ride in Egypt', 'Petra', 'Mummy Museum', 'Guide tips $80 (excluded)'],
             dates: [{ date: 'Oktober 2025', status: 'Available' }],
             hotels: [
                 { name: 'Golden Tulip', location: 'Amman', stars: 4 },
@@ -94,17 +94,17 @@ export default function Packages() {
         },
         {
             id: 2,
-            title: '3 Negara dalam 1 Perjalanan',
-            location: 'Jordan, Palestina & Mesir',
+            title: '3 Countries in 1 Journey',
+            location: 'Jordan, Palestine & Egypt',
             duration: '10D9N',
             price: '$2,300',
-            pax: 'Kuota Terbatas',
+            pax: 'Limited Seats',
             type: 'Religious',
             image: '/images/packages/packages2.png',
-            highlights: ['Napak tilas Para Nabi', 'Wisata sejarah', 'Healing untuk hati', 'Momen tenang'],
+            highlights: ['Footsteps of the Prophets', 'Historical travel', 'Spiritual renewal', 'Peaceful moments'],
             description:
-                '⚠️ Breaking News! 🌏 Sekali Jalan Langsung 3 Negara Sekaligus! Yes! Kamu nggak salah baca. Jordan, Palestina, dan Mesir bisa kamu jelajahi hanya dalam 1 trip selama 10 hari!! Include menapak jejak Para Nabi, wisata sejarah, dan healing untuk hati yang rindu momen tenang ⭐️',
-            features: ['Menapak jejak Para Nabi', 'Wisata sejarah', 'Healing untuk hati', 'Momen tenang', 'Kuota terbatas'],
+                'Three countries in one trip: Jordan, Palestine, and Egypt in 10 days. Follow the footsteps of the Prophets, explore history, and find peace. All in one unforgettable journey.',
+            features: ['Footsteps of the Prophets', 'Historical tours', 'Spiritual renewal', 'Peaceful moments', 'Limited seats'],
             dates: [{ date: 'Oktober 2025', status: 'Limited' }],
         },
         {
@@ -116,15 +116,15 @@ export default function Packages() {
             pax: 'Max 30 pax',
             type: 'Religious',
             image: '/images/packages/packages3.png',
-            highlights: ['Museum Mummy Firaun', 'Petra', 'Nile Cruise', 'Camel Ride', 'FREE WiFi', 'Waktu Shalat Terjaga'],
+            highlights: ['Pharaoh Mummy Museum', 'Petra', 'Nile Cruise', 'Camel Ride', 'FREE WiFi', 'Prayer times observed'],
             description:
-                'Bayangkan jika… Kamu sedang berdiri di depan Al-Aqsa, merasakan damainya doa di tempat suci. Langkahmu menyusuri Petra yang megah, berlayar di Sungai Nil, dan menyaksikan matahari tenggelam di balik Piramida. Ini bukan sekadar wisata, tapi perjalanan spiritual, sejarah, dan makna semua dalam satu pengalaman selama 10 hari ke Jordan, Aqsa & Mesir.',
+                'Imagine standing before Al-Aqsa, feeling the peace of prayer. Walk through majestic Petra, sail the Nile, and watch the sun set behind the Pyramids. A 10-day spiritual, historical journey to Jordan, Aqsa & Egypt—more than a tour, an experience of meaning.',
             features: [
-                'Makanan halal',
-                'Waktu salat terjaga',
-                'Hotel bintang 4/setara',
-                'Wi-Fi gratis',
-                'Dipandu dengan nyaman dan aman',
+                'Halal meals',
+                'Prayer times observed',
+                '4-star or equivalent hotels',
+                'Free Wi-Fi',
+                'Comfortable and safe guided tour',
                 'Free snack on the bus',
             ],
             dates: [
@@ -145,25 +145,25 @@ export default function Packages() {
             id: 4,
             title: 'PROGRAM 3TAN 2026',
             location: 'Uzbekistan | Kyrgyzstan | Kazakhstan',
-            duration: '8 Hari',
+            duration: '8 Days',
             price: 'Rp 26,9 JT',
-            priceNote: 'Exc. Asuransi & Tipping',
-            pax: 'Seat Terbatas',
+            priceNote: 'Excl. Insurance & Tipping',
+            pax: 'Limited Seats',
             type: 'Cultural',
             image: '/images/packages/packages-cahaya-4.jpeg',
             imageCaption:
-                'Paket 3TAN 2026 - Arsitektur Islam Asia Tengah dengan kubah biru, Masjid Samarkand, dan pemandangan budaya Uzbekistan, Kyrgyzstan, Kazakhstan.',
-            highlights: ['Cable car Shymbulak', 'Train high-speed', 'Arsitektur Islam Asia Tengah', 'Samarkand & Bukhara'],
+                '3TAN 2026 Package - Central Asian Islamic architecture, blue domes, Samarkand Mosque, and cultural landscapes of Uzbekistan, Kyrgyzstan, Kazakhstan.',
+            highlights: ['Shymbulak cable car', 'High-speed train', 'Central Asian Islamic architecture', 'Samarkand & Bukhara'],
             description:
-                'Moment Lebaran di 3TAN 2026! Jelajahi Uzbekistan, Kyrgyzstan, dan Kazakhstan dalam 8 hari. Include tiket pesawat PP, hotel bintang 3, transportasi, sarapan, tourleader & guide lokal. FREE Cable car di Shymbulak & train high-speed ticket.',
+                'Eid moment at 3TAN 2026! Explore Uzbekistan, Kyrgyzstan, and Kazakhstan in 8 days. Includes round-trip flights, 3-star hotels, transport, breakfast, tour leader & local guide. FREE Shymbulak cable car & high-speed train ticket.',
             features: [
-                'Tiket Pesawat PP',
-                'Hotel ★★★',
-                'Transportasi',
-                'Sarapan',
-                'Tourleader & Guide Lokal',
-                'FREE Cable car Shymbulak',
-                'FREE Train high-speed ticket',
+                'Round-trip flights',
+                '3-star hotels',
+                'Transport',
+                'Breakfast',
+                'Tour leader & local guide',
+                'FREE Shymbulak cable car',
+                'FREE high-speed train ticket',
             ],
             freeBadge: 'FREE Cable car & Train',
             dates: [
@@ -176,16 +176,16 @@ export default function Packages() {
         },
         {
             id: 5,
-            title: 'MESIR AQSA JORDAN',
-            location: 'Jordan • Aqsa • Mesir',
-            duration: '10 Hari',
+            title: 'EGYPT AQSA JORDAN',
+            location: 'Jordan • Aqsa • Egypt',
+            duration: '10 Days',
             price: '$2,350',
             priceOriginal: '$2,500',
             priceNote: 'Exc. Tips Guide $80 & Asuransi $25',
-            pax: 'Seat Terbatas',
+            pax: 'Limited Seats',
             type: 'Religious',
             image: '/images/packages/packages-cahaya-5.jpeg',
-            imageCaption: 'Konsorsium Paket 10 Hari - Dome of the Rock (Al-Aqsa Jerusalem), Piramida Giza Mesir, dan landscape Wadi Rum Jordan.',
+            imageCaption: '10-Day Consortium Package - Dome of the Rock (Al-Aqsa Jerusalem), Giza Pyramids Egypt, and Wadi Rum Jordan landscape.',
             highlights: [
                 'Pyramid & Sphinx',
                 'Sinai',
@@ -199,8 +199,8 @@ export default function Packages() {
                 'Gua Ashhabul Kahfi',
             ],
             description:
-                'Konsorsium Paket 10 Hari (JORDAN-AQSA-MESIR). BONUS: Free Nile cruise, Free Tiket Museum Mummy, Free Jeep Tour Wadirum, Free Tiket Petra. Total ALL IN: $2,455.',
-            features: ['Free Nile Cruise', 'Free Tiket Museum Mummy', 'Free Jeep Tour Wadirum', 'Free Tiket Petra'],
+                '10-Day Consortium Package (JORDAN-AQSA-EGYPT). BONUS: Free Nile cruise, Free Mummy Museum ticket, Free Wadi Rum jeep tour, Free Petra ticket. Total ALL IN: $2,455.',
+            features: ['Free Nile Cruise', 'Free Mummy Museum ticket', 'Free Wadi Rum jeep tour', 'Free Petra ticket'],
             freeBadge: 'FREE Nile, Mummy, Petra, Wadirum',
             dates: [{ date: '14 April 2026', status: 'Available' }],
             hotels: [
@@ -212,20 +212,20 @@ export default function Packages() {
         },
         {
             id: 6,
-            title: 'MESIR AQSA JORDAN Idul Adha',
-            location: 'Jordan • Aqsa • Mesir',
-            duration: '9 Hari',
+            title: 'EGYPT AQSA JORDAN Eid al-Adha',
+            location: 'Jordan • Aqsa • Egypt',
+            duration: '9 Days',
             price: '$2,450',
             priceOriginal: '$2,700',
             priceNote: 'Exc. Asuransi $25 & Tipping $80',
-            pax: 'Seat Terbatas',
+            pax: 'Limited Seats',
             type: 'Religious',
             image: '/images/packages/packages-cahaya-6.jpeg',
-            imageCaption: 'Spesial Moment Idul Adha di Aqsa - Dome of the Rock Jerusalem, Piramida Giza, dan simbol Idul Adha.',
-            highlights: ['Moment Idul Adha di Aqsa', 'Nile Cruise', 'Tiket Mummy', 'Petra', 'Wadirum'],
+            imageCaption: 'Special Eid al-Adha moment at Aqsa - Dome of the Rock Jerusalem, Giza Pyramids, and Eid symbolism.',
+            highlights: ['Eid al-Adha at Aqsa', 'Nile Cruise', 'Mummy Museum ticket', 'Petra', 'Wadi Rum'],
             description:
-                'Spesial Moment Idul Adha di Aqsa! Perjalanan 9 hari ke Jordan, Aqsa, dan Mesir. FREE Nile Cruise, Tiket Mummy, Tiket Petra, Wadirum.',
-            features: ['Nile Cruise', 'Tiket Mummy', 'Tiket Petra', 'Wadirum'],
+                'Special Eid al-Adha at Aqsa! 9-day journey to Jordan, Aqsa, and Egypt. FREE Nile Cruise, Mummy Museum ticket, Petra ticket, Wadi Rum.',
+            features: ['Nile Cruise', 'Mummy Museum ticket', 'Petra ticket', 'Wadi Rum'],
             freeBadge: 'FREE',
             dates: [{ date: '22 Mei 2026', status: 'Available' }],
             hotels: [
@@ -238,18 +238,18 @@ export default function Packages() {
         {
             id: 7,
             title: 'JORDAN AQSA',
-            location: 'Jordan & Palestina',
-            duration: '8 Hari',
+            location: 'Jordan & Palestine',
+            duration: '8 Days',
             price: '$2,150',
             priceOriginal: '$2,190',
-            pax: 'Seat Terbatas',
+            pax: 'Limited Seats',
             type: 'Religious',
             image: '/images/packages/packages-cahaya-7.jpeg',
-            imageCaption: 'Paket Jordan Aqsa 2026 - Panorama Petra, Dome of the Rock Jerusalem, dan landscape Wadi Rum.',
-            highlights: ['100% FREE Tiket Petra Wadirum', 'Dome of the Rock', 'Petra', 'Wadi Rum'],
+            imageCaption: 'Jordan Aqsa 2026 Package - Petra panorama, Dome of the Rock Jerusalem, and Wadi Rum landscape.',
+            highlights: ['100% FREE Petra Wadi Rum ticket', 'Dome of the Rock', 'Petra', 'Wadi Rum'],
             description:
-                'PAKET 2026 PERJALANAN - 8 Hari Jordan Aqsa. 100% FREE Tiket Petra Wadirum! Hotel Jordan & Aqsa bintang 4. Daftar sekarang, seat terbatas!',
-            features: ['100% FREE Tiket Petra Wadirum', 'Hotel Jordan Armada/Sulaf ★★★★', 'Hotel Aqsa National ★★★★'],
+                '2026 TRAVEL PACKAGE - 8 Days Jordan Aqsa. 100% FREE Petra Wadi Rum ticket! 4-star hotels in Jordan & Aqsa. Register now, limited seats!',
+            features: ['100% FREE Petra Wadi Rum ticket', 'Hotel Jordan Armada/Sulaf ★★★★', 'Hotel Aqsa National ★★★★'],
             freeBadge: '100% FREE Petra Wadirum',
             dates: [
                 { date: '9 Februari 2026', status: 'Available' },
@@ -269,19 +269,19 @@ export default function Packages() {
         },
         {
             id: 8,
-            title: 'JORDAN MESIR AQSA',
-            location: 'Jordan • Mesir • Aqsa',
-            duration: '9 Hari',
+            title: 'JORDAN EGYPT AQSA',
+            location: 'Jordan • Egypt • Aqsa',
+            duration: '9 Days',
             price: '$2,350',
             priceOriginal: '$2,550',
-            pax: 'Seat Terbatas',
+            pax: 'Limited Seats',
             type: 'Religious',
             image: '/images/packages/packages-cahaya-8.jpeg',
-            imageCaption: 'Paket Jordan Mesir Aqsa 2026 - Al-Aqsa Mosque complex, Piramida Giza, dan pemandangan tiga negara.',
-            highlights: ['Tiket Museum Mummy', 'Nile Cruise', 'Tiket Petra', 'Pyramid & Sphinx', 'Al-Aqsa'],
+            imageCaption: 'Jordan Egypt Aqsa 2026 Package - Al-Aqsa Mosque complex, Giza Pyramids, and three-country landscape.',
+            highlights: ['Mummy Museum ticket', 'Nile Cruise', 'Petra ticket', 'Pyramid & Sphinx', 'Al-Aqsa'],
             description:
-                'PAKET 2026 PERJALANAN - 9 Hari Jordan Mesir Aqsa. FREE Tiket Museum Mummy, Nile Cruise, Tiket Petra. Hotel bintang 4 di semua destinasi.',
-            features: ['Tiket Museum Mummy', 'Nile Cruise', 'Tiket Petra'],
+                '2026 TRAVEL PACKAGE - 9 Days Jordan Egypt Aqsa. FREE Mummy Museum ticket, Nile Cruise, Petra ticket. 4-star hotels at all destinations.',
+            features: ['Mummy Museum ticket', 'Nile Cruise', 'Petra ticket'],
             freeBadge: 'FREE',
             dates: [
                 { date: '13 April 2026', status: 'Available' },
@@ -295,52 +295,52 @@ export default function Packages() {
             hotels: [
                 { name: 'Armada/Sulaf', location: 'Jordan', stars: 4 },
                 { name: 'National', location: 'Aqsa', stars: 4 },
-                { name: 'Azal Pyramid/Pyramid Front', location: 'Mesir', stars: 4 },
+                { name: 'Azal Pyramid/Pyramid Front', location: 'Egypt', stars: 4 },
             ],
         },
         {
             id: 9,
-            title: 'PERLENGKAPAN UMROH',
-            location: 'Dari Cahaya Anbiya',
-            duration: 'Bonus Paket',
-            price: 'Include',
-            pax: '6 Item',
+            title: 'UMRAH KIT',
+            location: 'From Cahaya Anbiya',
+            duration: 'Bonus Package',
+            price: 'Included',
+            pax: '6 Items',
             type: 'Religious',
             image: '/images/packages/packages-cahaya-9.jpeg',
             imageCaption:
-                'Perlengkapan Umroh dari Cahaya Anbiya - Koper 26", Seragam, Mukena, Kain Ihram, Tas Selempang, Ikat Pinggang. Latar Kaaba & Abraj Al-Bait.',
-            highlights: ['Koper 26"', 'Seragam', 'Mukena', 'Kain Ihram', 'Tas Selempang', 'Ikat Pinggang'],
+                'Umrah kit from Cahaya Anbiya - 26" suitcase, uniform, prayer dress, ihram cloth, shoulder bag, belt. Kaaba & Abraj Al-Bait backdrop.',
+            highlights: ['26" suitcase', 'Uniform', 'Prayer dress', 'Ihram cloth', 'Shoulder bag', 'Belt'],
             description:
-                'Perlengkapan lengkap untuk ibadah Umroh: Koper 26", Seragam, Mukena, Kain Ihram, Tas Selempang, Ikat Pinggang. Dari Cahaya Anbiya dengan kualitas terjamin.',
-            features: ['Koper 26"', 'Seragam', 'Mukena', 'Kain Ihram', 'Tas Selempang', 'Ikat Pinggang'],
+                'Complete Umrah kit: 26" suitcase, uniform, prayer dress, ihram cloth, shoulder bag, belt. From Cahaya Anbiya with guaranteed quality.',
+            features: ['26" suitcase', 'Uniform', 'Prayer dress', 'Ihram cloth', 'Shoulder bag', 'Belt'],
             freeBadge: '6 Item',
         },
         {
             id: 10,
-            title: 'Paket Wisata Premium',
+            title: 'Premium Travel Package',
             location: 'Various Destinations',
             duration: 'Flexible',
             price: 'Contact Us',
             pax: 'Custom',
             type: 'Cultural',
             image: '/images/packages/packages-cahaya-10.jpeg',
-            imageCaption: 'Paket wisata premium Cahaya Anbiya - destinasi pilihan dengan fasilitas lengkap dan layanan prima.',
-            highlights: ['Destinasi pilihan', 'Fasilitas lengkap', 'Layanan prima'],
-            description: 'Temukan paket wisata premium sesuai kebutuhan Anda. Hubungi kami untuk informasi lengkap dan penawaran spesial.',
+            imageCaption: 'Cahaya Anbiya premium travel package - handpicked destinations with full facilities and premium service.',
+            highlights: ['Handpicked destinations', 'Full facilities', 'Premium service'],
+            description: 'Find the premium travel package that fits your needs. Contact us for full details and special offers.',
             features: ['Custom itinerary', 'Expert guide', 'Premium accommodation'],
         },
         {
             id: 11,
-            title: 'Paket Spiritual & Budaya',
-            location: 'Destinasi Religius',
+            title: 'Spiritual & Cultural Package',
+            location: 'Religious Destinations',
             duration: 'Various',
             price: 'Contact Us',
             pax: 'Custom',
             type: 'Religious',
             image: '/images/packages/packages-cahaya-11.jpeg',
-            imageCaption: 'Paket perjalanan spiritual dan budaya - napak tilas para nabi, wisata sejarah, dan pengalaman bermakna.',
-            highlights: ['Napak tilas', 'Wisata sejarah', 'Pengalaman spiritual'],
-            description: 'Perjalanan spiritual dan budaya yang bermakna. Jelajahi destinasi suci dan warisan sejarah dengan pemandu ahli.',
+            imageCaption: 'Spiritual and cultural journey - footsteps of the prophets, historical travel, and meaningful experiences.',
+            highlights: ['Footsteps of the prophets', 'Historical travel', 'Spiritual experience'],
+            description: 'Meaningful spiritual and cultural journeys. Explore sacred sites and heritage with expert guides.',
             features: ['Halal certified', 'Cultural immersion', 'Spiritual guide'],
         },
     ];
@@ -411,8 +411,8 @@ export default function Packages() {
         <PublicLayout>
             <SeoHead
                 title="Travel Packages - Cahaya Anbiya Travel"
-                description="Pilih paket perjalanan terbaik dari Cahaya Anbiya Travel. Paket Umrah, Haji, dan wisata halal dengan harga kompetitif dan layanan premium."
-                keywords="paket umrah, paket haji, paket wisata halal, paket perjalanan, harga paket umrah, harga paket haji"
+                description="Choose the best travel packages from Cahaya Anbiya Travel. Umrah, Hajj, and halal travel packages with competitive prices and premium service."
+                keywords="Umrah packages, Hajj packages, halal travel packages, travel packages, Umrah prices, Hajj prices"
             />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
@@ -577,12 +577,12 @@ export default function Packages() {
                                             });
                                         }
                                     }}
-                                    aria-label="Klik untuk lihat gambar full size"
+                                    aria-label="Click to view full size image"
                                 >
                                     <img
                                         src={getImageSrc(`packages.${pkg.id}.image`, pkg.image)}
                                         alt={getContent(`packages.${pkg.id}.title`, pkg.title)}
-                                        title="Klik untuk lihat full size"
+                                        title="Click to view full size"
                                         data-package-id={pkg.id}
                                         loading="lazy"
                                         decoding="async"
@@ -849,7 +849,7 @@ export default function Packages() {
                                                 rel="noreferrer"
                                                 className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
                                             >
-                                                Daftar Sekarang
+                                                Register Now
                                             </a>
                                             <a
                                                 href="https://wa.me/6285285522121"
@@ -857,7 +857,7 @@ export default function Packages() {
                                                 rel="noreferrer"
                                                 className="rounded-xl border border-amber-500 px-4 py-2 text-center text-xs font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
                                             >
-                                                Tanya
+                                                Ask
                                             </a>
                                         </div>
                                     </div>
@@ -1138,7 +1138,7 @@ export default function Packages() {
                             {imageLightbox.caption && (
                                 <p className="mt-2 max-w-2xl px-4 text-center text-sm text-white/80">{imageLightbox.caption}</p>
                             )}
-                            <p className="mt-2 text-center text-xs text-white/50">Klik di luar atau tekan ESC untuk menutup</p>
+                            <p className="mt-2 text-center text-xs text-white/50">Click outside or press ESC to close</p>
                         </motion.div>
                     </motion.div>
                 )}

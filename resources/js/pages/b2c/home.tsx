@@ -488,7 +488,7 @@ export default function Home() {
                 <SeoHead
                     title="Home - Cahaya Anbiya Travel"
                     description="Cahaya Anbiya - B2B & B2C premium Hajj, Umrah, and travel services with trusted guidance. Explore our destinations, packages, and travel highlights. Travel Halal Spesialis Aqsa & 3TAN."
-                    keywords="cahaya anbiya, umrah, haji, travel halal, aqsa, 3tan, biro wisata jakarta, travel agency jakarta, umrah jakarta, haji jakarta, paket umrah, paket haji"
+                    keywords="cahaya anbiya, umrah, haji, halal travel, aqsa, 3tan, jakarta travel agency, umrah jakarta, haji jakarta, umrah packages, hajj packages"
                 />
 
                 <div ref={containerRef}>
