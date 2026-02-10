@@ -93,60 +93,79 @@ Route::get('/health', function () {
     ]);
 });
 
-// Robots.txt for SEO crawlers
+// Robots.txt for SEO crawlers - Enhanced
 Route::get('/robots.txt', function () {
     $baseUrl = config('app.url') ?: request()->getSchemeAndHttpHost();
     $baseUrl = preg_replace('#^http://#', 'https://', $baseUrl);
+    $baseUrl = rtrim($baseUrl, '/');
 
     $content = implode("\n", [
         'User-agent: *',
         'Allow: /',
-        'Sitemap: ' . rtrim($baseUrl, '/') . '/sitemap.xml',
+        'Disallow: /admin',
+        'Disallow: /b2b/register',
+        'Disallow: /b2b/pending',
+        'Disallow: /api',
+        'Disallow: /debug',
+        '',
+        '# Sitemap',
+        'Sitemap: ' . $baseUrl . '/sitemap.xml',
+        '',
+        '# Crawl-delay',
+        'Crawl-delay: 1',
     ]);
 
-    return response($content, 200)->header('Content-Type', 'text/plain');
+    return response($content, 200)
+        ->header('Content-Type', 'text/plain; charset=utf-8')
+        ->header('Cache-Control', 'public, max-age=86400');
 });
 
-// Sitemap.xml for SEO indexing
+// Sitemap.xml for SEO indexing - Enhanced with priorities and proper lastmod
 Route::get('/sitemap.xml', function () {
     $baseUrl = config('app.url') ?: request()->getSchemeAndHttpHost();
     $baseUrl = preg_replace('#^http://#', 'https://', $baseUrl);
     $baseUrl = rtrim($baseUrl, '/');
 
+    // Define URLs with priorities and change frequencies
     $urls = [
-        '/',
-        '/home',
-        '/about',
-        '/destinations',
-        '/packages',
-        '/highlights',
-        '/blog',
-        '/contact',
-        '/search',
+        ['path' => '/', 'priority' => '1.0', 'changefreq' => 'daily', 'lastmod' => now()->toAtomString()],
+        ['path' => '/home', 'priority' => '0.9', 'changefreq' => 'daily', 'lastmod' => now()->toAtomString()],
+        ['path' => '/about', 'priority' => '0.8', 'changefreq' => 'monthly', 'lastmod' => now()->subDays(7)->toAtomString()],
+        ['path' => '/destinations', 'priority' => '0.9', 'changefreq' => 'weekly', 'lastmod' => now()->toAtomString()],
+        ['path' => '/packages', 'priority' => '0.9', 'changefreq' => 'weekly', 'lastmod' => now()->toAtomString()],
+        ['path' => '/highlights', 'priority' => '0.8', 'changefreq' => 'weekly', 'lastmod' => now()->toAtomString()],
+        ['path' => '/blog', 'priority' => '0.8', 'changefreq' => 'weekly', 'lastmod' => now()->toAtomString()],
+        ['path' => '/contact', 'priority' => '0.7', 'changefreq' => 'monthly', 'lastmod' => now()->subDays(30)->toAtomString()],
     ];
 
-    $lastmod = now()->toAtomString();
     $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-    $xml .= "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
-    foreach ($urls as $path) {
+    $xml .= "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\n";
+    $xml .= "        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n";
+    $xml .= "        xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9\n";
+    $xml .= "        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\">\n";
+    
+    foreach ($urls as $url) {
         $xml .= "  <url>\n";
-        $xml .= "    <loc>{$baseUrl}{$path}</loc>\n";
-        $xml .= "    <lastmod>{$lastmod}</lastmod>\n";
-        $xml .= "    <changefreq>weekly</changefreq>\n";
-        $xml .= "    <priority>0.8</priority>\n";
+        $xml .= "    <loc>" . htmlspecialchars($baseUrl . $url['path'], ENT_XML1, 'UTF-8') . "</loc>\n";
+        $xml .= "    <lastmod>" . $url['lastmod'] . "</lastmod>\n";
+        $xml .= "    <changefreq>" . $url['changefreq'] . "</changefreq>\n";
+        $xml .= "    <priority>" . $url['priority'] . "</priority>\n";
         $xml .= "  </url>\n";
     }
+    
     $xml .= "</urlset>\n";
 
-    return response($xml, 200)->header('Content-Type', 'application/xml');
+    return response($xml, 200)
+        ->header('Content-Type', 'application/xml; charset=utf-8')
+        ->header('Cache-Control', 'public, max-age=3600');
 });
 
 Route::get('/', function () {
     return Inertia::render('landing/select-mode');
 })->name('home');
 
-
 // Public B2C pages (Term 1 UI only)
+// Note: PublicLayout will enforce splash screen redirect for direct access
 Route::get('/home', function () {
     return Inertia::render('b2c/home');
 })->name('b2c.home');

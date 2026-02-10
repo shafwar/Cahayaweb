@@ -48,7 +48,8 @@ export default function About() {
         <PublicLayout>
             <SeoHead
                 title="About Us - Cahaya Anbiya Travel"
-                description="Cahaya Anbiya Travel menghadirkan perjalanan halal yang aman, nyaman, dan berkesan dengan pelayanan profesional dan pengalaman spiritual terbaik."
+                description="Tentang PT. Cahaya Anbiya Wisata Indonesia - Biro Wisata profesional yang melayani paket Umrah, Haji, dan wisata halal dengan layanan premium dan terpercaya. Travel Halal Spesialis Aqsa & 3TAN."
+                keywords="tentang cahaya anbiya, profil perusahaan, biro wisata jakarta, travel agency profesional, umrah terpercaya, haji terpercaya"
             />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">

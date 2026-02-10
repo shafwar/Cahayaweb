@@ -411,7 +411,8 @@ export default function Packages() {
         <PublicLayout>
             <SeoHead
                 title="Travel Packages - Cahaya Anbiya Travel"
-                description="Temukan paket perjalanan terbaik dari Cahaya Anbiya Travel: umrah, wisata budaya, dan perjalanan premium dengan fasilitas lengkap."
+                description="Pilih paket perjalanan terbaik dari Cahaya Anbiya Travel. Paket Umrah, Haji, dan wisata halal dengan harga kompetitif dan layanan premium."
+                keywords="paket umrah, paket haji, paket wisata halal, paket perjalanan, harga paket umrah, harga paket haji"
             />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">

@@ -188,8 +188,9 @@ export default function SelectMode() {
     return (
         <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-gradient-to-br from-black via-slate-950 to-black p-4 text-foreground sm:p-6">
             <SeoHead
-                title="Cahaya Anbiya Travel"
-                description="Pilih mode layanan B2C atau B2B di Cahaya Anbiya Travel untuk perjalanan umrah dan wisata halal terbaik."
+                title="Cahaya Anbiya Travel - Premium Hajj, Umrah & Travel Services"
+                description="PT. Cahaya Anbiya Wisata Indonesia - B2B & B2C premium Hajj, Umrah, and travel services with trusted guidance. Travel Halal Spesialis Aqsa & 3TAN. Melayani Konsorsium Aqsa/B2B Umrah, Ticket, Visa, 3TAN & Aqsa HALAL TRAVEL."
+                keywords="cahaya anbiya, umrah, haji, travel halal, aqsa, 3tan, biro wisata jakarta, travel agency jakarta, umrah jakarta, haji jakarta"
             />
 
             {/* Cinematic Splash Screen with Enhanced Animations - ENLARGED MOBILE */}

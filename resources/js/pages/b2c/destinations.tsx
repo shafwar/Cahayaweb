@@ -301,7 +301,8 @@ export default function Destinations() {
         <PublicLayout>
             <SeoHead
                 title="Destinations - Cahaya Anbiya Travel"
-                description="Jelajahi destinasi pilihan Cahaya Anbiya Travel: umrah, wisata budaya, dan perjalanan premium dengan layanan profesional."
+                description="Jelajahi destinasi wisata halal terbaik dari Cahaya Anbiya Travel. Paket perjalanan ke berbagai destinasi menarik dengan layanan premium dan terpercaya."
+                keywords="destinasi wisata halal, paket wisata, destinasi umrah, destinasi haji, paket perjalanan"
             />
 
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
