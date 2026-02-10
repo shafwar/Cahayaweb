@@ -5,8 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import PublicLayout from '@/layouts/public-layout';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getImageUrl } from '@/utils/imageHelper';
-import axios from 'axios';
 import { router, usePage } from '@inertiajs/react';
+import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, ChevronDown, ChevronUp, Edit3, ImageIcon, Sparkles, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -16,8 +16,7 @@ const IMAGE_GUIDE = '1920×1080px recommended · Max 5MB · Auto-compressed · J
 export default function Packages() {
     const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
     const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
-    const getImageSrc = (sectionKey: string, fallbackPath: string) =>
-        getImageUrl(props.sections, sectionKey, fallbackPath);
+    const getImageSrc = (sectionKey: string, fallbackPath: string) => getImageUrl(props.sections, sectionKey, fallbackPath);
 
     const [editMode, setEditModeUI] = useState<boolean>(false);
     useEffect(() => {
@@ -149,10 +148,20 @@ export default function Packages() {
             pax: 'Seat Terbatas',
             type: 'Cultural',
             image: '/images/packages/packages-cahaya-4.jpeg',
-            imageCaption: 'Paket 3TAN 2026 - Arsitektur Islam Asia Tengah dengan kubah biru, Masjid Samarkand, dan pemandangan budaya Uzbekistan, Kyrgyzstan, Kazakhstan.',
+            imageCaption:
+                'Paket 3TAN 2026 - Arsitektur Islam Asia Tengah dengan kubah biru, Masjid Samarkand, dan pemandangan budaya Uzbekistan, Kyrgyzstan, Kazakhstan.',
             highlights: ['Cable car Shymbulak', 'Train high-speed', 'Arsitektur Islam Asia Tengah', 'Samarkand & Bukhara'],
-            description: 'Moment Lebaran di 3TAN 2026! Jelajahi Uzbekistan, Kyrgyzstan, dan Kazakhstan dalam 8 hari. Include tiket pesawat PP, hotel bintang 3, transportasi, sarapan, tourleader & guide lokal. FREE Cable car di Shymbulak & train high-speed ticket.',
-            features: ['Tiket Pesawat PP', 'Hotel ★★★', 'Transportasi', 'Sarapan', 'Tourleader & Guide Lokal', 'FREE Cable car Shymbulak', 'FREE Train high-speed ticket'],
+            description:
+                'Moment Lebaran di 3TAN 2026! Jelajahi Uzbekistan, Kyrgyzstan, dan Kazakhstan dalam 8 hari. Include tiket pesawat PP, hotel bintang 3, transportasi, sarapan, tourleader & guide lokal. FREE Cable car di Shymbulak & train high-speed ticket.',
+            features: [
+                'Tiket Pesawat PP',
+                'Hotel ★★★',
+                'Transportasi',
+                'Sarapan',
+                'Tourleader & Guide Lokal',
+                'FREE Cable car Shymbulak',
+                'FREE Train high-speed ticket',
+            ],
             freeBadge: 'FREE Cable car & Train',
             dates: [
                 { date: '4 Februari 2026 (Winter)', status: 'Available' },
@@ -174,8 +183,20 @@ export default function Packages() {
             type: 'Religious',
             image: '/images/packages/packages-cahaya-5.jpeg',
             imageCaption: 'Konsorsium Paket 10 Hari - Dome of the Rock (Al-Aqsa Jerusalem), Piramida Giza Mesir, dan landscape Wadi Rum Jordan.',
-            highlights: ['Pyramid & Sphinx', 'Sinai', 'Komplek Al-Aqsa', 'Jericho', 'Maqam Nabi Musa', 'Hebron', 'Bethlehem', 'Petra', 'Wadirum', 'Gua Ashhabul Kahfi'],
-            description: 'Konsorsium Paket 10 Hari (JORDAN-AQSA-MESIR). BONUS: Free Nile cruise, Free Tiket Museum Mummy, Free Jeep Tour Wadirum, Free Tiket Petra. Total ALL IN: $2,455.',
+            highlights: [
+                'Pyramid & Sphinx',
+                'Sinai',
+                'Komplek Al-Aqsa',
+                'Jericho',
+                'Maqam Nabi Musa',
+                'Hebron',
+                'Bethlehem',
+                'Petra',
+                'Wadirum',
+                'Gua Ashhabul Kahfi',
+            ],
+            description:
+                'Konsorsium Paket 10 Hari (JORDAN-AQSA-MESIR). BONUS: Free Nile cruise, Free Tiket Museum Mummy, Free Jeep Tour Wadirum, Free Tiket Petra. Total ALL IN: $2,455.',
             features: ['Free Nile Cruise', 'Free Tiket Museum Mummy', 'Free Jeep Tour Wadirum', 'Free Tiket Petra'],
             freeBadge: 'FREE Nile, Mummy, Petra, Wadirum',
             dates: [{ date: '14 April 2026', status: 'Available' }],
@@ -199,7 +220,8 @@ export default function Packages() {
             image: '/images/packages/packages-cahaya-6.jpeg',
             imageCaption: 'Spesial Moment Idul Adha di Aqsa - Dome of the Rock Jerusalem, Piramida Giza, dan simbol Idul Adha.',
             highlights: ['Moment Idul Adha di Aqsa', 'Nile Cruise', 'Tiket Mummy', 'Petra', 'Wadirum'],
-            description: 'Spesial Moment Idul Adha di Aqsa! Perjalanan 9 hari ke Jordan, Aqsa, dan Mesir. FREE Nile Cruise, Tiket Mummy, Tiket Petra, Wadirum.',
+            description:
+                'Spesial Moment Idul Adha di Aqsa! Perjalanan 9 hari ke Jordan, Aqsa, dan Mesir. FREE Nile Cruise, Tiket Mummy, Tiket Petra, Wadirum.',
             features: ['Nile Cruise', 'Tiket Mummy', 'Tiket Petra', 'Wadirum'],
             freeBadge: 'FREE',
             dates: [{ date: '22 Mei 2026', status: 'Available' }],
@@ -222,7 +244,8 @@ export default function Packages() {
             image: '/images/packages/packages-cahaya-7.jpeg',
             imageCaption: 'Paket Jordan Aqsa 2026 - Panorama Petra, Dome of the Rock Jerusalem, dan landscape Wadi Rum.',
             highlights: ['100% FREE Tiket Petra Wadirum', 'Dome of the Rock', 'Petra', 'Wadi Rum'],
-            description: 'PAKET 2026 PERJALANAN - 8 Hari Jordan Aqsa. 100% FREE Tiket Petra Wadirum! Hotel Jordan & Aqsa bintang 4. Daftar sekarang, seat terbatas!',
+            description:
+                'PAKET 2026 PERJALANAN - 8 Hari Jordan Aqsa. 100% FREE Tiket Petra Wadirum! Hotel Jordan & Aqsa bintang 4. Daftar sekarang, seat terbatas!',
             features: ['100% FREE Tiket Petra Wadirum', 'Hotel Jordan Armada/Sulaf ★★★★', 'Hotel Aqsa National ★★★★'],
             freeBadge: '100% FREE Petra Wadirum',
             dates: [
@@ -253,7 +276,8 @@ export default function Packages() {
             image: '/images/packages/packages-cahaya-8.jpeg',
             imageCaption: 'Paket Jordan Mesir Aqsa 2026 - Al-Aqsa Mosque complex, Piramida Giza, dan pemandangan tiga negara.',
             highlights: ['Tiket Museum Mummy', 'Nile Cruise', 'Tiket Petra', 'Pyramid & Sphinx', 'Al-Aqsa'],
-            description: 'PAKET 2026 PERJALANAN - 9 Hari Jordan Mesir Aqsa. FREE Tiket Museum Mummy, Nile Cruise, Tiket Petra. Hotel bintang 4 di semua destinasi.',
+            description:
+                'PAKET 2026 PERJALANAN - 9 Hari Jordan Mesir Aqsa. FREE Tiket Museum Mummy, Nile Cruise, Tiket Petra. Hotel bintang 4 di semua destinasi.',
             features: ['Tiket Museum Mummy', 'Nile Cruise', 'Tiket Petra'],
             freeBadge: 'FREE',
             dates: [
@@ -280,9 +304,11 @@ export default function Packages() {
             pax: '6 Item',
             type: 'Religious',
             image: '/images/packages/packages-cahaya-9.jpeg',
-            imageCaption: 'Perlengkapan Umroh dari Cahaya Anbiya - Koper 26", Seragam, Mukena, Kain Ihram, Tas Selempang, Ikat Pinggang. Latar Kaaba & Abraj Al-Bait.',
+            imageCaption:
+                'Perlengkapan Umroh dari Cahaya Anbiya - Koper 26", Seragam, Mukena, Kain Ihram, Tas Selempang, Ikat Pinggang. Latar Kaaba & Abraj Al-Bait.',
             highlights: ['Koper 26"', 'Seragam', 'Mukena', 'Kain Ihram', 'Tas Selempang', 'Ikat Pinggang'],
-            description: 'Perlengkapan lengkap untuk ibadah Umroh: Koper 26", Seragam, Mukena, Kain Ihram, Tas Selempang, Ikat Pinggang. Dari Cahaya Anbiya dengan kualitas terjamin.',
+            description:
+                'Perlengkapan lengkap untuk ibadah Umroh: Koper 26", Seragam, Mukena, Kain Ihram, Tas Selempang, Ikat Pinggang. Dari Cahaya Anbiya dengan kualitas terjamin.',
             features: ['Koper 26"', 'Seragam', 'Mukena', 'Kain Ihram', 'Tas Selempang', 'Ikat Pinggang'],
             freeBadge: '6 Item',
         },
@@ -524,302 +550,319 @@ export default function Packages() {
                                 onClick={() => setExpandedPackageId((prev) => (prev === pkg.id ? null : pkg.id))}
                                 className="group cursor-pointer overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl transition-all duration-300 hover:-translate-y-2.5 hover:scale-105 hover:border-amber-500/40"
                             >
-                                        <div
-                                            className="relative aspect-video cursor-zoom-in overflow-hidden"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setImageLightbox({
-                                                    src: getImageSrc(`packages.${pkg.id}.image`, pkg.image),
-                                                    alt: getContent(`packages.${pkg.id}.title`, pkg.title),
-                                                    caption: (pkg as { imageCaption?: string }).imageCaption,
-                                                });
-                                            }}
-                                            role="button"
-                                            tabIndex={0}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' || e.key === ' ') {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    setImageLightbox({
-                                                        src: getImageSrc(`packages.${pkg.id}.image`, pkg.image),
-                                                        alt: getContent(`packages.${pkg.id}.title`, pkg.title),
-                                                        caption: (pkg as { imageCaption?: string }).imageCaption,
-                                                    });
+                                <div
+                                    className="relative aspect-video cursor-zoom-in overflow-hidden"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setImageLightbox({
+                                            src: getImageSrc(`packages.${pkg.id}.image`, pkg.image),
+                                            alt: getContent(`packages.${pkg.id}.title`, pkg.title),
+                                            caption: (pkg as { imageCaption?: string }).imageCaption,
+                                        });
+                                    }}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setImageLightbox({
+                                                src: getImageSrc(`packages.${pkg.id}.image`, pkg.image),
+                                                alt: getContent(`packages.${pkg.id}.title`, pkg.title),
+                                                caption: (pkg as { imageCaption?: string }).imageCaption,
+                                            });
+                                        }
+                                    }}
+                                    aria-label="Klik untuk lihat gambar full size"
+                                >
+                                    <img
+                                        src={getImageSrc(`packages.${pkg.id}.image`, pkg.image)}
+                                        alt={getContent(`packages.${pkg.id}.title`, pkg.title)}
+                                        title="Klik untuk lihat full size"
+                                        data-package-id={pkg.id}
+                                        loading="lazy"
+                                        decoding="async"
+                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        onError={(e) => {
+                                            const target = e.currentTarget;
+                                            if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                                const currentUrl = target.src;
+                                                if (currentUrl.includes('/public/')) {
+                                                    target.src = currentUrl.replace('/public/', '/');
+                                                } else {
+                                                    target.src = currentUrl.replace('assets.cahayaanbiya.com/', 'assets.cahayaanbiya.com/public/');
                                                 }
-                                            }}
-                                            aria-label="Klik untuk lihat gambar full size"
-                                        >
-                                            <img
-                                                src={getImageSrc(`packages.${pkg.id}.image`, pkg.image)}
-                                                alt={getContent(`packages.${pkg.id}.title`, pkg.title)}
-                                                title="Klik untuk lihat full size"
-                                                data-package-id={pkg.id}
-                                                loading="lazy"
-                                                decoding="async"
-                                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                                onError={(e) => {
-                                                    const target = e.currentTarget;
-                                                    if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
-                                                        const currentUrl = target.src;
-                                                        if (currentUrl.includes('/public/')) {
-                                                            target.src = currentUrl.replace('/public/', '/');
-                                                        } else {
-                                                            target.src = currentUrl.replace(
-                                                                'assets.cahayaanbiya.com/',
-                                                                'assets.cahayaanbiya.com/public/',
-                                                            );
-                                                        }
-                                                    } else {
-                                                        target.style.display = 'none';
-                                                        const nextElement = target.nextElementSibling as HTMLElement;
-                                                        if (nextElement) nextElement.style.display = 'block';
-                                                    }
+                                            } else {
+                                                target.style.display = 'none';
+                                                const nextElement = target.nextElementSibling as HTMLElement;
+                                                if (nextElement) nextElement.style.display = 'block';
+                                            }
+                                        }}
+                                    />
+                                    <PlaceholderImage className="hidden h-full w-full object-cover" />
+
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/30 group-hover:opacity-100">
+                                        <div className="rounded-full bg-white/20 p-3 backdrop-blur-sm">
+                                            <ImageIcon className="h-8 w-8 text-white" strokeWidth={2} />
+                                        </div>
+                                    </div>
+
+                                    <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                                        <span className="rounded-full bg-black/70 px-4 py-2 text-sm font-bold text-white shadow-xl">
+                                            {getContent(`packages.${pkg.id}.type`, pkg.type)}
+                                        </span>
+                                        {(pkg as { freeBadge?: string }).freeBadge && (
+                                            <span className="rounded-full bg-amber-500/90 px-3 py-1.5 text-xs font-bold text-black shadow-xl">
+                                                {(pkg as { freeBadge?: string }).freeBadge}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {editMode && (
+                                        <div className="absolute right-3 bottom-3 z-10">
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setEditorOpen({
+                                                        id: pkg.id,
+                                                        title: getContent(`packages.${pkg.id}.title`, pkg.title),
+                                                        location: getContent(`packages.${pkg.id}.location`, pkg.location),
+                                                        duration: getContent(`packages.${pkg.id}.duration`, pkg.duration),
+                                                        price: getContent(`packages.${pkg.id}.price`, pkg.price),
+                                                        pax: getContent(`packages.${pkg.id}.pax`, pkg.pax),
+                                                        type: getContent(`packages.${pkg.id}.type`, pkg.type),
+                                                        description: getContent(`packages.${pkg.id}.description`, pkg.description),
+                                                    });
+                                                    setPendingFile(null);
                                                 }}
-                                            />
-                                            <PlaceholderImage className="hidden h-full w-full object-cover" />
+                                                className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-2xl ring-2 ring-blue-400/50 transition-all hover:scale-110 hover:rotate-12"
+                                                title="Edit content & image"
+                                            >
+                                                <Edit3 className="h-6 w-6" strokeWidth={2.5} />
+                                            </button>
+                                        </div>
+                                    )}
 
-                                            <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/30 group-hover:opacity-100">
-                                                <div className="rounded-full bg-white/20 p-3 backdrop-blur-sm">
-                                                    <ImageIcon className="h-8 w-8 text-white" strokeWidth={2} />
-                                                </div>
-                                            </div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                </div>
+                                {(pkg as { imageCaption?: string }).imageCaption && (
+                                    <p
+                                        className="border-b border-white/10 px-4 py-2 text-xs leading-snug text-white/60"
+                                        title={(pkg as { imageCaption?: string }).imageCaption}
+                                    >
+                                        <span className="line-clamp-2">{(pkg as { imageCaption?: string }).imageCaption}</span>
+                                    </p>
+                                )}
 
-                                            <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                                                <span className="rounded-full bg-black/70 px-4 py-2 text-sm font-bold text-white shadow-xl">
-                                                    {getContent(`packages.${pkg.id}.type`, pkg.type)}
-                                                </span>
-                                                {(pkg as { freeBadge?: string }).freeBadge && (
-                                                    <span className="rounded-full bg-amber-500/90 px-3 py-1.5 text-xs font-bold text-black shadow-xl">
-                                                        {(pkg as { freeBadge?: string }).freeBadge}
+                                <div className="p-6">
+                                    <h3 className="mb-2 text-xl font-bold text-white transition-colors group-hover:text-amber-300 sm:text-2xl">
+                                        {getContent(`packages.${pkg.id}.title`, pkg.title)}
+                                    </h3>
+                                    <p className="mb-3 text-sm leading-relaxed text-white/80 sm:text-base">
+                                        {getContent(`packages.${pkg.id}.location`, pkg.location)} •{' '}
+                                        {getContent(`packages.${pkg.id}.duration`, pkg.duration)}
+                                    </p>
+
+                                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                                        <div className="flex flex-col gap-0.5">
+                                            <div className="flex items-center gap-2">
+                                                {(pkg as { priceOriginal?: string }).priceOriginal && (
+                                                    <span className="text-sm font-medium text-white/50 line-through">
+                                                        {(pkg as { priceOriginal?: string }).priceOriginal}
                                                     </span>
                                                 )}
-                                            </div>
-
-                                            {editMode && (
-                                                <div className="absolute bottom-3 right-3 z-10">
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setEditorOpen({
-                                                                id: pkg.id,
-                                                                title: getContent(`packages.${pkg.id}.title`, pkg.title),
-                                                                location: getContent(`packages.${pkg.id}.location`, pkg.location),
-                                                                duration: getContent(`packages.${pkg.id}.duration`, pkg.duration),
-                                                                price: getContent(`packages.${pkg.id}.price`, pkg.price),
-                                                                pax: getContent(`packages.${pkg.id}.pax`, pkg.pax),
-                                                                type: getContent(`packages.${pkg.id}.type`, pkg.type),
-                                                                description: getContent(`packages.${pkg.id}.description`, pkg.description),
-                                                            });
-                                                            setPendingFile(null);
-                                                        }}
-                                                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-2xl ring-2 ring-blue-400/50 transition-all hover:scale-110 hover:rotate-12"
-                                                        title="Edit content & image"
-                                                    >
-                                                        <Edit3 className="h-6 w-6" strokeWidth={2.5} />
-                                                    </button>
-                                                </div>
-                                            )}
-
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                                        </div>
-                                        {(pkg as { imageCaption?: string }).imageCaption && (
-                                            <p className="border-b border-white/10 px-4 py-2 text-xs leading-snug text-white/60" title={(pkg as { imageCaption?: string }).imageCaption}>
-                                                <span className="line-clamp-2">{(pkg as { imageCaption?: string }).imageCaption}</span>
-                                            </p>
-                                        )}
-
-                                        <div className="p-6">
-                                            <h3 className="mb-2 text-xl font-bold text-white transition-colors group-hover:text-amber-300 sm:text-2xl">
-                                                {getContent(`packages.${pkg.id}.title`, pkg.title)}
-                                            </h3>
-                                            <p className="mb-3 text-sm leading-relaxed text-white/80 sm:text-base">
-                                                {getContent(`packages.${pkg.id}.location`, pkg.location)} •{' '}
-                                                {getContent(`packages.${pkg.id}.duration`, pkg.duration)}
-                                            </p>
-
-                                            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                                                <div className="flex flex-col gap-0.5">
-                                                    <div className="flex items-center gap-2">
-                                                        {(pkg as { priceOriginal?: string }).priceOriginal && (
-                                                            <span className="text-sm font-medium text-white/50 line-through">
-                                                                {(pkg as { priceOriginal?: string }).priceOriginal}
-                                                            </span>
-                                                        )}
-                                                        <span className="text-xl font-bold text-amber-300 sm:text-2xl">
-                                                            {getContent(`packages.${pkg.id}.price`, pkg.price)}
-                                                        </span>
-                                                    </div>
-                                                    {(pkg as { priceNote?: string }).priceNote && (
-                                                        <span className="text-xs text-white/60">
-                                                            {(pkg as { priceNote?: string }).priceNote}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="text-xs font-medium text-white/70 sm:text-sm">
-                                                    {getContent(`packages.${pkg.id}.pax`, pkg.pax)}
-                                                </div>
-                                            </div>
-
-                                            <p className={`mb-3 text-xs text-white/70 sm:text-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${expandedPackageId === pkg.id ? 'line-clamp-none' : 'line-clamp-2'}`}>
-                                                {getContent(`packages.${pkg.id}.description`, pkg.description)}
-                                            </p>
-
-                                            <AnimatePresence initial={false}>
-                                                {expandedPackageId === pkg.id && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{
-                                                            height: 'auto',
-                                                            opacity: 1,
-                                                            transition: {
-                                                                height: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
-                                                                opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-                                                            },
-                                                        }}
-                                                        exit={{
-                                                            height: 0,
-                                                            opacity: 0,
-                                                            transition: {
-                                                                height: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-                                                                opacity: { duration: 0.25, ease: [0.22, 1, 0.36, 1] },
-                                                            },
-                                                        }}
-                                                        className="overflow-hidden"
-                                                    >
-                                                        <motion.div
-                                                            initial="closed"
-                                                            animate="open"
-                                                            exit="closed"
-                                                            variants={{
-                                                                open: {
-                                                                    transition: {
-                                                                        staggerChildren: 0.06,
-                                                                        delayChildren: 0.08,
-                                                                    },
-                                                                },
-                                                                closed: {
-                                                                    transition: {
-                                                                        staggerChildren: 0.03,
-                                                                        staggerDirection: -1,
-                                                                    },
-                                                                },
-                                                            }}
-                                                            className="space-y-4 border-t border-white/10 pt-4"
-                                                        >
-                                                            {pkg.highlights && pkg.highlights.length > 0 && (
-                                                                <motion.div
-                                                                    variants={{
-                                                                        open: { opacity: 1, y: 0 },
-                                                                        closed: { opacity: 0, y: -8 },
-                                                                    }}
-                                                                >
-                                                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Highlight</h4>
-                                                                    <ul className="flex flex-wrap gap-1.5">
-                                                                        {pkg.highlights.map((h, i) => (
-                                                                            <li key={i} className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs text-white/90">
-                                                                                {h}
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                </motion.div>
-                                                            )}
-                                                            {pkg.features && pkg.features.length > 0 && (
-                                                                <motion.div
-                                                                    variants={{
-                                                                        open: { opacity: 1, y: 0 },
-                                                                        closed: { opacity: 0, y: -8 },
-                                                                    }}
-                                                                >
-                                                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Include</h4>
-                                                                    <ul className="space-y-1 text-xs text-white/80">
-                                                                        {pkg.features.map((f, i) => (
-                                                                            <li key={i} className="flex items-center gap-2">
-                                                                                <span className="text-amber-400">✓</span> {f}
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                </motion.div>
-                                                            )}
-                                                            {pkg.dates && pkg.dates.length > 0 && (
-                                                                <motion.div
-                                                                    variants={{
-                                                                        open: { opacity: 1, y: 0 },
-                                                                        closed: { opacity: 0, y: -8 },
-                                                                    }}
-                                                                >
-                                                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Tanggal Keberangkatan</h4>
-                                                                    <ul className="space-y-1 text-xs text-white/80">
-                                                                        {pkg.dates.map((d, i) => (
-                                                                            <li key={i} className="flex items-center justify-between gap-2">
-                                                                                <span>{d.date}</span>
-                                                                                <span className={`rounded px-2 py-0.5 text-[10px] font-medium ${d.status === 'Available' ? 'bg-green-500/30 text-green-200' : d.status === 'Limited' ? 'bg-amber-500/30 text-amber-200' : 'bg-red-500/30 text-red-200'}`}>
-                                                                                    {d.status}
-                                                                                </span>
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                </motion.div>
-                                                            )}
-                                                            {pkg.hotels && pkg.hotels.length > 0 && (
-                                                                <motion.div
-                                                                    variants={{
-                                                                        open: { opacity: 1, y: 0 },
-                                                                        closed: { opacity: 0, y: -8 },
-                                                                    }}
-                                                                >
-                                                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-300/90">Hotel</h4>
-                                                                    <ul className="space-y-1.5 text-xs text-white/80">
-                                                                        {pkg.hotels.map((h, i) => (
-                                                                            <li key={i} className="flex items-center gap-2">
-                                                                                <span className="text-amber-400">{'★'.repeat(h.stars)}</span>
-                                                                                <span className="font-medium">{h.name}</span>
-                                                                                <span className="text-white/50">• {h.location}</span>
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                </motion.div>
-                                                            )}
-                                                        </motion.div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-
-                                            <div className="mt-4 flex items-center justify-between gap-3">
-                                                <span className="flex items-center gap-1 text-xs font-medium text-amber-300/90 transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]">
-                                                    {expandedPackageId === pkg.id ? (
-                                                        <>
-                                                            <ChevronUp className="h-4 w-4 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]" /> Tutup detail
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <ChevronDown className="h-4 w-4 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]" /> Klik untuk detail lengkap
-                                                        </>
-                                                    )}
+                                                <span className="text-xl font-bold text-amber-300 sm:text-2xl">
+                                                    {getContent(`packages.${pkg.id}.price`, pkg.price)}
                                                 </span>
-                                                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                                                    <a
-                                                        href="https://wa.me/6285285522122"
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
-                                                    >
-                                                        Daftar Sekarang
-                                                    </a>
-                                                    <a
-                                                        href="https://wa.me/6285285522121"
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        className="rounded-xl border border-amber-500 px-4 py-2 text-center text-xs font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
-                                                    >
-                                                        Tanya
-                                                    </a>
-                                                </div>
                                             </div>
+                                            {(pkg as { priceNote?: string }).priceNote && (
+                                                <span className="text-xs text-white/60">{(pkg as { priceNote?: string }).priceNote}</span>
+                                            )}
                                         </div>
+                                        <div className="text-xs font-medium text-white/70 sm:text-sm">
+                                            {getContent(`packages.${pkg.id}.pax`, pkg.pax)}
+                                        </div>
+                                    </div>
 
-                                        <div className={`h-1.5 origin-left bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-lg transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${expandedPackageId === pkg.id ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
-                                    </article>
+                                    <p
+                                        className={`mb-3 text-xs text-white/70 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-sm ${expandedPackageId === pkg.id ? 'line-clamp-none' : 'line-clamp-2'}`}
+                                    >
+                                        {getContent(`packages.${pkg.id}.description`, pkg.description)}
+                                    </p>
+
+                                    <AnimatePresence initial={false}>
+                                        {expandedPackageId === pkg.id && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{
+                                                    height: 'auto',
+                                                    opacity: 1,
+                                                    transition: {
+                                                        height: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+                                                        opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                                                    },
+                                                }}
+                                                exit={{
+                                                    height: 0,
+                                                    opacity: 0,
+                                                    transition: {
+                                                        height: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                                                        opacity: { duration: 0.25, ease: [0.22, 1, 0.36, 1] },
+                                                    },
+                                                }}
+                                                className="overflow-hidden"
+                                            >
+                                                <motion.div
+                                                    initial="closed"
+                                                    animate="open"
+                                                    exit="closed"
+                                                    variants={{
+                                                        open: {
+                                                            transition: {
+                                                                staggerChildren: 0.06,
+                                                                delayChildren: 0.08,
+                                                            },
+                                                        },
+                                                        closed: {
+                                                            transition: {
+                                                                staggerChildren: 0.03,
+                                                                staggerDirection: -1,
+                                                            },
+                                                        },
+                                                    }}
+                                                    className="space-y-4 border-t border-white/10 pt-4"
+                                                >
+                                                    {pkg.highlights && pkg.highlights.length > 0 && (
+                                                        <motion.div
+                                                            variants={{
+                                                                open: { opacity: 1, y: 0 },
+                                                                closed: { opacity: 0, y: -8 },
+                                                            }}
+                                                        >
+                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-amber-300/90 uppercase">
+                                                                Highlight
+                                                            </h4>
+                                                            <ul className="flex flex-wrap gap-1.5">
+                                                                {pkg.highlights.map((h, i) => (
+                                                                    <li
+                                                                        key={i}
+                                                                        className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs text-white/90"
+                                                                    >
+                                                                        {h}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </motion.div>
+                                                    )}
+                                                    {pkg.features && pkg.features.length > 0 && (
+                                                        <motion.div
+                                                            variants={{
+                                                                open: { opacity: 1, y: 0 },
+                                                                closed: { opacity: 0, y: -8 },
+                                                            }}
+                                                        >
+                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-amber-300/90 uppercase">
+                                                                Include
+                                                            </h4>
+                                                            <ul className="space-y-1 text-xs text-white/80">
+                                                                {pkg.features.map((f, i) => (
+                                                                    <li key={i} className="flex items-center gap-2">
+                                                                        <span className="text-amber-400">✓</span> {f}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </motion.div>
+                                                    )}
+                                                    {pkg.dates && pkg.dates.length > 0 && (
+                                                        <motion.div
+                                                            variants={{
+                                                                open: { opacity: 1, y: 0 },
+                                                                closed: { opacity: 0, y: -8 },
+                                                            }}
+                                                        >
+                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-amber-300/90 uppercase">
+                                                                Tanggal Keberangkatan
+                                                            </h4>
+                                                            <ul className="space-y-1 text-xs text-white/80">
+                                                                {pkg.dates.map((d, i) => (
+                                                                    <li key={i} className="flex items-center justify-between gap-2">
+                                                                        <span>{d.date}</span>
+                                                                        <span
+                                                                            className={`rounded px-2 py-0.5 text-[10px] font-medium ${d.status === 'Available' ? 'bg-green-500/30 text-green-200' : d.status === 'Limited' ? 'bg-amber-500/30 text-amber-200' : 'bg-red-500/30 text-red-200'}`}
+                                                                        >
+                                                                            {d.status}
+                                                                        </span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </motion.div>
+                                                    )}
+                                                    {pkg.hotels && pkg.hotels.length > 0 && (
+                                                        <motion.div
+                                                            variants={{
+                                                                open: { opacity: 1, y: 0 },
+                                                                closed: { opacity: 0, y: -8 },
+                                                            }}
+                                                        >
+                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-amber-300/90 uppercase">
+                                                                Hotel
+                                                            </h4>
+                                                            <ul className="space-y-1.5 text-xs text-white/80">
+                                                                {pkg.hotels.map((h, i) => (
+                                                                    <li key={i} className="flex items-center gap-2">
+                                                                        <span className="text-amber-400">{'★'.repeat(h.stars)}</span>
+                                                                        <span className="font-medium">{h.name}</span>
+                                                                        <span className="text-white/50">• {h.location}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </motion.div>
+                                                    )}
+                                                </motion.div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    <div className="mt-4 flex items-center justify-between gap-3">
+                                        <span className="flex items-center gap-1 text-xs font-medium text-amber-300/90 transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]">
+                                            {expandedPackageId === pkg.id ? (
+                                                <>
+                                                    <ChevronUp className="h-4 w-4 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]" />{' '}
+                                                    Tutup detail
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <ChevronDown className="h-4 w-4 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]" />{' '}
+                                                    Klik untuk detail lengkap
+                                                </>
+                                            )}
+                                        </span>
+                                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                                            <a
+                                                href="https://wa.me/6285285522122"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
+                                            >
+                                                Daftar Sekarang
+                                            </a>
+                                            <a
+                                                href="https://wa.me/6285285522121"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="rounded-xl border border-amber-500 px-4 py-2 text-center text-xs font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
+                                            >
+                                                Tanya
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div
+                                    className={`h-1.5 origin-left bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-lg transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${expandedPackageId === pkg.id ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}
+                                />
+                            </article>
                         ))}
                     </div>
 
@@ -950,16 +993,25 @@ export default function Packages() {
                                             </div>
 
                                             {editMode && (
-                                                <div className="absolute bottom-4 right-4 z-20">
+                                                <div className="absolute right-4 bottom-4 z-20">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setGalleryEditorOpen({
                                                                 id: destination.id,
                                                                 title: getContent(`packages.gallery.${destination.id}.title`, destination.title),
-                                                                subtitle: getContent(`packages.gallery.${destination.id}.subtitle`, destination.subtitle),
-                                                                description: getContent(`packages.gallery.${destination.id}.description`, destination.description),
-                                                                category: getContent(`packages.gallery.${destination.id}.category`, destination.category),
+                                                                subtitle: getContent(
+                                                                    `packages.gallery.${destination.id}.subtitle`,
+                                                                    destination.subtitle,
+                                                                ),
+                                                                description: getContent(
+                                                                    `packages.gallery.${destination.id}.description`,
+                                                                    destination.description,
+                                                                ),
+                                                                category: getContent(
+                                                                    `packages.gallery.${destination.id}.category`,
+                                                                    destination.category,
+                                                                ),
                                                             });
                                                             setGalleryPendingFile(null);
                                                         }}
@@ -1057,7 +1109,7 @@ export default function Packages() {
                         <button
                             type="button"
                             onClick={() => setImageLightbox(null)}
-                            className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2 text-white transition-all hover:bg-white/20"
+                            className="absolute top-4 right-4 z-10 rounded-full bg-white/10 p-2 text-white transition-all hover:bg-white/20"
                             aria-label="Tutup"
                         >
                             <X className="h-6 w-6" />
@@ -1077,9 +1129,7 @@ export default function Packages() {
                                 draggable={false}
                                 style={{ pointerEvents: 'none' }}
                             />
-                            {imageLightbox.caption && (
-                                <p className="mt-3 max-w-2xl text-center text-sm text-white/80">{imageLightbox.caption}</p>
-                            )}
+                            {imageLightbox.caption && <p className="mt-3 max-w-2xl text-center text-sm text-white/80">{imageLightbox.caption}</p>}
                         </motion.div>
                         <p className="mt-2 text-xs text-white/50">Klik di luar atau tekan ESC untuk menutup</p>
                     </motion.div>
@@ -1102,7 +1152,9 @@ export default function Packages() {
                         <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2">
                             {(['title', 'location', 'duration', 'price', 'pax', 'type'] as const).map((field) => (
                                 <div key={field}>
-                                    <label className="mb-1 block text-xs font-medium text-gray-300 capitalize">{field === 'pax' ? 'Group Size' : field}</label>
+                                    <label className="mb-1 block text-xs font-medium text-gray-300 capitalize">
+                                        {field === 'pax' ? 'Group Size' : field}
+                                    </label>
                                     <input
                                         type="text"
                                         value={editorOpen[field]}
@@ -1168,7 +1220,9 @@ export default function Packages() {
                                             });
                                             const url = r.data?.url || r.data?.imageUrl;
                                             if (url) {
-                                                const img = document.querySelector(`img[data-package-id="${editorOpen.id}"]`) as HTMLImageElement | null;
+                                                const img = document.querySelector(
+                                                    `img[data-package-id="${editorOpen.id}"]`,
+                                                ) as HTMLImageElement | null;
                                                 if (img) img.src = url;
                                             }
                                         }
@@ -1177,7 +1231,10 @@ export default function Packages() {
                                         router.reload({ only: ['sections'] });
                                     } catch (err: unknown) {
                                         console.error(err);
-                                        const ax = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
+                                        const ax =
+                                            err && typeof err === 'object' && 'response' in err
+                                                ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
+                                                : null;
                                         const data = ax?.response?.data;
                                         let msg = data?.message || (err instanceof Error ? err.message : 'Failed to save');
                                         if (data?.errors && typeof data.errors === 'object') {
@@ -1278,7 +1335,9 @@ export default function Packages() {
                                             });
                                             const url = r.data?.url || r.data?.imageUrl;
                                             if (url) {
-                                                const img = document.querySelector(`img[data-gallery-id="${galleryEditorOpen.id}"]`) as HTMLImageElement | null;
+                                                const img = document.querySelector(
+                                                    `img[data-gallery-id="${galleryEditorOpen.id}"]`,
+                                                ) as HTMLImageElement | null;
                                                 if (img) img.src = url;
                                             }
                                         }
@@ -1287,7 +1346,10 @@ export default function Packages() {
                                         router.reload({ only: ['sections'] });
                                     } catch (err: unknown) {
                                         console.error(err);
-                                        const ax = err && typeof err === 'object' && 'response' in err ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
+                                        const ax =
+                                            err && typeof err === 'object' && 'response' in err
+                                                ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
+                                                : null;
                                         const data = ax?.response?.data;
                                         let msg = data?.message || (err instanceof Error ? err.message : 'Failed to save');
                                         if (data?.errors && typeof data.errors === 'object') {

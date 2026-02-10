@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { router, usePage } from '@inertiajs/react';
 import { useCallback, useRef, useState } from 'react';
 import { useEditMode } from './EditModeProvider';
+import ImageCropModal from './ImageCropModal';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getR2Url } from '@/utils/imageHelper';
 
@@ -12,12 +13,14 @@ export default function EditableImage({
     alt,
     className,
     imgClassName,
+    aspect = 16 / 9,
 }: {
     sectionKey: string;
     src: string | undefined;
     alt: string;
     className?: string;
     imgClassName?: string;
+    aspect?: number;
 }) {
     const { isAdmin, editMode, markDirty } = useEditMode();
     const { props } = usePage<{
@@ -30,6 +33,8 @@ export default function EditableImage({
     const dbImage = props.sections?.[sectionKey]?.image;
     const [preview, setPreview] = useState<string | undefined>(undefined);
     const [saved, setSaved] = useState(false);
+    const [cropModalOpen, setCropModalOpen] = useState(false);
+    const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Convert all sources to R2 URLs
@@ -45,39 +50,49 @@ export default function EditableImage({
 
     const currentSrc = preview ?? (dbImage ? getR2Src(dbImage) : (src ? getR2Src(src) : ''));
 
-    const onDrop = useCallback(
-        async (file: File) => {
-            const tempPreview = URL.createObjectURL(file);
-            setPreview(tempPreview);
-            markDirty();
-
+    const uploadImage = useCallback(
+        async (blob: Blob) => {
+            const file = new File([blob], 'image.jpg', { type: blob.type });
             const compressed = await compressImageForUpload(file);
             const form = new FormData();
             form.append('key', sectionKey);
             form.append('image', compressed);
 
+            await axios.post('/admin/upload-image', form, {
+                headers: { Accept: 'application/json' },
+            });
+
+            setSaved(true);
+            setTimeout(() => setSaved(false), 900);
+            setPreview(undefined);
+
+            router.reload({
+                only: ['sections'],
+                onSuccess: () => {
+                    console.log('✅ Image reloaded from database:', sectionKey);
+                },
+            });
+        },
+        [sectionKey],
+    );
+
+    const onFileSelect = useCallback(
+        (file: File) => {
+            const url = URL.createObjectURL(file);
+            setCropImageSrc(url);
+            setCropModalOpen(true);
+            markDirty();
+        },
+        [markDirty],
+    );
+
+    const onCropApply = useCallback(
+        async (blob: Blob) => {
+            if (!cropImageSrc) return;
             try {
-                await axios.post('/admin/upload-image', form, {
-                    headers: { Accept: 'application/json' },
-                });
-                
-                setSaved(true);
-                setTimeout(() => setSaved(false), 900);
-                
-                // Clean up temporary object URL
-                URL.revokeObjectURL(tempPreview);
-                
-                // Clear preview state BEFORE reload to force fetch from DB
-                setPreview(undefined);
-                
-                // Reload Inertia to fetch fresh data from server
-                // This ensures frontend displays updated image immediately
-                router.reload({ 
-                    only: ['sections'],
-                    onSuccess: () => {
-                        console.log('✅ Image reloaded from database:', sectionKey);
-                    }
-                });
+                await uploadImage(blob);
+                URL.revokeObjectURL(cropImageSrc);
+                setCropImageSrc(null);
             } catch (error: unknown) {
                 console.error('Failed to upload image:', error);
                 const ax = error && typeof error === 'object' && 'response' in error ? (error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
@@ -88,17 +103,30 @@ export default function EditableImage({
                     if (flat.length) msg = flat.join('. ');
                 }
                 alert(msg);
-                URL.revokeObjectURL(tempPreview);
-                setPreview(undefined);
             }
         },
-        [sectionKey, markDirty],
+        [cropImageSrc, uploadImage],
+    );
+
+    const onCropCancel = useCallback(() => {
+        if (cropImageSrc) {
+            URL.revokeObjectURL(cropImageSrc);
+            setCropImageSrc(null);
+        }
+    }, [cropImageSrc]);
+
+    const onDrop = useCallback(
+        (file: File) => {
+            if (file.type.startsWith('image/')) onFileSelect(file);
+        },
+        [onFileSelect],
     );
 
     const onFileChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
             const file = e.target.files?.[0];
             if (file) onDrop(file);
+            e.target.value = '';
         },
         [onDrop],
     );
@@ -152,7 +180,10 @@ export default function EditableImage({
                     >
                         <div className="flex flex-col items-center gap-3 rounded-xl border-2 border-blue-400/50 bg-black/90 p-6 shadow-2xl backdrop-blur-sm">
                             <span className="rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-gray-900 shadow-lg">
-                                Drag & Drop image or Click to replace
+                                Drag & Drop atau Klik untuk ganti gambar
+                            </span>
+                            <span className="text-xs text-neutral-300">
+                                Anda bisa atur posisi gambar sebelum disimpan
                             </span>
                             {guide.short && (
                                 <span className="rounded-lg border-2 border-amber-400 bg-gradient-to-r from-amber-900 to-orange-900 px-5 py-2.5 text-xs font-bold text-amber-50 shadow-lg">
@@ -177,6 +208,17 @@ export default function EditableImage({
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {cropImageSrc && (
+                <ImageCropModal
+                    open={cropModalOpen}
+                    onOpenChange={setCropModalOpen}
+                    imageSrc={cropImageSrc}
+                    aspect={aspect}
+                    onApply={onCropApply}
+                    onCancel={onCropCancel}
+                />
+            )}
         </div>
     );
 }

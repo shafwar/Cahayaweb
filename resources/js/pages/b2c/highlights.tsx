@@ -11,122 +11,122 @@ import { useEffect, useState } from 'react';
 
 const IMAGE_GUIDE = '1920×1080px recommended · Max 5MB · Auto-compressed · JPEG, PNG, WebP';
 
-const highlights = [
-    {
-        id: 1,
-        title: 'Spiritual Journey to the Holy Land',
-        subtitle: 'Umrah & Hajj Experiences',
-        description:
-            'Experience the profound spiritual journey to Makkah and Madinah. Our Umrah and Hajj packages provide complete guidance, luxury accommodations, and authentic spiritual experiences that connect you with the sacred traditions of Islam.',
-        image: '/umrah.jpeg',
-        category: 'Spiritual',
-        features: [
-            'Professional spiritual guidance',
-            '5-star hotel accommodations',
-            'Direct flights from Indonesia',
-            'VIP access to holy sites',
-            'Comprehensive travel insurance',
-            'Daily spiritual programs',
-        ],
-        stats: { travelers: '5000+', satisfaction: '98%', experience: '15+ years' },
-        badge: 'Featured',
-    },
-    {
-        id: 2,
-        title: 'Cultural Heritage of Turkey',
-        subtitle: 'Istanbul to Cappadocia Adventure',
-        description:
-            "Discover the perfect blend of East and West in Turkey. From the magnificent Hagia Sophia and Blue Mosque in Istanbul to the magical hot air balloon rides over Cappadocia's fairy chimneys.",
-        image: '/TURKEY.jpeg',
-        category: 'Cultural',
-        features: [
-            'Hot air balloon experience',
-            'Historical site guided tours',
-            'Traditional Turkish bath',
-            'Bosphorus cruise',
-            'Local cuisine tasting',
-            'Cultural workshops',
-        ],
-        stats: { travelers: '3200+', satisfaction: '96%', experience: '12+ years' },
-        badge: 'Popular',
-    },
-    {
-        id: 3,
-        title: 'Ancient Wonders of Egypt',
-        subtitle: 'Pyramids & Nile River Expedition',
-        description:
-            'Journey through the cradle of civilization and explore the magnificent wonders of ancient Egypt. From the Great Pyramids of Giza to the majestic Nile River cruises, experience the magic of pharaonic history.',
-        image: '/egypt.jpeg',
-        category: 'Historical',
-        features: [
-            'Nile River luxury cruise',
-            'Pyramids guided exploration',
-            'Valley of the Kings tour',
-            'Abu Simbel temple visit',
-            'Egyptian Museum tour',
-            'Traditional felucca sailing',
-        ],
-        stats: { travelers: '2800+', satisfaction: '95%', experience: '10+ years' },
-        badge: 'Heritage',
-    },
-    {
-        id: 4,
-        title: 'Luxury Dubai Experience',
-        subtitle: 'Modern Wonders & Desert Adventures',
-        description:
-            'Experience the epitome of luxury and innovation in Dubai. From the iconic Burj Khalifa to thrilling desert safaris, discover why Dubai is the ultimate destination for luxury travelers seeking modern Arabian hospitality.',
-        image: '/dubai1.jpeg',
-        category: 'Luxury',
-        features: [
-            'Burj Khalifa observation deck',
-            'Desert safari with dinner',
-            'Luxury shopping experience',
-            'Sheikh Zayed Mosque tour',
-            'Ferrari World theme park',
-            'Dhow cruise dinner',
-        ],
-        stats: { travelers: '4500+', satisfaction: '97%', experience: '14+ years' },
-        badge: 'Premium',
-    },
-    {
-        id: 5,
-        title: 'Oman Adventure Discovery',
-        subtitle: 'Hidden Gems of the Arabian Peninsula',
-        description:
-            'Explore the hidden gem of the Arabian Peninsula. From the stunning fjords of Musandam to the ancient forts of Nizwa, discover authentic Arabian experiences away from the crowds in this pristine destination.',
-        image: '/oman.jpg',
-        category: 'Adventure',
-        features: [
-            'Desert camping in Wahiba Sands',
-            'Ancient fort exploration',
-            'Wadi hiking adventures',
-            'Traditional souk visits',
-            'Dolphin watching cruise',
-            'Mountain village tours',
-        ],
-        stats: { travelers: '1800+', satisfaction: '99%', experience: '8+ years' },
-        badge: 'Explorer',
-    },
-    {
-        id: 6,
-        title: 'Qatar Luxury & Culture',
-        subtitle: 'Tradition Meets Modernity',
-        description:
-            'Experience the perfect blend of tradition and modernity in Qatar. From the stunning Museum of Islamic Art to luxury at The Pearl, discover why Qatar is becoming a premier travel destination in the Gulf region.',
-        image: '/qatar.jpg',
-        category: 'Luxury',
-        features: [
-            'Museum of Islamic Art tour',
-            'Souq Waqif cultural experience',
-            'Desert safari adventure',
-            'The Pearl luxury experience',
-            'Katara Cultural Village',
-            'Luxury resort accommodations',
-        ],
-        stats: { travelers: '2200+', satisfaction: '94%', experience: '9+ years' },
-        badge: 'Premium',
-    },
-];
+    const highlights = [
+        {
+            id: 1,
+            title: 'Spiritual Journey to the Holy Land',
+            subtitle: 'Umrah & Hajj Experiences',
+            description:
+                'Experience the profound spiritual journey to Makkah and Madinah. Our Umrah and Hajj packages provide complete guidance, luxury accommodations, and authentic spiritual experiences that connect you with the sacred traditions of Islam.',
+            image: '/umrah.jpeg',
+            category: 'Spiritual',
+            features: [
+                'Professional spiritual guidance',
+                '5-star hotel accommodations',
+                'Direct flights from Indonesia',
+                'VIP access to holy sites',
+                'Comprehensive travel insurance',
+                'Daily spiritual programs',
+            ],
+            stats: { travelers: '5000+', satisfaction: '98%', experience: '15+ years' },
+            badge: 'Featured',
+        },
+        {
+            id: 2,
+            title: 'Cultural Heritage of Turkey',
+            subtitle: 'Istanbul to Cappadocia Adventure',
+            description:
+                "Discover the perfect blend of East and West in Turkey. From the magnificent Hagia Sophia and Blue Mosque in Istanbul to the magical hot air balloon rides over Cappadocia's fairy chimneys.",
+            image: '/TURKEY.jpeg',
+            category: 'Cultural',
+            features: [
+                'Hot air balloon experience',
+                'Historical site guided tours',
+                'Traditional Turkish bath',
+                'Bosphorus cruise',
+                'Local cuisine tasting',
+                'Cultural workshops',
+            ],
+            stats: { travelers: '3200+', satisfaction: '96%', experience: '12+ years' },
+            badge: 'Popular',
+        },
+        {
+            id: 3,
+            title: 'Ancient Wonders of Egypt',
+            subtitle: 'Pyramids & Nile River Expedition',
+            description:
+                'Journey through the cradle of civilization and explore the magnificent wonders of ancient Egypt. From the Great Pyramids of Giza to the majestic Nile River cruises, experience the magic of pharaonic history.',
+            image: '/egypt.jpeg',
+            category: 'Historical',
+            features: [
+                'Nile River luxury cruise',
+                'Pyramids guided exploration',
+                'Valley of the Kings tour',
+                'Abu Simbel temple visit',
+                'Egyptian Museum tour',
+                'Traditional felucca sailing',
+            ],
+            stats: { travelers: '2800+', satisfaction: '95%', experience: '10+ years' },
+            badge: 'Heritage',
+        },
+        {
+            id: 4,
+            title: 'Luxury Dubai Experience',
+            subtitle: 'Modern Wonders & Desert Adventures',
+            description:
+                'Experience the epitome of luxury and innovation in Dubai. From the iconic Burj Khalifa to thrilling desert safaris, discover why Dubai is the ultimate destination for luxury travelers seeking modern Arabian hospitality.',
+            image: '/dubai1.jpeg',
+            category: 'Luxury',
+            features: [
+                'Burj Khalifa observation deck',
+                'Desert safari with dinner',
+                'Luxury shopping experience',
+                'Sheikh Zayed Mosque tour',
+                'Ferrari World theme park',
+                'Dhow cruise dinner',
+            ],
+            stats: { travelers: '4500+', satisfaction: '97%', experience: '14+ years' },
+            badge: 'Premium',
+        },
+        {
+            id: 5,
+            title: 'Oman Adventure Discovery',
+            subtitle: 'Hidden Gems of the Arabian Peninsula',
+            description:
+                'Explore the hidden gem of the Arabian Peninsula. From the stunning fjords of Musandam to the ancient forts of Nizwa, discover authentic Arabian experiences away from the crowds in this pristine destination.',
+            image: '/oman.jpg',
+            category: 'Adventure',
+            features: [
+                'Desert camping in Wahiba Sands',
+                'Ancient fort exploration',
+                'Wadi hiking adventures',
+                'Traditional souk visits',
+                'Dolphin watching cruise',
+                'Mountain village tours',
+            ],
+            stats: { travelers: '1800+', satisfaction: '99%', experience: '8+ years' },
+            badge: 'Explorer',
+        },
+        {
+            id: 6,
+            title: 'Qatar Luxury & Culture',
+            subtitle: 'Tradition Meets Modernity',
+            description:
+                'Experience the perfect blend of tradition and modernity in Qatar. From the stunning Museum of Islamic Art to luxury at The Pearl, discover why Qatar is becoming a premier travel destination in the Gulf region.',
+            image: '/qatar.jpg',
+            category: 'Luxury',
+            features: [
+                'Museum of Islamic Art tour',
+                'Souq Waqif cultural experience',
+                'Desert safari adventure',
+                'The Pearl luxury experience',
+                'Katara Cultural Village',
+                'Luxury resort accommodations',
+            ],
+            stats: { travelers: '2200+', satisfaction: '94%', experience: '9+ years' },
+            badge: 'Premium',
+        },
+    ];
 
 type EditorData = {
     id: number;
@@ -487,8 +487,8 @@ export default function Highlights() {
                                 <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
                                     {IMAGE_GUIDE}
                                 </p>
-                                <input
-                                    type="file"
+            <input
+                type="file"
                                     accept="image/jpeg,image/png,image/webp"
                                     onChange={(e) => setPendingFile(e.target.files?.[0] ?? null)}
                                     className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
@@ -498,7 +498,7 @@ export default function Highlights() {
                         <div className="mt-6 flex items-center justify-end gap-3">
                             <button
                                 onClick={() => {
-                                    setEditorOpen(null);
+                        setEditorOpen(null);
                                     setPendingFile(null);
                                 }}
                                 className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 ring-1 ring-white/10 transition-all hover:bg-white/5"
