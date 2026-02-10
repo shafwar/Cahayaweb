@@ -71,8 +71,16 @@ export default function Contact() {
             <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
                 {/* Hero Section */}
                 <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
-                    {/* Ambient Background */}
+                    {/* Professional Background Image */}
                     <div className="pointer-events-none absolute inset-0">
+                        <div 
+                            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+                            style={{
+                                backgroundImage: 'url(/images/destinations/image-55499739-5e9d-4bdc-a97e-a6fd07682015.png)',
+                                filter: 'blur(2px) brightness(0.3)',
+                            }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
                         <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.06),transparent_70%)] blur-3xl" />
                         <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_70%)] blur-3xl" />
                     </div>

@@ -61,16 +61,16 @@ const destinations = [
         id: 3,
         title: 'Egypt Wonders',
         subtitle: 'Pyramids & Nile River Expedition',
-        image: '/egypt.jpeg',
+        image: '/images/destinations/image-5669512f-42d3-400d-8e9b-85a9e475d948.png',
         duration: '8D7N',
         price: 'Rp 16.5M',
-        location: 'Cairo, Luxor, Aswan, Abu Simbel',
+        location: 'Mesir - Pyramid',
         highlights: 'Pyramids of Giza, Nile cruise, ancient temples, Valley of the Kings',
         description:
-            'Journey through the cradle of civilization and explore the mysteries of ancient Egypt. Marvel at the Great Pyramids of Giza and cruise the majestic Nile River.',
+            'Journey through the cradle of civilization and explore the mysteries of ancient Egypt. Marvel at the Great Pyramids of Giza and cruise the majestic Nile River. Experience the grandeur of ancient Egyptian civilization.',
         features: [
-            'Nile River luxury cruise',
             'Pyramids of Giza guided tour',
+            'Nile River luxury cruise',
             'Valley of the Kings exploration',
             'Abu Simbel temple visit',
             'Egyptian Museum tour',
@@ -192,24 +192,68 @@ const destinations = [
     {
         id: 9,
         title: 'Jordan Discovery',
-        subtitle: 'Wadi Rum & Petra Adventure',
-        image: '/jordan.jpeg',
+        subtitle: 'Wadi Rum, Petra & Ashabul Kahfi Adventure',
+        image: '/images/destinations/image-55499739-5e9d-4bdc-a97e-a6fd07682015.png',
         duration: '7D6N',
         price: 'Rp 17.2M',
-        location: 'Amman, Petra, Wadi Rum, Dead Sea',
-        highlights: 'Petra ancient city, desert camping, Dead Sea, biblical sites',
+        location: 'Amman - Petra, Wadi Rum, Goa Ashabul Kahfi',
+        highlights: 'Petra (7 keajaiban dunia), Wadi Rum jeep tour, Goa Ashabul Kahfi, Dead Sea, biblical sites',
         description:
-            'Journey through the ancient wonders of Jordan. Explore the magnificent rock-cut city of Petra and camp under the stars in Wadi Rum desert.',
+            'Journey through the ancient wonders of Jordan. Explore the magnificent rock-cut city of Petra (one of the 7 wonders of the world), enjoy jeep tour in Wadi Rum Valley, visit the Cave of Ashabul Kahfi, and experience the Dead Sea.',
         features: [
-            'Petra ancient city exploration',
-            'Wadi Rum desert camping',
+            'Petra ancient city exploration (7 wonders of the world)',
+            'Wadi Rum Valley jeep tour',
+            'Cave of Ashabul Kahfi visit',
             'Dead Sea floating experience',
             'Biblical site visits',
             'Traditional Bedouin experience',
-            'Luxury desert accommodations',
         ],
         badge: 'Adventure',
         category: 'Historical',
+    },
+    {
+        id: 10,
+        title: 'Aqsa & Palestine',
+        subtitle: 'Jerusalem, Al-Aqsa Complex & Mount of Olives',
+        image: '/images/destinations/image-361cb5f0-a259-4a75-ae10-6e69ee18077a.png',
+        duration: '5D4N',
+        price: 'Rp 19.5M',
+        location: 'Aqsa - Jericho, Komplek Al-Aqsa, Bukit Zaitun',
+        highlights: 'Dome of the Rock, Al-Aqsa Mosque, Mount of Olives, Jericho, Mount of Temptation',
+        description:
+            'Embark on a profound spiritual journey to the holy land. Visit the Al-Aqsa complex with the iconic Dome of the Rock, experience the serenity of Mount of Olives, explore ancient Jericho, and visit the Mount of Temptation.',
+        features: [
+            'Al-Aqsa complex visit (Dome of the Rock)',
+            'Mount of Olives experience',
+            'Jericho exploration',
+            'Mount of Temptation visit',
+            'Spiritual guidance',
+            'Historical site tours',
+        ],
+        badge: 'Spiritual',
+        category: 'Religious',
+    },
+    {
+        id: 11,
+        title: 'Sinai Heritage',
+        subtitle: 'Mount Sinai & Historical Sites',
+        image: '/images/destinations/image-868751bf-4fc6-4655-b7f9-b2286d6602af.png',
+        duration: '4D3N',
+        price: 'Rp 15.8M',
+        location: 'Sinai - Patung Samiri',
+        highlights: 'Mount Sinai, Samiri statue, biblical sites, historical exploration',
+        description:
+            'Discover the historical and spiritual significance of Sinai. Visit the Samiri statue and explore the biblical sites where important events took place. Experience the rich history and spiritual atmosphere of this sacred region.',
+        features: [
+            'Samiri statue visit',
+            'Mount Sinai exploration',
+            'Biblical site tours',
+            'Historical site visits',
+            'Spiritual guidance',
+            'Cultural heritage experience',
+        ],
+        badge: 'Heritage',
+        category: 'Religious',
     },
 ];
 
@@ -331,7 +375,7 @@ export default function Destinations() {
                             <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/70 sm:gap-6 sm:text-sm">
                                 <div className="flex items-center gap-2">
                                     <div className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 shadow-md" />
-                                    <span className="font-medium">9 Premium Destinations</span>
+                                    <span className="font-medium">11 Premium Destinations</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="h-2 w-2 rounded-full bg-gradient-to-r from-orange-400 to-red-400 shadow-md" />
