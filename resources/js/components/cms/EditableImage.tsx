@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { router, usePage } from '@inertiajs/react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { useEditMode } from './EditModeProvider';
 import ImageCropModal from './ImageCropModal';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
@@ -89,10 +89,13 @@ export default function EditableImage({
     const onCropApply = useCallback(
         async (blob: Blob) => {
             if (!cropImageSrc) return;
+            const currentCropSrc = cropImageSrc;
             try {
                 await uploadImage(blob);
-                URL.revokeObjectURL(cropImageSrc);
+                // Cleanup after successful upload
+                URL.revokeObjectURL(currentCropSrc);
                 setCropImageSrc(null);
+                setCropModalOpen(false);
             } catch (error: unknown) {
                 console.error('Failed to upload image:', error);
                 const ax = error && typeof error === 'object' && 'response' in error ? (error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
@@ -103,6 +106,7 @@ export default function EditableImage({
                     if (flat.length) msg = flat.join('. ');
                 }
                 alert(msg);
+                // Don't close modal on error, let user retry
             }
         },
         [cropImageSrc, uploadImage],
@@ -113,6 +117,16 @@ export default function EditableImage({
             URL.revokeObjectURL(cropImageSrc);
             setCropImageSrc(null);
         }
+        setCropModalOpen(false);
+    }, [cropImageSrc]);
+
+    // Cleanup object URL on unmount
+    useEffect(() => {
+        return () => {
+            if (cropImageSrc) {
+                URL.revokeObjectURL(cropImageSrc);
+            }
+        };
     }, [cropImageSrc]);
 
     const onDrop = useCallback(
@@ -212,7 +226,13 @@ export default function EditableImage({
             {cropImageSrc && (
                 <ImageCropModal
                     open={cropModalOpen}
-                    onOpenChange={setCropModalOpen}
+                    onOpenChange={(open) => {
+                        setCropModalOpen(open);
+                        if (!open) {
+                            // Cleanup when modal is closed
+                            onCropCancel();
+                        }
+                    }}
                     imageSrc={cropImageSrc}
                     aspect={aspect}
                     onApply={onCropApply}
