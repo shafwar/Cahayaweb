@@ -533,6 +533,8 @@ try {
     }
 }
 
+}
+
 // Initialize when DOM is ready
 if (typeof window !== 'undefined') {
     if (document.readyState === 'loading') {
