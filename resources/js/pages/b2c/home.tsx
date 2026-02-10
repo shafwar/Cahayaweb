@@ -211,37 +211,28 @@ const slides = [
     },
 ];
 
-// Best Sellers destinations
-const bestSellers = [
-    {
-        id: 1,
-        title: 'Arab Saudi',
-        subtitle: 'Spiritual journey to Holy Land',
-        image: '/arabsaudi.jpg',
-        tag: 'Best Seller',
-    },
-    {
-        id: 2,
-        title: 'Turkey Heritage',
-        subtitle: 'Istanbul to Cappadocia',
-        image: '/TURKEY.jpeg',
-        tag: 'Best Seller',
-    },
-    {
-        id: 3,
-        title: 'Egypt Wonders',
-        subtitle: 'Pyramid & Pyramids',
-        image: 'Destination Cahaya.jpeg', // Updated: Mesir - Pyramid
-        tag: 'Best Seller',
-    },
-    {
-        id: 4,
-        title: 'Dubai Luxury',
-        subtitle: 'Modern wonders',
-        image: '/dubai1.jpeg',
-        tag: 'Best Seller',
-    },
+// All Destination Cahaya photos with correct destination descriptions (where the trip goes)
+const destinationCahayaPool = [
+    { id: 1, title: 'Egypt Wonders', subtitle: 'Pyramid & Giza', image: 'Destination Cahaya.jpeg', tag: 'Best Seller' },
+    { id: 2, title: 'Jordan – Petra', subtitle: '7 Wonders of the World', image: 'Destination Cahaya 1.jpeg', tag: 'Best Seller' },
+    { id: 3, title: 'Jordan – Wadi Rum', subtitle: 'Jeep tour & desert valley', image: 'Destination Cahaya 2.jpeg', tag: 'Best Seller' },
+    { id: 4, title: 'Sinai Heritage', subtitle: 'Mount Sinai & Samiri statue', image: 'Destination Cahaya 3.jpeg', tag: 'Best Seller' },
+    { id: 5, title: 'Palestine', subtitle: 'Mount of Olives', image: 'Destination Cahaya 4.jpeg', tag: 'Best Seller' },
+    { id: 6, title: 'Palestine – Jericho', subtitle: 'Ancient city & Mount of Temptation', image: 'Destination Cahaya 5.jpeg', tag: 'Best Seller' },
+    { id: 7, title: 'Aqsa Complex', subtitle: 'Dome of the Rock & Jerusalem', image: 'Destination Cahaya 6.jpeg', tag: 'Best Seller' },
+    { id: 8, title: 'Jordan – Cave of the Seven Sleepers', subtitle: 'Ashabul Kahfi', image: 'Destination Cahaya 7.jpeg', tag: 'Best Seller' },
+    { id: 9, title: 'Egypt & Jordan', subtitle: 'Pyramids to Petra', image: 'Destination Cahaya 8.jpeg', tag: 'Best Seller' },
 ];
+
+// Shuffle array and take first n (Fisher–Yates)
+function shuffleAndTake<T>(array: T[], n: number): T[] {
+    const copy = [...array];
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy.slice(0, n);
+}
 
 // New Destinations
 const newDestinations = [
@@ -419,6 +410,9 @@ export default function Home() {
     const getImageSrc = (sectionKey: string, fallbackPath: string) => {
         return getImageUrl(props.sections, sectionKey, fallbackPath);
     };
+
+    // Best Sellers: 4 random from all Destination Cahaya photos (stable per page load)
+    const [bestSellersToShow] = useState(() => shuffleAndTake(destinationCahayaPool, 4));
 
     // Removed heroSlides state since we're using a single video now
 
@@ -629,12 +623,12 @@ export default function Home() {
                                 whileInView="show"
                                 viewport={{ once: true, margin: '-50px' }}
                             >
-                                {bestSellers.map((item) => {
+                                {bestSellersToShow.map((item) => {
                                     const sectionKey = `home.bestsellers.${item.id}.image`;
                                     const imageSrc = getImageSrc(sectionKey, item.image);
                                     const sectionImageUrl = props.sections?.[sectionKey]?.image ?? '';
                                     return (
-                                        <motion.div key={item.id} variants={fadeInUp} transition={{ duration: 0.7, ease }} className="group">
+                                        <motion.div key={`bestseller-${item.id}-${item.image}`} variants={fadeInUp} transition={{ duration: 0.7, ease }} className="group">
                                             <motion.div
                                                 className="relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-slate-900/80 to-slate-900/60"
                                                 whileHover={{ y: -6 }}
