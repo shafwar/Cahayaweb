@@ -81,6 +81,46 @@
         @vite(['resources/css/app.css', 'resources/js/app.tsx'])
         @inertiaHead
         
+        <!-- Critical: Ensure Vite assets load with correct base path -->
+        <script>
+            (function() {
+                'use strict';
+                // Fix any incorrect asset URLs immediately
+                if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+                    // Override script.src and link.href to ensure HTTPS and correct paths
+                    const observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            mutation.addedNodes.forEach(function(node) {
+                                if (node.nodeType === 1) { // Element node
+                                    if (node.tagName === 'SCRIPT' && node.src) {
+                                        // Ensure HTTPS and correct base path
+                                        if (node.src.startsWith('http://')) {
+                                            node.src = node.src.replace('http://', 'https://');
+                                        }
+                                        if (node.src.includes('/build/assets/') && !node.src.startsWith('https://') && !node.src.startsWith('http://')) {
+                                            // Relative path - ensure it's correct
+                                            if (!node.src.startsWith('/build/')) {
+                                                node.src = '/build/' + node.src.replace(/^\/+/, '');
+                                            }
+                                        }
+                                    }
+                                    if (node.tagName === 'LINK' && node.href && node.rel === 'stylesheet') {
+                                        // Ensure HTTPS and correct base path
+                                        if (node.href.startsWith('http://')) {
+                                            node.href = node.href.replace('http://', 'https://');
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    });
+                    
+                    observer.observe(document.head, { childList: true, subtree: true });
+                    observer.observe(document.body, { childList: true, subtree: true });
+                }
+            })();
+        </script>
+        
         <!-- Verify Vite assets are loaded -->
         <script>
             (function() {
