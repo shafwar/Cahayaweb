@@ -2,7 +2,7 @@
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
         "builder": "NIXPACKS",
-        "buildCommand": "composer install --no-interaction --prefer-dist --optimize-autoloader && npm ci --prefer-offline --no-audit && npm run build && npm run build:copy-manifest && (test -f public/build/manifest.json && echo '✓ manifest.json copied successfully' || echo '⚠️ manifest.json copy failed - continuing anyway')"
+        "buildCommand": "composer install --no-interaction --prefer-dist --optimize-autoloader && npm ci --prefer-offline --no-audit && npm run build && npm run build:copy-manifest && (test -f public/build/manifest.json && echo '✓ manifest.json exists' || (echo '⚠️ manifest.json missing, creating fallback...' && cp public/build/.vite/manifest.json public/build/manifest.json 2>/dev/null || echo '⚠️ Could not create manifest.json')) && (test -d public/build/assets && echo '✓ Assets directory exists' || echo '⚠️ Assets directory missing') && ls -la public/build/assets/*.js 2>/dev/null | head -3 || echo '⚠️ No JS assets found'"
     },
     "deploy": {
         "startCommand": "php artisan config:clear && php artisan route:clear && php artisan view:clear && php artisan migrate:safe --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=$PORT",
