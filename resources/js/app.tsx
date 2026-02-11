@@ -7,6 +7,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
 import { logger } from './utils/logger';
+import { monitorViteAssets } from './utils/viteAssetLoader';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
 
@@ -534,6 +535,12 @@ try {
     }
 }
 
+}
+
+// Initialize asset monitoring BEFORE anything else
+if (typeof window !== 'undefined') {
+    // Start monitoring Vite assets immediately
+    monitorViteAssets();
 }
 
 // Initialize when DOM is ready

@@ -80,6 +80,50 @@
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx'])
         @inertiaHead
+        
+        <!-- Fallback for Vite asset loading errors -->
+        <script>
+            // Monitor for Vite asset loading errors and show fallback
+            (function() {
+                'use strict';
+                
+                let assetLoadTimeout;
+                let criticalAssetsLoaded = false;
+                
+                // Check if critical assets are loaded after 5 seconds
+                assetLoadTimeout = setTimeout(function() {
+                    if (!criticalAssetsLoaded) {
+                        // Check if app element exists and has content
+                        const appElement = document.getElementById('app');
+                        if (!appElement || appElement.children.length === 0) {
+                            console.error('[App] Critical assets failed to load - showing fallback');
+                            
+                            // Show fallback UI
+                            const fallback = document.createElement('div');
+                            fallback.id = 'vite-asset-error-fallback';
+                            fallback.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; z-index: 99999; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;';
+                            fallback.innerHTML = '<div style="text-align: center; max-width: 600px;"><h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Application Loading</h1><p style="color: #6b7280; margin-bottom: 1.5rem;">Please wait while we load the application assets...</p><div style="margin-bottom: 1.5rem;"><button onclick="window.location.reload()" style="padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;">Reload Page</button></div><p style="font-size: 0.875rem; color: #9ca3af;">If this problem persists, please contact support.</p></div>';
+                            document.body.appendChild(fallback);
+                        }
+                    }
+                }, 5000);
+                
+                // Clear timeout when app loads successfully
+                window.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(function() {
+                        const appElement = document.getElementById('app');
+                        if (appElement && appElement.children.length > 0) {
+                            criticalAssetsLoaded = true;
+                            clearTimeout(assetLoadTimeout);
+                            const fallback = document.getElementById('vite-asset-error-fallback');
+                            if (fallback) {
+                                fallback.remove();
+                            }
+                        }
+                    }, 1000);
+                });
+            })();
+        </script>
 
         <!-- Force HTTPS for all requests - CRITICAL: Must run BEFORE any scripts -->
         <script>
@@ -170,52 +214,13 @@
                         const src = e.target.src || e.target.href;
                         if (src && (src.includes('/build/') || src.includes('vite'))) {
                             console.error('[App] Vite asset failed to load:', src);
-                            
-                            // Try to fix asset URL by checking manifest
-                            if (src.includes('/build/assets/')) {
-                                const assetName = src.split('/').pop();
-                                const baseName = assetName.split('-')[0]; // e.g., 'framer-motion' or 'app'
-                                
-                                // Try to fetch manifest and find correct hash
-                                fetch('/build/manifest.json')
-                                    .then(r => r.json())
-                                    .then(manifest => {
-                                        // Find asset with matching base name
-                                        for (const [key, value] of Object.entries(manifest)) {
-                                            if (typeof value === 'object' && value.file && value.file.includes(baseName)) {
-                                                const correctUrl = value.file.startsWith('/') ? value.file : '/build/' + value.file;
-                                                console.warn('[App] Found correct asset URL:', correctUrl);
-                                                // Reload page to use correct manifest
-                                                window.location.reload();
-                                                return;
-                                            }
-                                        }
-                                        // If manifest check fails, try reload
-                                        setTimeout(function() {
-                                            if (!document.querySelector('[data-page]')) {
-                                                console.warn('[App] Reloading page due to asset load failure');
-                                                window.location.reload();
-                                            }
-                                        }, 2000);
-                                    })
-                                    .catch(() => {
-                                        // If manifest fetch fails, just reload
-                                        setTimeout(function() {
-                                            if (!document.querySelector('[data-page]')) {
-                                                console.warn('[App] Reloading page due to asset load failure');
-                                                window.location.reload();
-                                            }
-                                        }, 2000);
-                                    });
-                            } else {
-                                // For non-asset errors, just reload
-                                setTimeout(function() {
-                                    if (!document.querySelector('[data-page]')) {
-                                        console.warn('[App] Reloading page due to asset load failure');
-                                        window.location.reload();
-                                    }
-                                }, 2000);
-                            }
+                            // Try to reload after a delay
+                            setTimeout(function() {
+                                if (!document.querySelector('[data-page]')) {
+                                    console.warn('[App] Reloading page due to asset load failure');
+                                    window.location.reload();
+                                }
+                            }, 2000);
                         }
                     }
                 }, true);

@@ -160,35 +160,12 @@ class HandleInertiaRequests extends Middleware
             $sectionsData = [];
             try {
                 // Wrap in additional try-catch to ensure we never crash the app
-                // Add retry logic for database connection
-                $maxRetries = 3;
-                $retryDelay = 1;
-                
-                for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
-                    try {
-                        $sectionsData = Section::getAllSections();
-                        if (!is_array($sectionsData)) {
-                            Log::warning('getAllSections returned non-array', [
-                                'type' => gettype($sectionsData),
-                            ]);
-                            $sectionsData = [];
-                        }
-                        break; // Success, exit retry loop
-                    } catch (\PDOException $e) {
-                        if ($attempt === $maxRetries) {
-                            // Last attempt failed
-                            Log::warning('Database error getting sections in HandleInertiaRequests', [
-                                'error' => $e->getMessage(),
-                                'url' => $request->url(),
-                                'attempts' => $maxRetries
-                            ]);
-                            $sectionsData = [];
-                        } else {
-                            // Retry
-                            sleep($retryDelay);
-                            continue;
-                        }
-                    }
+                $sectionsData = Section::getAllSections();
+                if (!is_array($sectionsData)) {
+                    Log::warning('getAllSections returned non-array', [
+                        'type' => gettype($sectionsData),
+                    ]);
+                    $sectionsData = [];
                 }
             } catch (\PDOException $e) {
                 // Database connection issue - don't crash, just log and continue

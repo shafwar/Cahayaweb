@@ -56,16 +56,9 @@ return [
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                PDO::ATTR_TIMEOUT => 30, // Increased timeout for Railway MySQL
+                PDO::ATTR_TIMEOUT => 10, // Connection timeout
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_PERSISTENT => false, // Don't use persistent connections
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET sql_mode='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'",
             ]) : [],
-            // Connection pool settings for Railway
-            'pool' => [
-                'min' => 1,
-                'max' => 5,
-            ],
         ],
 
         'mariadb' => [
