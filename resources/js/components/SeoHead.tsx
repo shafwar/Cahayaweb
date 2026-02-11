@@ -22,7 +22,11 @@ export default function SeoHead({
     modifiedTime
 }: SeoHeadProps) {
     const { url } = usePage();
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cahayaanbiya.com';
+    let origin = typeof window !== 'undefined' ? window.location.origin : 'https://cahayaanbiya.com';
+    // Remove www. prefix for canonical non-www URLs (consistent with server-side redirect)
+    if (origin.startsWith('https://www.')) {
+        origin = origin.replace('https://www.', 'https://');
+    }
     const canonical = origin ? `${origin}${url}` : undefined;
     const ogImage = image ?? `${origin}/cahayanbiyalogo.png`;
     const fullTitle = title.includes('Cahaya Anbiya') ? title : `${title} | Cahaya Anbiya`;

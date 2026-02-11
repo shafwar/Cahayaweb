@@ -97,6 +97,8 @@ Route::get('/health', function () {
 Route::get('/robots.txt', function () {
     $baseUrl = config('app.url') ?: request()->getSchemeAndHttpHost();
     $baseUrl = preg_replace('#^http://#', 'https://', $baseUrl);
+    // Remove www. prefix for canonical non-www URLs
+    $baseUrl = preg_replace('#^https://www\.#', 'https://', $baseUrl);
     $baseUrl = rtrim($baseUrl, '/');
 
     $content = implode("\n", [
@@ -124,6 +126,8 @@ Route::get('/robots.txt', function () {
 Route::get('/sitemap.xml', function () {
     $baseUrl = config('app.url') ?: request()->getSchemeAndHttpHost();
     $baseUrl = preg_replace('#^http://#', 'https://', $baseUrl);
+    // Remove www. prefix for canonical non-www URLs
+    $baseUrl = preg_replace('#^https://www\.#', 'https://', $baseUrl);
     $baseUrl = rtrim($baseUrl, '/');
 
     // Define URLs with priorities and change frequencies
