@@ -643,7 +643,11 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                                                         <SelectValue placeholder="Select your business type" />
                                                     </SelectTrigger>
                                                     <SelectContent 
-                                                        side="bottom" 
+                                                        side="bottom"
+                                                        sideOffset={4}
+                                                        avoidCollisions={false}
+                                                        collisionPadding={0}
+                                                        position="popper"
                                                         className="border border-gray-700 bg-gray-800"
                                                     >
                                                         {businessTypes.map((type) => (

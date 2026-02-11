@@ -9,7 +9,7 @@ import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, ChevronDown, ChevronUp, Edit3, ImageIcon, Sparkles, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 const IMAGE_GUIDE = '1920×1080px recommended · Max 5MB · Auto-compressed · JPEG, PNG, WebP';
 
@@ -56,6 +56,7 @@ export default function Packages() {
     const [galleryPendingFile, setGalleryPendingFile] = useState<File | null>(null);
     const [expandedPackageId, setExpandedPackageId] = useState<number | null>(null);
     const [imageLightbox, setImageLightbox] = useState<{ src: string; alt: string; caption?: string } | null>(null);
+    const lightboxContentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!imageLightbox) return;
@@ -64,8 +65,24 @@ export default function Packages() {
         };
         document.addEventListener('keydown', onEscape);
         document.body.style.overflow = 'hidden';
+        
+        // Handle click outside for mobile - use mousedown/touchstart for better mobile support
+        const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+            const target = e.target as HTMLElement;
+            const content = lightboxContentRef.current;
+            if (content && !content.contains(target)) {
+                setImageLightbox(null);
+            }
+        };
+        
+        // Use both mousedown and touchstart for maximum compatibility
+        document.addEventListener('mousedown', handleOutsideClick);
+        document.addEventListener('touchstart', handleOutsideClick, { passive: true });
+        
         return () => {
             document.removeEventListener('keydown', onEscape);
+            document.removeEventListener('mousedown', handleOutsideClick);
+            document.removeEventListener('touchstart', handleOutsideClick);
             document.body.style.overflow = '';
         };
     }, [imageLightbox]);
@@ -1104,56 +1121,79 @@ export default function Packages() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4"
+                        className="lightbox-backdrop fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4"
                         onClick={(e) => {
-                            // Close on backdrop click (not on image)
-                            if (e.target === e.currentTarget) {
+                            // Close on backdrop click - check if click is on backdrop itself
+                            const target = e.target as HTMLElement;
+                            if (target.classList.contains('lightbox-backdrop') || target === e.currentTarget) {
                                 setImageLightbox(null);
                             }
                         }}
-                        onTouchStart={(e) => {
-                            // Close on backdrop touch (not on image)
-                            if (e.target === e.currentTarget) {
+                        onPointerDown={(e) => {
+                            // Handle pointer events for better mobile support
+                            const target = e.target as HTMLElement;
+                            if (target.classList.contains('lightbox-backdrop') || target === e.currentTarget) {
                                 setImageLightbox(null);
                             }
                         }}
                         role="button"
                         tabIndex={-1}
                         aria-label="Close image preview"
+                        style={{ touchAction: 'manipulation' }}
                     >
                         {/* Close Button - Larger and more visible for mobile */}
                         <button
                             type="button"
                             onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setImageLightbox(null);
+                            }}
+                            onPointerDown={(e) => {
+                                e.preventDefault();
                                 e.stopPropagation();
                                 setImageLightbox(null);
                             }}
                             onTouchStart={(e) => {
+                                e.preventDefault();
                                 e.stopPropagation();
                                 setImageLightbox(null);
                             }}
-                            className="absolute top-4 right-4 z-[10000] flex h-12 w-12 items-center justify-center rounded-full bg-white/20 p-3 text-white transition-all hover:bg-white/30 active:bg-white/40 touch-manipulation"
+                            className="absolute top-4 right-4 z-[10000] flex h-14 w-14 items-center justify-center rounded-full bg-white/25 p-3 text-white shadow-lg transition-all hover:bg-white/35 active:bg-white/45 active:scale-95 touch-manipulation"
                             aria-label="Close"
-                            style={{ WebkitTapHighlightColor: 'transparent' }}
+                            style={{ 
+                                WebkitTapHighlightColor: 'transparent',
+                                touchAction: 'manipulation',
+                                cursor: 'pointer'
+                            }}
                         >
-                            <X className="h-7 w-7 sm:h-6 sm:w-6" />
+                            <X className="h-8 w-8 sm:h-7 sm:w-7" strokeWidth={2.5} />
                         </button>
                         <motion.div
+                            ref={lightboxContentRef}
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             transition={{ duration: 0.2 }}
                             className="flex h-full w-full flex-col items-center justify-center gap-4"
-                            onClick={(e) => e.stopPropagation()}
-                            onTouchStart={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                            }}
+                            style={{ touchAction: 'manipulation' }}
                         >
                             <div className="flex h-full max-h-[90vh] w-full max-w-[90vw] items-center justify-center">
                                 <img
                                     src={imageLightbox.src}
                                     alt={imageLightbox.alt}
-                                    className="h-auto max-h-[85vh] w-auto max-w-[85vw] rounded-lg object-contain shadow-2xl"
+                                    className="h-auto max-h-[85vh] w-auto max-w-[85vw] rounded-lg object-contain shadow-2xl select-none"
                                     draggable={false}
-                                    style={{ pointerEvents: 'none', display: 'block', margin: '0 auto' }}
+                                    style={{ 
+                                        pointerEvents: 'none', 
+                                        display: 'block', 
+                                        margin: '0 auto',
+                                        userSelect: 'none',
+                                        WebkitUserSelect: 'none'
+                                    }}
                                 />
                             </div>
                             {imageLightbox.caption && (
