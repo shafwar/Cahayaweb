@@ -17,7 +17,12 @@ class AddCacheHeaders
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
+        try {
+            $response = $next($request);
+        } catch (\Throwable $e) {
+            // If there's an error, let it propagate (don't catch here)
+            throw $e;
+        }
 
         // Don't cache if response has no-cache headers already set
         if ($response->headers->has('Cache-Control') && 
@@ -41,14 +46,21 @@ class AddCacheHeaders
         // HTML responses - short cache (5 minutes) for Inertia pages
         if (str_contains($contentType, 'text/html')) {
             // Don't cache HTML responses that require authentication
-            if ($request->user()) {
+            try {
+                if ($request->user()) {
+                    $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+                    $response->headers->set('Pragma', 'no-cache');
+                    $response->headers->set('Expires', '0');
+                } else {
+                    // Public pages - short cache
+                    $response->headers->set('Cache-Control', 'public, max-age=300, must-revalidate');
+                    $response->headers->set('Expires', gmdate('D, d M Y H:i:s', time() + 300) . ' GMT');
+                }
+            } catch (\Throwable $e) {
+                // If user() check fails, default to no-cache for safety
                 $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
                 $response->headers->set('Pragma', 'no-cache');
                 $response->headers->set('Expires', '0');
-            } else {
-                // Public pages - short cache
-                $response->headers->set('Cache-Control', 'public, max-age=300, must-revalidate');
-                $response->headers->set('Expires', gmdate('D, d M Y H:i:s', time() + 300) . ' GMT');
             }
             return $response;
         }
