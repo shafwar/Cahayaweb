@@ -642,7 +642,10 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                                                     <SelectTrigger className="h-12 border border-gray-600 bg-gray-900/50 text-base text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20">
                                                         <SelectValue placeholder="Select your business type" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border border-gray-700 bg-gray-800">
+                                                    <SelectContent 
+                                                        side="bottom" 
+                                                        className="border border-gray-700 bg-gray-800"
+                                                    >
                                                         {businessTypes.map((type) => (
                                                             <SelectItem
                                                                 key={type.value}

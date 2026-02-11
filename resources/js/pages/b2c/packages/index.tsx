@@ -1105,18 +1105,38 @@ export default function Packages() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4"
-                        onClick={() => setImageLightbox(null)}
+                        onClick={(e) => {
+                            // Close on backdrop click (not on image)
+                            if (e.target === e.currentTarget) {
+                                setImageLightbox(null);
+                            }
+                        }}
+                        onTouchStart={(e) => {
+                            // Close on backdrop touch (not on image)
+                            if (e.target === e.currentTarget) {
+                                setImageLightbox(null);
+                            }
+                        }}
                         role="button"
                         tabIndex={-1}
-                        aria-label="Tutup preview gambar"
+                        aria-label="Close image preview"
                     >
+                        {/* Close Button - Larger and more visible for mobile */}
                         <button
                             type="button"
-                            onClick={() => setImageLightbox(null)}
-                            className="absolute top-4 right-4 z-10 rounded-full bg-white/10 p-2 text-white transition-all hover:bg-white/20"
-                            aria-label="Tutup"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setImageLightbox(null);
+                            }}
+                            onTouchStart={(e) => {
+                                e.stopPropagation();
+                                setImageLightbox(null);
+                            }}
+                            className="absolute top-4 right-4 z-[10000] flex h-12 w-12 items-center justify-center rounded-full bg-white/20 p-3 text-white transition-all hover:bg-white/30 active:bg-white/40 touch-manipulation"
+                            aria-label="Close"
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
                         >
-                            <X className="h-6 w-6" />
+                            <X className="h-7 w-7 sm:h-6 sm:w-6" />
                         </button>
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
@@ -1125,6 +1145,7 @@ export default function Packages() {
                             transition={{ duration: 0.2 }}
                             className="flex h-full w-full flex-col items-center justify-center gap-4"
                             onClick={(e) => e.stopPropagation()}
+                            onTouchStart={(e) => e.stopPropagation()}
                         >
                             <div className="flex h-full max-h-[90vh] w-full max-w-[90vw] items-center justify-center">
                                 <img
@@ -1138,7 +1159,7 @@ export default function Packages() {
                             {imageLightbox.caption && (
                                 <p className="mt-2 max-w-2xl px-4 text-center text-sm text-white/80">{imageLightbox.caption}</p>
                             )}
-                            <p className="mt-2 text-center text-xs text-white/50">Click outside or press ESC to close</p>
+                            <p className="mt-2 text-center text-xs text-white/50">Tap outside or press ESC to close</p>
                         </motion.div>
                     </motion.div>
                 )}

@@ -11,6 +11,7 @@ import {
     Info,
     LogIn,
     LogOut,
+    Home,
     MapPin,
     Menu,
     MessageCircle,
@@ -349,30 +350,54 @@ const MobileMenuPortal: React.FC<{
 
                     {/* Footer */}
                     <div className="border-t border-white/5 p-5">
-                        {/* Only show login button for B2B variant, not for admin */}
+                        {/* B2B variant: Show Back to Select Mode and Logout buttons */}
                         {variant === 'b2b' && !isAdmin && (
-                            user ? (
-                                <button
-                                    onClick={() => {
-                                        logout();
+                            <>
+                                {/* Back to Select Mode Button */}
+                                <a
+                                    href="/"
+                                    onClick={(e) => {
+                                        // Clear session storage to ensure splash screen shows
+                                        try {
+                                            if (typeof window !== 'undefined') {
+                                                window.sessionStorage.removeItem('cahaya-anbiya-session');
+                                                window.localStorage.removeItem('cahaya-anbiya-visited');
+                                            }
+                                        } catch {
+                                            // Ignore storage errors
+                                        }
                                         onClose();
                                     }}
-                                    disabled={isLoggingOut}
-                                    className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm font-semibold text-blue-300 transition-all hover:bg-blue-500/20"
                                 >
-                                    <LogOut className="h-4 w-4" />
-                                    {isLoggingOut ? 'Logging out...' : 'Logout'}
-                                </button>
-                            ) : (
-                                <a
-                                    href="/login?mode=b2b&redirect=/b2b"
-                                    className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white"
-                                    onClick={onClose}
-                                >
-                                    <LogIn className="h-4 w-4" />
-                                    Login
+                                    <Home className="h-4 w-4" />
+                                    Back to Select Mode
                                 </a>
-                            )
+                                
+                                {/* Logout Button (only if user is logged in) */}
+                                {user ? (
+                                    <button
+                                        onClick={() => {
+                                            logout();
+                                            onClose();
+                                        }}
+                                        disabled={isLoggingOut}
+                                        className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300 transition-all hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <LogOut className="h-4 w-4" />
+                                        {isLoggingOut ? 'Logging out...' : 'Logout'}
+                                    </button>
+                                ) : (
+                                    <a
+                                        href="/login?mode=b2b&redirect=/b2b"
+                                        className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white transition-all hover:from-amber-600 hover:to-orange-600"
+                                        onClick={onClose}
+                                    >
+                                        <LogIn className="h-4 w-4" />
+                                        Login
+                                    </a>
+                                )}
+                            </>
                         )}
                         <p className="text-center text-xs text-white/40">© 2024 Cahaya Anbiya Travel</p>
                     </div>
