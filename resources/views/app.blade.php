@@ -81,6 +81,68 @@
         @vite(['resources/css/app.css', 'resources/js/app.tsx'])
         @inertiaHead
         
+        <!-- Critical: Verify Vite assets loaded and show fallback if not -->
+        <script>
+            (function() {
+                'use strict';
+                let assetsLoaded = false;
+                let checkCount = 0;
+                const maxChecks = 10; // Check for 5 seconds (10 * 500ms)
+                
+                function checkAssets() {
+                    checkCount++;
+                    
+                    // Check if Vite scripts are loaded
+                    const viteScripts = document.querySelectorAll('script[type="module"][src*="/build/assets/"]');
+                    const appElement = document.getElementById('app');
+                    const hasInertiaData = document.querySelector('[data-page]');
+                    
+                    if (viteScripts.length > 0 || (appElement && appElement.children.length > 0) || hasInertiaData) {
+                        assetsLoaded = true;
+                        console.log('[App] Assets loaded successfully');
+                        return;
+                    }
+                    
+                    // If max checks reached and still no assets, show fallback
+                    if (checkCount >= maxChecks && !assetsLoaded) {
+                        console.error('[App] Assets failed to load after 5 seconds - showing fallback');
+                        
+                        const existingFallback = document.getElementById('vite-asset-loading-fallback');
+                        if (existingFallback) return;
+                        
+                        const fallback = document.createElement('div');
+                        fallback.id = 'vite-asset-loading-fallback';
+                        fallback.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; z-index: 99999; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;';
+                        fallback.innerHTML = '<div style="text-align: center; max-width: 600px;"><h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Loading Application</h1><p style="color: #6b7280; margin-bottom: 1.5rem;">Please wait while we load the application...</p><div style="margin-bottom: 1.5rem;"><button onclick="window.location.reload()" style="padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;">Reload Page</button></div><p style="font-size: 0.875rem; color: #9ca3af;">If this problem persists, please contact support.</p></div>';
+                        document.body.appendChild(fallback);
+                    } else if (!assetsLoaded) {
+                        // Continue checking
+                        setTimeout(checkAssets, 500);
+                    }
+                }
+                
+                // Start checking after DOM is ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        setTimeout(checkAssets, 1000);
+                    });
+                } else {
+                    setTimeout(checkAssets, 1000);
+                }
+                
+                // Also listen for script load errors
+                window.addEventListener('error', function(e) {
+                    if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+                        const src = e.target.src || e.target.href;
+                        if (src && (src.includes('/build/') || src.includes('vite'))) {
+                            console.error('[App] Asset load error detected:', src);
+                            // Don't show fallback immediately - wait for checkAssets to confirm
+                        }
+                    }
+                }, true);
+            })();
+        </script>
+        
         <!-- Critical: Ensure Vite assets load with correct base path -->
         <script>
             (function() {
