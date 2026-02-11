@@ -29,16 +29,30 @@ class Section extends Model
     protected static function booted(): void
     {
         static::saved(function () {
-            if (! static::$snapshotsPaused) {
-                static::snapshot();
+            try {
+                if (! static::$snapshotsPaused) {
+                    static::snapshot();
+                }
+                // Clear cache when section is saved
+                static::clearCache();
+            } catch (\Throwable $e) {
+                // Don't let booted() crash the application
+                Log::warning('Error in Section::booted() saved callback', [
+                    'error' => $e->getMessage()
+                ]);
             }
-            // Clear cache when section is saved
-            static::clearCache();
         });
         
         static::deleted(function () {
-            // Clear cache when section is deleted
-            static::clearCache();
+            try {
+                // Clear cache when section is deleted
+                static::clearCache();
+            } catch (\Throwable $e) {
+                // Don't let booted() crash the application
+                Log::warning('Error in Section::booted() deleted callback', [
+                    'error' => $e->getMessage()
+                ]);
+            }
         });
     }
 
