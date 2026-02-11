@@ -2,7 +2,7 @@
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
         "builder": "NIXPACKS",
-        "buildCommand": "composer install --no-interaction --prefer-dist --optimize-autoloader && npm ci --prefer-offline --no-audit && npm run build"
+        "buildCommand": "composer install --no-interaction --prefer-dist --optimize-autoloader && npm ci --prefer-offline --no-audit && npm run build && cp public/build/.vite/manifest.json public/build/manifest.json && echo '✓ Build completed and manifest copied'"
     },
     "deploy": {
         "startCommand": "php artisan config:clear && php artisan route:clear && php artisan view:clear && php artisan migrate:safe --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=$PORT",

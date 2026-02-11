@@ -170,13 +170,52 @@
                         const src = e.target.src || e.target.href;
                         if (src && (src.includes('/build/') || src.includes('vite'))) {
                             console.error('[App] Vite asset failed to load:', src);
-                            // Try to reload after a delay
-                            setTimeout(function() {
-                                if (!document.querySelector('[data-page]')) {
-                                    console.warn('[App] Reloading page due to asset load failure');
-                                    window.location.reload();
-                                }
-                            }, 2000);
+                            
+                            // Try to fix asset URL by checking manifest
+                            if (src.includes('/build/assets/')) {
+                                const assetName = src.split('/').pop();
+                                const baseName = assetName.split('-')[0]; // e.g., 'framer-motion' or 'app'
+                                
+                                // Try to fetch manifest and find correct hash
+                                fetch('/build/manifest.json')
+                                    .then(r => r.json())
+                                    .then(manifest => {
+                                        // Find asset with matching base name
+                                        for (const [key, value] of Object.entries(manifest)) {
+                                            if (typeof value === 'object' && value.file && value.file.includes(baseName)) {
+                                                const correctUrl = value.file.startsWith('/') ? value.file : '/build/' + value.file;
+                                                console.warn('[App] Found correct asset URL:', correctUrl);
+                                                // Reload page to use correct manifest
+                                                window.location.reload();
+                                                return;
+                                            }
+                                        }
+                                        // If manifest check fails, try reload
+                                        setTimeout(function() {
+                                            if (!document.querySelector('[data-page]')) {
+                                                console.warn('[App] Reloading page due to asset load failure');
+                                                window.location.reload();
+                                            }
+                                        }, 2000);
+                                    })
+                                    .catch(() => {
+                                        // If manifest fetch fails, just reload
+                                        setTimeout(function() {
+                                            if (!document.querySelector('[data-page]')) {
+                                                console.warn('[App] Reloading page due to asset load failure');
+                                                window.location.reload();
+                                            }
+                                        }, 2000);
+                                    });
+                            } else {
+                                // For non-asset errors, just reload
+                                setTimeout(function() {
+                                    if (!document.querySelector('[data-page]')) {
+                                        console.warn('[App] Reloading page due to asset load failure');
+                                        window.location.reload();
+                                    }
+                                }, 2000);
+                            }
                         }
                     }
                 }, true);
