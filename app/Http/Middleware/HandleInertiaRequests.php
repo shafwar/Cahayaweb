@@ -159,6 +159,7 @@ class HandleInertiaRequests extends Middleware
             // Evaluate sections directly (not as closure) to avoid serialization issues
             $sectionsData = [];
             try {
+                // Wrap in additional try-catch to ensure we never crash the app
                 $sectionsData = Section::getAllSections();
                 if (!is_array($sectionsData)) {
                     Log::warning('getAllSections returned non-array', [
@@ -166,9 +167,18 @@ class HandleInertiaRequests extends Middleware
                     ]);
                     $sectionsData = [];
                 }
-            } catch (\Throwable $e) {
-                Log::error('Error getting sections', [
+            } catch (\PDOException $e) {
+                // Database connection issue - don't crash, just log and continue
+                Log::warning('Database error getting sections in HandleInertiaRequests', [
                     'error' => $e->getMessage(),
+                    'url' => $request->url()
+                ]);
+                $sectionsData = [];
+            } catch (\Throwable $e) {
+                // Any other error - don't crash, just log and continue
+                Log::error('Error getting sections in HandleInertiaRequests', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
                     'url' => $request->url()
                 ]);
                 $sectionsData = [];

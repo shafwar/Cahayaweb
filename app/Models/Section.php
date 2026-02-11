@@ -436,12 +436,16 @@ class Section extends Model
     /**
      * Clear sections cache (call this when sections are updated)
      */
-    /**
-     * Clear sections cache (call this when sections are updated)
-     */
     public static function clearCache(): void
     {
-        \Illuminate\Support\Facades\Cache::forget('sections_all_' . config('app.env', 'production'));
+        try {
+            \Illuminate\Support\Facades\Cache::forget('sections_all_' . config('app.env', 'production'));
+        } catch (\Throwable $e) {
+            // If cache clear fails, log but don't crash
+            Log::warning('Failed to clear sections cache', [
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     public static function restoreFromSnapshot(string $key): bool
