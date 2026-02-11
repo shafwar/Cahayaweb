@@ -25,8 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
-            \App\Http\Middleware\CompressResponse::class,
-            \App\Http\Middleware\AddCacheHeaders::class,
+            // Temporarily disabled to isolate 502 error - will re-enable with better error handling
+            // \App\Http\Middleware\CompressResponse::class,
+            // \App\Http\Middleware\AddCacheHeaders::class,
         ]);
 
         $middleware->alias([

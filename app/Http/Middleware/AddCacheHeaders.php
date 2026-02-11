@@ -24,14 +24,31 @@ class AddCacheHeaders
             throw $e;
         }
 
-        // Don't cache if response has no-cache headers already set
-        if ($response->headers->has('Cache-Control') && 
-            str_contains($response->headers->get('Cache-Control'), 'no-cache')) {
+        // Safety check: ensure response is valid
+        if (!$response instanceof Response) {
             return $response;
         }
 
-        $path = $request->path();
-        $contentType = $response->headers->get('Content-Type', '');
+        // Don't cache if response has no-cache headers already set
+        try {
+            if ($response->headers->has('Cache-Control') && 
+                str_contains($response->headers->get('Cache-Control', ''), 'no-cache')) {
+                return $response;
+            }
+        } catch (\Throwable $e) {
+            // If header check fails, continue without modifying headers
+            \Log::warning('Cache header check failed', ['error' => $e->getMessage()]);
+            return $response;
+        }
+
+        try {
+            $path = $request->path();
+            $contentType = $response->headers->get('Content-Type', '');
+        } catch (\Throwable $e) {
+            // If path/contentType check fails, return response as-is
+            \Log::warning('Path/contentType check failed', ['error' => $e->getMessage()]);
+            return $response;
+        }
 
         // Static assets - long cache (1 year) with versioning
         if (str_starts_with($path, 'build/') || 
