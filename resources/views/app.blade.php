@@ -81,6 +81,31 @@
         @vite(['resources/css/app.css', 'resources/js/app.tsx'])
         @inertiaHead
         
+        <!-- Verify Vite assets are loaded -->
+        <script>
+            (function() {
+                'use strict';
+                // Check if Vite assets are loaded after page load
+                window.addEventListener('load', function() {
+                    setTimeout(function() {
+                        const scripts = document.querySelectorAll('script[type="module"]');
+                        const viteScripts = Array.from(scripts).filter(s => 
+                            s.src && (s.src.includes('/build/assets/') || s.src.includes('vite'))
+                        );
+                        
+                        if (viteScripts.length === 0) {
+                            console.error('[App] No Vite scripts found - assets may not have loaded');
+                        } else {
+                            console.log(`[App] Found ${viteScripts.length} Vite script(s)`);
+                            viteScripts.forEach(function(script) {
+                                console.log('[App] Vite script:', script.src);
+                            });
+                        }
+                    }, 1000);
+                });
+            })();
+        </script>
+        
         <!-- Fallback for Vite asset loading errors -->
         <script>
             // Monitor for Vite asset loading errors and show fallback
