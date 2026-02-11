@@ -241,7 +241,7 @@ export default function BlogIndex() {
                                                         const fileName = currentUrl.split('/').pop() || article.image;
                                                         altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
                                                     }
-                                                    console.log('[Blog Image] Trying alternative R2 path:', altPath);
+                                                    // Try alternative R2 path silently
                                                     target.src = altPath;
                                                 }
                                             }}
@@ -328,6 +328,8 @@ export default function BlogIndex() {
                                     <img
                                         src={getR2Url(article.image)}
                                         alt={article.title}
+                                        loading="lazy"
+                                        decoding="async"
                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         onError={(e) => {
                                             const target = e.currentTarget;
@@ -344,7 +346,7 @@ export default function BlogIndex() {
                                                     const fileName = currentUrl.split('/').pop() || article.image;
                                                     altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
                                                 }
-                                                console.log('[Blog Image] Trying alternative R2 path:', altPath);
+                                                // Try alternative R2 path silently
                                                 target.src = altPath;
                                             }
                                         }}

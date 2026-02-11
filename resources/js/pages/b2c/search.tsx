@@ -391,6 +391,8 @@ export default function SearchPage() {
                                                             <img
                                                                 src={getR2Url(result.item.image)}
                                                                 alt={result.item.title}
+                                                                loading="lazy"
+                                                                decoding="async"
                                                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                                 onError={(e) => {
                                                                     const target = e.currentTarget;
@@ -407,7 +409,7 @@ export default function SearchPage() {
                                                                             const fileName = currentUrl.split('/').pop() || result.item.image;
                                                                             altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
                                                                         }
-                                                                        console.log('[Search Image] Trying alternative R2 path:', altPath);
+                                                                        // Try alternative R2 path silently
                                                                         target.src = altPath;
                                                                     }
                                                                 }}
@@ -464,6 +466,8 @@ export default function SearchPage() {
                                                             <img
                                                                 src={getR2Url(result.item.image)}
                                                                 alt={result.item.title}
+                                                                loading="lazy"
+                                                                decoding="async"
                                                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                                 onError={(e) => {
                                                                     const target = e.currentTarget;
@@ -480,7 +484,7 @@ export default function SearchPage() {
                                                                             const fileName = currentUrl.split('/').pop() || result.item.image;
                                                                             altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
                                                                         }
-                                                                        console.log('[Search Image] Trying alternative R2 path:', altPath);
+                                                                        // Try alternative R2 path silently
                                                                         target.src = altPath;
                                                                     }
                                                                 }}

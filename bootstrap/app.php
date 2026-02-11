@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\CompressResponse::class,
+            \App\Http\Middleware\AddCacheHeaders::class,
         ]);
 
         $middleware->alias([

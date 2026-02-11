@@ -609,6 +609,8 @@ export default function BlogArticle() {
                     <img
                         src={getR2Url(currentArticle.image)}
                         alt={currentArticle.title}
+                        loading="lazy"
+                        decoding="async"
                         className="h-64 w-full object-cover md:h-96"
                         onError={(e) => {
                             const target = e.currentTarget;
@@ -625,7 +627,7 @@ export default function BlogArticle() {
                                     const fileName = currentUrl.split('/').pop() || currentArticle.image;
                                     altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
                                 }
-                                console.log('[Blog Article Image] Trying alternative R2 path:', altPath);
+                                // Try alternative R2 path silently
                                 target.src = altPath;
                             }
                         }}

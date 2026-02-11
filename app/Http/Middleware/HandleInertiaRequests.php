@@ -116,17 +116,22 @@ class HandleInertiaRequests extends Middleware
             $locationUrl = $request->url();
             if (str_starts_with($locationUrl, 'http://')) {
                 $locationUrl = str_replace('http://', 'https://', $locationUrl);
-                Log::info('Converted location URL to HTTPS', ['original' => $request->url(), 'converted' => $locationUrl]);
+                // Only log in development/local
+                if (app()->environment(['local', 'development'])) {
+                    Log::info('Converted location URL to HTTPS', ['original' => $request->url(), 'converted' => $locationUrl]);
+                }
             }
             
-            // CRITICAL: Log Ziggy URL for debugging
-            Log::info('Ziggy URL configuration', [
-                'baseUrl' => $baseUrl,
-                'locationUrl' => $locationUrl,
-                'currentRequestUrl' => $request->url(),
-                'isSecure' => $request->secure(),
-                'xForwardedProto' => $request->header('X-Forwarded-Proto'),
-            ]);
+            // Only log Ziggy URL configuration in development/local (reduce production logging)
+            if (app()->environment(['local', 'development'])) {
+                Log::info('Ziggy URL configuration', [
+                    'baseUrl' => $baseUrl,
+                    'locationUrl' => $locationUrl,
+                    'currentRequestUrl' => $request->url(),
+                    'isSecure' => $request->secure(),
+                    'xForwardedProto' => $request->header('X-Forwarded-Proto'),
+                ]);
+            }
             
             $ziggyData = [
                 'url' => $baseUrl, // Already forced to HTTPS above
