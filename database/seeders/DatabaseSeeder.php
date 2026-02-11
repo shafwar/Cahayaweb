@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             // Wait for database connection to be ready (retry up to 5 times)
             $maxRetries = 5;
             $retryDelay = 2; // seconds
-            
+
             for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
                 try {
                     // Test database connection
@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
                         }
                         return; // Exit gracefully without crashing
                     }
-                    
+
                     if ($this->command) {
                         $this->command->warn("⚠️  Database connection attempt {$attempt}/{$maxRetries} failed. Retrying in {$retryDelay}s...");
                     }
