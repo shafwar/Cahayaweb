@@ -66,9 +66,14 @@
         <meta name="application-name" content="Cahaya Anbiya">
         <meta name="apple-mobile-web-app-title" content="Cahaya Anbiya">
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <!-- Resource Hints for Performance -->
+        <link rel="dns-prefetch" href="https://assets.cahayaanbiya.com">
+        <link rel="preconnect" href="https://assets.cahayaanbiya.com" crossorigin>
+        <link rel="dns-prefetch" href="https://fonts.bunny.net">
+        
+        <!-- Fonts - Optimized Loading with font-display: swap -->
+        <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         @routes

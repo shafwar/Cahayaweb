@@ -18,26 +18,40 @@ export default defineConfig({
         manifest: true,
         outDir: 'public/build',
         emptyOutDir: true,
-        // Optimize chunk size
-        chunkSizeWarningLimit: 500,
+        // Optimize chunk size - more aggressive splitting
+        chunkSizeWarningLimit: 300,
+        minify: 'esbuild', // Use esbuild for faster builds
         rollupOptions: {
             output: {
-                manualChunks: {
+                manualChunks: (id) => {
                     // Core React - loaded first
-                    vendor: ['react', 'react-dom'],
+                    if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+                        return 'vendor';
+                    }
                     // Inertia - separate chunk
-                    inertia: ['@inertiajs/react'],
+                    if (id.includes('node_modules/@inertiajs')) {
+                        return 'inertia';
+                    }
                     // Framer Motion - lazy loaded, separate chunk
-                    'framer-motion': ['framer-motion'],
+                    if (id.includes('node_modules/framer-motion')) {
+                        return 'framer-motion';
+                    }
                     // UI Libraries - separate chunk
-                    'radix-ui': [
-                        '@radix-ui/react-dialog',
-                        '@radix-ui/react-dropdown-menu',
-                        '@radix-ui/react-select',
-                        '@radix-ui/react-tooltip',
-                    ],
+                    if (id.includes('node_modules/@radix-ui')) {
+                        return 'radix-ui';
+                    }
                     // Lucide icons - separate chunk
-                    'lucide': ['lucide-react'],
+                    if (id.includes('node_modules/lucide-react')) {
+                        return 'lucide';
+                    }
+                    // Axios - separate chunk
+                    if (id.includes('node_modules/axios')) {
+                        return 'axios';
+                    }
+                    // Other large node_modules
+                    if (id.includes('node_modules')) {
+                        return 'vendor-other';
+                    }
                 },
             },
         },
@@ -48,6 +62,7 @@ export default defineConfig({
     },
     esbuild: {
         jsx: 'automatic',
+        drop: ['console', 'debugger'], // Remove console.log and debugger in production
     },
     resolve: {
         alias: {

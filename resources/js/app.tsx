@@ -6,6 +6,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
+import { logger } from './utils/logger';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
 
@@ -36,12 +37,12 @@ if (typeof window !== 'undefined') {
                 const url = originalRoute(name, params, absolute, config);
                 if (typeof url === 'string' && url.startsWith('http://')) {
                     const httpsUrl = url.replace('http://', 'https://');
-                    console.log('[HTTPS] route() converted:', url, '→', httpsUrl);
+                    logger.log('[HTTPS] route() converted:', url, '→', httpsUrl);
                     return httpsUrl;
                 }
                 return url;
             };
-            console.log('[HTTPS] route() function overridden');
+            logger.log('[HTTPS] route() function overridden');
         }
 
         // 2. Override fetch to force HTTPS
@@ -49,10 +50,10 @@ if (typeof window !== 'undefined') {
         window.fetch = function (url: RequestInfo | URL, options?: RequestInit) {
             if (typeof url === 'string' && url.startsWith('http://')) {
                 url = url.replace('http://', 'https://');
-                console.log('[HTTPS] fetch() converted to HTTPS');
+                logger.log('[HTTPS] fetch() converted to HTTPS');
             } else if (url instanceof Request && url.url.startsWith('http://')) {
                 url = new Request(url.url.replace('http://', 'https://'), url);
-                console.log('[HTTPS] Request converted to HTTPS');
+                logger.log('[HTTPS] Request converted to HTTPS');
             }
             return originalFetch(url, options);
         };
@@ -68,26 +69,26 @@ if (typeof window !== 'undefined') {
                 // Convert HTTP to HTTPS
                 if (url.startsWith('http://')) {
                     url = url.replace('http://', 'https://');
-                    console.log('[HTTPS] app.tsx: XMLHttpRequest.open() converted HTTP→HTTPS:', originalUrl, '→', url);
+                    logger.log('[HTTPS] app.tsx: XMLHttpRequest.open() converted HTTP→HTTPS:', originalUrl, '→', url);
                 } else if (url.startsWith('//')) {
                     url = 'https:' + url;
-                    console.log('[HTTPS] app.tsx: XMLHttpRequest.open() added https protocol:', originalUrl, '→', url);
+                    logger.log('[HTTPS] app.tsx: XMLHttpRequest.open() added https protocol:', originalUrl, '→', url);
                 } else if (url.startsWith('/')) {
                     // CRITICAL: Relative URL - convert to absolute HTTPS immediately
                     // This prevents any chance of HTTP resolution
                     url = window.location.origin + url;
-                    console.log('[HTTPS] app.tsx: XMLHttpRequest.open() converted relative to absolute HTTPS:', originalUrl, '→', url);
+                    logger.log('[HTTPS] app.tsx: XMLHttpRequest.open() converted relative to absolute HTTPS:', originalUrl, '→', url);
                 }
 
                 // Final check: if somehow still HTTP, force HTTPS
                 if (url.startsWith('http://')) {
                     url = url.replace('http://', 'https://');
-                    console.error('[HTTPS] app.tsx: XMLHttpRequest.open() FINAL FORCE HTTPS:', originalUrl, '→', url);
+                    logger.error('[HTTPS] app.tsx: XMLHttpRequest.open() FINAL FORCE HTTPS:', originalUrl, '→', url);
                 }
             } else if (url instanceof URL) {
                 if (url.protocol === 'http:') {
                     url.protocol = 'https:';
-                    console.log('[HTTPS] app.tsx: XMLHttpRequest.open() URL object protocol changed to HTTPS');
+                    logger.log('[HTTPS] app.tsx: XMLHttpRequest.open() URL object protocol changed to HTTPS');
                 }
             }
 
@@ -102,41 +103,41 @@ if (typeof window !== 'undefined') {
             if (typeof url === 'string') {
                 if (url.startsWith('http://')) {
                     url = url.replace('http://', 'https://');
-                    console.log('[HTTPS] app.tsx: fetch() converted HTTP→HTTPS:', originalUrl, '→', url);
+                    logger.log('[HTTPS] app.tsx: fetch() converted HTTP→HTTPS:', originalUrl, '→', url);
                 } else if (url.startsWith('//')) {
                     url = 'https:' + url;
-                    console.log('[HTTPS] app.tsx: fetch() added https protocol:', originalUrl, '→', url);
+                    logger.log('[HTTPS] app.tsx: fetch() added https protocol:', originalUrl, '→', url);
                 } else if (url.startsWith('/')) {
                     // Relative URL - convert to absolute HTTPS
                     url = window.location.origin + url;
-                    console.log('[HTTPS] app.tsx: fetch() converted relative to absolute HTTPS:', originalUrl, '→', url);
+                    logger.log('[HTTPS] app.tsx: fetch() converted relative to absolute HTTPS:', originalUrl, '→', url);
                 }
             } else if (url instanceof Request) {
                 if (url.url.startsWith('http://')) {
                     url = new Request(url.url.replace('http://', 'https://'), url);
-                    console.log('[HTTPS] app.tsx: fetch() Request object converted to HTTPS');
+                    logger.log('[HTTPS] app.tsx: fetch() Request object converted to HTTPS');
                 } else if (url.url.startsWith('/')) {
                     url = new Request(window.location.origin + url.url, url);
-                    console.log('[HTTPS] app.tsx: fetch() Request relative URL converted to absolute HTTPS');
+                    logger.log('[HTTPS] app.tsx: fetch() Request relative URL converted to absolute HTTPS');
                 }
             }
 
             return originalFetchApp(url, options);
         };
 
-        console.log('[HTTPS] app.tsx: All HTTPS overrides installed (backup to app.blade.php)');
+        logger.log('[HTTPS] app.tsx: All HTTPS overrides installed (backup to app.blade.php)');
 
         // 4. Also override XMLHttpRequest send to catch any URLs set after open()
         const originalXHRSend = XMLHttpRequest.prototype.send;
         XMLHttpRequest.prototype.send = function (body?: Document | XMLHttpRequestBodyInit | null) {
             // Check if URL was set and convert if needed
             if (this.responseURL && this.responseURL.startsWith('http://')) {
-                console.warn('[HTTPS] XMLHttpRequest.responseURL is HTTP, but request should be HTTPS');
+                logger.warn('[HTTPS] XMLHttpRequest.responseURL is HTTP, but request should be HTTPS');
             }
             return originalXHRSend.call(this, body);
         };
 
-        console.log('[HTTPS] All URL overrides installed (including XMLHttpRequest)');
+        logger.log('[HTTPS] All URL overrides installed (including XMLHttpRequest)');
     }
 }
 
@@ -148,10 +149,10 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
     window.fetch = function (url, options) {
         if (typeof url === 'string' && url.startsWith('http://')) {
             url = url.replace('http://', 'https://');
-            console.log('[HTTPS] fetch() duplicate override converted to HTTPS');
+            logger.log('[HTTPS] fetch() duplicate override converted to HTTPS');
         } else if (url instanceof Request && url.url.startsWith('http://')) {
             url = new Request(url.url.replace('http://', 'https://'), url);
-            console.log('[HTTPS] fetch() Request object converted to HTTPS');
+            logger.log('[HTTPS] fetch() Request object converted to HTTPS');
         }
 
         return originalFetch(url as RequestInfo | URL, options);
@@ -163,15 +164,15 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
         if (typeof url === 'string') {
             if (url.startsWith('http://')) {
                 url = url.replace('http://', 'https://');
-                console.log('[HTTPS] XMLHttpRequest.open() duplicate override converted:', url);
+                logger.log('[HTTPS] XMLHttpRequest.open() duplicate override converted:', url);
             }
             if (url.startsWith('//') && window.location.protocol === 'https:') {
                 url = 'https:' + url;
-                console.log('[HTTPS] XMLHttpRequest.open() added https protocol');
+                logger.log('[HTTPS] XMLHttpRequest.open() added https protocol');
             }
         } else if (url instanceof URL && url.protocol === 'http:') {
             url.protocol = 'https:';
-            console.log('[HTTPS] XMLHttpRequest.open() URL object converted');
+            logger.log('[HTTPS] XMLHttpRequest.open() URL object converted');
         }
         return originalXHROpen.call(this, method, url, ...args);
     };
@@ -199,7 +200,7 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
             const url = originalRoute(name, params, absolute, config);
             if (typeof url === 'string' && url.startsWith('http://')) {
                 const httpsUrl = url.replace('http://', 'https://');
-                console.log('[HTTPS] Converted route URL:', url, '→', httpsUrl);
+                logger.log('[HTTPS] Converted route URL:', url, '→', httpsUrl);
                 return httpsUrl;
             }
             return url;
@@ -212,7 +213,7 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
             const ziggy = (window as any).Ziggy;
             if (ziggy.url && ziggy.url.startsWith('http://')) {
                 ziggy.url = ziggy.url.replace('http://', 'https://');
-                console.log('[HTTPS] Updated Ziggy URL to HTTPS:', ziggy.url);
+                logger.log('[HTTPS] Updated Ziggy URL to HTTPS:', ziggy.url);
             }
 
             // Ensure route function is still overridden
@@ -222,7 +223,7 @@ if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
                     const url = originalRoute(name, params, absolute, config);
                     if (typeof url === 'string' && url.startsWith('http://')) {
                         const httpsUrl = url.replace('http://', 'https://');
-                        console.log('[HTTPS] Converted route URL:', url, '→', httpsUrl);
+                        logger.log('[HTTPS] Converted route URL:', url, '→', httpsUrl);
                         return httpsUrl;
                     }
                     return url;
@@ -250,7 +251,7 @@ let inertiaAppCreated = false;
 // Ensure DOM is ready before initializing Inertia
 function initializeInertia() {
     if (inertiaAppCreated) {
-        console.warn('[App] Inertia app already created, skipping');
+        logger.warn('[App] Inertia app already created, skipping');
         return;
     }
 
@@ -325,7 +326,7 @@ try {
         setup({ el, App, props }) {
             // Enhanced logging for debugging
             if (typeof window !== 'undefined') {
-                console.log('[Inertia] Setup called', {
+                logger.log('[Inertia] Setup called', {
                     hasEl: !!el,
                     hasApp: !!App,
                     hasProps: !!props,
@@ -339,7 +340,7 @@ try {
                 // Try to find the element - Inertia creates element with data-page attribute
                 const fallbackEl = document.querySelector('[data-page]') || document.getElementById('app');
                 if (fallbackEl) {
-                    console.log('[Inertia] Found fallback element, using it');
+                    logger.log('[Inertia] Found fallback element, using it');
                     el = fallbackEl as HTMLElement;
                 } else {
                     console.error('[Inertia] No fallback element found, creating one');
@@ -348,20 +349,20 @@ try {
                     newEl.id = 'app';
                     document.body.appendChild(newEl);
                     el = newEl;
-                    console.log('[Inertia] Created new app element');
+                    logger.log('[Inertia] Created new app element');
                 }
             }
 
             try {
                 if (typeof window !== 'undefined') {
-                    console.log('[Inertia] Creating React root...');
+                    logger.log('[Inertia] Creating React root...');
                 }
                 const root = createRoot(el);
 
                 // Wrap in try-catch to prevent white screen on render errors
                 try {
                     if (typeof window !== 'undefined') {
-                        console.log('[Inertia] Rendering app...', {
+                        logger.log('[Inertia] Rendering app...', {
                             propsKeys: Object.keys(props || {}),
                             propsType: typeof props,
                         });
@@ -469,7 +470,7 @@ try {
 
             // Skip handling for validation errors (422) - let them display in form
             if (errorStatus === 422 || errorString.includes('422')) {
-                console.log('[Inertia] Validation error - will be displayed in form');
+                logger.log('[Inertia] Validation error - will be displayed in form');
                 return; // Let Inertia handle validation errors normally
             }
 
@@ -482,7 +483,7 @@ try {
                 errorString.includes('419') ||
                 errorString.includes('expired')
             ) {
-                console.warn('[Inertia] CSRF token expired, reloading page...');
+                logger.warn('[Inertia] CSRF token expired, reloading page...');
                 // Reload page to refresh CSRF token
                 setTimeout(() => {
                     window.location.reload();
@@ -506,7 +507,7 @@ try {
     });
 
     inertiaAppCreated = true;
-    console.log('[App] Inertia app created successfully');
+    logger.log('[App] Inertia app created successfully');
 } catch (error) {
     console.error('[App] Fatal error creating Inertia app:', error);
     console.error('[App] Error stack:', error instanceof Error ? error.stack : 'No stack');
@@ -547,7 +548,7 @@ if (typeof window !== 'undefined') {
     // Fallback: try again after a short delay if not initialized
     setTimeout(function() {
         if (!inertiaAppCreated && typeof window !== 'undefined') {
-            console.warn('[App] Inertia app not initialized after delay, retrying...');
+            logger.warn('[App] Inertia app not initialized after delay, retrying...');
             try {
                 initializeInertia();
             } catch (e) {
