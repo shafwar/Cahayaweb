@@ -81,131 +81,228 @@
         @vite(['resources/css/app.css', 'resources/js/app.tsx'])
         @inertiaHead
         
-        <!-- CRITICAL: Fallback if Vite directive fails or manifest.json missing -->
-        <script>
-            (function() {
-                'use strict';
-                
-                // Check if Vite assets were actually injected
-                let viteAssetsFound = false;
-                let checkInterval;
-                let checkCount = 0;
-                const maxChecks = 20; // 10 seconds total
-                
-                function checkViteAssets() {
-                    checkCount++;
-                    
-                    // Check for Vite script tags
-                    const viteScripts = document.querySelectorAll('script[type="module"][src*="/build/assets/"]');
-                    const viteLinks = document.querySelectorAll('link[rel="stylesheet"][href*="/build/assets/"]');
-                    
-                    if (viteScripts.length > 0 || viteLinks.length > 0) {
-                        viteAssetsFound = true;
-                        console.log('[Vite Check] Assets found:', {
-                            scripts: viteScripts.length,
-                            links: viteLinks.length
-                        });
-                        clearInterval(checkInterval);
-                        return;
-                    }
-                    
-                    // If max checks reached and still no assets
-                    if (checkCount >= maxChecks) {
-                        console.error('[Vite Check] No Vite assets found after 10 seconds');
-                        showManifestError();
-                        clearInterval(checkInterval);
-                    }
-                }
-                
-                function showManifestError() {
-                    const existing = document.getElementById('vite-manifest-error');
-                    if (existing) return;
-                    
-                    // Try to fetch manifest.json directly to diagnose
-                    fetch('/build/manifest.json')
-                        .then(res => {
-                            if (!res.ok) {
-                                console.error('[Vite Check] manifest.json not found (404)');
-                                showErrorUI('Manifest file not found. Please rebuild assets.');
-                            } else {
-                                return res.json();
-                            }
-                        })
-                        .then(manifest => {
-                            if (manifest) {
-                                console.log('[Vite Check] manifest.json exists:', Object.keys(manifest).length, 'entries');
-                                // Manifest exists but assets not injected - check if files exist
-                                const appEntry = manifest['resources/js/app.tsx'];
-                                if (appEntry && appEntry.file) {
-                                    const assetUrl = '/build/' + appEntry.file;
-                                    fetch(assetUrl, { method: 'HEAD' })
-                                        .then(res => {
-                                            if (!res.ok) {
-                                                showErrorUI('Asset files not found. Please rebuild and deploy assets.');
-                                            } else {
-                                                showErrorUI('Assets exist but not loading. Please check browser console.');
-                                            }
-                                        })
-                                        .catch(() => {
-                                            showErrorUI('Cannot verify asset files. Please rebuild and deploy.');
-                                        });
-                                } else {
-                                    showErrorUI('Manifest file invalid. Please rebuild assets.');
-                                }
-                            }
-                        })
-                        .catch(err => {
-                            console.error('[Vite Check] Error checking manifest:', err);
-                            showErrorUI('Cannot load manifest file. Please rebuild and deploy assets.');
-                        });
-                }
-                
-                function showErrorUI(message) {
-                    const errorDiv = document.createElement('div');
-                    errorDiv.id = 'vite-manifest-error';
-                    errorDiv.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; z-index: 99999; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;';
-                    errorDiv.innerHTML = `
-                        <div style="text-align: center; max-width: 600px;">
-                            <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">
-                                Application Assets Not Found
-                            </h1>
-                            <p style="color: #6b7280; margin-bottom: 1rem;">
-                                ${message}
-                            </p>
-                            <p style="font-size: 0.875rem; color: #9ca3af; margin-bottom: 1.5rem;">
-                                This usually means the build assets were not deployed correctly.
-                            </p>
-                            <div style="margin-bottom: 1rem;">
-                                <button onclick="window.location.reload()" style="padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500; margin-right: 0.5rem;">
-                                    Reload Page
-                                </button>
-                                <button onclick="console.log('Manifest check:', fetch('/build/manifest.json').then(r => r.json()).then(console.log).catch(console.error))" style="padding: 0.75rem 1.5rem; background-color: #6b7280; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;">
-                                    Check Console
-                                </button>
-                            </div>
-                            <p style="font-size: 0.75rem; color: #9ca3af;">
-                                If this problem persists, please contact support with this error message.
-                            </p>
-                        </div>
-                    `;
-                    document.body.appendChild(errorDiv);
-                }
-                
-                // Start checking after a short delay to let @vite directive execute
-                setTimeout(() => {
-                    checkViteAssets();
-                    checkInterval = setInterval(checkViteAssets, 500);
-                }, 1000);
-            })();
-        </script>
-        
-        <!-- Fallback for Vite asset loading errors -->
+        <!-- Critical: Fallback if Vite assets fail to load -->
         <noscript>
             <div style="padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                 <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">JavaScript Required</h1>
                 <p style="color: #6b7280;">Please enable JavaScript to view this website.</p>
             </div>
         </noscript>
+        
+        <!-- Critical: Verify Vite assets loaded and show fallback if not -->
+        <script>
+            (function() {
+                'use strict';
+                let assetsLoaded = false;
+                let checkCount = 0;
+                const maxChecks = 20; // Check for 10 seconds (20 * 500ms) - increased timeout
+                let scriptLoadErrors = [];
+                let scriptsFound = false;
+                
+                // Track script loading errors
+                window.addEventListener('error', function(e) {
+                    if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+                        const src = e.target.src || e.target.href;
+                        if (src && (src.includes('/build/') || src.includes('vite'))) {
+                            scriptLoadErrors.push(src);
+                            console.error('[App] Asset load error detected:', src);
+                        }
+                    }
+                }, true);
+                
+                function checkAssets() {
+                    checkCount++;
+                    
+                    // Check if Vite scripts exist in DOM (even if not loaded yet)
+                    const viteScripts = document.querySelectorAll('script[type="module"][src*="/build/assets/"]');
+                    const viteLinks = document.querySelectorAll('link[rel="stylesheet"][href*="/build/assets/"]');
+                    const appElement = document.getElementById('app');
+                    const hasInertiaData = document.querySelector('[data-page]');
+                    
+                    // If scripts exist in DOM, mark as found
+                    if (viteScripts.length > 0 || viteLinks.length > 0) {
+                        scriptsFound = true;
+                    }
+                    
+                    // Check if app has content (Inertia loaded successfully)
+                    if (hasInertiaData || (appElement && appElement.children.length > 0 && appElement.innerHTML.trim() !== '')) {
+                        assetsLoaded = true;
+                        console.log('[App] Assets loaded successfully - Inertia app detected');
+                        const fallback = document.getElementById('vite-asset-loading-fallback');
+                        if (fallback) {
+                            fallback.remove();
+                        }
+                        return;
+                    }
+                    
+                    // If scripts found but app not loaded yet, continue checking
+                    if (scriptsFound && !assetsLoaded) {
+                        // Scripts exist, just wait longer for app to initialize
+                        if (checkCount < maxChecks) {
+                            setTimeout(checkAssets, 500);
+                            return;
+                        }
+                    }
+                    
+                    // If no scripts found AND max checks reached, show fallback
+                    if (!scriptsFound && checkCount >= maxChecks) {
+                        console.error('[App] No Vite scripts found in DOM after 10 seconds - showing fallback');
+                        showFallback('No build assets detected. Please rebuild and deploy.');
+                        return;
+                    }
+                    
+                    // If scripts found but errors occurred AND max checks reached, show fallback
+                    if (scriptsFound && scriptLoadErrors.length > 0 && checkCount >= maxChecks && !assetsLoaded) {
+                        console.error('[App] Scripts found but failed to load after 10 seconds - showing fallback');
+                        showFallback('Assets failed to load. Please check your connection and try again.');
+                        return;
+                    }
+                    
+                    // If max checks reached and still no app content, show fallback
+                    if (checkCount >= maxChecks && !assetsLoaded) {
+                        console.error('[App] App did not initialize after 10 seconds - showing fallback');
+                        showFallback('Application is taking longer than expected to load.');
+                        return;
+                    }
+                    
+                    // Continue checking
+                    if (!assetsLoaded) {
+                        setTimeout(checkAssets, 500);
+                    }
+                }
+                
+                function showFallback(message) {
+                    const existingFallback = document.getElementById('vite-asset-loading-fallback');
+                    if (existingFallback) return;
+                    
+                    const fallback = document.createElement('div');
+                    fallback.id = 'vite-asset-loading-fallback';
+                    fallback.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; z-index: 99999; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;';
+                    fallback.innerHTML = '<div style="text-align: center; max-width: 600px;"><h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Loading Application</h1><p style="color: #6b7280; margin-bottom: 1.5rem;">' + (message || 'Please wait while we load the application...') + '</p><div style="margin-bottom: 1.5rem;"><button onclick="window.location.reload()" style="padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;">Reload Page</button></div><p style="font-size: 0.875rem; color: #9ca3af;">If this problem persists, please contact support.</p></div>';
+                    document.body.appendChild(fallback);
+                }
+                
+                // Start checking after DOM is ready AND after a longer delay to allow scripts to load
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Wait 3 seconds before first check to allow scripts to load
+                        setTimeout(checkAssets, 3000);
+                    });
+                } else {
+                    // DOM already loaded, wait 3 seconds before first check
+                    setTimeout(checkAssets, 3000);
+                }
+            })();
+        </script>
+        
+        <!-- Critical: Ensure Vite assets load with correct base path -->
+        <script>
+            (function() {
+                'use strict';
+                // Fix any incorrect asset URLs immediately
+                if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+                    // Override script.src and link.href to ensure HTTPS and correct paths
+                    const observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            mutation.addedNodes.forEach(function(node) {
+                                if (node.nodeType === 1) { // Element node
+                                    if (node.tagName === 'SCRIPT' && node.src) {
+                                        // Ensure HTTPS and correct base path
+                                        if (node.src.startsWith('http://')) {
+                                            node.src = node.src.replace('http://', 'https://');
+                                        }
+                                        if (node.src.includes('/build/assets/') && !node.src.startsWith('https://') && !node.src.startsWith('http://')) {
+                                            // Relative path - ensure it's correct
+                                            if (!node.src.startsWith('/build/')) {
+                                                node.src = '/build/' + node.src.replace(/^\/+/, '');
+                                            }
+                                        }
+                                    }
+                                    if (node.tagName === 'LINK' && node.href && node.rel === 'stylesheet') {
+                                        // Ensure HTTPS and correct base path
+                                        if (node.href.startsWith('http://')) {
+                                            node.href = node.href.replace('http://', 'https://');
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    });
+                    
+                    observer.observe(document.head, { childList: true, subtree: true });
+                    observer.observe(document.body, { childList: true, subtree: true });
+                }
+            })();
+        </script>
+        
+        <!-- Verify Vite assets are loaded -->
+        <script>
+            (function() {
+                'use strict';
+                // Check if Vite assets are loaded after page load
+                window.addEventListener('load', function() {
+                    setTimeout(function() {
+                        const scripts = document.querySelectorAll('script[type="module"]');
+                        const viteScripts = Array.from(scripts).filter(s => 
+                            s.src && (s.src.includes('/build/assets/') || s.src.includes('vite'))
+                        );
+                        
+                        if (viteScripts.length === 0) {
+                            console.error('[App] No Vite scripts found - assets may not have loaded');
+                        } else {
+                            console.log(`[App] Found ${viteScripts.length} Vite script(s)`);
+                            viteScripts.forEach(function(script) {
+                                console.log('[App] Vite script:', script.src);
+                            });
+                        }
+                    }, 1000);
+                });
+            })();
+        </script>
+        
+        <!-- Fallback for Vite asset loading errors -->
+        <script>
+            // Monitor for Vite asset loading errors and show fallback
+            (function() {
+                'use strict';
+                
+                let assetLoadTimeout;
+                let criticalAssetsLoaded = false;
+                
+                // Check if critical assets are loaded after 5 seconds
+                assetLoadTimeout = setTimeout(function() {
+                    if (!criticalAssetsLoaded) {
+                        // Check if app element exists and has content
+                        const appElement = document.getElementById('app');
+                        if (!appElement || appElement.children.length === 0) {
+                            console.error('[App] Critical assets failed to load - showing fallback');
+                            
+                            // Show fallback UI
+                            const fallback = document.createElement('div');
+                            fallback.id = 'vite-asset-error-fallback';
+                            fallback.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; z-index: 99999; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;';
+                            fallback.innerHTML = '<div style="text-align: center; max-width: 600px;"><h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">Application Loading</h1><p style="color: #6b7280; margin-bottom: 1.5rem;">Please wait while we load the application assets...</p><div style="margin-bottom: 1.5rem;"><button onclick="window.location.reload()" style="padding: 0.75rem 1.5rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 1rem; font-weight: 500;">Reload Page</button></div><p style="font-size: 0.875rem; color: #9ca3af;">If this problem persists, please contact support.</p></div>';
+                            document.body.appendChild(fallback);
+                        }
+                    }
+                }, 5000);
+                
+                // Clear timeout when app loads successfully
+                window.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(function() {
+                        const appElement = document.getElementById('app');
+                        if (appElement && appElement.children.length > 0) {
+                            criticalAssetsLoaded = true;
+                            clearTimeout(assetLoadTimeout);
+                            const fallback = document.getElementById('vite-asset-error-fallback');
+                            if (fallback) {
+                                fallback.remove();
+                            }
+                        }
+                    }, 1000);
+                });
+            })();
+        </script>
 
         <!-- Force HTTPS for all requests - CRITICAL: Must run BEFORE any scripts -->
         <script>
@@ -225,12 +322,8 @@
 
                     const originalFetch = window.fetch;
                     window.fetch = function(url, options) {
-                        if (typeof url === 'string') {
-                            if (url.startsWith('http://')) url = url.replace('http://', 'https://');
-                            if (url.startsWith('//')) url = 'https:' + url;
-                        } else if (url instanceof Request && url.url.startsWith('http://')) {
-                            url = new Request(url.url.replace('http://', 'https://'), url);
-                        }
+                        if (typeof url === 'string' && url.startsWith('http://')) url = url.replace('http://', 'https://');
+                        else if (url instanceof Request && url.url.startsWith('http://')) url = new Request(url.url.replace('http://', 'https://'), url);
                         return originalFetch(url, options);
                     };
 
