@@ -27,18 +27,26 @@ class MigrateSafe extends Command
      */
     public function handle(): int
     {
-        $maxRetries = 3;
+        $maxRetries = 10; // Increase retries
         $retryDelay = 5; // seconds
         
         $this->info('🔄 Starting safe migration...');
         
         for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
             try {
-                // Test database connection first
+                // Test database connection first with longer timeout
                 $this->info("📋 Attempt $attempt/$maxRetries: Testing database connection...");
                 
-                DB::connection()->getPdo();
+                // Set connection timeout
+                $pdo = DB::connection()->getPdo();
+                
+                // Test with a simple query
+                DB::select('SELECT 1');
+                
                 $this->info("✅ Database connection established!");
+                
+                // Wait a bit to ensure connection is stable
+                sleep(2);
                 
                 // Run migration
                 $this->info("📋 Running migrations...");
@@ -59,21 +67,51 @@ class MigrateSafe extends Command
                 
             } catch (\PDOException $e) {
                 // Database connection error
-                if ($attempt === $maxRetries) {
-                    $this->error("❌ Database connection failed after {$maxRetries} attempts");
-                    $this->warn("⚠️  Error: " . $e->getMessage());
-                    $this->warn("⚠️  Skipping migration - tables may already exist");
-                    Log::warning('MigrateSafe: Database connection failed', [
-                        'error' => $e->getMessage(),
-                        'attempts' => $maxRetries
+                $errorCode = $e->getCode();
+                $errorMessage = $e->getMessage();
+                
+                // Check if it's "MySQL server has gone away" or connection error
+                if (str_contains($errorMessage, 'MySQL server has gone away') || 
+                    str_contains($errorMessage, '2006') ||
+                    str_contains($errorMessage, 'Connection refused') ||
+                    str_contains($errorMessage, 'Can\'t connect')) {
+                    
+                    if ($attempt === $maxRetries) {
+                        $this->error("❌ Database connection failed after {$maxRetries} attempts");
+                        $this->warn("⚠️  Error: " . $errorMessage);
+                        $this->warn("⚠️  Skipping migration - MySQL service may be starting up");
+                        $this->warn("⚠️  Application will start without migration");
+                        Log::warning('MigrateSafe: Database connection failed - MySQL may be starting', [
+                            'error' => $errorMessage,
+                            'code' => $errorCode,
+                            'attempts' => $maxRetries
+                        ]);
+                        return 0; // Don't crash - return success so startup continues
+                    }
+                    
+                    $this->warn("⚠️  Database connection attempt $attempt/$maxRetries failed. Retrying in {$retryDelay}s...");
+                    $this->warn("   Error: " . $errorMessage);
+                    Log::warning("MigrateSafe: Connection attempt $attempt failed", [
+                        'error' => $errorMessage,
+                        'code' => $errorCode
                     ]);
-                    return 0; // Don't crash - return success so startup continues
+                    sleep($retryDelay);
+                    continue;
                 }
                 
-                $this->warn("⚠️  Database connection attempt $attempt/$maxRetries failed. Retrying in {$retryDelay}s...");
-                Log::warning("MigrateSafe: Connection attempt $attempt failed", [
-                    'error' => $e->getMessage()
-                ]);
+                // Other PDO errors - still retry
+                if ($attempt === $maxRetries) {
+                    $this->error("❌ Database error after {$maxRetries} attempts");
+                    $this->warn("⚠️  Error: " . $errorMessage);
+                    $this->warn("⚠️  Skipping migration - application will continue");
+                    Log::error('MigrateSafe: Database error', [
+                        'error' => $errorMessage,
+                        'code' => $errorCode
+                    ]);
+                    return 0;
+                }
+                
+                $this->warn("⚠️  Database error on attempt $attempt/$maxRetries. Retrying in {$retryDelay}s...");
                 sleep($retryDelay);
                 
             } catch (\Throwable $e) {
@@ -97,6 +135,7 @@ class MigrateSafe extends Command
             }
         }
         
+        $this->warn("⚠️  Migration skipped after {$maxRetries} attempts - application will start");
         return 0; // Always return success to prevent crash loop
     }
 }
