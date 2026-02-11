@@ -81,6 +81,14 @@
         @vite(['resources/css/app.css', 'resources/js/app.tsx'])
         @inertiaHead
         
+        <!-- Critical: Fallback if Vite assets fail to load -->
+        <noscript>
+            <div style="padding: 2rem; text-align: center; background-color: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #111827;">JavaScript Required</h1>
+                <p style="color: #6b7280;">Please enable JavaScript to view this website.</p>
+            </div>
+        </noscript>
+        
         <!-- Critical: Verify Vite assets loaded and show fallback if not -->
         <script>
             (function() {
