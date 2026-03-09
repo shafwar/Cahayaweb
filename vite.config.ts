@@ -18,44 +18,17 @@ export default defineConfig({
         manifest: true,
         outDir: 'public/build',
         emptyOutDir: true,
-        // Optimize chunk size - more aggressive splitting
-        chunkSizeWarningLimit: 300,
-        minify: 'esbuild', // Use esbuild for faster builds
+        chunkSizeWarningLimit: 500,
+        minify: 'esbuild',
         rollupOptions: {
             output: {
                 manualChunks: (id) => {
-                    // Core React - loaded first
-                    if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
-                        return 'vendor';
-                    }
-                    // Inertia - separate chunk
-                    if (id.includes('node_modules/@inertiajs')) {
-                        return 'inertia';
-                    }
-                    // Framer Motion - lazy loaded, separate chunk
-                    if (id.includes('node_modules/framer-motion')) {
-                        return 'framer-motion';
-                    }
-                    // UI Libraries - separate chunk
-                    if (id.includes('node_modules/@radix-ui')) {
-                        return 'radix-ui';
-                    }
-                    // Lucide icons - separate chunk
-                    if (id.includes('node_modules/lucide-react')) {
-                        return 'lucide';
-                    }
-                    // Axios - separate chunk
-                    if (id.includes('node_modules/axios')) {
-                        return 'axios';
-                    }
-                    // Other large node_modules
                     if (id.includes('node_modules')) {
-                        return 'vendor-other';
+                        return 'vendor';
                     }
                 },
             },
         },
-        // Ensure all dynamic imports are included in production build
         commonjsOptions: {
             include: [/node_modules/],
         },
