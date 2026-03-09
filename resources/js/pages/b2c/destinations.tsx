@@ -354,40 +354,38 @@ export default function Destinations() {
                 keywords="halal travel destinations, travel packages, Umrah destinations, Hajj destinations, premium travel"
             />
 
-            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
+            <div className="bg-section-photos-home min-h-screen border-t border-[#d4af37]/20">
                 <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
-                    <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.06),transparent_70%)] blur-3xl" />
-                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_70%)] blur-3xl" />
+                    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                        <div className="absolute top-0 left-1/4 h-[420px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.07),transparent_65%)] blur-3xl" />
+                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_65%)] blur-3xl" />
                     </div>
 
                     <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
                         <div className="mb-8 text-center md:mb-10">
                             <div className="mb-4 inline-block">
-                                <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
-                                    <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
-                                        ✨ Explore Dream Destinations
-                                    </span>
+                                <div className="rounded-full border-2 border-[#d4af37] bg-[#d4af37]/15 px-4 py-1.5 shadow-md">
+                                    <span className="text-xs font-bold text-[#b8860b] uppercase sm:text-sm">✨ Explore Dream Destinations</span>
                                 </div>
                             </div>
-                            <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
+                            <h1 className="mb-4 text-3xl leading-tight font-bold text-[#1e3a5f] sm:text-4xl md:text-5xl lg:text-6xl">
                                 Discover Your Dream Destinations
                             </h1>
-                            <p className="mx-auto mb-6 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
+                            <p className="mx-auto mb-6 max-w-2xl text-sm leading-relaxed text-[#475569] sm:text-base md:text-lg lg:text-xl">
                                 Embark on extraordinary journeys across the Middle East and beyond. From spiritual pilgrimages to luxury adventures,
                                 we curate unforgettable experiences.
                             </p>
-                            <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/70 sm:gap-6 sm:text-sm">
+                            <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-[#64748b] sm:gap-6 sm:text-sm">
                                 <div className="flex items-center gap-2">
-                                    <div className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 shadow-md" />
+                                    <div className="h-2 w-2 rounded-full bg-gradient-to-r from-[#3d5a80] to-[#ff5200] shadow-md" />
                                     <span className="font-medium">9 Premium Destinations</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="h-2 w-2 rounded-full bg-gradient-to-r from-orange-400 to-red-400 shadow-md" />
+                                    <div className="h-2 w-2 rounded-full bg-gradient-to-r from-accent to-orange-500 shadow-md" />
                                     <span className="font-medium">Curated Experiences</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 shadow-md" />
+                                    <div className="h-2 w-2 rounded-full bg-gradient-to-r from-[#fec901] to-accent shadow-md" />
                                     <span className="font-medium">Professional Service</span>
                                 </div>
                             </div>
@@ -397,7 +395,7 @@ export default function Destinations() {
                             {destinations.map((d) => (
                                 <article
                                     key={d.id}
-                                    className="group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1.5"
+                                    className="group overflow-hidden rounded-xl border border-[#d4af37]/25 bg-white shadow-xl transition-all duration-300 hover:-translate-y-1.5"
                                 >
                                     <div className="relative aspect-video overflow-hidden">
                                         <img
@@ -416,7 +414,7 @@ export default function Destinations() {
                                         <PlaceholderImage className="hidden h-full w-full object-cover" />
 
                                         <div className="absolute top-0 right-0 z-10">
-                                            <div className="flex h-9 items-center rounded-bl-xl bg-gradient-to-r from-amber-500 to-orange-600 px-3 py-1.5 text-xs font-bold text-white shadow-lg sm:px-4 sm:text-sm">
+                                            <div className="flex h-9 items-center rounded-bl-xl bg-gradient-to-r from-primary to-accent px-3 py-1.5 text-xs font-bold text-white shadow-lg sm:px-4 sm:text-sm">
                                                 {getContent(`destinations.${d.id}.badge`, d.badge)}
                                             </div>
                                         </div>
@@ -453,21 +451,21 @@ export default function Destinations() {
                                             </div>
                                         )}
 
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                        <div className="pointer-events-none absolute inset-0 bg-transparent" />
                                     </div>
 
                                     <div className="p-5 sm:p-6">
-                                        <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl">
+                                        <h3 className="mb-2 text-lg font-bold text-[#1e3a5f] transition-colors group-hover:text-primary sm:text-xl">
                                             {getContent(`destinations.${d.id}.title`, d.title)}
                                         </h3>
-                                        <p className="mb-3 text-sm leading-relaxed text-white/80 sm:text-base">
+                                        <p className="mb-3 text-sm leading-relaxed text-[#475569] sm:text-base">
                                             {getContent(`destinations.${d.id}.subtitle`, d.subtitle)}
                                         </p>
                                         <div className="mb-3 flex items-center justify-between">
-                                            <div className="text-lg font-bold text-amber-300 sm:text-xl">
+                                            <div className="text-lg font-bold text-primary sm:text-xl">
                                                 {getContent(`destinations.${d.id}.price`, d.price)}
                                             </div>
-                                            <div className="flex items-center gap-1.5 text-xs font-semibold text-white/70 sm:text-sm">
+                                            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748b] sm:text-sm">
                                                 <Clock className="h-4 w-4" />
                                                 <span>{getContent(`destinations.${d.id}.duration`, d.duration)}</span>
                                             </div>
@@ -476,19 +474,19 @@ export default function Destinations() {
                                             <MapPin className="h-4 w-4" />
                                             <span>{getContent(`destinations.${d.id}.location`, d.location)}</span>
                                         </div>
-                                        <p className="mb-3 line-clamp-2 text-xs text-white/70 sm:text-sm">
+                                        <p className="mb-3 line-clamp-2 text-xs text-[#475569] sm:text-sm">
                                             {getContent(`destinations.${d.id}.highlights`, d.highlights)}
                                         </p>
                                         <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                                            <h4 className="mb-2 text-xs font-bold text-amber-300 sm:text-sm">What&apos;s Included</h4>
-                                            <ul className="space-y-1.5 text-xs text-white/90 sm:text-sm">
+                                            <h4 className="mb-2 text-xs font-bold text-primary sm:text-sm">What&apos;s Included</h4>
+                                            <ul className="space-y-1.5 text-xs text-[#475569] sm:text-sm">
                                                 {d.features.slice(0, 4).map((f, i) => (
                                                     <li key={i} className="flex items-center gap-2">
                                                         <Check className="h-3.5 w-3.5 flex-shrink-0 text-green-400" />
                                                         <span>{f}</span>
                                                     </li>
                                                 ))}
-                                                {d.features.length > 4 && <li className="text-white/60">+{d.features.length - 4} more</li>}
+                                                {d.features.length > 4 && <li className="text-[#94a3b8]">+{d.features.length - 4} more</li>}
                                             </ul>
                                         </div>
                                         <div className="mt-4 flex gap-3">
@@ -496,7 +494,7 @@ export default function Destinations() {
                                                 href="https://wa.me/6281234567890"
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-center text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
+                                                className="flex-1 rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-center text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:opacity-95"
                                             >
                                                 Book Now
                                             </a>
@@ -504,24 +502,24 @@ export default function Destinations() {
                                                 href="https://wa.me/6281234567890"
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="flex-1 rounded-xl border border-amber-500 px-4 py-2.5 text-center text-sm font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
+                                                className="flex-1 rounded-xl border border-primary px-4 py-2.5 text-center text-sm font-bold text-primary transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
                                             >
                                                 Ask Questions
                                             </a>
                                         </div>
                                     </div>
 
-                                    <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-transform duration-500 group-hover:scale-x-100" />
+                                    <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-primary via-accent to-primary shadow-md transition-transform duration-500 group-hover:scale-x-100" />
                                 </article>
                             ))}
                         </div>
 
                         <div className="mt-20 text-center">
-                            <div className="mb-8 inline-flex items-center rounded-full border-2 border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-8 py-4 shadow-xl">
-                                <span className="text-base font-bold text-amber-200">✨ Custom Packages Available</span>
+                            <div className="mb-8 inline-flex items-center rounded-full border-2 border-[#d4af37] bg-[#d4af37]/15 px-8 py-4 shadow-md">
+                                <span className="text-base font-bold text-[#b8860b]">✨ Custom Packages Available</span>
                             </div>
-                            <h3 className="mb-6 text-4xl font-bold text-white md:text-5xl">Can&apos;t Find the Perfect Destination?</h3>
-                            <p className="mx-auto mb-10 max-w-3xl text-xl text-white/80">
+                            <h3 className="mb-6 text-4xl font-bold text-[#1e3a5f] md:text-5xl">Can&apos;t Find the Perfect Destination?</h3>
+                            <p className="mx-auto mb-10 max-w-3xl text-xl text-[#475569]">
                                 Our travel experts are here to create the perfect custom itinerary just for you. Whether you&apos;re looking for a
                                 spiritual journey, cultural adventure, or luxury escape.
                             </p>
@@ -530,7 +528,7 @@ export default function Destinations() {
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-10 py-5 text-lg font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
+                                    className="inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-primary to-accent px-10 py-5 text-lg font-bold text-white shadow-2xl transition-all hover:scale-105 hover:opacity-95"
                                 >
                                     Free Consultation
                                     <ArrowRight className="h-6 w-6" />
@@ -539,7 +537,7 @@ export default function Destinations() {
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-amber-500 px-10 py-5 text-lg font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
+                                    className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-primary px-10 py-5 text-lg font-bold text-primary transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
                                 >
                                     Custom Package
                                     <Plus className="h-6 w-6" />
@@ -549,7 +547,7 @@ export default function Destinations() {
                     </div>
                 </section>
 
-                <footer className="relative border-t border-white/10 bg-black/70">
+                <footer className="relative border-t-2 border-[#d4af37]/30 bg-gradient-to-b from-[#1e3a5f] to-[#2d4a6f]">
                     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
                         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
                             <div className="text-center text-base text-white/70 md:text-left">
@@ -564,7 +562,7 @@ export default function Destinations() {
                                         href={`https://${social.toLowerCase()}.com`}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="text-base font-semibold text-white/70 transition-all hover:scale-110 hover:text-amber-400"
+                                        className="text-base font-semibold text-white/70 transition-all hover:scale-110 hover:text-accent"
                                     >
                                         {social}
                                     </a>
@@ -583,7 +581,7 @@ export default function Destinations() {
                 {editMode && editorOpen && (
                     <motion.div
                         key={editorOpen.id}
-                        className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/95 p-6 shadow-2xl"
+                        className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border-2 border-[#d4af37]/30 bg-gradient-to-b from-[#1e3a5f] to-[#2d4a6f] p-6 shadow-2xl"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 20 }}
@@ -601,14 +599,14 @@ export default function Destinations() {
                                                 value={editorOpen[field]}
                                                 onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
                                                 rows={field === 'description' ? 4 : 2}
-                                                className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                                className="w-full rounded-lg border border-white/10 bg-white/10 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
                                             />
                                         ) : (
                                             <input
                                                 type="text"
                                                 value={editorOpen[field]}
                                                 onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
-                                                className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                                className="w-full rounded-lg border border-white/10 bg-white/10 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
                                             />
                                         )}
                                     </div>
@@ -616,7 +614,7 @@ export default function Destinations() {
                             )}
                             <div>
                                 <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
-                                <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
+                                <p className="mb-2 rounded-lg border border-primary/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
                                     {IMAGE_GUIDE}
                                 </p>
                                 <input
@@ -630,7 +628,7 @@ export default function Destinations() {
                                         }
                                         e.target.value = '';
                                     }}
-                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
+                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/90"
                                 />
                                 {pendingFile && <p className="mt-2 text-xs text-emerald-400">✓ Gambar siap (sudah di-adjust)</p>}
                             </div>
@@ -648,7 +646,7 @@ export default function Destinations() {
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
+                                className="rounded-lg bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
                             >
                                 {saving ? 'Saving…' : 'Save Changes'}
                             </button>

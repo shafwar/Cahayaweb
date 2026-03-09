@@ -77,126 +77,156 @@ img {
 }
 
 :root {
-    /* Cahaya Anbiya Premium Color Palette */
-    /* White-Gold-Black-Orange: Clean, Dynamic & Professional */
+    /* Proporsi: Biru 60% | Oranye 40% | Putih 35% | Emas 15% – UI profesional */
 
+    /* === PUTIH 35% – background, card, ruang bernapas === */
     --background: #ffffff;
-    --foreground: #000000;
+    --foreground: #1e3a5f;
     --card: #ffffff;
-    --card-foreground: #000000;
+    --card-foreground: #1e3a5f;
     --popover: #ffffff;
-    --popover-foreground: #000000;
+    --popover-foreground: #1e3a5f;
 
-    /* Premium Color Scheme */
-    --primary: #000000; /* Pure Black - for main elements and text */
+    /* === BIRU 60% – primary, nav, section, link, border biru === */
+    --primary: #0054ff;
     --primary-foreground: #ffffff;
+    --secondary: #1675ff;
+    --secondary-foreground: #ffffff;
+    --muted: #eef6ff;
+    --muted-foreground: #475569;
+    --border: #c7ddff;
+    --input: #eef6ff;
+    --ring: #0054ff;
 
-    --secondary: #d4af37; /* Classic Gold - for secondary elements */
-    --secondary-foreground: #000000;
-
-    --muted: #fafafa; /* Clean off-white surface */
-    --muted-foreground: #666666;
-
-    --accent: #ff6b35; /* Vibrant Orange - for CTAs and highlights */
+    /* === ORANYE 40% – CTA, aksen aksi, highlight === */
+    --accent: #ff5200;
     --accent-foreground: #ffffff;
+    --accent-hover: #ff6b35;
+    --accent-strong: #e64a00;
 
     --destructive: #dc2626;
     --destructive-foreground: #ffffff;
 
-    --border: #e5e5e5;
-    --input: #f5f5f5;
-    --ring: #d4af37;
-
-    /* Premium Chart Colors */
-    --chart-1: #000000; /* Black */
-    --chart-2: #d4af37; /* Gold */
-    --chart-3: #ff6b35; /* Orange */
-    --chart-4: #ffffff; /* White */
-    --chart-5: #f5f5f5; /* Light Gray */
+    /* Chart – Biru dominan, oranye kedua */
+    --chart-1: #0054ff;
+    --chart-2: #1675ff;
+    --chart-3: #ff5200;
+    --chart-4: #3fb4ff;
+    --chart-5: #fec901;
 
     --radius: 0.625rem;
 
     --sidebar: #ffffff;
-    --sidebar-foreground: #000000;
-    --sidebar-primary: #d4af37;
-    --sidebar-primary-foreground: #000000;
-    --sidebar-accent: #fafafa;
-    --sidebar-accent-foreground: #000000;
-    --sidebar-border: #e5e5e5;
-    --sidebar-ring: #d4af37;
+    --sidebar-foreground: #1e3a5f;
+    --sidebar-primary: #0054ff;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #eef6ff;
+    --sidebar-accent-foreground: #1e3a5f;
+    --sidebar-border: #c7ddff;
+    --sidebar-ring: #0054ff;
 
-    /* Premium Brand Colors */
-    --pure-black: #000000;
-    --classic-gold: #d4af37;
-    --vibrant-orange: #ff6b35;
-    --pure-white: #ffffff;
-    --off-white: #fafafa;
-    --light-gray: #f5f5f5;
+    /* Brand – Biru 60% / Oranye 40% */
+    --blue-deep: #0054ff;
+    --blue-bright: #1675ff;
+    --blue-sky: #3fb4ff;
+    --orange-vibrant: #ff5200;
+    --yellow-sun: #fec901;
 
-    /* Premium Gradients */
-    --gold-gradient: linear-gradient(135deg, #d4af37 0%, #b8860b 50%, #daa520 100%);
-    --black-gradient: linear-gradient(135deg, #000000 0%, #333333 50%, #666666 100%);
-    --orange-gradient: linear-gradient(135deg, #ff6b35 0%, #ff8c42 50%, #ffa726 100%);
-    --premium-gradient: linear-gradient(135deg, #000000 0%, #d4af37 50%, #ff6b35 100%);
-    --elegant-gradient: linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f5f5f5 100%);
+    /* EMAS 15% – aksen premium saja */
+    --gold: #d4af37;
+    --gold-dark: #b8860b;
 
-    /* Premium Surface Colors */
+    /* Section – Biru soft & halus (tidak terlalu terang), gradien elegan */
+    --header-bg: linear-gradient(180deg, #1e3a5f 0%, #2d4a6f 45%, #3d5a80 100%);
+    --section-blue: linear-gradient(180deg, #1e3a5f 0%, #2d4a6f 35%, #3d5a80 65%, #5a7a9e 100%);
+
+    /* Gradients – biru soft, oranye & emas selaras */
+    --blue-gradient: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 50%, #3d5a80 100%);
+    --orange-gradient: linear-gradient(135deg, #ff5200 0%, #ff6b35 50%, #fec901 100%);
+    --premium-gradient: linear-gradient(135deg, #2d4a6f 0%, #3d5a80 50%, #ff5200 100%);
+    --elegant-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #eef6ff 100%);
+
+    /* Surface */
     --surface-primary: rgba(255, 255, 255, 0.98);
-    --surface-secondary: rgba(250, 250, 250, 0.9);
-    --surface-accent: rgba(212, 175, 55, 0.1);
-    --surface-dark: rgba(0, 0, 0, 0.05);
+    --surface-secondary: rgba(238, 246, 255, 0.95);
+    --surface-accent: rgba(0, 84, 255, 0.08);
+    --surface-dark: rgba(30, 58, 95, 0.05);
 }
 
 .dark {
-    /* Dark Mode - Premium Black-Gold-Orange Implementation */
-    --background: #000000; /* Pure black background */
-    --foreground: #ffffff;
-    --card: #1a1a1a;
-    --card-foreground: #ffffff;
-    --popover: #1a1a1a;
-    --popover-foreground: #ffffff;
+    /* Dark Mode – Blue & Orange (tidak terlalu gelap, biru-oranye) */
+    --background: #0f172a;
+    --foreground: #f1f5f9;
+    --card: #1e293b;
+    --card-foreground: #f1f5f9;
+    --popover: #1e293b;
+    --popover-foreground: #f1f5f9;
 
-    /* Dark Mode Primary - Gold for luxury feel */
-    --primary: #d4af37; /* Classic Gold - luxury in dark mode */
-    --primary-foreground: #000000;
+    /* Primary: Bright Blue */
+    --primary: #3fb4ff;
+    --primary-foreground: #0f172a;
 
-    --secondary: #ff6b35; /* Vibrant Orange */
+    /* Secondary: Orange accent */
+    --secondary: #ff5200;
     --secondary-foreground: #ffffff;
 
-    --muted: #333333;
-    --muted-foreground: #cccccc;
+    --muted: #334155;
+    --muted-foreground: #94a3b8;
 
-    --accent: #ff6b35; /* Vibrant Orange - pops in dark mode */
+    --accent: #ff5200;
     --accent-foreground: #ffffff;
 
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
 
-    --border: #333333;
-    --input: #333333;
-    --ring: #d4af37;
+    --border: #334155;
+    --input: #334155;
+    --ring: #3fb4ff;
 
     /* Dark Mode Chart Colors */
-    --chart-1: #d4af37;
-    --chart-2: #ff6b35;
-    --chart-3: #ffffff;
-    --chart-4: #cccccc;
-    --chart-5: #666666;
+    --chart-1: #3fb4ff;
+    --chart-2: #1675ff;
+    --chart-3: #ff5200;
+    --chart-4: #fec901;
+    --chart-5: #94a3b8;
 
-    --sidebar: #1a1a1a;
-    --sidebar-foreground: #ffffff;
-    --sidebar-primary: #d4af37;
-    --sidebar-primary-foreground: #000000;
-    --sidebar-accent: #333333;
-    --sidebar-accent-foreground: #ffffff;
-    --sidebar-border: #333333;
-    --sidebar-ring: #d4af37;
+    --sidebar: #1e293b;
+    --sidebar-foreground: #f1f5f9;
+    --sidebar-primary: #3fb4ff;
+    --sidebar-primary-foreground: #0f172a;
+    --sidebar-accent: #334155;
+    --sidebar-accent-foreground: #f1f5f9;
+    --sidebar-border: #334155;
+    --sidebar-ring: #3fb4ff;
 
     /* Dark Mode Surface Colors */
-    --surface-primary: rgba(26, 26, 26, 0.95);
-    --surface-secondary: rgba(51, 51, 51, 0.8);
-    --surface-accent: rgba(212, 175, 55, 0.2);
+    --surface-primary: rgba(30, 41, 59, 0.95);
+    --surface-secondary: rgba(51, 65, 85, 0.8);
+    --surface-accent: rgba(63, 180, 255, 0.15);
     --surface-dark: rgba(255, 255, 255, 0.05);
+}
+
+/* Section – Biru terang, gradien profesional */
+.bg-section-dark {
+    background: var(--section-blue);
+}
+.bg-card-dark {
+    background: linear-gradient(135deg, rgba(45, 74, 111, 0.95) 0%, rgba(30, 58, 95, 0.92) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+/* Putih 35% – area terang */
+.bg-section-light {
+    background: #ffffff;
+}
+
+/* Background area foto: soft, tidak putih terang – kebiruan + cream + hint emas/oranye */
+.bg-section-photos {
+    background: linear-gradient(168deg, #e2e6ed 0%, #e6e9f0 20%, #eae6e0 42%, #eee6de 62%, #eae8e3 82%, #e4e6ec 100%);
+}
+
+/* Home B2C – area kartu gambar: gradien biru & oranye dari logo + putih halus (tidak terang) */
+.bg-section-photos-home {
+    background: linear-gradient(162deg, #dce4f0 0%, #e4eaf4 16%, #eef2f6 28%, #f4f4f0 42%, #faf6f2 56%, #fdf4ec 70%, #f8f2ee 84%, #e6ecf4 100%);
 }
 
 @layer base {

@@ -2,9 +2,9 @@ import { EditableText } from '@/components/cms';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { RippleButton } from '@/components/ui/ripple-button';
 import B2BLayout from '@/layouts/b2b-layout';
+import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { Head, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
-import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { motion } from 'framer-motion';
 import { Camera } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -246,12 +246,12 @@ export default function CahayaAnbiyaHero() {
             title: 'Start Your Journey',
             content: (
                 <div className="space-y-3">
-                    <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
+                    <div className="rounded-lg border border-[#d4af37]/20 bg-[#d4af37]/5 p-3">
                         <div className="mb-2.5 flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-amber-400 to-amber-600 text-base">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-[#d4af37] to-[#b8860b] text-base">
                                 ✨
                             </div>
-                            <h3 className="text-sm font-bold text-white">What You'll Get</h3>
+                            <h3 className="text-sm font-bold text-[#1e3a5f]">What You'll Get</h3>
                         </div>
                         <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                             {[
@@ -265,10 +265,10 @@ export default function CahayaAnbiyaHero() {
                                     initial={{ opacity: 0, x: -8 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: i * 0.06 }}
-                                    className="flex items-center gap-2 rounded-md border border-amber-500/20 bg-amber-500/10 px-3 py-2 transition-all hover:border-amber-400/30"
+                                    className="flex items-center gap-2 rounded-md border border-[#d4af37]/15 bg-[#d4af37]/8 px-3 py-2 transition-all hover:border-[#d4af37]/30"
                                 >
-                                    <div className="h-1 w-1 flex-shrink-0 rounded-full bg-amber-400" />
-                                    <span className="text-xs font-medium text-amber-100">{item}</span>
+                                    <div className="h-1 w-1 flex-shrink-0 rounded-full bg-[#b8860b]" />
+                                    <span className="text-xs font-medium text-[#475569]">{item}</span>
                                 </motion.div>
                             ))}
                         </div>
@@ -280,7 +280,7 @@ export default function CahayaAnbiyaHero() {
                             className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-lg border border-green-500/30 bg-gradient-to-br from-green-500 to-emerald-600 p-3 text-white shadow-md transition-all hover:shadow-lg"
                         >
                             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                            <svg className="h-5 w-5 relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                            <svg className="relative z-10 h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.487" />
                             </svg>
                             <span className="relative z-10 text-sm font-semibold">WhatsApp Chat</span>
@@ -291,7 +291,7 @@ export default function CahayaAnbiyaHero() {
                             className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-lg border border-blue-500/30 bg-gradient-to-br from-blue-500 to-indigo-600 p-3 text-white shadow-md transition-all hover:shadow-lg"
                         >
                             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                            <svg className="h-5 w-5 relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                            <svg className="relative z-10 h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
                             </svg>
                             <span className="relative z-10 text-sm font-semibold">Phone Call</span>
@@ -300,7 +300,7 @@ export default function CahayaAnbiyaHero() {
 
                     <RippleButton
                         onClick={() => setConsultationStep('office')}
-                        className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/5 p-3 text-white transition-all hover:border-white/30 hover:bg-white/10"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#c7ddff] bg-[#f8fafc] p-3 text-[#1e3a5f] transition-all hover:border-[#2d4a6f]/30 hover:bg-[#eef6ff]"
                     >
                         <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
@@ -314,14 +314,14 @@ export default function CahayaAnbiyaHero() {
             title: 'WhatsApp Consultation',
             content: (
                 <div className="space-y-3">
-                    <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
                         <div className="mb-2.5 flex items-center gap-2">
                             <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-green-400 to-emerald-600 text-base">
                                 📱
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-white">Instant Support</h3>
-                                <p className="text-xs text-green-200/80">Available 24/7</p>
+                                <h3 className="text-sm font-bold text-[#1e3a5f]">Instant Support</h3>
+                                <p className="text-xs text-emerald-600">Available 24/7</p>
                             </div>
                         </div>
                         <div className="space-y-1.5">
@@ -331,10 +331,10 @@ export default function CahayaAnbiyaHero() {
                             ].map((item, i) => (
                                 <div
                                     key={i}
-                                    className="flex items-center justify-between rounded-md border border-green-500/20 bg-green-500/10 px-3 py-2"
+                                    className="flex items-center justify-between rounded-md border border-emerald-200 bg-emerald-50/50 px-3 py-2"
                                 >
-                                    <span className="text-xs font-medium text-green-300">{item.label}</span>
-                                    <span className="font-mono text-xs font-semibold text-green-100">{item.value}</span>
+                                    <span className="text-xs font-medium text-emerald-700">{item.label}</span>
+                                    <span className="font-mono text-xs font-semibold text-[#1e3a5f]">{item.value}</span>
                                 </div>
                             ))}
                         </div>
@@ -347,7 +347,7 @@ export default function CahayaAnbiyaHero() {
                     </RippleButton>
                     <button
                         onClick={() => setConsultationStep('start')}
-                        className="w-full py-1.5 text-xs text-gray-400 transition-colors hover:text-gray-200"
+                        className="w-full py-1.5 text-xs text-[#64748b] transition-colors hover:text-[#1e3a5f]"
                     >
                         ← Back
                     </button>
@@ -358,14 +358,14 @@ export default function CahayaAnbiyaHero() {
             title: 'Phone Consultation',
             content: (
                 <div className="space-y-3">
-                    <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
+                    <div className="rounded-lg border border-[#c7ddff] bg-[#eef6ff] p-3">
                         <div className="mb-2.5 flex items-center gap-2">
-                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-blue-400 to-indigo-600 text-base">
+                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-[#2d4a6f] to-[#3d5a80] text-base text-white">
                                 📞
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-white">Direct Line</h3>
-                                <p className="text-xs text-blue-200/80">Professional advisors ready</p>
+                                <h3 className="text-sm font-bold text-[#1e3a5f]">Direct Line</h3>
+                                <p className="text-xs text-[#2d4a6f]">Professional advisors ready</p>
                             </div>
                         </div>
                         <div className="space-y-1.5">
@@ -376,17 +376,17 @@ export default function CahayaAnbiyaHero() {
                             ].map((item, i) => (
                                 <div
                                     key={i}
-                                    className="flex items-center justify-between rounded-md border border-blue-500/20 bg-blue-500/10 px-3 py-2"
+                                    className="flex items-center justify-between rounded-md border border-[#c7ddff] bg-white px-3 py-2"
                                 >
-                                    <span className="text-xs font-medium text-blue-300">{item.label}</span>
-                                    <span className="font-mono text-xs font-semibold text-blue-100">{item.value}</span>
+                                    <span className="text-xs font-medium text-[#2d4a6f]">{item.label}</span>
+                                    <span className="font-mono text-xs font-semibold text-[#1e3a5f]">{item.value}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
                     <button
                         onClick={() => setConsultationStep('start')}
-                        className="w-full py-1.5 text-xs text-gray-400 transition-colors hover:text-gray-200"
+                        className="w-full py-1.5 text-xs text-[#64748b] transition-colors hover:text-[#1e3a5f]"
                     >
                         ← Back
                     </button>
@@ -397,36 +397,37 @@ export default function CahayaAnbiyaHero() {
             title: 'Visit Our Office',
             content: (
                 <div className="space-y-3">
-                    <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                    <div className="rounded-lg border border-[#c7ddff] bg-[#f8fafc] p-3">
                         <div className="mb-2.5 flex items-center gap-2">
-                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-gray-400 to-gray-600 text-base">
+                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-[#475569] to-[#334155] text-base text-white">
                                 🏢
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-white">In-Person</h3>
-                                <p className="text-xs text-gray-300/80">Face-to-face consultation</p>
+                                <h3 className="text-sm font-bold text-[#1e3a5f]">In-Person</h3>
+                                <p className="text-xs text-[#64748b]">Face-to-face consultation</p>
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <div className="rounded-md border border-white/10 bg-black/30 px-3 py-2">
-                                <span className="mb-1 block text-[10px] font-medium text-gray-300">Address</span>
-                                <span className="text-xs leading-relaxed text-gray-100">
-                                    Jl. Sudirman No. 123, Jakarta Pusat<br />
+                            <div className="rounded-md border border-[#c7ddff] bg-white px-3 py-2">
+                                <span className="mb-1 block text-[10px] font-medium text-[#64748b]">Address</span>
+                                <span className="text-xs leading-relaxed text-[#334155]">
+                                    Jl. Sudirman No. 123, Jakarta Pusat
+                                    <br />
                                     DKI Jakarta 10220, Indonesia
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between rounded-md border border-white/10 bg-black/30 px-3 py-2">
-                                <span className="text-xs font-medium text-gray-300">Office Hours</span>
-                                <span className="text-xs font-semibold text-gray-100">Mon-Sat: 08:00-17:00</span>
+                            <div className="flex items-center justify-between rounded-md border border-[#c7ddff] bg-white px-3 py-2">
+                                <span className="text-xs font-medium text-[#64748b]">Office Hours</span>
+                                <span className="text-xs font-semibold text-[#1e3a5f]">Mon-Sat: 08:00-17:00</span>
                             </div>
                         </div>
                     </div>
-                    <RippleButton className="w-full rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 text-xs font-semibold text-white shadow-md">
+                    <RippleButton className="w-full rounded-lg bg-gradient-to-r from-[#ff5200] to-[#ff6b35] py-2.5 text-xs font-semibold text-white shadow-md">
                         Schedule Appointment
                     </RippleButton>
                     <button
                         onClick={() => setConsultationStep('start')}
-                        className="w-full py-1.5 text-xs text-gray-400 transition-colors hover:text-gray-200"
+                        className="w-full py-1.5 text-xs text-[#64748b] transition-colors hover:text-[#1e3a5f]"
                     >
                         ← Back
                     </button>
@@ -439,15 +440,20 @@ export default function CahayaAnbiyaHero() {
         <B2BLayout>
             <Head title="Cahaya Anbiya - Premium Hajj & Umrah Services" />
 
-            {/* Hero Section - Premium Design */}
-            <section className="relative z-[1] flex min-h-screen items-center justify-center overflow-hidden bg-black">
+            {/* Hero Section – kombinasi splash/select (putih halus, biru, oranye) */}
+            <section className="bg-section-photos-home relative z-[1] flex min-h-screen items-center justify-center overflow-hidden">
+                {/* Sentuhan biru & oranye halus */}
+                <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                    <div className="absolute -top-20 left-1/4 h-[480px] w-[560px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(45,74,111,0.1),transparent_60%)] blur-3xl" />
+                    <div className="absolute right-1/4 -bottom-20 h-[420px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.08),transparent_60%)] blur-3xl" />
+                </div>
                 {/* Ambient Floating Elements */}
                 <div className="pointer-events-none absolute inset-0">
                     {[
-                        { size: 'h-32 w-32', pos: 'top-20 left-12', color: 'bg-amber-400/8', duration: 10 },
-                        { size: 'h-40 w-40', pos: 'top-40 right-24', color: 'bg-amber-300/6', duration: 12 },
-                        { size: 'h-24 w-24', pos: 'bottom-32 left-1/4', color: 'bg-white/4', duration: 8 },
-                        { size: 'h-28 w-28', pos: 'bottom-48 right-16', color: 'bg-amber-200/5', duration: 14 },
+                        { size: 'h-32 w-32', pos: 'top-20 left-12', color: 'bg-[#2d4a6f]/10', duration: 10 },
+                        { size: 'h-40 w-40', pos: 'top-40 right-24', color: 'bg-[#ff5200]/8', duration: 12 },
+                        { size: 'h-24 w-24', pos: 'bottom-32 left-1/4', color: 'bg-[#d4af37]/6', duration: 8 },
+                        { size: 'h-28 w-28', pos: 'bottom-48 right-16', color: 'bg-[#2d4a6f]/8', duration: 14 },
                     ].map((item, i) => (
                         <motion.div
                             key={i}
@@ -468,21 +474,21 @@ export default function CahayaAnbiyaHero() {
                     ))}
                 </div>
 
-                {/* Background Image */}
+                {/* Background Image - overlay ringan agar gradien tetap terlihat */}
                 <div className="absolute inset-0">
                     <img
                         src={heroImage}
                         alt="Kaaba and Masjid al-Haram"
                         loading="eager"
                         decoding="async"
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover opacity-40"
                         style={{ imageRendering: 'auto', willChange: 'auto' }}
                     />
 
                     {/* Replace Image Button + Guide (Edit Mode) */}
                     {editMode && (
                         <div className="absolute top-6 right-6 z-[30] flex flex-col items-end gap-2">
-                            <div className="rounded-lg border border-amber-500/30 bg-amber-900/30 px-3 py-2 text-xs text-amber-100 shadow-lg">
+                            <div className="rounded-lg border border-[#2d4a6f]/40 bg-white/90 px-3 py-2 text-xs text-[#1e3a5f] shadow-lg">
                                 {imageGuide}
                             </div>
                             <button
@@ -490,7 +496,7 @@ export default function CahayaAnbiyaHero() {
                                     setImageTargetKey('b2b.hero.image');
                                     document.getElementById(hiddenImageInputId)?.click();
                                 }}
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/95 text-gray-800 shadow-2xl ring-4 ring-white/20 transition-all hover:scale-110 hover:bg-white hover:shadow-amber-500/20"
+                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-[#1e3a5f] shadow-xl ring-2 ring-[#d4af37]/40 transition-all hover:scale-110 hover:shadow-2xl"
                                 style={{ willChange: 'transform' }}
                                 title="Replace hero image"
                             >
@@ -499,17 +505,16 @@ export default function CahayaAnbiyaHero() {
                         </div>
                     )}
 
-                    {/* Premium Overlay System */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-950/30 via-transparent to-orange-950/30"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    {/* Overlay halus – biru & oranye selaras tema */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#1e3a5f]/20 via-transparent to-[#2d4a6f]/25"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-[#ff5200]/10"></div>
 
-                    {/* Elegant Particles - Optimized */}
+                    {/* Particles */}
                     <div className="absolute inset-0 overflow-hidden">
                         {[...Array(8)].map((_, i) => (
                             <motion.div
                                 key={i}
-                                className="absolute h-1 w-1 rounded-full bg-amber-300/30"
+                                className="absolute h-1 w-1 rounded-full bg-[#ff5200]/30"
                                 initial={{
                                     x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
                                     y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
@@ -545,10 +550,10 @@ export default function CahayaAnbiyaHero() {
                             initial={{ opacity: 0, y: 40 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1.2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                            className="text-5xl leading-[1.1] font-bold tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl"
+                            className="text-5xl leading-[1.1] font-bold tracking-tight text-[#1e3a5f] sm:text-6xl md:text-7xl lg:text-8xl"
                             style={{
                                 fontFamily: 'Playfair Display, serif',
-                                textShadow: '4px 8px 16px rgba(0,0,0,0.9), 0 0 30px rgba(251, 191, 36, 0.3)',
+                                textShadow: '0 2px 12px rgba(0,0,0,0.08)',
                                 letterSpacing: '-0.02em',
                                 willChange: 'auto',
                             }}
@@ -556,12 +561,12 @@ export default function CahayaAnbiyaHero() {
                             <EditableText sectionKey="b2b.hero.title" value="Cahaya Anbiya" tag="span" />
                         </motion.h1>
 
-                        {/* Decorative Line - Enhanced */}
+                        {/* Decorative Line */}
                         <motion.div
                             initial={{ opacity: 0, scaleX: 0 }}
                             animate={{ opacity: 1, scaleX: 1 }}
                             transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                            className="mx-auto flex h-1.5 w-32 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-lg shadow-amber-400/50 sm:w-40"
+                            className="mx-auto flex h-1.5 w-32 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-transparent via-[#ff5200] to-transparent shadow-lg shadow-[#ff5200]/30 sm:w-40"
                         >
                             <motion.div
                                 animate={{ x: ['-100%', '100%'] }}
@@ -570,15 +575,14 @@ export default function CahayaAnbiyaHero() {
                             />
                         </motion.div>
 
-                        {/* Subtitle - Better Readability */}
+                        {/* Subtitle */}
                         <motion.p
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                            className="mx-auto max-w-3xl px-4 text-lg leading-relaxed font-light text-white/95 sm:text-xl md:text-2xl lg:max-w-4xl"
+                            className="mx-auto max-w-3xl px-4 text-lg leading-relaxed font-light text-[#475569] sm:text-xl md:text-2xl lg:max-w-4xl"
                             style={{
                                 fontFamily: 'Poppins, sans-serif',
-                                textShadow: '3px 6px 12px rgba(0,0,0,0.9), 0 0 20px rgba(255,255,255,0.15)',
                                 letterSpacing: '0.01em',
                                 willChange: 'auto',
                             }}
@@ -605,20 +609,19 @@ export default function CahayaAnbiyaHero() {
                                         transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
                                         data-consultation-trigger
                                     >
-                                        <RippleButton className="group hover:shadow-3xl relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 px-8 py-5 text-lg font-bold text-white shadow-2xl shadow-amber-500/30 transition-all duration-300 hover:shadow-amber-500/40 sm:w-auto sm:px-10 sm:py-6 sm:text-xl">
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+                                        <RippleButton className="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-[#ff5200] to-[#ff6b35] px-8 py-5 text-lg font-bold text-white shadow-xl transition-all duration-300 hover:shadow-2xl sm:w-auto sm:px-10 sm:py-6 sm:text-xl">
                                             <span className="relative" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                                 Free Consultation
                                             </span>
                                         </RippleButton>
                                     </motion.div>
                                 </DialogTrigger>
-                                <DialogContent className="max-h-[85vh] w-[min(480px,calc(100vw-1.5rem))] overflow-y-auto border border-white/10 bg-black/95">
-                                    <DialogHeader className="border-b border-white/10 pb-4">
-                                        <DialogTitle className="text-lg font-bold text-white">
+                                <DialogContent className="max-h-[85vh] w-[min(480px,calc(100vw-1.5rem))] overflow-y-auto border-2 border-[#d4af37]/30 bg-white shadow-2xl">
+                                    <DialogHeader className="border-b border-[#d4af37]/20 pb-4">
+                                        <DialogTitle className="text-lg font-bold text-[#1e3a5f]">
                                             {consultationSteps[consultationStep].title}
                                         </DialogTitle>
-                                        <DialogDescription className="mt-1 text-sm text-gray-400">
+                                        <DialogDescription className="mt-1 text-sm text-[#64748b]">
                                             Connect with our expert consultants for personalized pilgrimage planning
                                         </DialogDescription>
                                     </DialogHeader>
@@ -633,20 +636,19 @@ export default function CahayaAnbiyaHero() {
                                         whileTap={{ scale: 0.98 }}
                                         transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
                                     >
-                                        <RippleButton className="group relative w-full overflow-hidden rounded-2xl border-2 border-white/30 bg-white/10 px-8 py-5 text-lg font-bold text-white shadow-2xl shadow-white/5 transition-all duration-300 hover:border-white/50 hover:bg-white/20 hover:shadow-2xl hover:shadow-white/10 sm:w-auto sm:px-10 sm:py-6 sm:text-xl">
-                                            <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+                                        <RippleButton className="group relative w-full overflow-hidden rounded-2xl border-2 border-[#2d4a6f]/50 bg-white/90 px-8 py-5 text-lg font-bold text-[#1e3a5f] shadow-xl transition-all duration-300 hover:border-[#2d4a6f] hover:shadow-2xl sm:w-auto sm:px-10 sm:py-6 sm:text-xl">
                                             <span className="relative" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                                 View Packages
                                             </span>
                                         </RippleButton>
                                     </motion.div>
                                 </DialogTrigger>
-                                <DialogContent className="max-h-[85vh] w-[min(560px,calc(100vw-1.5rem))] overflow-y-auto border border-white/10 bg-black/95">
-                                    <DialogHeader className="border-b border-white/10 pb-4">
-                                        <DialogTitle className="text-lg font-bold text-white">
+                                <DialogContent className="max-h-[85vh] w-[min(560px,calc(100vw-1.5rem))] overflow-y-auto border border-[#d4af37]/25 bg-white shadow-2xl">
+                                    <DialogHeader className="border-b border-[#d4af37]/15 pb-4">
+                                        <DialogTitle className="text-lg font-bold text-[#1e3a5f]">
                                             <EditableText sectionKey="b2b.packages_dialog.title" value="Premium Packages" tag="span" />
                                         </DialogTitle>
-                                        <DialogDescription className="mt-1 text-sm text-gray-400">
+                                        <DialogDescription className="mt-1 text-sm text-[#64748b]">
                                             <EditableText
                                                 sectionKey="b2b.packages_dialog.description"
                                                 value="Choose from our carefully curated packages for your spiritual journey"
@@ -664,29 +666,30 @@ export default function CahayaAnbiyaHero() {
                                                 transition={{ delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
                                                 className={`rounded-xl border transition-all duration-200 ${
                                                     selectedPackage === pkg.id
-                                                        ? 'border-amber-500/40 bg-white/5 shadow-lg shadow-amber-500/10'
-                                                        : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]'
+                                                        ? 'border-[#d4af37]/40 bg-[#d4af37]/5 shadow-lg shadow-[#d4af37]/10'
+                                                        : 'border-[#c7ddff] bg-[#f8fafc] hover:border-[#d4af37]/30 hover:bg-[#d4af37]/5'
                                                 }`}
                                             >
                                                 <div className="p-4">
-                                                    {/* Compact Header: Title + Badge + Duration + Price in one row */}
                                                     <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
                                                         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-                                                            <h3 className="text-sm font-bold text-white sm:text-base">
+                                                            <h3 className="text-sm font-bold text-[#1e3a5f] sm:text-base">
                                                                 <EditableText
                                                                     sectionKey={`b2b.packages.${pkg.id}.name`}
                                                                     value={pkg.name}
                                                                     tag="span"
                                                                 />
                                                             </h3>
-                                                            <span className={`rounded-full bg-gradient-to-r ${pkg.badgeColor} px-2 py-0.5 text-[10px] font-medium text-white`}>
+                                                            <span
+                                                                className={`rounded-full bg-gradient-to-r ${pkg.badgeColor} px-2 py-0.5 text-[10px] font-medium text-white`}
+                                                            >
                                                                 <EditableText
                                                                     sectionKey={`b2b.packages.${pkg.id}.badge`}
                                                                     value={pkg.badge}
                                                                     tag="span"
                                                                 />
                                                             </span>
-                                                            <span className="text-xs text-gray-400">
+                                                            <span className="text-xs text-[#64748b]">
                                                                 <EditableText
                                                                     sectionKey={`b2b.packages.${pkg.id}.duration`}
                                                                     value={pkg.duration}
@@ -694,8 +697,8 @@ export default function CahayaAnbiyaHero() {
                                                                 />
                                                             </span>
                                                         </div>
-                                                        <div className="flex-shrink-0 rounded-md border border-amber-500/30 bg-amber-500/15 px-3 py-1.5 text-right">
-                                                            <p className="text-xs font-bold text-amber-200">
+                                                        <div className="flex-shrink-0 rounded-md border border-[#d4af37]/30 bg-[#d4af37]/10 px-3 py-1.5 text-right">
+                                                            <p className="text-xs font-bold text-[#b8860b]">
                                                                 <EditableText
                                                                     sectionKey={`b2b.packages.${pkg.id}.price`}
                                                                     value={pkg.price}
@@ -705,8 +708,7 @@ export default function CahayaAnbiyaHero() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Highlights - compact */}
-                                                    <p className="mb-2.5 line-clamp-2 rounded-md border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs leading-relaxed text-amber-100/90">
+                                                    <p className="mb-2.5 line-clamp-2 rounded-md border border-[#ff5200]/15 bg-[#ff5200]/5 px-3 py-2 text-xs leading-relaxed text-[#475569]">
                                                         <EditableText
                                                             sectionKey={`b2b.packages.${pkg.id}.highlights`}
                                                             value={pkg.highlights}
@@ -714,23 +716,29 @@ export default function CahayaAnbiyaHero() {
                                                         />
                                                     </p>
 
-                                                    {/* What's Included - compact toggle */}
                                                     <button
                                                         onClick={() => setSelectedPackage(selectedPackage === pkg.id ? null : pkg.id)}
-                                                        className="mb-2.5 flex w-full items-center justify-between rounded-md border border-white/10 bg-white/5 px-3 py-2 text-left transition-colors hover:border-white/20 hover:bg-white/10"
+                                                        className="mb-2.5 flex w-full items-center justify-between rounded-md border border-[#c7ddff] bg-[#eef6ff] px-3 py-2 text-left transition-colors hover:border-[#2d4a6f]/30 hover:bg-[#2d4a6f]/10"
                                                     >
-                                                        <span className="text-xs font-medium text-gray-300">What's Included</span>
+                                                        <span className="text-xs font-medium text-[#475569]">What's Included</span>
                                                         <span className="flex items-center gap-1.5">
-                                                            <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-medium text-amber-300">{pkg.features.length}</span>
+                                                            <span className="rounded bg-[#ff5200]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#ff5200]">
+                                                                {pkg.features.length}
+                                                            </span>
                                                             <motion.svg
                                                                 animate={{ rotate: selectedPackage === pkg.id ? 180 : 0 }}
                                                                 transition={{ duration: 0.2 }}
-                                                                className="h-3.5 w-3.5 text-gray-400"
+                                                                className="h-3.5 w-3.5 text-[#64748b]"
                                                                 fill="none"
                                                                 stroke="currentColor"
                                                                 viewBox="0 0 24 24"
                                                             >
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={2}
+                                                                    d="M19 9l-7 7-7-7"
+                                                                />
                                                             </motion.svg>
                                                         </span>
                                                     </button>
@@ -742,11 +750,14 @@ export default function CahayaAnbiyaHero() {
                                                             transition={{ duration: 0.2 }}
                                                             className="mb-2.5 overflow-hidden"
                                                         >
-                                                            <div className="grid grid-cols-1 gap-1.5 rounded-md border border-white/10 bg-white/5 p-2.5 sm:grid-cols-2">
+                                                            <div className="grid grid-cols-1 gap-1.5 rounded-md border border-[#c7ddff] bg-[#f8fafc] p-2.5 sm:grid-cols-2">
                                                                 {pkg.features.map((feature: string, idx: number) => (
-                                                                    <div key={idx} className="flex items-start gap-1.5 rounded bg-black/30 px-2.5 py-1.5">
-                                                                        <div className="mt-1 h-1 w-1 flex-shrink-0 rounded-full bg-green-400" />
-                                                                        <span className="text-[11px] leading-snug text-gray-300">
+                                                                    <div
+                                                                        key={idx}
+                                                                        className="flex items-start gap-1.5 rounded bg-white px-2.5 py-1.5 shadow-sm"
+                                                                    >
+                                                                        <div className="mt-1 h-1 w-1 flex-shrink-0 rounded-full bg-emerald-500" />
+                                                                        <span className="text-[11px] leading-snug text-[#475569]">
                                                                             <EditableText
                                                                                 sectionKey={`b2b.packages.${pkg.id}.features.${idx}`}
                                                                                 value={feature}
@@ -770,23 +781,24 @@ export default function CahayaAnbiyaHero() {
                                             </motion.div>
                                         ))}
 
-                                        {/* Custom Package - compact */}
                                         <motion.div
                                             initial={{ opacity: 0, y: 8 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.2 }}
-                                            className="flex items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/5 p-4"
+                                            className="flex items-center gap-3 rounded-xl border border-[#2d4a6f]/20 bg-[#eef6ff] p-4"
                                         >
-                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-lg">
+                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#2d4a6f] to-[#3d5a80] text-lg">
                                                 🎯
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h3 className="text-sm font-bold text-white">Need a Custom Package?</h3>
-                                                <p className="line-clamp-2 text-xs text-gray-400">Tailored experiences for your unique spiritual journey</p>
+                                                <h3 className="text-sm font-bold text-[#1e3a5f]">Need a Custom Package?</h3>
+                                                <p className="line-clamp-2 text-xs text-[#64748b]">
+                                                    Tailored experiences for your unique spiritual journey
+                                                </p>
                                             </div>
                                             <RippleButton
                                                 onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
-                                                className="flex-shrink-0 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-xs font-semibold text-white"
+                                                className="flex-shrink-0 rounded-lg bg-gradient-to-r from-[#2d4a6f] to-[#3d5a80] px-4 py-2 text-xs font-semibold text-white"
                                             >
                                                 Request Quote
                                             </RippleButton>
@@ -847,17 +859,17 @@ export default function CahayaAnbiyaHero() {
                                 <div className="absolute -top-1 -right-1 h-2.5 w-2.5 animate-pulse rounded-full border border-white bg-green-400 shadow-md sm:h-3 sm:w-3"></div>
                             </motion.button>
                         </DialogTrigger>
-                        <DialogContent className="max-h-[85vh] w-[min(520px,calc(100vw-1.5rem))] overflow-y-auto border border-white/10 bg-black/95">
-                            <DialogHeader className="border-b border-white/10 pb-4">
-                                <DialogTitle className="flex items-center gap-2 text-lg font-bold text-white">
+                        <DialogContent className="max-h-[85vh] w-[min(520px,calc(100vw-1.5rem))] overflow-y-auto border border-[#d4af37]/25 bg-white shadow-2xl">
+                            <DialogHeader className="border-b border-[#d4af37]/15 pb-4">
+                                <DialogTitle className="flex items-center gap-2 text-lg font-bold text-[#1e3a5f]">
                                     <motion.div
                                         animate={{ scale: [1, 1.2, 1] }}
                                         transition={{ duration: 2, repeat: Infinity }}
-                                        className="h-2.5 w-2.5 rounded-full bg-green-400 shadow-md shadow-green-400/50"
+                                        className="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/30"
                                     />
                                     <EditableText sectionKey="b2b.live_support.title" value="Live Support Center" tag="span" />
                                 </DialogTitle>
-                                <DialogDescription className="mt-1 text-sm text-gray-400">
+                                <DialogDescription className="mt-1 text-sm text-[#64748b]">
                                     <EditableText
                                         sectionKey="b2b.live_support.description"
                                         value="Connect instantly with our expert consultants"
@@ -868,29 +880,32 @@ export default function CahayaAnbiyaHero() {
 
                             <div className="space-y-3 p-4">
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                    {/* WhatsApp */}
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-                                        className="rounded-lg border border-green-500/20 bg-green-500/5 p-3"
+                                        className="rounded-lg border border-emerald-200 bg-emerald-50 p-3"
                                     >
                                         <div className="mb-2.5 flex items-center gap-2">
                                             <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-green-400 to-emerald-600 text-base">
                                                 📱
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h3 className="text-sm font-bold text-white">
+                                                <h3 className="text-sm font-bold text-[#1e3a5f]">
                                                     <EditableText sectionKey="b2b.live_support.whatsapp.title" value="WhatsApp" tag="span" />
                                                 </h3>
-                                                <p className="text-xs text-green-200/80">
-                                                    <EditableText sectionKey="b2b.live_support.whatsapp.subtitle" value="Instant response" tag="span" />
+                                                <p className="text-xs text-emerald-600">
+                                                    <EditableText
+                                                        sectionKey="b2b.live_support.whatsapp.subtitle"
+                                                        value="Instant response"
+                                                        tag="span"
+                                                    />
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="mb-2.5 flex items-center justify-between rounded-md border border-green-500/20 bg-green-500/10 px-3 py-2">
-                                            <span className="text-xs font-medium text-green-300">Response Time</span>
-                                            <span className="text-xs font-semibold text-green-400">
+                                        <div className="mb-2.5 flex items-center justify-between rounded-md border border-emerald-200 bg-emerald-50/50 px-3 py-2">
+                                            <span className="text-xs font-medium text-emerald-700">Response Time</span>
+                                            <span className="text-xs font-semibold text-emerald-600">
                                                 <EditableText sectionKey="b2b.live_support.whatsapp.response_time" value="< 2 min" tag="span" />
                                             </span>
                                         </div>
@@ -903,38 +918,37 @@ export default function CahayaAnbiyaHero() {
                                         </RippleButton>
                                     </motion.div>
 
-                                    {/* Phone */}
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-                                        className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3"
+                                        className="rounded-lg border border-[#c7ddff] bg-[#eef6ff] p-3"
                                     >
                                         <div className="mb-2.5 flex items-center gap-2">
-                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-indigo-600 text-base">
+                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#2d4a6f] to-[#3d5a80] text-base text-white">
                                                 📞
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h3 className="text-sm font-bold text-white">
+                                                <h3 className="text-sm font-bold text-[#1e3a5f]">
                                                     <EditableText sectionKey="b2b.live_support.phone.title" value="Phone" tag="span" />
                                                 </h3>
-                                                <p className="text-xs text-blue-200/80">
+                                                <p className="text-xs text-[#2d4a6f]">
                                                     <EditableText sectionKey="b2b.live_support.phone.subtitle" value="Direct line" tag="span" />
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <div className="flex items-center justify-between rounded-md border border-blue-500/20 bg-blue-500/10 px-3 py-2">
-                                                <span className="text-xs font-medium text-blue-300">
+                                            <div className="flex items-center justify-between rounded-md border border-[#c7ddff] bg-white px-3 py-2">
+                                                <span className="text-xs font-medium text-[#2d4a6f]">
                                                     <EditableText sectionKey="b2b.live_support.phone.main_label" value="Main Office" tag="span" />
                                                 </span>
-                                                <span className="font-mono text-xs font-semibold text-blue-100">
+                                                <span className="font-mono text-xs font-semibold text-[#1e3a5f]">
                                                     <EditableText sectionKey="b2b.live_support.phone.main_number" value="021-1234-5678" tag="span" />
                                                 </span>
                                             </div>
-                                            <div className="flex items-center justify-between rounded-md border border-blue-500/20 bg-blue-500/10 px-3 py-2">
-                                                <span className="text-xs font-medium text-blue-300">Hours</span>
-                                                <span className="text-xs font-semibold text-blue-100">
+                                            <div className="flex items-center justify-between rounded-md border border-[#c7ddff] bg-white px-3 py-2">
+                                                <span className="text-xs font-medium text-[#2d4a6f]">Hours</span>
+                                                <span className="text-xs font-semibold text-[#1e3a5f]">
                                                     <EditableText sectionKey="b2b.live_support.phone.hours" value="Mon-Fri: 08:00-17:00" tag="span" />
                                                 </span>
                                             </div>
@@ -942,27 +956,26 @@ export default function CahayaAnbiyaHero() {
                                     </motion.div>
                                 </div>
 
-                                {/* Status */}
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 0.18 }}
-                                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-center"
+                                    className="rounded-lg border border-[#c7ddff] bg-[#f8fafc] px-3 py-2.5 text-center"
                                 >
                                     <div className="mb-1 flex items-center justify-center gap-2">
                                         <motion.div
                                             animate={{ scale: [1, 1.2, 1] }}
                                             transition={{ duration: 1.5, repeat: Infinity }}
-                                            className="h-2 w-2 rounded-full bg-green-400 shadow-md shadow-green-400/50"
+                                            className="h-2 w-2 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/30"
                                         />
-                                        <span className="text-xs font-semibold text-green-400">
+                                        <span className="text-xs font-semibold text-emerald-600">
                                             <EditableText sectionKey="b2b.live_support.status" value="Live Support Active" tag="span" />
                                         </span>
                                     </div>
-                                    <p className="text-xs text-gray-400">
+                                    <p className="text-xs text-[#64748b]">
                                         <EditableText
                                             sectionKey="b2b.live_support.footer"
-                                            value="🔒 All consultations are confidential and free"
+                                            value="All consultations are confidential and free"
                                             tag="span"
                                         />
                                     </p>
@@ -1030,7 +1043,10 @@ export default function CahayaAnbiyaHero() {
                             URL.revokeObjectURL(previewUrl);
                             const originalImage = props.sections?.['b2b.hero.image']?.image || '/b2b.jpeg';
                             setHeroImage(originalImage);
-                            const ax = error && typeof error === 'object' && 'response' in error ? (error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }) : null;
+                            const ax =
+                                error && typeof error === 'object' && 'response' in error
+                                    ? (error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
+                                    : null;
                             const data = ax?.response?.data;
                             let msg = data?.message || (error instanceof Error ? error.message : 'Failed to upload image');
                             if (data?.errors && typeof data.errors === 'object') {

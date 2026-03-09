@@ -8,7 +8,7 @@ import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, ChevronDown, Edit3, Sparkles } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // Video component with R2 fallback - Simplified and safer
 function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl: string }) {
@@ -358,6 +358,85 @@ function HeroVideoUploadTrigger() {
     );
 }
 
+const heroSlides = [
+    { image: '/Destination Cahaya.jpeg', title: 'Egypt Wonders', subtitle: 'Pyramid & Giza' },
+    { image: '/Destination Cahaya 1.jpeg', title: 'Jordan – Petra', subtitle: '7 Wonders of the World' },
+    { image: '/Destination Cahaya 2.jpeg', title: 'Jordan – Wadi Rum', subtitle: 'Desert Valley Adventure' },
+    { image: '/Destination Cahaya 3.jpeg', title: 'Sinai Heritage', subtitle: 'Mount Sinai & History' },
+    { image: '/Destination Cahaya 4.jpeg', title: 'Palestine', subtitle: 'Mount of Olives' },
+    { image: '/Destination Cahaya 5.jpeg', title: 'Palestine – Jericho', subtitle: 'Ancient City' },
+    { image: '/Destination Cahaya 6.jpeg', title: 'Aqsa Complex', subtitle: 'Dome of the Rock' },
+    { image: '/Destination Cahaya 7.jpeg', title: 'Cave of the Seven Sleepers', subtitle: 'Ashabul Kahfi' },
+    { image: '/Destination Cahaya 8.jpeg', title: 'Egypt & Jordan', subtitle: 'Pyramids to Petra' },
+];
+
+function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
+    const [current, setCurrent] = useState(0);
+    const [prev, setPrev] = useState<number | null>(null);
+    const [loaded, setLoaded] = useState<Set<number>>(new Set([0, 1]));
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const goTo = useCallback((next: number) => {
+        setPrev(current);
+        setCurrent(next);
+    }, [current]);
+
+    useEffect(() => {
+        setLoaded((s) => {
+            const copy = new Set(s);
+            copy.add((current + 1) % heroSlides.length);
+            copy.add((current + 2) % heroSlides.length);
+            return copy;
+        });
+    }, [current]);
+
+    useEffect(() => {
+        timerRef.current = setTimeout(() => {
+            goTo((current + 1) % heroSlides.length);
+        }, 6000);
+        return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    }, [current, goTo]);
+
+    useEffect(() => {
+        if (prev === null) return;
+        const id = setTimeout(() => setPrev(null), 1600);
+        return () => clearTimeout(id);
+    }, [prev]);
+
+    return (
+        <motion.div
+            className="absolute inset-0"
+            style={{ y: parallaxY, width: '100%', height: '100%', minHeight: '100%' }}
+        >
+            {heroSlides.map((slide, i) => {
+                const isActive = i === current;
+                const isLeaving = i === prev;
+                if (!isActive && !isLeaving) return null;
+                if (!loaded.has(i)) return null;
+
+                return (
+                    <motion.div
+                        key={`slide-${i}-${isActive ? 'in' : 'out'}`}
+                        className="absolute inset-0"
+                        style={{ zIndex: isActive ? 2 : 1 }}
+                        initial={isActive ? { opacity: 0 } : false}
+                        animate={{ opacity: isActive ? 1 : 0 }}
+                        transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
+                    >
+                        <img
+                            src={slide.image}
+                            alt={slide.title}
+                            className="h-full w-full object-cover"
+                            loading={i < 2 ? 'eager' : 'lazy'}
+                            decoding="async"
+                        />
+                    </motion.div>
+                );
+            })}
+        </motion.div>
+    );
+}
+
 export default function Home() {
     const [editMode, setEditModeUI] = useState<boolean>(false);
 
@@ -486,51 +565,11 @@ export default function Home() {
                 />
 
                 <div ref={containerRef}>
-                    {/* Hero Section - Clean Video Background - Mobile Optimized */}
-                    <section className="relative h-[92vh] w-full overflow-hidden bg-black sm:h-[88vh] md:h-[85vh] lg:h-[85vh]">
-                        {/* Video Background */}
-                        <motion.div
-                            className="absolute inset-0 overflow-hidden"
-                            style={{
-                                y: videoY,
-                                width: '100%',
-                                height: '100%',
-                                minHeight: '100%',
-                                willChange: 'transform', // GPU acceleration hint
-                            }}
-                        >
-                            <EditableVideo
-                                sectionKey="home.hero.video"
-                                src={props.sections?.['home.hero.video']?.video}
-                                fallbackSrc="videos/b2cherosectionvideo.mp4"
-                                className="absolute inset-0 h-full w-full"
-                                videoClassName="h-full w-full object-cover"
-                                inlineTrigger
-                            />
-                        </motion.div>
+                    {/* Hero Section - Destination Photo Slideshow */}
+                    <section className="relative h-[92vh] w-full overflow-hidden bg-[#0a1628] sm:h-[88vh] md:h-[85vh] lg:h-[85vh]">
+                        <HeroSlideshow parallaxY={videoY} />
 
-                        {/* Enhanced gradient overlay - Lighter for better visibility */}
-                        <div className="absolute inset-0 z-[5] bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
-
-                        {/* Ambient glow effects */}
-                        <div className="pointer-events-none absolute inset-0 z-[6]">
-                            {/* Reduced blur for better performance - using blur-2xl instead of blur-3xl */}
-                            <motion.div
-                                className="absolute -top-40 left-1/2 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.08),transparent_70%)] blur-2xl"
-                                animate={{
-                                    opacity: [0.3, 0.5, 0.3],
-                                    scale: [1, 1.1, 1],
-                                }}
-                                transition={{
-                                    duration: 8,
-                                    repeat: Infinity,
-                                    ease: 'easeInOut',
-                                }}
-                                style={{ willChange: 'opacity, transform' }} // GPU acceleration
-                            />
-                        </div>
-
-                        {/* Hero Content - Clean Single Line + Video Upload Trigger */}
+                        {/* Hero Content */}
                         <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 pb-20 sm:pb-24">
                             <motion.div
                                 className="flex max-w-5xl flex-col items-center gap-4 text-center"
@@ -538,7 +577,10 @@ export default function Home() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                             >
-                                <h1 className="text-4xl leading-tight font-light text-white drop-shadow-2xl md:text-6xl lg:text-7xl">
+                                <h1
+                                    className="text-4xl leading-tight font-light text-white drop-shadow-2xl md:text-6xl lg:text-7xl"
+                                    style={{ textShadow: '0 4px 30px rgba(0,0,0,0.5)' }}
+                                >
                                     <EditableText
                                         sectionKey="home.hero.tagline"
                                         value="Where ancient wonders meet extraordinary journeys"
@@ -549,7 +591,7 @@ export default function Home() {
                             </motion.div>
                         </div>
 
-                        {/* Scroll Down Button - Elegant & Subtle */}
+                        {/* Scroll Down Button */}
                         <motion.div
                             className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 sm:bottom-8"
                             initial={{ opacity: 0, y: -10 }}
@@ -558,7 +600,7 @@ export default function Home() {
                         >
                             <motion.button
                                 onClick={() => smoothScrollTo('best-sellers')}
-                                className="group flex flex-col items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-3 transition-all duration-300 hover:border-white/30 hover:bg-white/15"
+                                className="group flex flex-col items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-3 backdrop-blur-sm transition-all duration-300 hover:border-white/30 hover:bg-white/15"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 aria-label="Scroll down"
@@ -573,18 +615,12 @@ export default function Home() {
                         </motion.div>
                     </section>
 
-                    {/* Best Sellers Section - Unified 2-Column Design */}
-                    <section id="best-sellers" className="relative bg-gradient-to-b from-black via-slate-950 to-black py-24">
-                        {/* Ambient background effects - Reduced blur for performance */}
-                        <div className="pointer-events-none absolute inset-0">
-                            <div
-                                className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.04),transparent_70%)] blur-2xl"
-                                style={{ willChange: 'auto' }}
-                            />
-                            <div
-                                className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,84,255,0.03),transparent_70%)] blur-2xl"
-                                style={{ willChange: 'auto' }}
-                            />
+                    {/* Best Sellers – gradien biru & oranye dari logo + putih halus */}
+                    <section id="best-sellers" className="bg-section-photos-home relative border-t border-[#d4af37]/20 py-24">
+                        {/* Sentuhan emas & oranye halus di background */}
+                        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                            <div className="absolute -top-20 left-1/4 h-[420px] w-[480px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.08),transparent_65%)] blur-3xl" />
+                            <div className="absolute right-1/4 bottom-0 h-[380px] w-[440px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_65%)] blur-3xl" />
                         </div>
 
                         <div className="relative mx-auto max-w-7xl px-4">
@@ -603,16 +639,12 @@ export default function Home() {
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.6 }}
                                 >
-                                    <div className="rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-1.5">
-                                        <span className="bg-gradient-to-r from-amber-200 to-orange-300 bg-clip-text text-sm font-semibold text-transparent">
-                                            MOST LOVED
-                                        </span>
+                                    <div className="rounded-full border-2 border-[#d4af37] bg-[#d4af37]/15 px-4 py-1.5 shadow-md">
+                                        <span className="text-sm font-bold text-[#b8860b]">MOST LOVED</span>
                                     </div>
                                 </motion.div>
-                                <h2 className="mb-4 bg-gradient-to-r from-amber-100 via-white to-amber-100 bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
-                                    Best Sellers
-                                </h2>
-                                <p className="mx-auto max-w-2xl text-lg text-white/50">Discover our most loved travel experiences</p>
+                                <h2 className="mb-4 text-4xl font-bold text-[#1e3a5f] md:text-5xl">Best Sellers</h2>
+                                <p className="mx-auto max-w-2xl text-lg text-[#475569]">Discover our most loved travel experiences</p>
                             </motion.div>
 
                             {/* Unified 2-Column Grid */}
@@ -628,9 +660,14 @@ export default function Home() {
                                     const imageSrc = getImageSrc(sectionKey, item.image);
                                     const sectionImageUrl = props.sections?.[sectionKey]?.image ?? '';
                                     return (
-                                        <motion.div key={`bestseller-${item.id}-${item.image}`} variants={fadeInUp} transition={{ duration: 0.7, ease }} className="group">
+                                        <motion.div
+                                            key={`bestseller-${item.id}-${item.image}`}
+                                            variants={fadeInUp}
+                                            transition={{ duration: 0.7, ease }}
+                                            className="group"
+                                        >
                                             <motion.div
-                                                className="relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-slate-900/80 to-slate-900/60"
+                                                className="relative overflow-hidden rounded-2xl border border-[#d4af37]/25 bg-white shadow-xl"
                                                 whileHover={{ y: -6 }}
                                                 transition={{ duration: 0.4, ease }}
                                             >
@@ -674,12 +711,12 @@ export default function Home() {
                                                         }}
                                                     />
 
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                                                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
                                                     {/* Badge */}
                                                     <div className="absolute top-4 right-4">
                                                         <motion.div
-                                                            className="flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 shadow-xl"
+                                                            className="flex items-center gap-2 rounded-full border border-white/20 bg-gradient-to-r from-[#2d4a6f] via-[#3d5a80] to-[#ff5200] px-4 py-2 shadow-xl"
                                                             whileHover={{ scale: 1.05 }}
                                                         >
                                                             <Sparkles className="h-3.5 w-3.5 text-white" />
@@ -719,7 +756,7 @@ export default function Home() {
                                                     </div>
                                                 </div>
 
-                                                <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500 group-hover:w-full" />
+                                                <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-[#3d5a80] via-[#ff5200] to-[#d4af37] transition-all duration-500 group-hover:w-full" />
                                             </motion.div>
                                         </motion.div>
                                     );
@@ -728,13 +765,11 @@ export default function Home() {
                         </div>
                     </section>
 
-                    {/* New Destinations - Creative Magazine Layout */}
-                    <section className="relative bg-gradient-to-b from-black via-slate-950 to-black py-24">
-                        <div className="pointer-events-none absolute inset-0">
-                            <div
-                                className="absolute top-1/3 right-0 h-[500px] w-[600px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.04),transparent_70%)] blur-2xl"
-                                style={{ willChange: 'auto' }}
-                            />
+                    {/* New Destinations – gradien biru & oranye dari logo + putih halus */}
+                    <section className="bg-section-photos-home relative border-t border-[#d4af37]/20 py-24">
+                        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                            <div className="absolute top-1/4 right-0 h-[480px] w-[520px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.07),transparent_65%)] blur-3xl" />
+                            <div className="absolute bottom-0 left-0 h-[360px] w-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.06),transparent_65%)] blur-3xl" />
                         </div>
 
                         <div className="relative mx-auto max-w-7xl px-4">
@@ -753,16 +788,12 @@ export default function Home() {
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.6 }}
                                 >
-                                    <div className="rounded-full border border-orange-500/20 bg-orange-500/10 px-4 py-1.5">
-                                        <span className="bg-gradient-to-r from-orange-200 to-amber-300 bg-clip-text text-sm font-semibold text-transparent">
-                                            JUST LAUNCHED
-                                        </span>
+                                    <div className="rounded-full border-2 border-[#ff5200] bg-[#ff5200]/15 px-4 py-1.5 shadow-md">
+                                        <span className="text-sm font-bold text-[#e64a00]">JUST LAUNCHED</span>
                                     </div>
                                 </motion.div>
-                                <h2 className="mb-4 bg-gradient-to-r from-orange-100 via-white to-orange-100 bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
-                                    New Destinations
-                                </h2>
-                                <p className="mx-auto max-w-2xl text-lg text-white/50">Fresh adventures and undiscovered gems</p>
+                                <h2 className="mb-4 text-4xl font-bold text-[#1e3a5f] md:text-5xl">New Destinations</h2>
+                                <p className="mx-auto max-w-2xl text-lg text-[#475569]">Fresh adventures and undiscovered gems</p>
                             </motion.div>
 
                             {/* Balanced 2x2 Grid Layout - Clean & Organized */}
@@ -777,7 +808,7 @@ export default function Home() {
                                     className="group"
                                 >
                                     <motion.div
-                                        className="relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/90 to-slate-900/80 shadow-xl transition-all duration-300"
+                                        className="relative h-full overflow-hidden rounded-2xl border border-[#d4af37]/25 bg-white shadow-xl transition-all duration-300"
                                         whileHover={{ y: -6 }}
                                         transition={{ duration: 0.3, ease }}
                                     >
@@ -791,11 +822,11 @@ export default function Home() {
                                             />
 
                                             {/* Simple Gradient Overlay */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
 
                                             {/* Clean Badge */}
                                             <div className="absolute top-4 right-4 z-10">
-                                                <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1.5 shadow-lg">
+                                                <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-accent to-[#fec901] px-3 py-1.5 shadow-lg">
                                                     <div className="h-1.5 w-1.5 rounded-full bg-white" />
                                                     <span className="text-xs font-semibold text-white">{newDestinations[0].tag}</span>
                                                 </div>
@@ -835,7 +866,7 @@ export default function Home() {
                                                 <p className="mb-3 text-sm text-white/80 md:text-base">
                                                     {getContent(`home.new.${newDestinations[0].id}.subtitle`, newDestinations[0].subtitle)}
                                                 </p>
-                                                <div className="inline-flex items-center gap-2 text-orange-400">
+                                                <div className="inline-flex items-center gap-2 text-accent">
                                                     <span className="text-sm font-medium">Explore</span>
                                                     <ArrowRight className="h-4 w-4" />
                                                 </div>
@@ -854,7 +885,7 @@ export default function Home() {
                                     className="group"
                                 >
                                     <motion.div
-                                        className="relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/90 to-slate-900/80 shadow-xl transition-all duration-300"
+                                        className="relative h-full overflow-hidden rounded-2xl border border-[#d4af37]/25 bg-white shadow-xl transition-all duration-300"
                                         whileHover={{ y: -6 }}
                                         transition={{ duration: 0.3, ease }}
                                     >
@@ -868,11 +899,11 @@ export default function Home() {
                                             />
 
                                             {/* Simple Gradient */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
 
                                             {/* Clean Badge */}
                                             <div className="absolute top-4 right-4 z-10">
-                                                <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1.5 shadow-lg">
+                                                <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-accent to-[#fec901] px-3 py-1.5 shadow-lg">
                                                     <div className="h-1.5 w-1.5 rounded-full bg-white" />
                                                     <span className="text-xs font-semibold text-white">{newDestinations[1].tag}</span>
                                                 </div>
@@ -912,7 +943,7 @@ export default function Home() {
                                                 <p className="mb-3 text-sm text-white/80 md:text-base">
                                                     {getContent(`home.new.${newDestinations[1].id}.subtitle`, newDestinations[1].subtitle)}
                                                 </p>
-                                                <div className="inline-flex items-center gap-2 text-orange-400">
+                                                <div className="inline-flex items-center gap-2 text-accent">
                                                     <span className="text-sm font-medium">Explore</span>
                                                     <ArrowRight className="h-4 w-4" />
                                                 </div>
@@ -931,7 +962,7 @@ export default function Home() {
                                     className="group"
                                 >
                                     <motion.div
-                                        className="relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/90 to-slate-900/80 shadow-xl transition-all duration-300"
+                                        className="relative h-full overflow-hidden rounded-2xl border border-[#d4af37]/25 bg-white shadow-xl transition-all duration-300"
                                         whileHover={{ y: -6 }}
                                         transition={{ duration: 0.3, ease }}
                                     >
@@ -945,11 +976,11 @@ export default function Home() {
                                             />
 
                                             {/* Simple Gradient */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
 
                                             {/* Clean Badge */}
                                             <div className="absolute top-4 right-4 z-10">
-                                                <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1.5 shadow-lg">
+                                                <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-accent to-[#fec901] px-3 py-1.5 shadow-lg">
                                                     <div className="h-1.5 w-1.5 rounded-full bg-white" />
                                                     <span className="text-xs font-semibold text-white">{newDestinations[2].tag}</span>
                                                 </div>
@@ -989,7 +1020,7 @@ export default function Home() {
                                                 <p className="mb-3 text-sm text-white/80 md:text-base">
                                                     {getContent(`home.new.${newDestinations[2].id}.subtitle`, newDestinations[2].subtitle)}
                                                 </p>
-                                                <div className="inline-flex items-center gap-2 text-orange-400">
+                                                <div className="inline-flex items-center gap-2 text-accent">
                                                     <span className="text-sm font-medium">Explore</span>
                                                     <ArrowRight className="h-4 w-4" />
                                                 </div>
@@ -1008,7 +1039,7 @@ export default function Home() {
                                     className="group"
                                 >
                                     <motion.div
-                                        className="relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/90 to-slate-900/80 shadow-xl transition-all duration-300"
+                                        className="relative h-full overflow-hidden rounded-2xl border border-[#d4af37]/25 bg-white shadow-xl transition-all duration-300"
                                         whileHover={{ y: -6 }}
                                         transition={{ duration: 0.3, ease }}
                                     >
@@ -1022,11 +1053,11 @@ export default function Home() {
                                             />
 
                                             {/* Simple Gradient */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
 
                                             {/* Clean Badge */}
                                             <div className="absolute top-4 right-4 z-10">
-                                                <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1.5 shadow-lg">
+                                                <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-accent to-[#fec901] px-3 py-1.5 shadow-lg">
                                                     <div className="h-1.5 w-1.5 rounded-full bg-white" />
                                                     <span className="text-xs font-semibold text-white">{newDestinations[3].tag}</span>
                                                 </div>
@@ -1066,7 +1097,7 @@ export default function Home() {
                                                 <p className="mb-3 text-sm text-white/80 md:text-base">
                                                     {getContent(`home.new.${newDestinations[3].id}.subtitle`, newDestinations[3].subtitle)}
                                                 </p>
-                                                <div className="inline-flex items-center gap-2 text-orange-400">
+                                                <div className="inline-flex items-center gap-2 text-accent">
                                                     <span className="text-sm font-medium">Explore</span>
                                                     <ArrowRight className="h-4 w-4" />
                                                 </div>
@@ -1078,8 +1109,8 @@ export default function Home() {
                         </div>
                     </section>
 
-                    {/* Highlights Section */}
-                    <section className="relative bg-gradient-to-b from-black via-slate-900 to-black py-24">
+                    {/* Highlights – gradien biru & oranye dari logo + putih halus */}
+                    <section className="bg-section-photos-home relative border-t border-[#d4af37]/20 py-24">
                         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                             <motion.div
                                 className="mb-12 text-center"
@@ -1096,10 +1127,8 @@ export default function Home() {
                                     transition={{ duration: 0.5, delay: 0.1 }}
                                     className="mb-5"
                                 >
-                                    <div className="inline-flex rounded-full border border-blue-500/30 bg-blue-500/15 px-4 py-1.5">
-                                        <span className="bg-gradient-to-r from-blue-200 via-cyan-200 to-blue-300 bg-clip-text text-xs font-semibold tracking-wider text-transparent uppercase sm:text-sm">
-                                            Featured Experiences
-                                        </span>
+                                    <div className="inline-flex rounded-full border-2 border-[#1e3a5f] bg-[#1e3a5f]/10 px-4 py-1.5">
+                                        <span className="text-xs font-bold text-[#1e3a5f] uppercase sm:text-sm">Featured Experiences</span>
                                     </div>
                                 </motion.div>
 
@@ -1109,7 +1138,7 @@ export default function Home() {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.6, delay: 0.2 }}
-                                    className="mb-3 text-4xl leading-tight font-bold text-white sm:text-5xl md:text-6xl"
+                                    className="mb-3 text-4xl leading-tight font-bold text-[#1e3a5f] sm:text-5xl md:text-6xl"
                                 >
                                     Highlights
                                 </motion.h2>
@@ -1120,7 +1149,7 @@ export default function Home() {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.6, delay: 0.3 }}
-                                    className="mx-auto max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base md:text-lg"
+                                    className="mx-auto max-w-2xl text-sm leading-relaxed text-[#475569] sm:text-base md:text-lg"
                                 >
                                     Moments that make every journey unforgettable
                                 </motion.p>
@@ -1136,7 +1165,7 @@ export default function Home() {
                                 {highlights.map((item) => (
                                     <motion.div key={item.id} variants={fadeInUp} transition={{ duration: 0.7, ease }} className="group">
                                         <motion.div
-                                            className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/85 to-slate-900/70 shadow-xl transition-all duration-500"
+                                            className="relative overflow-hidden rounded-2xl border border-[#d4af37]/25 bg-white shadow-xl transition-all duration-500"
                                             whileHover={{ y: -8, scale: 1.02 }}
                                             transition={{ duration: 0.4, ease }}
                                         >
@@ -1150,13 +1179,12 @@ export default function Home() {
                                                 />
 
                                                 {/* Enhanced Gradient Overlays */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-                                                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent" />
+                                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
 
                                                 {/* Enhanced Badge */}
                                                 <div className="absolute top-4 right-4 z-10">
                                                     <motion.span
-                                                        className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500 px-4 py-1.5 text-xs font-bold tracking-wide text-white shadow-xl ring-1 ring-blue-400/30"
+                                                        className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary via-[#3fb4ff] to-primary px-4 py-1.5 text-xs font-bold tracking-wide text-white shadow-xl ring-1 ring-primary/30"
                                                         whileHover={{ scale: 1.1, rotate: 2 }}
                                                         transition={{ duration: 0.2 }}
                                                     >
@@ -1196,7 +1224,7 @@ export default function Home() {
                                             </div>
 
                                             {/* Animated Bottom Border */}
-                                            <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500 transition-all duration-500 group-hover:w-full" />
+                                            <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-[#3d5a80] via-[#ff5200] to-[#d4af37] transition-all duration-500 group-hover:w-full" />
                                         </motion.div>
                                     </motion.div>
                                 ))}
@@ -1207,7 +1235,7 @@ export default function Home() {
                     {/* Editor Modal */}
                     {editMode && editorOpen && (
                         <motion.div
-                            className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/95 p-6 shadow-2xl"
+                            className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border-2 border-[#d4af37]/30 bg-gradient-to-b from-[#1e3a5f] to-[#2d4a6f] p-6 shadow-2xl"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 20 }}
@@ -1227,7 +1255,7 @@ export default function Home() {
                                                 setEditorOpen({ ...editorOpen, title: e.target.value });
                                             }
                                         }}
-                                        className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white ring-amber-400/0 transition-all outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                        className="w-full rounded-lg border border-white/10 bg-white/10 px-4 py-2.5 text-sm text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
                                     />
                                 </div>
                                 <div>
@@ -1240,12 +1268,12 @@ export default function Home() {
                                             }
                                         }}
                                         rows={3}
-                                        className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white ring-amber-400/0 transition-all outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                        className="w-full rounded-lg border border-white/10 bg-white/10 px-4 py-2.5 text-sm text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
                                     />
                                 </div>
                                 <div>
                                     <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
-                                    <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
+                                    <p className="mb-2 rounded-lg border border-primary/30 bg-primary/20 px-3 py-2 text-xs text-white/90">
                                         {imageGuide}
                                     </p>
                                     <input
@@ -1259,7 +1287,7 @@ export default function Home() {
                                             }
                                             e.target.value = '';
                                         }}
-                                        className="w-full text-sm text-gray-300 transition-all file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
+                                        className="w-full text-sm text-gray-300 transition-all file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/90"
                                     />
                                     {pendingFile && <p className="mt-2 text-xs text-emerald-400">✓ Gambar siap (sudah di-adjust)</p>}
                                 </div>
@@ -1343,7 +1371,7 @@ export default function Home() {
                                         }
                                     }}
                                     disabled={saving}
-                                    className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
+                                    className="rounded-lg bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
                                 >
                                     {saving ? 'Saving…' : 'Save Changes'}
                                 </button>
@@ -1414,7 +1442,7 @@ export default function Home() {
                     )}
 
                     {/* Footer */}
-                    <footer className="relative border-t border-white/5 bg-black py-16">
+                    <footer className="relative border-t-2 border-[#d4af37]/30 bg-gradient-to-b from-[#1e3a5f] to-[#2d4a6f] py-16">
                         <div className="mx-auto max-w-7xl px-4">
                             <div className="grid gap-12 md:grid-cols-2">
                                 <motion.div
@@ -1441,7 +1469,7 @@ export default function Home() {
                                             <motion.a
                                                 key={social}
                                                 href="#"
-                                                className="text-white/60 transition-colors hover:text-amber-400"
+                                                className="text-white/60 transition-colors hover:text-accent"
                                                 whileHover={{ y: -2 }}
                                             >
                                                 {social}

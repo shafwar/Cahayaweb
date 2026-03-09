@@ -13,10 +13,10 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
             // Check if this is a search engine bot (Googlebot, Bingbot, etc.)
             const userAgent = navigator.userAgent.toLowerCase();
-            const isSearchEngineBot = 
-                userAgent.includes('googlebot') || 
-                userAgent.includes('bingbot') || 
-                userAgent.includes('slurp') || 
+            const isSearchEngineBot =
+                userAgent.includes('googlebot') ||
+                userAgent.includes('bingbot') ||
+                userAgent.includes('slurp') ||
                 userAgent.includes('duckduckbot') ||
                 userAgent.includes('baiduspider') ||
                 userAgent.includes('yandexbot') ||
@@ -25,9 +25,10 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
             // Check if visitor came from Google search (referrer check)
             const referrer = document.referrer.toLowerCase();
-            const isFromGoogleSearch = referrer.includes('google.com/search') || 
-                                      referrer.includes('google.co.id/search') ||
-                                      referrer.includes('google.') && referrer.includes('/search');
+            const isFromGoogleSearch =
+                referrer.includes('google.com/search') ||
+                referrer.includes('google.co.id/search') ||
+                (referrer.includes('google.') && referrer.includes('/search'));
 
             // Allow search engines and Google search visitors to access pages directly without redirect
             // This ensures Google search results work properly
@@ -71,7 +72,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
     return (
         <EditModeProvider>
-            <div className="min-h-screen bg-white">
+            <div className="min-h-screen bg-background">
                 <GlobalHeader variant="b2c" />
                 <main className="w-full">{children}</main>
                 <EditToggleButton />

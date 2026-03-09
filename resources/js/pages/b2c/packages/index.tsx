@@ -9,7 +9,7 @@ import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, ChevronDown, ChevronUp, Edit3, ImageIcon, Sparkles, X } from 'lucide-react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const IMAGE_GUIDE = '1920×1080px recommended · Max 5MB · Auto-compressed · JPEG, PNG, WebP';
 
@@ -65,24 +65,8 @@ export default function Packages() {
         };
         document.addEventListener('keydown', onEscape);
         document.body.style.overflow = 'hidden';
-        
-        // Handle click outside for mobile - use mousedown/touchstart for better mobile support
-        const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
-            const target = e.target as HTMLElement;
-            const content = lightboxContentRef.current;
-            if (content && !content.contains(target)) {
-                setImageLightbox(null);
-            }
-        };
-        
-        // Use both mousedown and touchstart for maximum compatibility
-        document.addEventListener('mousedown', handleOutsideClick);
-        document.addEventListener('touchstart', handleOutsideClick, { passive: true });
-        
         return () => {
             document.removeEventListener('keydown', onEscape);
-            document.removeEventListener('mousedown', handleOutsideClick);
-            document.removeEventListener('touchstart', handleOutsideClick);
             document.body.style.overflow = '';
         };
     }, [imageLightbox]);
@@ -432,51 +416,51 @@ export default function Packages() {
                 keywords="Umrah packages, Hajj packages, halal travel packages, travel packages, Umrah prices, Hajj prices"
             />
 
-            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
+            <div className="bg-section-photos-home min-h-screen border-t border-[#d4af37]/20">
                 {/* Main Content Section */}
                 <section className="relative mx-auto max-w-7xl px-4 pt-16 pb-20 sm:px-6 md:pt-20">
-                    {/* Ambient Effects */}
-                    <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.1),transparent_70%)] blur-2xl" />
-                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.1),transparent_70%)] blur-2xl" />
+                    {/* Sentuhan emas & oranye halus di background */}
+                    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                        <div className="absolute top-0 left-1/4 h-[420px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.07),transparent_65%)] blur-3xl" />
+                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[480px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_65%)] blur-3xl" />
                     </div>
 
                     {/* Hero Section */}
                     <div className="relative mb-12 text-center md:mb-14">
                         {/* Badge */}
                         <div className="mb-4 inline-block">
-                            <div className="group inline-flex items-center gap-2 rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-5 py-2 shadow-xl transition-all duration-300 hover:scale-105 hover:border-amber-400/70">
-                                <Sparkles className="h-4 w-4 text-amber-300 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
-                                <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
+                            <div className="group inline-flex items-center gap-2 rounded-full border-2 border-[#d4af37] bg-[#d4af37]/15 px-5 py-2 shadow-md transition-all duration-300 hover:scale-105 hover:border-[#ff5200] hover:bg-[#ff5200]/15">
+                                <Sparkles className="h-4 w-4 text-[#b8860b] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12 group-hover:text-[#e64a00]" />
+                                <span className="text-xs font-bold tracking-wider text-[#b8860b] uppercase group-hover:text-[#e64a00] sm:text-sm">
                                     <EditableText sectionKey="packages.header.badge" value="Premium Travel Packages" tag="span" />
                                 </span>
                             </div>
                         </div>
 
                         {/* Main Title */}
-                        <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
+                        <h1 className="mb-4 text-3xl leading-tight font-bold text-[#1e3a5f] sm:text-4xl md:text-5xl lg:text-6xl">
                             Discover Your Perfect Journey
                         </h1>
 
                         {/* Subtitle */}
-                        <h2 className="mx-auto mb-5 max-w-3xl text-xl leading-snug font-semibold text-white sm:text-2xl md:text-3xl">
+                        <h2 className="mx-auto mb-5 max-w-3xl text-xl leading-snug font-semibold text-[#334155] sm:text-2xl md:text-3xl">
                             <EditableText sectionKey="packages.header.descriptionTitle" value="Your Perfect Journey Awaits" tag="span" />
                         </h2>
 
                         {/* Description */}
                         <div className="mx-auto mb-8 max-w-2xl space-y-2">
-                            <p className="text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
+                            <p className="text-sm leading-relaxed text-[#475569] sm:text-base md:text-lg lg:text-xl">
                                 Discover our curated collection of spiritual and cultural journeys. From Umrah & Hajj experiences to luxury
                                 adventures, find the perfect package for your next unforgettable journey.
                             </p>
                         </div>
 
                         {/* Stats */}
-                        <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/70 sm:gap-6 sm:text-sm">
+                        <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-[#64748b] sm:gap-6 sm:text-sm">
                             {[
-                                { label: 'Premium Experiences', color: 'from-amber-400 to-orange-400' },
-                                { label: 'Expert Guidance', color: 'from-orange-400 to-red-400' },
-                                { label: '24/7 Support', color: 'from-amber-500 to-yellow-400' },
+                                { label: 'Premium Experiences', color: 'from-[#3d5a80] to-[#ff5200]' },
+                                { label: 'Expert Guidance', color: 'from-[#5a7a9e] to-[#d4af37]' },
+                                { label: '24/7 Support', color: 'from-[#ff5200] to-[#fec901]' },
                             ].map((item, index) => (
                                 <div key={index} className="flex items-center gap-2">
                                     <div className={`h-2 w-2 rounded-full bg-gradient-to-r ${item.color} shadow-md`} />
@@ -489,20 +473,20 @@ export default function Packages() {
                     {/* Filter Section */}
                     <div className="mt-8 mb-12">
                         <div className="mb-6 text-center">
-                            <h3 className="mb-2 text-xl font-bold text-white sm:text-2xl md:text-2xl">Find Your Perfect Package</h3>
-                            <p className="text-sm text-white/70 sm:text-base">Use filters below to discover packages that match your preferences</p>
+                            <h3 className="mb-2 text-xl font-bold text-[#1e3a5f] sm:text-2xl md:text-2xl">Find Your Perfect Package</h3>
+                            <p className="text-sm text-[#475569] sm:text-base">Use filters below to discover packages that match your preferences</p>
                         </div>
                         <div className="flex flex-wrap items-center justify-center gap-4">
                             <Select value={selectedType} onValueChange={setSelectedType}>
-                                <SelectTrigger className="h-10 w-full min-w-[140px] border border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-800/90 text-sm font-medium text-white shadow-lg transition-all duration-300 hover:border-amber-500/50 hover:shadow-amber-500/20 sm:w-40">
+                                <SelectTrigger className="h-10 w-full min-w-[140px] border border-[#d4af37]/30 bg-white text-sm font-medium text-[#1e3a5f] shadow-md transition-all duration-300 hover:border-[#d4af37]/50 sm:w-40">
                                     <SelectValue placeholder="Type" />
                                 </SelectTrigger>
-                                <SelectContent className="border border-white/20 bg-gradient-to-br from-slate-900 to-slate-800 shadow-2xl">
+                                <SelectContent className="border border-[#d4af37]/20 bg-white shadow-2xl">
                                     {typeOptions.map((type) => (
                                         <SelectItem
                                             key={type}
                                             value={type}
-                                            className="text-sm text-white transition-colors hover:bg-amber-500/20 hover:text-amber-200"
+                                            className="text-sm text-[#1e3a5f] transition-colors hover:bg-[#e8ecf4]/90 hover:text-[#1e3a5f]"
                                         >
                                             {type}
                                         </SelectItem>
@@ -511,15 +495,15 @@ export default function Packages() {
                             </Select>
 
                             <Select value={selectedPrice} onValueChange={setSelectedPrice}>
-                                <SelectTrigger className="h-10 w-full min-w-[160px] border border-white/20 bg-gradient-to-br from-slate-900/90 to-slate-800/80 text-sm font-medium text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-amber-500/50 hover:shadow-amber-500/20 sm:w-48">
+                                <SelectTrigger className="h-10 w-full min-w-[160px] border border-[#d4af37]/30 bg-white text-sm font-medium text-[#1e3a5f] shadow-md transition-all duration-300 hover:border-[#d4af37]/50 sm:w-48">
                                     <SelectValue placeholder="Price Range" />
                                 </SelectTrigger>
-                                <SelectContent className="border border-white/20 bg-gradient-to-br from-slate-900 to-slate-800 shadow-2xl">
+                                <SelectContent className="border border-[#d4af37]/20 bg-white shadow-2xl">
                                     {priceOptions.map((price) => (
                                         <SelectItem
                                             key={price}
                                             value={price}
-                                            className="text-sm text-white transition-colors hover:bg-amber-500/20 hover:text-amber-200"
+                                            className="text-sm text-[#1e3a5f] transition-colors hover:bg-[#e8ecf4]/90 hover:text-[#1e3a5f]"
                                         >
                                             {price}
                                         </SelectItem>
@@ -528,15 +512,15 @@ export default function Packages() {
                             </Select>
 
                             <Select value={selectedDuration} onValueChange={setSelectedDuration}>
-                                <SelectTrigger className="h-10 w-full min-w-[150px] border border-white/20 bg-gradient-to-br from-slate-900/90 to-slate-800/80 text-sm font-medium text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-amber-500/50 hover:shadow-amber-500/20 sm:w-44">
+                                <SelectTrigger className="h-10 w-full min-w-[150px] border border-[#d4af37]/30 bg-white text-sm font-medium text-[#1e3a5f] shadow-md transition-all duration-300 hover:border-[#d4af37]/50 sm:w-44">
                                     <SelectValue placeholder="Duration" />
                                 </SelectTrigger>
-                                <SelectContent className="border border-white/20 bg-gradient-to-br from-slate-900 to-slate-800 shadow-2xl">
+                                <SelectContent className="border border-[#d4af37]/20 bg-white shadow-2xl">
                                     {durationOptions.map((duration) => (
                                         <SelectItem
                                             key={duration}
                                             value={duration}
-                                            className="text-sm text-white transition-colors hover:bg-amber-500/20 hover:text-amber-200"
+                                            className="text-sm text-[#1e3a5f] transition-colors hover:bg-[#e8ecf4]/90 hover:text-[#1e3a5f]"
                                         >
                                             {duration}
                                         </SelectItem>
@@ -545,15 +529,15 @@ export default function Packages() {
                             </Select>
 
                             <Select value={selectedPax} onValueChange={setSelectedPax}>
-                                <SelectTrigger className="h-10 w-full min-w-[170px] border border-white/20 bg-gradient-to-br from-slate-900/90 to-slate-800/80 text-sm font-medium text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-amber-500/50 hover:shadow-amber-500/20 sm:w-52">
+                                <SelectTrigger className="h-10 w-full min-w-[170px] border border-[#d4af37]/30 bg-white text-sm font-medium text-[#1e3a5f] shadow-md transition-all duration-300 hover:border-[#d4af37]/50 sm:w-52">
                                     <SelectValue placeholder="Group Size" />
                                 </SelectTrigger>
-                                <SelectContent className="border border-white/20 bg-gradient-to-br from-slate-900 to-slate-800 shadow-2xl">
+                                <SelectContent className="border border-[#d4af37]/20 bg-white shadow-2xl">
                                     {paxOptions.map((pax) => (
                                         <SelectItem
                                             key={pax}
                                             value={pax}
-                                            className="text-sm text-white transition-colors hover:bg-amber-500/20 hover:text-amber-200"
+                                            className="text-sm text-[#1e3a5f] transition-colors hover:bg-[#e8ecf4]/90 hover:text-[#1e3a5f]"
                                         >
                                             {pax}
                                         </SelectItem>
@@ -569,7 +553,7 @@ export default function Packages() {
                             <article
                                 key={pkg.id}
                                 onClick={() => setExpandedPackageId((prev) => (prev === pkg.id ? null : pkg.id))}
-                                className="group cursor-pointer overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl transition-all duration-300 hover:-translate-y-2.5 hover:scale-105 hover:border-amber-500/40"
+                                className="group cursor-pointer overflow-hidden rounded-3xl border-2 border-[#d4af37]/25 bg-white shadow-2xl transition-all duration-300 hover:-translate-y-2.5 hover:scale-105 hover:border-[#d4af37]/50"
                             >
                                 <div
                                     className="relative aspect-video cursor-zoom-in overflow-hidden"
@@ -633,7 +617,7 @@ export default function Packages() {
                                             {getContent(`packages.${pkg.id}.type`, pkg.type)}
                                         </span>
                                         {(pkg as { freeBadge?: string }).freeBadge && (
-                                            <span className="rounded-full bg-amber-500/90 px-3 py-1.5 text-xs font-bold text-black shadow-xl">
+                                            <span className="rounded-full bg-accent/90 px-3 py-1.5 text-xs font-bold text-white shadow-xl">
                                                 {(pkg as { freeBadge?: string }).freeBadge}
                                             </span>
                                         )}
@@ -665,11 +649,11 @@ export default function Packages() {
                                         </div>
                                     )}
 
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                    <div className="pointer-events-none absolute inset-0 bg-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-0" />
                                 </div>
                                 {(pkg as { imageCaption?: string }).imageCaption && (
                                     <p
-                                        className="border-b border-white/10 px-4 py-2 text-xs leading-snug text-white/60"
+                                        className="border-b border-gray-200 px-4 py-2 text-xs leading-snug text-[#64748b]"
                                         title={(pkg as { imageCaption?: string }).imageCaption}
                                     >
                                         <span className="line-clamp-2">{(pkg as { imageCaption?: string }).imageCaption}</span>
@@ -677,10 +661,10 @@ export default function Packages() {
                                 )}
 
                                 <div className="p-6">
-                                    <h3 className="mb-2 text-xl font-bold text-white transition-colors group-hover:text-amber-300 sm:text-2xl">
+                                    <h3 className="mb-2 text-xl font-bold text-[#1e3a5f] transition-colors group-hover:text-primary sm:text-2xl">
                                         {getContent(`packages.${pkg.id}.title`, pkg.title)}
                                     </h3>
-                                    <p className="mb-3 text-sm leading-relaxed text-white/80 sm:text-base">
+                                    <p className="mb-3 text-sm leading-relaxed text-[#475569] sm:text-base">
                                         {getContent(`packages.${pkg.id}.location`, pkg.location)} •{' '}
                                         {getContent(`packages.${pkg.id}.duration`, pkg.duration)}
                                     </p>
@@ -689,25 +673,25 @@ export default function Packages() {
                                         <div className="flex flex-col gap-0.5">
                                             <div className="flex items-center gap-2">
                                                 {(pkg as { priceOriginal?: string }).priceOriginal && (
-                                                    <span className="text-sm font-medium text-white/50 line-through">
+                                                    <span className="text-sm font-medium text-[#94a3b8] line-through">
                                                         {(pkg as { priceOriginal?: string }).priceOriginal}
                                                     </span>
                                                 )}
-                                                <span className="text-xl font-bold text-amber-300 sm:text-2xl">
+                                                <span className="text-xl font-bold text-primary sm:text-2xl">
                                                     {getContent(`packages.${pkg.id}.price`, pkg.price)}
                                                 </span>
                                             </div>
                                             {(pkg as { priceNote?: string }).priceNote && (
-                                                <span className="text-xs text-white/60">{(pkg as { priceNote?: string }).priceNote}</span>
+                                                <span className="text-xs text-[#64748b]">{(pkg as { priceNote?: string }).priceNote}</span>
                                             )}
                                         </div>
-                                        <div className="text-xs font-medium text-white/70 sm:text-sm">
+                                        <div className="text-xs font-medium text-[#64748b] sm:text-sm">
                                             {getContent(`packages.${pkg.id}.pax`, pkg.pax)}
                                         </div>
                                     </div>
 
                                     <p
-                                        className={`mb-3 text-xs text-white/70 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-sm ${expandedPackageId === pkg.id ? 'line-clamp-none' : 'line-clamp-2'}`}
+                                        className={`mb-3 text-xs text-[#475569] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-sm ${expandedPackageId === pkg.id ? 'line-clamp-none' : 'line-clamp-2'}`}
                                     >
                                         {getContent(`packages.${pkg.id}.description`, pkg.description)}
                                     </p>
@@ -752,7 +736,7 @@ export default function Packages() {
                                                             },
                                                         },
                                                     }}
-                                                    className="space-y-4 border-t border-white/10 pt-4"
+                                                    className="space-y-4 border-t border-gray-200 pt-4"
                                                 >
                                                     {pkg.highlights && pkg.highlights.length > 0 && (
                                                         <motion.div
@@ -761,14 +745,14 @@ export default function Packages() {
                                                                 closed: { opacity: 0, y: -8 },
                                                             }}
                                                         >
-                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-amber-300/90 uppercase">
+                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-primary/90 uppercase">
                                                                 Highlight
                                                             </h4>
                                                             <ul className="flex flex-wrap gap-1.5">
                                                                 {pkg.highlights.map((h, i) => (
                                                                     <li
                                                                         key={i}
-                                                                        className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs text-white/90"
+                                                                        className="rounded-full bg-primary/20 px-2.5 py-0.5 text-xs text-[#1e3a5f]"
                                                                     >
                                                                         {h}
                                                                     </li>
@@ -783,13 +767,13 @@ export default function Packages() {
                                                                 closed: { opacity: 0, y: -8 },
                                                             }}
                                                         >
-                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-amber-300/90 uppercase">
+                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-primary/90 uppercase">
                                                                 Include
                                                             </h4>
-                                                            <ul className="space-y-1 text-xs text-white/80">
+                                                            <ul className="space-y-1 text-xs text-[#475569]">
                                                                 {pkg.features.map((f, i) => (
                                                                     <li key={i} className="flex items-center gap-2">
-                                                                        <span className="text-amber-400">✓</span> {f}
+                                                                        <span className="text-accent">✓</span> {f}
                                                                     </li>
                                                                 ))}
                                                             </ul>
@@ -802,15 +786,15 @@ export default function Packages() {
                                                                 closed: { opacity: 0, y: -8 },
                                                             }}
                                                         >
-                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-amber-300/90 uppercase">
+                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-primary/90 uppercase">
                                                                 Tanggal Keberangkatan
                                                             </h4>
-                                                            <ul className="space-y-1 text-xs text-white/80">
+                                                            <ul className="space-y-1 text-xs text-[#475569]">
                                                                 {pkg.dates.map((d, i) => (
                                                                     <li key={i} className="flex items-center justify-between gap-2">
                                                                         <span>{d.date}</span>
                                                                         <span
-                                                                            className={`rounded px-2 py-0.5 text-[10px] font-medium ${d.status === 'Available' ? 'bg-green-500/30 text-green-200' : d.status === 'Limited' ? 'bg-amber-500/30 text-amber-200' : 'bg-red-500/30 text-red-200'}`}
+                                                                            className={`rounded px-2 py-0.5 text-[10px] font-medium ${d.status === 'Available' ? 'bg-green-500/30 text-green-200' : d.status === 'Limited' ? 'bg-accent/30 text-white' : 'bg-red-500/30 text-red-200'}`}
                                                                         >
                                                                             {d.status}
                                                                         </span>
@@ -826,15 +810,15 @@ export default function Packages() {
                                                                 closed: { opacity: 0, y: -8 },
                                                             }}
                                                         >
-                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-amber-300/90 uppercase">
+                                                            <h4 className="mb-2 text-xs font-semibold tracking-wider text-primary/90 uppercase">
                                                                 Hotel
                                                             </h4>
-                                                            <ul className="space-y-1.5 text-xs text-white/80">
+                                                            <ul className="space-y-1.5 text-xs text-[#475569]">
                                                                 {pkg.hotels.map((h, i) => (
                                                                     <li key={i} className="flex items-center gap-2">
-                                                                        <span className="text-amber-400">{'★'.repeat(h.stars)}</span>
+                                                                        <span className="text-accent">{'★'.repeat(h.stars)}</span>
                                                                         <span className="font-medium">{h.name}</span>
-                                                                        <span className="text-white/50">• {h.location}</span>
+                                                                        <span className="text-[#64748b]">• {h.location}</span>
                                                                     </li>
                                                                 ))}
                                                             </ul>
@@ -846,7 +830,7 @@ export default function Packages() {
                                     </AnimatePresence>
 
                                     <div className="mt-4 flex items-center justify-between gap-3">
-                                        <span className="flex items-center gap-1 text-xs font-medium text-amber-300/90 transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]">
+                                        <span className="flex items-center gap-1 text-xs font-medium text-primary/90 transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]">
                                             {expandedPackageId === pkg.id ? (
                                                 <>
                                                     <ChevronUp className="h-4 w-4 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]" />{' '}
@@ -864,7 +848,7 @@ export default function Packages() {
                                                 href="https://wa.me/6285285522122"
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400"
+                                                className="rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-primary/90 hover:to-accent/90"
                                             >
                                                 Register Now
                                             </a>
@@ -872,7 +856,7 @@ export default function Packages() {
                                                 href="https://wa.me/6285285522121"
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="rounded-xl border border-amber-500 px-4 py-2 text-center text-xs font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500 hover:text-white"
+                                                className="rounded-xl border border-primary px-4 py-2 text-center text-xs font-bold text-primary transition-all hover:scale-105 hover:bg-primary hover:text-white"
                                             >
                                                 Ask
                                             </a>
@@ -881,7 +865,7 @@ export default function Packages() {
                                 </div>
 
                                 <div
-                                    className={`h-1.5 origin-left bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-lg transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${expandedPackageId === pkg.id ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}
+                                    className={`h-1.5 origin-left bg-gradient-to-r from-primary via-accent to-primary shadow-lg transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${expandedPackageId === pkg.id ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}
                                 />
                             </article>
                         ))}
@@ -890,10 +874,10 @@ export default function Packages() {
                     {/* No Results */}
                     {filteredPackages.length === 0 && (
                         <div className="mt-16 text-center">
-                            <div className="mx-auto max-w-md rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-12 shadow-2xl">
+                            <div className="mx-auto max-w-md rounded-3xl border-2 border-[#d4af37]/25 bg-white p-12 shadow-2xl">
                                 <div className="mb-6 text-6xl">🔍</div>
-                                <h3 className="mb-3 text-2xl font-bold text-white">No packages found</h3>
-                                <p className="text-base text-white/70">
+                                <h3 className="mb-3 text-2xl font-bold text-[#1e3a5f]">No packages found</h3>
+                                <p className="text-base text-[#475569]">
                                     Try adjusting your filters to discover the perfect package for your journey.
                                 </p>
                             </div>
@@ -905,16 +889,16 @@ export default function Packages() {
                         <div className="mx-auto max-w-7xl px-4 sm:px-6">
                             <div className="mb-10 text-center">
                                 <div className="mb-3 inline-block">
-                                    <div className="rounded-full border-2 border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-6 py-3 shadow-xl">
-                                        <span className="text-sm font-bold tracking-wider text-amber-200 uppercase">
+                                    <div className="rounded-full border-2 border-[#d4af37] bg-[#d4af37]/15 px-6 py-3 shadow-md">
+                                        <span className="text-sm font-bold tracking-wider text-[#b8860b] uppercase">
                                             <EditableText sectionKey="packages.gallery.badge" value="📸 Destination Gallery" tag="span" />
                                         </span>
                                     </div>
                                 </div>
-                                <h2 className="mb-2 text-3xl leading-tight font-bold text-white drop-shadow-lg sm:text-4xl md:text-5xl">
+                                <h2 className="mb-2 text-3xl leading-tight font-bold text-[#1e3a5f] sm:text-4xl md:text-5xl">
                                     <EditableText sectionKey="packages.gallery.title" value="Explore Our Destinations" tag="span" />
                                 </h2>
-                                <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg">
+                                <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#475569] sm:text-base md:text-lg">
                                     <EditableText
                                         sectionKey="packages.gallery.description"
                                         value="Discover the breathtaking beauty and rich history of the destinations featured in our travel packages"
@@ -976,7 +960,7 @@ export default function Packages() {
                                 ].map((destination) => (
                                     <div
                                         key={destination.id}
-                                        className="group relative overflow-hidden rounded-3xl border-2 border-white/20 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:scale-105"
+                                        className="group relative overflow-hidden rounded-3xl border-2 border-[#d4af37]/25 bg-white shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:scale-105"
                                     >
                                         <div className="relative aspect-[4/3] overflow-hidden">
                                             <img
@@ -1044,7 +1028,7 @@ export default function Packages() {
                                                 </div>
                                             )}
 
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
                                         </div>
 
                                         <div className="absolute right-0 bottom-0 left-0 p-5 text-white">
@@ -1059,21 +1043,21 @@ export default function Packages() {
                                             </p>
                                         </div>
 
-                                        <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-lg transition-all duration-500 group-hover:w-full" />
+                                        <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-primary via-accent to-primary shadow-lg transition-all duration-500 group-hover:w-full" />
                                     </div>
                                 ))}
                             </div>
 
                             <div className="mt-12">
                                 <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
-                                    <div className="inline-flex items-center rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-5 py-2.5 shadow-lg transition-all duration-300 hover:border-amber-400/70 hover:shadow-amber-500/20">
-                                        <span className="text-xs font-semibold text-amber-200 sm:text-sm">
+                                    <div className="inline-flex items-center rounded-full border border-primary/60 bg-gradient-to-r from-primary/25 to-accent/25 px-5 py-2.5 shadow-lg transition-all duration-300 hover:border-primary/70 hover:shadow-primary/20">
+                                        <span className="text-xs font-semibold text-white sm:text-sm">
                                             ✨ Ready to Experience These Amazing Destinations?
                                         </span>
                                     </div>
                                     <a
                                         href="/destinations"
-                                        className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2.5 text-sm font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:from-amber-400 hover:to-orange-400 hover:shadow-amber-500/30 sm:px-8 sm:py-3 sm:text-base"
+                                        className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2.5 text-sm font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:from-primary/90 hover:to-accent/90 hover:shadow-primary/30 sm:px-8 sm:py-3 sm:text-base"
                                     >
                                         View All Destinations
                                         <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -1085,7 +1069,7 @@ export default function Packages() {
                 </section>
 
                 {/* Footer */}
-                <footer className="relative border-t border-white/10 bg-black/70">
+                <footer className="relative border-t-2 border-[#d4af37]/30 bg-gradient-to-b from-[#1e3a5f] to-[#2d4a6f]">
                     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
                         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
                             <div className="text-center text-base text-white/70 md:text-left">
@@ -1100,7 +1084,7 @@ export default function Packages() {
                                         href={`https://${social.toLowerCase()}.com`}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="text-base font-semibold text-white/70 transition-all hover:scale-110 hover:text-amber-400"
+                                        className="text-base font-semibold text-white/70 transition-all hover:scale-110 hover:text-primary"
                                     >
                                         {social}
                                     </a>
@@ -1114,7 +1098,7 @@ export default function Packages() {
                 </footer>
             </div>
 
-            {/* Image Lightbox - klik gambar untuk full size */}
+            {/* Image Lightbox – hanya tutup via tombol X atau tombol ESC (klik di luar gambar tidak menutup) */}
             <AnimatePresence>
                 {imageLightbox && (
                     <motion.div
@@ -1122,23 +1106,11 @@ export default function Packages() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="lightbox-backdrop fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4"
-                        onClick={(e) => {
-                            // Close on backdrop click - check if click is on backdrop itself
-                            const target = e.target as HTMLElement;
-                            if (target.classList.contains('lightbox-backdrop') || target === e.currentTarget) {
-                                setImageLightbox(null);
-                            }
-                        }}
-                        onPointerDown={(e) => {
-                            // Handle pointer events for better mobile support
-                            const target = e.target as HTMLElement;
-                            if (target.classList.contains('lightbox-backdrop') || target === e.currentTarget) {
-                                setImageLightbox(null);
-                            }
-                        }}
-                        role="button"
-                        tabIndex={-1}
-                        aria-label="Close image preview"
+                        onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Tampilan gambar diperbesar"
                         style={{ touchAction: 'manipulation' }}
                     >
                         {/* Close Button - Larger and more visible for mobile */}
@@ -1159,12 +1131,12 @@ export default function Packages() {
                                 e.stopPropagation();
                                 setImageLightbox(null);
                             }}
-                            className="absolute top-4 right-4 z-[10000] flex h-14 w-14 items-center justify-center rounded-full bg-white/25 p-3 text-white shadow-lg transition-all hover:bg-white/35 active:bg-white/45 active:scale-95 touch-manipulation"
+                            className="absolute top-4 right-4 z-[10000] flex h-14 w-14 touch-manipulation items-center justify-center rounded-full bg-white/25 p-3 text-white shadow-lg transition-all hover:bg-white/35 active:scale-95 active:bg-white/45"
                             aria-label="Close"
-                            style={{ 
+                            style={{
                                 WebkitTapHighlightColor: 'transparent',
                                 touchAction: 'manipulation',
-                                cursor: 'pointer'
+                                cursor: 'pointer',
                             }}
                         >
                             <X className="h-8 w-8 sm:h-7 sm:w-7" strokeWidth={2.5} />
@@ -1187,19 +1159,19 @@ export default function Packages() {
                                     alt={imageLightbox.alt}
                                     className="h-auto max-h-[85vh] w-auto max-w-[85vw] rounded-lg object-contain shadow-2xl select-none"
                                     draggable={false}
-                                    style={{ 
-                                        pointerEvents: 'none', 
-                                        display: 'block', 
+                                    style={{
+                                        pointerEvents: 'none',
+                                        display: 'block',
                                         margin: '0 auto',
                                         userSelect: 'none',
-                                        WebkitUserSelect: 'none'
+                                        WebkitUserSelect: 'none',
                                     }}
                                 />
                             </div>
                             {imageLightbox.caption && (
                                 <p className="mt-2 max-w-2xl px-4 text-center text-sm text-white/80">{imageLightbox.caption}</p>
                             )}
-                            <p className="mt-2 text-center text-xs text-white/50">Tap outside or press ESC to close</p>
+                            <p className="mt-2 text-center text-xs text-white/50">Tekan tombol X atau ESC untuk menutup</p>
                         </motion.div>
                     </motion.div>
                 )}
@@ -1228,7 +1200,7 @@ export default function Packages() {
                                         type="text"
                                         value={editorOpen[field]}
                                         onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
-                                        className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                        className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
                                     />
                                 </div>
                             ))}
@@ -1238,12 +1210,12 @@ export default function Packages() {
                                     value={editorOpen.description}
                                     onChange={(e) => setEditorOpen({ ...editorOpen, description: e.target.value })}
                                     rows={4}
-                                    className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                    className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
                                 />
                             </div>
                             <div>
                                 <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
-                                <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
+                                <p className="mb-2 rounded-lg border border-primary/30 bg-primary/20 px-3 py-2 text-xs text-white/90">
                                     {IMAGE_GUIDE}
                                 </p>
                                 <input
@@ -1258,7 +1230,7 @@ export default function Packages() {
                                         }
                                         e.target.value = '';
                                     }}
-                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
+                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/90"
                                 />
                                 {pendingFile && <p className="mt-2 text-xs text-emerald-400">✓ Gambar siap (sudah di-adjust)</p>}
                             </div>
@@ -1325,7 +1297,7 @@ export default function Packages() {
                                     }
                                 }}
                                 disabled={saving}
-                                className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
+                                className="rounded-lg bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
                             >
                                 {saving ? 'Saving…' : 'Save Changes'}
                             </button>
@@ -1355,7 +1327,7 @@ export default function Packages() {
                                         type="text"
                                         value={galleryEditorOpen[field]}
                                         onChange={(e) => setGalleryEditorOpen({ ...galleryEditorOpen, [field]: e.target.value })}
-                                        className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                        className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
                                     />
                                 </div>
                             ))}
@@ -1365,12 +1337,12 @@ export default function Packages() {
                                     value={galleryEditorOpen.description}
                                     onChange={(e) => setGalleryEditorOpen({ ...galleryEditorOpen, description: e.target.value })}
                                     rows={4}
-                                    className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                    className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
                                 />
                             </div>
                             <div>
                                 <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
-                                <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
+                                <p className="mb-2 rounded-lg border border-primary/30 bg-primary/20 px-3 py-2 text-xs text-white/90">
                                     {IMAGE_GUIDE}
                                 </p>
                                 <input
@@ -1385,7 +1357,7 @@ export default function Packages() {
                                         }
                                         e.target.value = '';
                                     }}
-                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
+                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/90"
                                 />
                                 {galleryPendingFile && <p className="mt-2 text-xs text-emerald-400">✓ Gambar siap (sudah di-adjust)</p>}
                             </div>
@@ -1449,7 +1421,7 @@ export default function Packages() {
                                     }
                                 }}
                                 disabled={saving}
-                                className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
+                                className="rounded-lg bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
                             >
                                 {saving ? 'Saving…' : 'Save Changes'}
                             </button>

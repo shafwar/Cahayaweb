@@ -52,31 +52,31 @@ export default function About() {
                 keywords="about cahaya anbiya, company profile, jakarta travel agency, professional travel agency, trusted umrah, trusted hajj"
             />
 
-            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
+            <div className="relative min-h-screen border-t border-[#d4af37]/20 bg-section-photos-home">
+                {/* Sentuhan biru & oranye halus */}
+                <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                    <div className="absolute top-0 left-1/4 h-[420px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(45,74,111,0.07),transparent_65%)] blur-3xl" />
+                    <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_65%)] blur-3xl" />
+                </div>
+
                 {/* Hero Section */}
                 <section className="relative overflow-hidden pt-12 pb-8 md:pt-16 md:pb-10">
-                    {/* Ambient Background */}
-                    <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.06),transparent_70%)] blur-3xl" />
-                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_70%)] blur-3xl" />
-                    </div>
-
                     <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
                         {/* Header */}
                         <div className="mb-8 text-center md:mb-10">
                             <div className="mb-4 inline-block">
-                                <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
-                                    <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
+                                <div className="rounded-full border-2 border-[#d4af37] bg-[#d4af37]/15 px-4 py-1.5 shadow-md">
+                                    <span className="text-xs font-bold tracking-wider text-[#b8860b] uppercase sm:text-sm">
                                         <EditableText sectionKey="about.header.badge" value="✨ Cahaya Anbiya Travel" tag="span" />
                                     </span>
                                 </div>
                             </div>
 
-                            <h1 className="mb-4 text-3xl leading-tight font-bold text-white sm:text-4xl md:text-5xl lg:text-6xl">
+                            <h1 className="mb-4 text-3xl leading-tight font-bold text-[#1e3a5f] sm:text-4xl md:text-5xl lg:text-6xl">
                                 <EditableText sectionKey="about.header.title" value="About Us" tag="span" />
                             </h1>
 
-                            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white sm:text-base md:text-lg lg:text-xl">
+                            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#475569] sm:text-base md:text-lg lg:text-xl">
                                 <EditableText
                                     sectionKey="about.header.description"
                                     value="Creating unforgettable travel experiences with exceptional service, cultural authenticity, and unwavering commitment to excellence"
@@ -92,24 +92,22 @@ export default function About() {
                                 return (
                                     <div
                                         key={stat.id}
-                                        className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-4 text-center shadow-lg transition-transform duration-300 hover:-translate-y-1.5 sm:p-5 md:p-6"
+                                        className="group relative overflow-hidden rounded-xl border-2 border-[#d4af37]/25 bg-white p-4 text-center shadow-lg transition-transform duration-300 hover:-translate-y-1.5 sm:p-5 md:p-6"
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-orange-500/0 transition-all duration-500 group-hover:from-amber-500/15 group-hover:to-orange-500/15" />
-
                                         <div className="relative">
                                             <div className="mb-3 flex justify-center">
-                                                <div className="rounded-lg bg-gradient-to-br from-amber-500/25 to-orange-500/25 p-2 shadow-md ring-1 ring-amber-500/50 sm:p-2.5">
-                                                    <IconComponent className="h-5 w-5 text-amber-400 sm:h-6 sm:w-6" />
+                                                <div className="rounded-lg bg-[#fff4ee] p-2 shadow-md ring-1 ring-[#ff5200]/30 sm:p-2.5">
+                                                    <IconComponent className="h-5 w-5 text-[#e64a00] sm:h-6 sm:w-6" />
                                                 </div>
                                             </div>
-                                            <div className="mb-1.5 text-2xl font-bold text-amber-200 sm:text-3xl md:text-4xl lg:text-5xl">
+                                            <div className="mb-1.5 text-2xl font-bold text-[#1e3a5f] sm:text-3xl md:text-4xl lg:text-5xl">
                                                 <EditableText sectionKey={`about.stats.${stat.id}.number`} value={stat.number} tag="span" />
                                             </div>
-                                            <div className="text-xs font-semibold text-white sm:text-sm">
+                                            <div className="text-xs font-semibold text-[#475569] sm:text-sm">
                                                 <EditableText sectionKey={`about.stats.${stat.id}.label`} value={stat.label} tag="span" />
                                             </div>
                                         </div>
-                                        <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-all duration-500 group-hover:w-full" />
+                                        <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-[#2d4a6f] via-[#ff5200] to-[#d4af37] transition-all duration-500 group-hover:w-full" />
                                     </div>
                                 );
                             })}
@@ -125,10 +123,10 @@ export default function About() {
                             <div className="space-y-6">
                                 <div className="space-y-3">
                                     <div>
-                                        <h2 className="mb-3 text-xl font-bold text-white sm:text-2xl lg:text-3xl">
+                                        <h2 className="mb-3 text-xl font-bold text-[#1e3a5f] sm:text-2xl lg:text-3xl">
                                             <EditableText sectionKey="about.profile.title" value="Company Profile" tag="span" />
                                         </h2>
-                                        <p className="text-sm leading-relaxed text-white sm:text-base md:text-lg">
+                                        <p className="text-sm leading-relaxed text-[#475569] sm:text-base md:text-lg">
                                             <EditableText
                                                 sectionKey="about.profile.description"
                                                 value="PT Cahaya Anbiya Travel is a premier travel company committed to providing memorable and comfortable halal travel experiences. We prioritize service quality with a friendly and professional approach, ensuring every journey is both spiritually fulfilling and culturally enriching."
@@ -139,16 +137,15 @@ export default function About() {
                                 </div>
 
                                 {/* Vision Card */}
-                                <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1 sm:p-6">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-indigo-500/0 transition-all duration-500 group-hover:from-blue-500/10 group-hover:to-indigo-500/10" />
+                                <div className="group relative overflow-hidden rounded-xl border-2 border-[#2d4a6f]/30 bg-white p-5 shadow-lg transition-transform duration-300 hover:-translate-y-1 sm:p-6">
                                     <div className="relative">
-                                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-500/40 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 px-3 py-1.5">
-                                            <div className="h-2 w-2 rounded-full bg-blue-400 shadow-md shadow-blue-400/50" />
-                                            <span className="text-xs font-bold tracking-wider text-blue-300 uppercase">
+                                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#2d4a6f]/50 bg-[#e8ecf4] px-3 py-1.5">
+                                            <div className="h-2 w-2 rounded-full bg-[#2d4a6f] shadow-md" />
+                                            <span className="text-xs font-bold tracking-wider text-[#1e3a5f] uppercase">
                                                 <EditableText sectionKey="about.vision.label" value="Vision" tag="span" />
                                             </span>
                                         </div>
-                                        <p className="text-sm leading-relaxed text-white sm:text-base">
+                                        <p className="text-sm leading-relaxed text-[#475569] sm:text-base">
                                             <EditableText
                                                 sectionKey="about.vision.description"
                                                 value="To become a leading travel company in inspiring halal travel packages that connect people with their faith and culture, creating transformative experiences that last a lifetime."
@@ -156,22 +153,21 @@ export default function About() {
                                             />
                                         </p>
                                     </div>
-                                    <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-blue-400 to-indigo-400 shadow-md transition-all duration-500 group-hover:w-full" />
+                                    <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-[#2d4a6f] to-[#ff5200] transition-all duration-500 group-hover:w-full" />
                                 </div>
 
                                 {/* Mission Card */}
-                                <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1 sm:p-6">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-500/0 transition-all duration-500 group-hover:from-purple-500/10 group-hover:to-pink-500/10" />
+                                <div className="group relative overflow-hidden rounded-xl border-2 border-[#ff5200]/25 bg-white p-5 shadow-lg transition-transform duration-300 hover:-translate-y-1 sm:p-6">
                                     <div className="relative">
-                                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-purple-500/40 bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-3 py-1.5">
-                                            <div className="h-2 w-2 rounded-full bg-purple-400 shadow-md shadow-purple-400/50" />
-                                            <span className="text-xs font-bold tracking-wider text-purple-300 uppercase">
+                                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#ff5200]/40 bg-[#fff4ee] px-3 py-1.5">
+                                            <div className="h-2 w-2 rounded-full bg-[#ff5200] shadow-md" />
+                                            <span className="text-xs font-bold tracking-wider text-[#e64a00] uppercase">
                                                 <EditableText sectionKey="about.mission.label" value="Mission" tag="span" />
                                             </span>
                                         </div>
-                                        <ul className="space-y-2.5 text-sm text-white sm:text-base">
+                                        <ul className="space-y-2.5 text-sm text-[#475569] sm:text-base">
                                             <li className="flex items-start gap-2.5">
-                                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 shadow-md" />
+                                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#ff5200]/60 shadow-md" />
                                                 <span>
                                                     <EditableText
                                                         sectionKey="about.mission.item1"
@@ -181,7 +177,7 @@ export default function About() {
                                                 </span>
                                             </li>
                                             <li className="flex items-start gap-2.5">
-                                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 shadow-md" />
+                                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#ff5200]/60 shadow-md" />
                                                 <span>
                                                     <EditableText
                                                         sectionKey="about.mission.item2"
@@ -191,7 +187,7 @@ export default function About() {
                                                 </span>
                                             </li>
                                             <li className="flex items-start gap-2.5">
-                                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 shadow-md" />
+                                                <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#ff5200]/60 shadow-md" />
                                                 <span>
                                                     <EditableText
                                                         sectionKey="about.mission.item3"
@@ -202,14 +198,14 @@ export default function About() {
                                             </li>
                                         </ul>
                                     </div>
-                                    <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-purple-400 to-pink-400 shadow-md transition-all duration-500 group-hover:w-full" />
+                                    <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-[#ff5200] to-[#fec901] transition-all duration-500 group-hover:w-full" />
                                 </div>
                             </div>
 
                             {/* Right Column */}
                             <div className="space-y-6">
                                 <div>
-                                    <h2 className="mb-5 text-xl font-bold text-white sm:text-2xl lg:text-3xl">
+                                    <h2 className="mb-5 text-xl font-bold text-[#1e3a5f] sm:text-2xl lg:text-3xl">
                                         <EditableText sectionKey="about.values.title" value="Our Core Values" tag="span" />
                                     </h2>
                                     <div className="space-y-4">
@@ -218,26 +214,21 @@ export default function About() {
                                             return (
                                                 <div
                                                     key={value.id}
-                                                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-lg backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1 sm:p-6"
+                                                    className="group relative overflow-hidden rounded-xl border-2 border-[#d4af37]/25 bg-white p-5 shadow-lg transition-transform duration-300 hover:-translate-y-1 sm:p-6"
                                                 >
-                                                    <div
-                                                        className={`absolute inset-0 bg-gradient-to-br ${value.color} opacity-0 transition-all duration-500 group-hover:opacity-100`}
-                                                    />
                                                     <div className="relative flex items-start gap-3.5">
-                                                        <div
-                                                            className={`flex-shrink-0 rounded-lg border ${value.borderColor} bg-gradient-to-br ${value.color} p-2.5 shadow-md transition-all duration-300 group-hover:scale-105 sm:p-3`}
-                                                        >
-                                                            <IconComponent className={`h-5 w-5 ${value.iconColor} sm:h-6 sm:w-6`} />
+                                                        <div className="flex-shrink-0 rounded-lg border border-[#2d4a6f]/30 bg-[#e8ecf4] p-2.5 shadow-md transition-all duration-300 group-hover:scale-105 sm:p-3">
+                                                            <IconComponent className="h-5 w-5 text-[#1e3a5f] sm:h-6 sm:w-6" />
                                                         </div>
                                                         <div className="flex-1">
-                                                            <h3 className="mb-1.5 text-base font-bold text-white transition-colors sm:text-lg lg:text-xl">
+                                                            <h3 className="mb-1.5 text-base font-bold text-[#1e3a5f] transition-colors sm:text-lg lg:text-xl">
                                                                 <EditableText
                                                                     sectionKey={`about.values.${value.id}.title`}
                                                                     value={value.title}
                                                                     tag="span"
                                                                 />
                                                             </h3>
-                                                            <p className="text-xs leading-relaxed text-white transition-colors group-hover:text-white sm:text-sm">
+                                                            <p className="text-xs leading-relaxed text-[#475569] sm:text-sm">
                                                                 <EditableText
                                                                     sectionKey={`about.values.${value.id}.description`}
                                                                     value={value.description}
@@ -246,9 +237,7 @@ export default function About() {
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <div
-                                                        className={`absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r ${value.accentGradient} shadow-md transition-all duration-500 group-hover:w-full`}
-                                                    />
+                                                    <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-[#2d4a6f] via-[#ff5200] to-[#d4af37] transition-all duration-500 group-hover:w-full" />
                                                 </div>
                                             );
                                         })}
@@ -256,8 +245,7 @@ export default function About() {
                                 </div>
 
                                 {/* CTA Card */}
-                                <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-6 shadow-xl sm:p-8">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/10" />
+                                <div className="relative overflow-hidden rounded-xl border-2 border-[#ff5200]/30 bg-gradient-to-r from-[#ff5200] to-[#ff6b35] p-6 shadow-xl sm:p-8">
                                     <div className="relative text-center">
                                         <h3 className="mb-2.5 text-xl font-bold text-white sm:text-2xl">
                                             <EditableText sectionKey="about.cta.title" value="Ready to Start Your Journey?" tag="span" />
@@ -290,7 +278,7 @@ export default function About() {
                 </section>
 
                 {/* Footer */}
-                <footer className="relative border-t border-white/10 bg-black/70">
+                <footer className="relative border-t-2 border-[#d4af37]/30 bg-gradient-to-b from-[#1e3a5f] to-[#2d4a6f] py-16">
                     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
                         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
                             <div className="text-center text-base text-white/70 md:text-left">

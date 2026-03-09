@@ -110,7 +110,7 @@ export default function AgentVerifications({ verifications, pagination }: Props)
         switch (status) {
             case 'pending':
                 return (
-                    <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30">
+                    <Badge className="bg-accent/20 text-accent border-accent/30">
                         <Clock className="mr-1 h-3 w-3" />
                         Pending
                     </Badge>
@@ -161,7 +161,7 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                     </div>
 
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
                             <Building2 className="h-6 w-6 text-white" />
                         </div>
                         <div>
@@ -175,14 +175,14 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                         <Button
                             variant={filter === 'all' ? 'default' : 'outline'}
                             onClick={() => setFilter('all')}
-                            className={filter === 'all' ? 'bg-amber-500 text-white' : 'border-gray-600 text-gray-300'}
+                            className={filter === 'all' ? 'bg-primary text-white' : 'border-gray-600 text-gray-300'}
                         >
                             All ({pagination.total})
                         </Button>
                         <Button
                             variant={filter === 'pending' ? 'default' : 'outline'}
                             onClick={() => setFilter('pending')}
-                            className={filter === 'pending' ? 'bg-amber-500 text-white' : 'border-gray-600 text-gray-300'}
+                            className={filter === 'pending' ? 'bg-accent text-white' : 'border-gray-600 text-gray-300'}
                         >
                             Pending ({verifications.data.filter(v => v.status === 'pending').length})
                         </Button>
@@ -211,7 +211,7 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                                     className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors"
                                 >
                                     {allFilteredSelected ? (
-                                        <CheckSquare className="h-5 w-5 text-orange-400" />
+                                        <CheckSquare className="h-5 w-5 text-primary" />
                                     ) : (
                                         <Square className="h-5 w-5 text-gray-400" />
                                     )}
@@ -266,7 +266,7 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                                                 className="mt-1 flex-shrink-0"
                                             >
                                                 {selectedIds.includes(verification.id) ? (
-                                                    <CheckSquare className="h-5 w-5 text-orange-400" />
+                                                    <CheckSquare className="h-5 w-5 text-primary" />
                                                 ) : (
                                                     <Square className="h-5 w-5 text-gray-400 hover:text-gray-300" />
                                                 )}

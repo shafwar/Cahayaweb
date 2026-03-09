@@ -111,7 +111,7 @@ export default function EditModeProvider({ children }: { children: React.ReactNo
                             // currently client-side only; server-side publishes are triggered by individual autosaves
                             clearDirty();
                         }}
-                        className="fixed right-6 bottom-6 z-[9999] rounded-full bg-amber-500 px-5 py-3 text-sm font-semibold text-black shadow-lg ring-1 ring-amber-300/60 hover:bg-amber-400"
+                        className="fixed right-6 bottom-6 z-[9999] rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white shadow-lg ring-1 ring-accent/40 hover:bg-accent/90"
                     >
                         Publish Changes
                     </motion.button>

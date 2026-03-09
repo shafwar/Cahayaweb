@@ -90,19 +90,18 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
         <EditModeProvider>
             <div className="flex min-h-dvh flex-col bg-background text-foreground">
                 <GlobalHeader variant="b2b" />
-                <B2BBreadcrumbBar />
                 <main className="flex-1 overflow-x-hidden">{children}</main>
                 <EditToggleButton />
 
                 {/* Enhanced Packages Dialog */}
                 <Dialog open={showPackagesDialog} onOpenChange={setShowPackagesDialog}>
-                    <DialogContent className="max-h-[85vh] w-[min(560px,calc(100vw-1.5rem))] overflow-y-auto border border-white/10 bg-black/95">
-                        <DialogHeader className="border-b border-white/10 pb-4">
-                            <DialogTitle className="flex items-center gap-2 text-lg font-bold text-white">
+                    <DialogContent className="max-h-[85vh] w-[min(560px,calc(100vw-1.5rem))] overflow-y-auto border border-[#d4af37]/25 bg-white shadow-2xl">
+                        <DialogHeader className="border-b border-[#d4af37]/15 pb-4">
+                            <DialogTitle className="flex items-center gap-2 text-lg font-bold text-[#1e3a5f]">
                                 <span className="text-xl">✨</span>
                                 <EditableText sectionKey="b2b.packages_dialog.title" value="Premium Packages" tag="span" />
                             </DialogTitle>
-                            <DialogDescription className="mt-1 text-sm text-gray-400">
+                            <DialogDescription className="mt-1 text-sm text-[#64748b]">
                                 <EditableText
                                     sectionKey="b2b.packages_dialog.description"
                                     value="Choose from our carefully curated packages for your spiritual journey"
@@ -120,61 +119,49 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                                     transition={{ delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
                                     className={`rounded-xl border transition-all duration-200 ${
                                         selectedPackage === pkg.id
-                                            ? 'border-amber-500/40 bg-white/5 shadow-lg shadow-amber-500/10'
-                                            : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]'
+                                            ? 'border-[#d4af37]/40 bg-[#d4af37]/5 shadow-lg shadow-[#d4af37]/10'
+                                            : 'border-[#c7ddff] bg-[#f8fafc] hover:border-[#d4af37]/30 hover:bg-[#d4af37]/5'
                                     }`}
                                 >
                                     <div className="p-4">
                                         <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
                                             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-                                                <h3 className="text-sm font-bold text-white sm:text-base">
-                                                    <EditableText
-                                                        sectionKey={`b2b.packages.${pkg.id}.name`}
-                                                        value={pkg.name}
-                                                        tag="span"
-                                                    />
+                                                <h3 className="text-sm font-bold text-[#1e3a5f] sm:text-base">
+                                                    <EditableText sectionKey={`b2b.packages.${pkg.id}.name`} value={pkg.name} tag="span" />
                                                 </h3>
-                                                <span className={`rounded-full bg-gradient-to-r ${pkg.badgeColor} px-2 py-0.5 text-[10px] font-medium text-white`}>
+                                                <span
+                                                    className={`rounded-full bg-gradient-to-r ${pkg.badgeColor} px-2 py-0.5 text-[10px] font-medium text-white`}
+                                                >
                                                     {pkg.badge}
                                                 </span>
-                                                <span className="text-xs text-gray-400">
-                                                    <EditableText
-                                                        sectionKey={`b2b.packages.${pkg.id}.duration`}
-                                                        value={pkg.duration}
-                                                        tag="span"
-                                                    />
+                                                <span className="text-xs text-[#64748b]">
+                                                    <EditableText sectionKey={`b2b.packages.${pkg.id}.duration`} value={pkg.duration} tag="span" />
                                                 </span>
                                             </div>
-                                            <div className="flex-shrink-0 rounded-md border border-amber-500/30 bg-amber-500/15 px-3 py-1.5 text-right">
-                                                <p className="text-xs font-bold text-amber-200">
-                                                    <EditableText
-                                                        sectionKey={`b2b.packages.${pkg.id}.price`}
-                                                        value={pkg.price}
-                                                        tag="span"
-                                                    />
+                                            <div className="flex-shrink-0 rounded-md border border-[#d4af37]/30 bg-[#d4af37]/10 px-3 py-1.5 text-right">
+                                                <p className="text-xs font-bold text-[#b8860b]">
+                                                    <EditableText sectionKey={`b2b.packages.${pkg.id}.price`} value={pkg.price} tag="span" />
                                                 </p>
                                             </div>
                                         </div>
 
-                                        <p className="mb-2.5 line-clamp-2 rounded-md border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs leading-relaxed text-amber-100/90">
-                                            <EditableText
-                                                sectionKey={`b2b.packages.${pkg.id}.highlights`}
-                                                value={pkg.highlights}
-                                                tag="span"
-                                            />
+                                        <p className="mb-2.5 line-clamp-2 rounded-md border border-[#ff5200]/15 bg-[#ff5200]/5 px-3 py-2 text-xs leading-relaxed text-[#475569]">
+                                            <EditableText sectionKey={`b2b.packages.${pkg.id}.highlights`} value={pkg.highlights} tag="span" />
                                         </p>
 
                                         <button
                                             onClick={() => setSelectedPackage(selectedPackage === pkg.id ? null : pkg.id)}
-                                            className="mb-2.5 flex w-full items-center justify-between rounded-md border border-white/10 bg-white/5 px-3 py-2 text-left transition-colors hover:border-white/20 hover:bg-white/10"
+                                            className="mb-2.5 flex w-full items-center justify-between rounded-md border border-[#c7ddff] bg-[#eef6ff] px-3 py-2 text-left transition-colors hover:border-[#2d4a6f]/30 hover:bg-[#2d4a6f]/10"
                                         >
-                                            <span className="text-xs font-medium text-gray-300">What's Included</span>
+                                            <span className="text-xs font-medium text-[#475569]">What's Included</span>
                                             <span className="flex items-center gap-1.5">
-                                                <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-medium text-amber-300">{pkg.features.length}</span>
+                                                <span className="rounded bg-[#ff5200]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#ff5200]">
+                                                    {pkg.features.length}
+                                                </span>
                                                 <motion.svg
                                                     animate={{ rotate: selectedPackage === pkg.id ? 180 : 0 }}
                                                     transition={{ duration: 0.2 }}
-                                                    className="h-3.5 w-3.5 text-gray-400"
+                                                    className="h-3.5 w-3.5 text-[#64748b]"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     viewBox="0 0 24 24"
@@ -191,11 +178,11 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                                                 transition={{ duration: 0.2 }}
                                                 className="mb-2.5 overflow-hidden"
                                             >
-                                                <div className="grid grid-cols-1 gap-1.5 rounded-md border border-white/10 bg-white/5 p-2.5 sm:grid-cols-2">
+                                                <div className="grid grid-cols-1 gap-1.5 rounded-md border border-[#c7ddff] bg-[#f8fafc] p-2.5 sm:grid-cols-2">
                                                     {pkg.features.map((feature, fIndex) => (
-                                                        <div key={fIndex} className="flex items-start gap-1.5 rounded bg-black/30 px-2.5 py-1.5">
-                                                            <div className="mt-1 h-1 w-1 flex-shrink-0 rounded-full bg-green-400" />
-                                                            <span className="text-[11px] leading-snug text-gray-300">
+                                                        <div key={fIndex} className="flex items-start gap-1.5 rounded bg-white px-2.5 py-1.5 shadow-sm">
+                                                            <div className="mt-1 h-1 w-1 flex-shrink-0 rounded-full bg-emerald-500" />
+                                                            <span className="text-[11px] leading-snug text-[#475569]">
                                                                 <EditableText
                                                                     sectionKey={`b2b.packages.${pkg.id}.features.${fIndex}`}
                                                                     value={feature}
@@ -223,18 +210,18 @@ export default function B2BLayout({ children }: { children: ReactNode }) {
                                 initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 }}
-                                className="flex items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/5 p-4"
+                                className="flex items-center gap-3 rounded-xl border border-[#2d4a6f]/20 bg-[#eef6ff] p-4"
                             >
-                                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-lg">
+                                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#2d4a6f] to-[#3d5a80] text-lg">
                                     🎯
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h3 className="text-sm font-bold text-white">Need a Custom Package?</h3>
-                                    <p className="line-clamp-2 text-xs text-gray-400">Tailored experiences for your unique spiritual journey</p>
+                                    <h3 className="text-sm font-bold text-[#1e3a5f]">Need a Custom Package?</h3>
+                                    <p className="line-clamp-2 text-xs text-[#64748b]">Tailored experiences for your unique spiritual journey</p>
                                 </div>
                                 <RippleButton
                                     onClick={() => window.open('https://wa.me/6281234567890', '_blank')}
-                                    className="flex-shrink-0 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-xs font-semibold text-white"
+                                    className="flex-shrink-0 rounded-lg bg-gradient-to-r from-[#2d4a6f] to-[#3d5a80] px-4 py-2 text-xs font-semibold text-white"
                                 >
                                     Request Quote
                                 </RippleButton>

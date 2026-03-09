@@ -186,7 +186,7 @@ export default function SelectMode() {
     };
 
     return (
-        <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-gradient-to-br from-black via-slate-950 to-black p-4 text-foreground sm:p-6">
+        <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-section-photos-home p-4 text-foreground sm:p-6">
             <SeoHead
                 title="Cahaya Anbiya Travel - Premium Hajj, Umrah & Travel Services"
                 description="PT. Cahaya Anbiya Wisata Indonesia - B2B & B2C premium Hajj, Umrah, and travel services with trusted guidance. Travel Halal Spesialis Aqsa & 3TAN. Melayani Konsorsium Aqsa/B2B Umrah, Ticket, Visa, 3TAN & Aqsa HALAL TRAVEL."
@@ -197,7 +197,7 @@ export default function SelectMode() {
             <AnimatePresence mode="wait">
                 {showSplash && (
                     <motion.div
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-black via-slate-950 to-black"
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-section-photos-home"
                         variants={splashVariants}
                         initial="hidden"
                         animate="visible"
@@ -209,9 +209,9 @@ export default function SelectMode() {
                             transform: 'translateZ(0)',
                         }}
                     >
-                        {/* Optimized ambient glow - single layer for better performance */}
+                        {/* Sentuhan biru & oranye halus (selaras logo) */}
                         <motion.div
-                            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.12),transparent_60%)]"
+                            className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_30%,rgba(45,74,111,0.08),transparent_50%)]"
                             variants={glowVariants}
                             initial="hidden"
                             animate="visible"
@@ -231,7 +231,7 @@ export default function SelectMode() {
                                     variants={particleVariants}
                                     initial="hidden"
                                     animate="visible"
-                                    className="absolute h-1 w-1 rounded-full bg-gradient-to-r from-amber-400/30 to-orange-400/15"
+                                    className="absolute h-1 w-1 rounded-full bg-gradient-to-r from-[#2d4a6f] to-[#ff5200]/40"
                                     style={{
                                         left: `${15 + i * 20}%`,
                                         top: `${40 + (i % 2) * 20}%`,
@@ -261,7 +261,7 @@ export default function SelectMode() {
                                     alt="Cahaya Anbiya Logo"
                                     className="h-auto w-[50vw] max-w-[280px] sm:h-40 sm:w-auto md:h-48 lg:h-56 xl:h-64"
                                     style={{
-                                        filter: 'drop-shadow(0 0 30px rgba(254,201,1,0.25))',
+                                        filter: 'drop-shadow(0 4px 20px rgba(30,58,95,0.2)) drop-shadow(0 0 24px rgba(255,82,0,0.15))',
                                         willChange: 'transform',
                                         backfaceVisibility: 'hidden',
                                     }}
@@ -294,7 +294,7 @@ export default function SelectMode() {
                                 variants={textRevealVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="mb-3 text-xl font-light tracking-wide text-white/90 sm:mb-4 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
+                                className="mb-3 text-xl font-light tracking-wide text-[#475569] sm:mb-4 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
                                 style={{
                                     fontFamily: 'Poppins, sans-serif',
                                     willChange: 'transform, opacity',
@@ -320,7 +320,7 @@ export default function SelectMode() {
                                 }}
                             >
                                 <motion.span
-                                    className="bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 bg-clip-text text-transparent"
+                                    className="bg-gradient-to-r from-[#1e3a5f] via-[#2d4a6f] to-[#e64a00] bg-clip-text text-transparent"
                                     style={{
                                         backgroundSize: '200% 100%',
                                     }}
@@ -338,7 +338,7 @@ export default function SelectMode() {
                                 variants={textRevealVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="text-sm font-light tracking-widest text-white/50 sm:text-base md:text-lg lg:text-xl"
+                                className="text-sm font-light tracking-widest text-[#64748b] sm:text-base md:text-lg lg:text-xl"
                                 style={{
                                     fontFamily: 'Poppins, sans-serif',
                                     letterSpacing: '0.25em',
@@ -364,7 +364,7 @@ export default function SelectMode() {
                                 {[0, 1, 2].map((i) => (
                                     <motion.div
                                         key={i}
-                                        className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 sm:h-2 sm:w-2"
+                                        className="h-2 w-2 rounded-full bg-gradient-to-r from-[#2d4a6f] to-[#ff5200] sm:h-2 sm:w-2"
                                         animate={{
                                             opacity: [0.4, 1, 0.4],
                                             scale: [1, 1.15, 1],
@@ -376,7 +376,7 @@ export default function SelectMode() {
                                             ease: 'easeInOut',
                                         }}
                                         style={{
-                                            boxShadow: '0 0 8px rgba(254,201,1,0.4)',
+                                            boxShadow: '0 0 10px rgba(255,82,0,0.35)',
                                             willChange: 'transform, opacity',
                                             backfaceVisibility: 'hidden',
                                             transform: 'translateZ(0)',
@@ -386,22 +386,16 @@ export default function SelectMode() {
                             </motion.div>
                         </div>
 
-                        {/* Subtle vignette overlay for depth */}
-                        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
+                        {/* Vignette sangat halus untuk depth */}
+                        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(0,0,0,0.06)_100%)]" />
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Optimized gradient background - Reduced blur for better performance */}
-            <div className="pointer-events-none absolute inset-0" style={{ willChange: 'transform', transform: 'translateZ(0)' }}>
-                <div
-                    className="absolute -top-20 left-1/2 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.05),transparent_70%)] blur-xl sm:-top-40 sm:h-[600px] sm:w-[800px]"
-                    style={{ willChange: 'transform', transform: 'translateZ(0)' }}
-                />
-                <div
-                    className="absolute right-0 -bottom-20 h-[300px] w-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,84,255,0.04),transparent_70%)] blur-xl sm:-bottom-40 sm:h-[500px] sm:w-[600px]"
-                    style={{ willChange: 'transform', transform: 'translateZ(0)' }}
-                />
+            {/* Sentuhan biru & oranye halus (selaras Home B2C) */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden" style={{ willChange: 'transform', transform: 'translateZ(0)' }}>
+                <div className="absolute -top-20 left-1/4 h-[420px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(45,74,111,0.08),transparent_65%)] blur-3xl sm:-top-40 sm:h-[560px] sm:w-[700px]" />
+                <div className="absolute right-1/4 -bottom-20 h-[380px] w-[480px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_65%)] blur-3xl sm:-bottom-40 sm:h-[500px] sm:w-[600px]" />
             </div>
 
             {/* Main content */}
@@ -411,42 +405,40 @@ export default function SelectMode() {
                 initial="hidden"
                 animate={!showSplash ? 'show' : 'hidden'}
             >
-                {/* Header - Optimized for mobile */}
+                {/* Header - selaras Home B2C */}
                 <motion.div className="mb-6 text-center sm:mb-12 md:mb-16" variants={fadeInUp}>
-                    <h1 className="mb-1.5 bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-xl font-semibold tracking-tight text-transparent sm:mb-3 sm:text-3xl md:text-4xl lg:text-5xl">
+                    <h1 className="mb-1.5 bg-gradient-to-r from-[#1e3a5f] via-[#2d4a6f] to-[#e64a00] bg-clip-text text-xl font-semibold tracking-tight text-transparent sm:mb-3 sm:text-3xl md:text-4xl lg:text-5xl">
                         Cahaya Anbiya Wisata
                     </h1>
-                    <p className="text-[10px] font-light tracking-wide text-white/40 sm:text-sm md:text-base">Choose your experience</p>
+                    <p className="text-[10px] font-light tracking-wide text-[#64748b] sm:text-sm md:text-base">Choose your experience</p>
                 </motion.div>
 
                 {/* Cards Grid - Optimized spacing for mobile */}
                 <motion.div className="grid gap-3 sm:gap-6 lg:grid-cols-2" variants={containerVariants}>
-                    {/* B2B Card - Optimized for mobile */}
+                    {/* B2B Card - putih + aksen biru (selaras Home B2C) */}
                     <motion.div
                         variants={fadeInUp}
                         whileHover={{ y: -6 }}
                         transition={{ duration: 0.3, ease }}
-                        className="group relative overflow-hidden rounded-xl border border-blue-500/10 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-slate-900/90 p-4 shadow-2xl sm:rounded-2xl sm:p-6 md:p-8"
+                        className="group relative overflow-hidden rounded-xl border-2 border-[#2d4a6f]/30 bg-white p-4 shadow-xl sm:rounded-2xl sm:p-6 md:p-8"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-blue-400/0 to-cyan-500/0 opacity-0 transition-all duration-700 group-hover:from-blue-500/5 group-hover:via-blue-400/3 group-hover:to-cyan-500/5 group-hover:opacity-100" />
-                        <div className="absolute top-0 left-0 h-[2px] w-0 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 opacity-60 shadow-[0_0_20px_rgba(254,201,1,0.5)] transition-all duration-700 ease-out group-hover:w-full" />
-                        <div className="absolute inset-y-0 left-0 w-[1px] bg-gradient-to-b from-transparent via-blue-400/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                        <div className="absolute top-0 left-0 h-[2px] w-0 bg-gradient-to-r from-[#1e3a5f] via-[#2d4a6f] to-[#3d5a80] transition-all duration-500 ease-out group-hover:w-full" />
 
                         <div className="relative z-10">
                             <div className="mb-2.5 sm:mb-4">
-                                <div className="inline-block rounded-lg bg-blue-500/15 px-2 py-0.5 text-[9px] font-semibold tracking-wider text-blue-300 ring-1 ring-blue-400/30 sm:px-3 sm:py-1.5 sm:text-xs">
+                                <div className="inline-block rounded-lg bg-[#e8ecf4] px-2 py-0.5 text-[9px] font-semibold tracking-wider text-[#1e3a5f] ring-1 ring-[#2d4a6f]/30 sm:px-3 sm:py-1.5 sm:text-xs">
                                     CORPORATE
                                 </div>
                             </div>
-                            <h2 className="mb-1.5 text-lg font-semibold text-white sm:mb-3 sm:text-2xl">Business to Business</h2>
-                            <p className="mb-4 text-xs leading-relaxed text-white/60 sm:mb-8 sm:text-base sm:text-white/50">
+                            <h2 className="mb-1.5 text-lg font-semibold text-[#1e3a5f] sm:mb-3 sm:text-2xl">Business to Business</h2>
+                            <p className="mb-4 text-xs leading-relaxed text-[#475569] sm:mb-8 sm:text-base">
                                 Tailored solutions for travel agencies and corporate partners.
                             </p>
 
                             <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                                 <div className="flex-1">
                                     <RippleButton
-                                        className="w-full bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/40 sm:px-6 sm:py-3.5 sm:text-base sm:font-medium"
+                                        className="w-full bg-gradient-to-r from-[#1e3a5f] to-[#2d4a6f] px-4 py-2.5 text-xs font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl sm:px-6 sm:py-3.5 sm:text-base sm:font-medium"
                                         onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                             e.preventDefault();
                                             // Ensure HTTPS for B2B portal navigation
@@ -460,7 +452,7 @@ export default function SelectMode() {
                                     </RippleButton>
                                 </div>
                                 <RippleButton
-                                    className="flex min-w-[48px] items-center justify-center gap-1.5 border border-white/10 bg-white/10 px-3 py-2.5 text-xs font-semibold text-white/80 transition-all duration-300 hover:border-white/20 hover:bg-white/15 hover:text-white sm:min-w-0 sm:gap-2 sm:px-6 sm:py-3.5 sm:text-base sm:font-medium"
+                                    className="flex min-w-[48px] items-center justify-center gap-1.5 border border-[#2d4a6f]/30 bg-[#e8ecf4]/80 px-3 py-2.5 text-xs font-semibold text-[#1e3a5f] transition-all duration-300 hover:bg-[#2d4a6f]/10 hover:text-[#1e3a5f] sm:min-w-0 sm:gap-2 sm:px-6 sm:py-3.5 sm:text-base sm:font-medium"
                                     onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                         e.preventDefault();
                                         window.open(
@@ -479,25 +471,23 @@ export default function SelectMode() {
                         </div>
                     </motion.div>
 
-                    {/* B2C Card - Optimized for mobile */}
+                    {/* B2C Card - putih + aksen oranye (selaras Home B2C) */}
                     <motion.div
                         variants={fadeInUp}
                         whileHover={{ y: -6 }}
                         transition={{ duration: 0.3, ease }}
-                        className="group relative overflow-hidden rounded-xl border border-orange-500/10 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-slate-900/90 p-4 shadow-2xl sm:rounded-2xl sm:p-6 md:p-8"
+                        className="group relative overflow-hidden rounded-xl border-2 border-[#ff5200]/25 bg-white p-4 shadow-xl sm:rounded-2xl sm:p-6 md:p-8"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/0 via-amber-400/0 to-yellow-500/0 opacity-0 transition-all duration-700 group-hover:from-orange-500/5 group-hover:via-amber-400/3 group-hover:to-yellow-500/5 group-hover:opacity-100" />
-                        <div className="absolute top-0 left-0 h-[2px] w-0 bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-400 opacity-60 shadow-[0_0_20px_rgba(255,82,0,0.5)] transition-all duration-700 ease-out group-hover:w-full" />
-                        <div className="absolute inset-y-0 left-0 w-[1px] bg-gradient-to-b from-transparent via-orange-400/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                        <div className="absolute top-0 left-0 h-[2px] w-0 bg-gradient-to-r from-[#ff5200] via-[#ff6b35] to-[#fec901] transition-all duration-500 ease-out group-hover:w-full" />
 
                         <div className="relative z-10">
                             <div className="mb-2.5 sm:mb-4">
-                                <div className="inline-block rounded-lg bg-orange-500/15 px-2 py-0.5 text-[9px] font-semibold tracking-wider text-orange-300 ring-1 ring-orange-400/30 sm:px-3 sm:py-1.5 sm:text-xs">
+                                <div className="inline-block rounded-lg bg-[#fff4ee] px-2 py-0.5 text-[9px] font-semibold tracking-wider text-[#e64a00] ring-1 ring-[#ff5200]/30 sm:px-3 sm:py-1.5 sm:text-xs">
                                     PERSONAL
                                 </div>
                             </div>
-                            <h2 className="mb-1.5 text-lg font-semibold text-white sm:mb-3 sm:text-2xl">Business to Consumer</h2>
-                            <p className="mb-4 text-xs leading-relaxed text-white/60 sm:mb-8 sm:text-base sm:text-white/50">
+                            <h2 className="mb-1.5 text-lg font-semibold text-[#1e3a5f] sm:mb-3 sm:text-2xl">Business to Consumer</h2>
+                            <p className="mb-4 text-xs leading-relaxed text-[#475569] sm:mb-8 sm:text-base">
                                 Explore destinations, packages, blogs, and more.
                             </p>
 
@@ -514,12 +504,12 @@ export default function SelectMode() {
                                         }
                                     }}
                                 >
-                                    <RippleButton className="w-full bg-gradient-to-r from-orange-600 to-orange-500 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/40 sm:px-6 sm:py-3.5 sm:text-base sm:font-medium">
+                                    <RippleButton className="w-full bg-gradient-to-r from-[#ff5200] to-[#ff6b35] px-4 py-2.5 text-xs font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl sm:px-6 sm:py-3.5 sm:text-base sm:font-medium">
                                         Explore Destinations
                                     </RippleButton>
                                 </Link>
                                 <RippleButton
-                                    className="flex min-w-[48px] items-center justify-center gap-1.5 border border-white/10 bg-white/10 px-3 py-2.5 text-xs font-semibold text-white/80 transition-all duration-300 hover:border-white/20 hover:bg-white/15 hover:text-white sm:min-w-0 sm:gap-2 sm:px-6 sm:py-3.5 sm:text-base sm:font-medium"
+                                    className="flex min-w-[48px] items-center justify-center gap-1.5 border border-[#ff5200]/25 bg-[#fff4ee]/80 px-3 py-2.5 text-xs font-semibold text-[#e64a00] transition-all duration-300 hover:bg-[#ff5200]/10 hover:text-[#e64a00] sm:min-w-0 sm:gap-2 sm:px-6 sm:py-3.5 sm:text-base sm:font-medium"
                                     onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                         e.preventDefault();
                                         window.open(
@@ -549,7 +539,7 @@ export default function SelectMode() {
                     transition={{ duration: 0.7, delay: 0.6, ease }}
                 >
                     <div className="mb-1.5 flex items-center justify-center gap-2 sm:mb-3 sm:gap-3">
-                        <span className="text-[10px] text-white/30 sm:text-sm">Follow us:</span>
+                        <span className="text-[10px] text-[#64748b] sm:text-sm">Follow us:</span>
                         <motion.a
                             href="https://www.instagram.com/cahayaanbiya_id/"
                             target="_blank"
@@ -567,7 +557,7 @@ export default function SelectMode() {
                             </svg>
                         </motion.a>
                     </div>
-                    <p className="text-[9px] text-white/25 sm:text-xs">© 2025 PT Cahaya Anbiya Wisata</p>
+                    <p className="text-[9px] text-[#94a3b8] sm:text-xs">© 2025 PT Cahaya Anbiya Wisata</p>
                 </motion.div>
             )}
         </div>

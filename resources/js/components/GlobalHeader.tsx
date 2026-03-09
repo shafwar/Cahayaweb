@@ -11,7 +11,6 @@ import {
     Info,
     LogIn,
     LogOut,
-    Home,
     MapPin,
     Menu,
     MessageCircle,
@@ -111,7 +110,7 @@ const MobileMenuPortal: React.FC<{
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
                 onClick={onClose}
-                className="absolute inset-0 bg-black/90 backdrop-blur-md"
+                className="absolute inset-0 bg-[#0f172a]/95 backdrop-blur-md"
                 style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
             />
 
@@ -121,7 +120,7 @@ const MobileMenuPortal: React.FC<{
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                className="absolute top-0 right-0 h-full w-80 overflow-y-auto bg-gradient-to-b from-black to-slate-950 shadow-2xl sm:w-96"
+                className="absolute top-0 right-0 h-full w-80 overflow-y-auto border-l-2 border-[#d4af37]/40 bg-gradient-to-b from-[#1e3a5f] via-[#2d4a6f] to-[#1e3a5f] shadow-2xl sm:w-96"
                 style={{
                     position: 'absolute',
                     top: 0,
@@ -134,44 +133,47 @@ const MobileMenuPortal: React.FC<{
             >
                 <div className="flex min-h-full flex-col" style={{ minHeight: '100vh' }}>
                     {/* Header */}
-                    <div className="flex items-center justify-between border-b border-white/5 p-5">
+                    <div className="flex items-center justify-between border-b border-white/10 p-5">
                         <div className="flex items-center gap-3">
-                            <img src={getR2Url('/cahayanbiyalogo.png')} alt="Logo" className="h-10 w-auto" onError={(e) => {
-                                const target = e.currentTarget;
-                                if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
-                                    // Try alternative R2 path variations, never fallback to local
-                                    const currentUrl = target.src;
-                                    let altPath = currentUrl;
-                                    if (currentUrl.includes('/public/images/')) {
-                                        altPath = currentUrl.replace('/public/images/', '/images/');
-                                    } else if (currentUrl.includes('/public/')) {
-                                        altPath = currentUrl.replace('/public/', '/');
-                                    } else if (currentUrl.includes('/images/')) {
-                                        altPath = currentUrl.replace('/images/', '/public/images/');
-                                    } else {
-                                        altPath = 'https://assets.cahayaanbiya.com/public/images/cahayanbiyalogo.png';
+                            <img
+                                src={getR2Url('/cahayanbiyalogo.png')}
+                                alt="Logo"
+                                className="h-10 w-auto"
+                                onError={(e) => {
+                                    const target = e.currentTarget;
+                                    if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
+                                        // Try alternative R2 path variations, never fallback to local
+                                        const currentUrl = target.src;
+                                        let altPath = currentUrl;
+                                        if (currentUrl.includes('/public/images/')) {
+                                            altPath = currentUrl.replace('/public/images/', '/images/');
+                                        } else if (currentUrl.includes('/public/')) {
+                                            altPath = currentUrl.replace('/public/', '/');
+                                        } else if (currentUrl.includes('/images/')) {
+                                            altPath = currentUrl.replace('/images/', '/public/images/');
+                                        } else {
+                                            altPath = 'https://assets.cahayaanbiya.com/public/images/cahayanbiyalogo.png';
+                                        }
+                                        console.log('[Logo] Trying alternative R2 path:', altPath);
+                                        target.src = altPath;
                                     }
-                                    console.log('[Logo] Trying alternative R2 path:', altPath);
-                                    target.src = altPath;
-                                }
-                            }} />
+                                }}
+                            />
                             <div>
-                                <div className="bg-gradient-to-r from-amber-200 to-amber-100 bg-clip-text text-base font-bold text-transparent">
-                                    CAHAYA ANBIYA
-                                </div>
+                                <div className="text-base font-bold text-white">CAHAYA ANBIYA</div>
                                 <div className="text-xs text-white/60">TRAVEL AGENCY</div>
                             </div>
                         </div>
                         <button
                             onClick={onClose}
-                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white hover:bg-white/10"
+                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20"
                         >
                             <X className="h-5 w-5" />
                         </button>
                     </div>
 
                     {/* Mode Switch */}
-                    <div className="border-b border-white/5 p-5">
+                    <div className="border-b border-white/10 p-5">
                         <button
                             onClick={() => {
                                 handleModeSwitch();
@@ -179,8 +181,8 @@ const MobileMenuPortal: React.FC<{
                             }}
                             className={`w-full rounded-xl px-4 py-3 text-sm font-semibold ${
                                 variant === 'b2b'
-                                    ? 'border border-amber-500/30 bg-amber-500/10 text-amber-300'
-                                    : 'border border-white/10 bg-white/5 text-white'
+                                    ? 'border border-[#d4af37]/40 bg-[#d4af37]/10 text-[#d4af37]'
+                                    : 'border border-[#0054ff]/50 bg-[#0054ff]/20 text-white'
                             }`}
                         >
                             {variant === 'b2b' ? 'Switch to B2C' : 'Switch to B2B'}
@@ -188,24 +190,24 @@ const MobileMenuPortal: React.FC<{
                     </div>
 
                     {/* Search */}
-                    <div className="border-b border-white/5 p-5">
+                    <div className="border-b border-white/10 p-5">
                         <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
                             <div className="relative flex-1">
                                 <div className="absolute top-1/2 left-3 -translate-y-1/2">
-                                    <Search className="h-4 w-4 text-amber-500/60" />
+                                    <Search className="h-4 w-4 text-[#3fb4ff]" />
                                 </div>
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Search destinations, packages, or locations..."
-                                    className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pr-3 pl-10 text-sm text-white placeholder:text-white/40 focus:border-amber-500/50 focus:bg-white/10 focus:ring-1 focus:ring-amber-500/30 focus:outline-none"
+                                    className="w-full rounded-lg border border-white/20 bg-white/10 py-2.5 pr-3 pl-10 text-sm text-white placeholder:text-white/50 focus:border-[#3fb4ff] focus:bg-white/15 focus:ring-1 focus:ring-[#3fb4ff]/30 focus:outline-none"
                                 />
                                 {searchQuery && (
                                     <button
                                         type="button"
                                         onClick={() => setSearchQuery('')}
-                                        className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-1 text-white/40 transition-colors hover:bg-white/10 hover:text-white/70"
+                                        className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-1 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
                                     >
                                         <X className="h-3.5 w-3.5" />
                                     </button>
@@ -214,7 +216,7 @@ const MobileMenuPortal: React.FC<{
                             <button
                                 type="submit"
                                 disabled={!searchQuery.trim()}
-                                className="rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-amber-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                                className="rounded-lg bg-[#ff5200] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#ff6b35] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
                             >
                                 Search
                             </button>
@@ -241,7 +243,7 @@ const MobileMenuPortal: React.FC<{
                                                 }
                                                 onClose();
                                             }}
-                                            className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white hover:bg-white/5"
+                                            className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white hover:bg-white/10"
                                         >
                                             {IconComponent && <IconComponent className="h-5 w-5" />}
                                             <span>{item.label}</span>
@@ -257,7 +259,7 @@ const MobileMenuPortal: React.FC<{
                                             target="_blank"
                                             rel="noreferrer"
                                             onClick={onClose}
-                                            className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white hover:bg-white/5"
+                                            className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white hover:bg-white/10"
                                         >
                                             {IconComponent && <IconComponent className="h-5 w-5" />}
                                             <span>{item.label}</span>
@@ -270,7 +272,7 @@ const MobileMenuPortal: React.FC<{
                                         key={item.label}
                                         href={item.href}
                                         onClick={onClose}
-                                        className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white hover:bg-white/5"
+                                        className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-white hover:bg-white/10"
                                     >
                                         {IconComponent && <IconComponent className="h-5 w-5" />}
                                         <span>{item.label}</span>
@@ -282,15 +284,15 @@ const MobileMenuPortal: React.FC<{
 
                     {/* Admin */}
                     {user && isAdmin && (
-                        <div className="border-t border-white/5 bg-gradient-to-b from-transparent to-black/50 p-5">
-                            <div className="mb-3 text-xs font-semibold tracking-wider text-amber-400/80 uppercase">Admin CMS</div>
+                        <div className="border-t border-white/10 bg-white/5 p-5">
+                            <div className="mb-3 text-xs font-semibold tracking-wider text-[#d4af37] uppercase">Admin CMS</div>
                             <div className="space-y-2">
                                 <button
                                     onClick={() => {
                                         router.visit('/admin');
                                         onClose();
                                     }}
-                                    className="flex w-full items-center gap-3 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-4 py-3 text-sm font-medium text-amber-300"
+                                    className="flex w-full items-center gap-3 rounded-xl border border-[#d4af37]/40 bg-[#d4af37]/10 px-4 py-3 text-sm font-medium text-[#d4af37]"
                                 >
                                     <Shield className="h-5 w-5" />
                                     <span>Admin Dashboard</span>
@@ -300,7 +302,7 @@ const MobileMenuPortal: React.FC<{
                                         router.visit('/admin/agent-verifications');
                                         onClose();
                                     }}
-                                    className="flex w-full items-center gap-3 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-4 py-3 text-sm font-medium text-amber-300"
+                                    className="flex w-full items-center gap-3 rounded-xl border border-[#d4af37]/40 bg-[#d4af37]/10 px-4 py-3 text-sm font-medium text-[#d4af37]"
                                 >
                                     <Building2 className="h-5 w-5" />
                                     <span>Agent Verifications</span>
@@ -373,7 +375,7 @@ const MobileMenuPortal: React.FC<{
                                     <Home className="h-4 w-4" />
                                     Back to Select Mode
                                 </a>
-                                
+
                                 {/* Logout Button (only if user is logged in) */}
                                 {user ? (
                                     <button
@@ -382,7 +384,7 @@ const MobileMenuPortal: React.FC<{
                                             onClose();
                                         }}
                                         disabled={isLoggingOut}
-                                        className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300 transition-all hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300 transition-all hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                                     >
                                         <LogOut className="h-4 w-4" />
                                         {isLoggingOut ? 'Logging out...' : 'Logout'}
@@ -498,10 +500,11 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                 className={`sticky top-0 z-[9999] ${className}`}
                 style={{
-                    background: 'linear-gradient(180deg, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.95) 100%)',
+                    background: 'linear-gradient(180deg, #1e3a5f 0%, #2d4a6f 45%, #3d5a80 100%)',
                     backdropFilter: 'blur(12px)',
-                    borderBottom: isScrolled ? '1px solid rgba(254, 201, 1, 0.1)' : '1px solid transparent',
-                    transition: 'border-color 0.3s ease',
+                    borderBottom: isScrolled ? '2px solid rgba(212, 175, 55, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
+                    transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+                    boxShadow: isScrolled ? '0 4px 24px rgba(0, 0, 0, 0.12)' : 'none',
                 }}
             >
                 <div className="mx-auto h-20 max-w-7xl px-4 lg:px-6">
@@ -513,7 +516,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                         >
                             <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }} className="flex items-center gap-3">
                                 <div className="relative">
-                                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 blur-xl transition-all duration-500 group-hover:from-amber-500/30 group-hover:to-orange-500/30" />
+                                    <div className="absolute inset-0 rounded-full bg-[#5a7a9e]/25 blur-xl transition-all duration-500 group-hover:bg-[#3d5a80]/30" />
                                     <img
                                         src={getR2Url('/cahayanbiyalogo.png')}
                                         alt="Cahaya Anbiya Logo"
@@ -540,10 +543,8 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                     />
                                 </div>
                                 <div className="hidden sm:block">
-                                    <div className="bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-sm leading-tight font-bold text-transparent lg:text-base">
-                                        CAHAYA ANBIYA
-                                    </div>
-                                    <div className="mt-0.5 text-xs leading-tight font-medium text-white/70">WISATA INDONESIA</div>
+                                    <div className="text-sm font-bold text-white lg:text-base">CAHAYA ANBIYA</div>
+                                    <div className="mt-0.5 text-xs font-medium text-[#d4af37]">WISATA INDONESIA</div>
                                 </div>
                             </motion.div>
                         </Link>
@@ -573,7 +574,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                                         consultationButton?.click();
                                                     }
                                                 }}
-                                                className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/5 hover:text-white"
+                                                className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/10 hover:text-white"
                                             >
                                                 {IconComponent && <IconComponent className="h-4 w-4" />}
                                                 <span>{item.label}</span>
@@ -583,7 +584,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                                 href={item.href}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/5 hover:text-white"
+                                                className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/10 hover:text-white"
                                             >
                                                 {IconComponent && <IconComponent className="h-4 w-4" />}
                                                 <span>{item.label}</span>
@@ -591,7 +592,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                         ) : (
                                             <Link
                                                 href={item.href}
-                                                className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/5 hover:text-white"
+                                                className="group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:bg-white/10 hover:text-white"
                                             >
                                                 {IconComponent && <IconComponent className="h-4 w-4" />}
                                                 <span>{item.label}</span>
@@ -610,7 +611,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => router.visit('/admin')}
-                                        className="hidden items-center justify-center rounded-lg border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-orange-500/10 p-2 text-amber-300 transition-all hover:from-amber-500/20 hover:to-orange-500/20 md:flex"
+                                        className="hidden items-center justify-center rounded-lg border border-[#d4af37]/40 bg-[#d4af37]/10 p-2 text-[#d4af37] transition-all hover:bg-[#d4af37]/20 md:flex"
                                         title="Admin Dashboard"
                                     >
                                         <Shield className="h-4 w-4" />
@@ -632,7 +633,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                                     editCtx.clearDirty?.();
                                                     router.reload({ only: ['sections'] });
                                                 }}
-                                                className="hidden animate-pulse items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-2 text-sm font-bold text-white shadow-lg ring-2 ring-amber-400/50 transition-all hover:from-amber-400 hover:to-orange-400 md:flex"
+                                                className="hidden animate-pulse items-center gap-2 rounded-xl bg-[#ff5200] px-3 py-2 text-sm font-bold text-white shadow-lg ring-2 ring-[#d4af37]/30 transition-all hover:bg-[#ff6b35] md:flex"
                                             >
                                                 <Save className="h-4 w-4" />
                                                 <span>Save</span>
@@ -646,7 +647,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                                 whileHover={{ scale: 1.05 }}
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={() => editCtx.setEditMode(false)}
-                                                className="hidden items-center gap-2 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-sm font-semibold text-blue-300 transition-all hover:bg-blue-500/20 md:flex"
+                                                className="hidden items-center gap-2 rounded-xl border border-[#0054ff]/40 bg-[#0054ff]/15 px-3 py-2 text-sm font-semibold text-[#3fb4ff] transition-all hover:bg-[#0054ff]/25 md:flex"
                                             >
                                                 <Minus className="h-4 w-4" />
                                                 <span className="hidden lg:inline">Editing</span>
@@ -660,7 +661,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                                 whileHover={{ scale: 1.05 }}
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={() => editCtx.setEditMode(true)}
-                                                className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white transition-all hover:bg-white/10 md:flex"
+                                                className="hidden items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold text-white transition-all hover:bg-white/15 md:flex"
                                             >
                                                 <Plus className="h-4 w-4" />
                                                 <span className="hidden lg:inline">Edit</span>
@@ -674,7 +675,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleModeSwitch}
-                                className={`hidden rounded-xl px-3 py-2 text-sm font-semibold md:flex ${variant === 'b2b' ? 'border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20' : 'border border-white/10 bg-white/5 text-white hover:bg-white/10'}`}
+                                className={`hidden rounded-xl px-3 py-2 text-sm font-semibold md:flex ${variant === 'b2b' ? 'border border-[#d4af37]/50 bg-[#d4af37]/15 text-[#d4af37] hover:bg-[#d4af37]/25' : 'border border-[#0054ff]/70 bg-[#0054ff]/25 text-white hover:bg-[#0054ff]/35'}`}
                             >
                                 <span className="flex items-center gap-2">
                                     <span className="hidden lg:inline">{variant === 'b2b' ? 'B2B' : 'B2C'}</span>
@@ -684,14 +685,15 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                             </motion.button>
 
                             {/* Only show login button for B2B variant, not for admin */}
-                            {variant === 'b2b' && !isAdmin && (
-                                user ? (
+                            {variant === 'b2b' &&
+                                !isAdmin &&
+                                (user ? (
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => logout()}
                                         disabled={isLoggingOut}
-                                        className="hidden rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed md:flex"
+                                        className="hidden rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50 md:flex"
                                     >
                                         <span className="flex items-center gap-2">
                                             <LogOut className="h-4 w-4" />
@@ -701,17 +703,16 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                 ) : (
                                     <a
                                         href="/login?mode=b2b&redirect=/b2b"
-                                        className="hidden items-center gap-2 rounded-xl border-none bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-2 text-sm font-semibold text-white hover:from-amber-400 hover:to-orange-400 md:flex"
+                                        className="hidden items-center gap-2 rounded-xl border-none bg-[#ff5200] px-3 py-2 text-sm font-semibold text-white hover:bg-[#ff6b35] md:flex"
                                     >
                                         <LogIn className="h-4 w-4" />
                                         <span>Login</span>
                                     </a>
-                                )
-                            )}
+                                ))}
 
                             <button
                                 onClick={() => setIsMobileMenuOpen(true)}
-                                className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white transition-all hover:bg-white/10 lg:hidden"
+                                className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white transition-all hover:bg-white/20 lg:hidden"
                                 aria-label="Open mobile menu"
                             >
                                 <Menu className="h-5 w-5" />

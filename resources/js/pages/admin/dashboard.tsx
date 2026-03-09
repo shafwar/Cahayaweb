@@ -25,11 +25,11 @@ export default function AdminDashboard() {
             icon: Building2,
             title: 'Agent Verifications',
             description: 'Review and approve B2B agent registration applications. Manage pending, approved, and rejected verifications.',
-            gradient: 'from-amber-500/10 via-orange-500/10 to-amber-500/10',
-            borderColor: 'border-amber-500/30 hover:border-amber-500/60',
-            iconBg: 'bg-amber-500/20',
-            iconColor: 'text-amber-400',
-            hoverShadow: 'hover:shadow-amber-500/20',
+            gradient: 'from-primary/10 via-accent/10 to-primary/10',
+            borderColor: 'border-primary/30 hover:border-primary/60',
+            iconBg: 'bg-primary/20',
+            iconColor: 'text-primary',
+            hoverShadow: 'hover:shadow-primary/20',
         },
         {
             href: '/',
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                         className="mb-12 text-center sm:mb-16"
                     >
-                        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-orange-500/20 bg-orange-500/10 px-4 py-2 backdrop-blur-sm">
+                        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 backdrop-blur-sm">
                             <Sparkles className="h-4 w-4 text-orange-400" />
                             <span className="text-xs font-semibold uppercase tracking-wider text-orange-400">Admin Portal</span>
                         </div>

@@ -165,7 +165,12 @@ export default function BlogIndex() {
                 description="Articles and information about Umrah, halal travel, and premium journeys from Cahaya Anbiya Travel."
             />
 
-            <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 md:px-10 md:py-16">
+            <div className="relative min-h-screen border-t border-[#d4af37]/20 bg-section-photos-home">
+                <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                    <div className="absolute top-0 left-1/4 h-[420px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(45,74,111,0.07),transparent_65%)] blur-3xl" />
+                    <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_65%)] blur-3xl" />
+                </div>
+            <section className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 md:px-10 md:py-16">
                 {/* Enhanced Header Section */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
@@ -182,17 +187,17 @@ export default function BlogIndex() {
                         Discover travel tips, destination guides, and inspiring stories from our expert team. From spiritual journeys to luxury
                         adventures, we share insights to help you plan your perfect trip.
                     </p>
-                    <div className="mt-6 flex items-center justify-center space-x-4 text-sm text-muted-foreground">
+                    <div className="mt-6 flex items-center justify-center space-x-4 text-sm text-[#64748b]">
                         <div className="flex items-center space-x-2">
-                            <div className="h-2 w-2 rounded-full bg-primary"></div>
+                            <div className="h-2 w-2 rounded-full bg-[#2d4a6f]"></div>
                             <span>Expert Travel Guides</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <div className="h-2 w-2 rounded-full bg-secondary"></div>
+                            <div className="h-2 w-2 rounded-full bg-[#ff5200]"></div>
                             <span>Destination Insights</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <div className="h-2 w-2 rounded-full bg-secondary"></div>
+                            <div className="h-2 w-2 rounded-full bg-[#d4af37]"></div>
                             <span>Travel Tips</span>
                         </div>
                     </div>
@@ -246,7 +251,7 @@ export default function BlogIndex() {
                                                 }
                                             }}
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                        <div className="absolute inset-0 bg-transparent pointer-events-none" />
 
                                         {/* Category Badge */}
                                         <div className="absolute top-3 left-3">
@@ -351,7 +356,7 @@ export default function BlogIndex() {
                                             }
                                         }}
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                    <div className="absolute inset-0 bg-transparent pointer-events-none" />
 
                                     {/* Category Badge */}
                                     <div className="absolute top-3 left-3">
@@ -444,7 +449,7 @@ export default function BlogIndex() {
             </section>
 
             {/* Enhanced Footer */}
-            <footer className="border-t border-white/20 bg-card/60 backdrop-blur-xl">
+            <footer className="border-t-2 border-[#d4af37]/30 bg-gradient-to-b from-[#1e3a5f] to-[#2d4a6f] py-16">
                 <motion.div
                     className="xs:px-4 xs:py-10 mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-12 md:flex md:items-center md:justify-between md:px-6 md:py-12 lg:px-8 xl:px-10"
                     initial={{ opacity: 0, y: 15 }}
@@ -483,11 +488,13 @@ export default function BlogIndex() {
                 </motion.div>
             </footer>
 
+            </div>
+
             {/* Blog Article Modal */}
             <Dialog open={selectedArticle !== null} onOpenChange={() => setSelectedArticle(null)}>
-                <DialogContent className="max-h-[90vh] max-w-[90vw] overflow-y-auto border border-amber-500/30 bg-gradient-to-br from-amber-950 via-orange-950 to-amber-900 shadow-2xl sm:max-w-[80vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
-                    <DialogHeader className="border-b border-amber-500/30 pb-2 sm:pb-3 md:pb-4">
-                        <DialogTitle className="bg-gradient-to-r from-amber-300 via-yellow-200 to-orange-300 bg-clip-text text-sm leading-tight font-bold text-transparent sm:text-base md:text-lg lg:text-xl xl:text-2xl">
+                <DialogContent className="max-h-[90vh] max-w-[90vw] overflow-y-auto border border-primary/30 bg-card-dark shadow-2xl sm:max-w-[80vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
+                    <DialogHeader className="border-b border-primary/30 pb-2 sm:pb-3 md:pb-4">
+                        <DialogTitle className="bg-gradient-to-r from-primary via-[#3fb4ff] to-accent bg-clip-text text-sm leading-tight font-bold text-transparent sm:text-base md:text-lg lg:text-xl xl:text-2xl">
                             {selectedArticle && blogArticles.find((article) => article.id === selectedArticle)?.title}
                         </DialogTitle>
                     </DialogHeader>
@@ -500,20 +507,20 @@ export default function BlogIndex() {
                             return (
                                 <div className="space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-6">
                                     {/* Article Image */}
-                                    <div className="relative overflow-hidden rounded-lg border border-amber-500/30">
+                                    <div className="relative overflow-hidden rounded-lg border border-primary/30">
                                         <img
                                             src={getR2Url(article.image)}
                                             alt={article.title}
                                             className="h-28 w-full object-cover sm:h-32 md:h-40 lg:h-48 xl:h-56"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-amber-950/50 to-transparent" />
+                                        <div className="absolute inset-0 bg-transparent" />
                                     </div>
 
                                     {/* Article Meta */}
                                     <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-300 sm:gap-2 md:gap-3 md:text-sm">
                                         <div className="flex items-center gap-1">
                                             <svg
-                                                className="h-3 w-3 text-amber-400 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4"
+                                                className="h-3 w-3 text-primary sm:h-3.5 sm:w-3.5 md:h-4 md:w-4"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
@@ -564,24 +571,24 @@ export default function BlogIndex() {
                                     {/* Article Content */}
                                     <div className="space-y-2.5 text-xs leading-relaxed text-gray-200 sm:space-y-3 sm:text-sm md:space-y-4 md:text-base">
                                         <div className="rounded-lg bg-gray-800/50 p-2.5 sm:p-3 md:p-4">
-                                            <p className="text-amber-200">{article.excerpt}</p>
+                                            <p className="text-primary/90">{article.excerpt}</p>
                                         </div>
 
-                                        <div className="rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 p-2.5 sm:p-3 md:p-4">
-                                            <h3 className="mb-1.5 text-xs font-semibold text-amber-300 sm:mb-2 sm:text-sm md:mb-2.5 md:text-base lg:text-lg">
+                                        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 p-2.5 sm:p-3 md:p-4">
+                                            <h3 className="mb-1.5 text-xs font-semibold text-primary sm:mb-2 sm:text-sm md:mb-2.5 md:text-base lg:text-lg">
                                                 Key Highlights
                                             </h3>
                                             <ul className="space-y-1 text-gray-300 sm:space-y-1.5 md:space-y-2">
                                                 <li className="flex items-start gap-1.5 sm:gap-2">
-                                                    <span className="mt-0.5 h-1 w-1 flex-shrink-0 rounded-full bg-amber-400 sm:mt-1 sm:h-1.5 sm:w-1.5 md:mt-1.5"></span>
+                                                    <span className="mt-0.5 h-1 w-1 flex-shrink-0 rounded-full bg-primary sm:mt-1 sm:h-1.5 sm:w-1.5 md:mt-1.5"></span>
                                                     <span className="text-xs sm:text-sm">Comprehensive guide to spiritual journey preparation</span>
                                                 </li>
                                                 <li className="flex items-start gap-1.5 sm:gap-2">
-                                                    <span className="mt-0.5 h-1 w-1 flex-shrink-0 rounded-full bg-amber-400 sm:mt-1 sm:h-1.5 sm:w-1.5 md:mt-1.5"></span>
+                                                    <span className="mt-0.5 h-1 w-1 flex-shrink-0 rounded-full bg-primary sm:mt-1 sm:h-1.5 sm:w-1.5 md:mt-1.5"></span>
                                                     <span className="text-xs sm:text-sm">Essential rituals and their significance explained</span>
                                                 </li>
                                                 <li className="flex items-start gap-1.5 sm:gap-2">
-                                                    <span className="mt-0.5 h-1 w-1 flex-shrink-0 rounded-full bg-amber-400 sm:mt-1 sm:h-1.5 sm:w-1.5 md:mt-1.5"></span>
+                                                    <span className="mt-0.5 h-1 w-1 flex-shrink-0 rounded-full bg-primary sm:mt-1 sm:h-1.5 sm:w-1.5 md:mt-1.5"></span>
                                                     <span className="text-xs sm:text-sm">Practical tips for a meaningful experience</span>
                                                 </li>
                                             </ul>
@@ -612,7 +619,7 @@ export default function BlogIndex() {
                                             {article.tags.map((tag) => (
                                                 <span
                                                     key={tag}
-                                                    className="rounded-full bg-amber-500/20 px-1.5 py-0.5 text-xs font-medium text-amber-300 sm:px-2 sm:py-1 md:px-3"
+                                                    className="rounded-full bg-primary/20 px-1.5 py-0.5 text-xs font-medium text-primary sm:px-2 sm:py-1 md:px-3"
                                                 >
                                                     {tag}
                                                 </span>
@@ -621,8 +628,8 @@ export default function BlogIndex() {
                                     </div>
 
                                     {/* CTA Section */}
-                                    <div className="rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 p-2.5 sm:p-3 md:p-4">
-                                        <h3 className="mb-2 text-xs font-semibold text-amber-300 sm:mb-2.5 sm:text-sm md:mb-3 md:text-base lg:text-lg">
+                                    <div className="rounded-lg bg-gradient-to-r from-primary/20 to-accent/20 p-2.5 sm:p-3 md:p-4">
+                                        <h3 className="mb-2 text-xs font-semibold text-primary sm:mb-2.5 sm:text-sm md:mb-3 md:text-base lg:text-lg">
                                             Ready to Start Your Journey?
                                         </h3>
                                         <button

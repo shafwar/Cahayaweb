@@ -1,8 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import B2BLayout from '@/layouts/b2b-layout';
 import { Head, Link } from '@inertiajs/react';
-import { Clock, CheckCircle2, XCircle, FileText, AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, Clock, FileText, RefreshCw, XCircle } from 'lucide-react';
 
 interface Verification {
     id: number;
@@ -22,29 +21,29 @@ export default function PendingVerification({ verification }: Props) {
 
     return (
         <B2BLayout>
-            <Head title={isRejected ? "Application Rejected - Cahaya Anbiya" : "Verification Pending - Cahaya Anbiya"} />
+            <Head title={isRejected ? 'Application Rejected - Cahaya Anbiya' : 'Verification Pending - Cahaya Anbiya'} />
 
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 px-4 sm:px-6 lg:px-8">
+            <div className="bg-section-photos-home min-h-screen px-4 py-12 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-2xl">
-                    <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+                    <Card className="border border-[#d4af37]/25 bg-white shadow-xl">
                         <CardHeader className="text-center">
                             {isRejected ? (
                                 <>
-                                    <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-red-500/20 to-red-600/20">
-                                        <XCircle className="h-10 w-10 text-red-400" />
+                                    <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
+                                        <XCircle className="h-10 w-10 text-red-500" />
                                     </div>
-                                    <CardTitle className="text-3xl text-white">Application Rejected</CardTitle>
-                                    <CardDescription className="mt-2 text-lg text-gray-300">
+                                    <CardTitle className="text-3xl text-[#1e3a5f]">Application Rejected</CardTitle>
+                                    <CardDescription className="mt-2 text-lg text-[#475569]">
                                         Your B2B access application has been rejected
                                     </CardDescription>
                                 </>
                             ) : (
                                 <>
-                                    <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/20 to-orange-600/20">
-                                        <Clock className="h-10 w-10 text-amber-400" />
+                                    <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[#ff5200]/10">
+                                        <Clock className="h-10 w-10 text-[#ff5200]" />
                                     </div>
-                                    <CardTitle className="text-3xl text-white">Verification Pending</CardTitle>
-                                    <CardDescription className="mt-2 text-lg text-gray-300">
+                                    <CardTitle className="text-3xl text-[#1e3a5f]">Verification Pending</CardTitle>
+                                    <CardDescription className="mt-2 text-lg text-[#475569]">
                                         Your B2B access application is under review
                                     </CardDescription>
                                 </>
@@ -54,106 +53,100 @@ export default function PendingVerification({ verification }: Props) {
                             {/* Status Info - Only show if not rejected */}
                             {!isRejected && (
                                 <>
-                                    <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-4">
+                                    <div className="rounded-lg border border-[#ff5200]/15 bg-[#ff5200]/5 p-4">
                                         <div className="flex items-start gap-3">
-                                            <FileText className="mt-0.5 h-5 w-5 text-amber-400" />
+                                            <FileText className="mt-0.5 h-5 w-5 text-[#ff5200]" />
                                             <div className="flex-1">
-                                                <h3 className="font-semibold text-amber-300">Application Submitted</h3>
-                                                <p className="mt-1 text-sm text-gray-300">
-                                                    Company: <span className="font-medium text-white">{verification.company_name}</span>
+                                                <h3 className="font-semibold text-[#ff5200]">Application Submitted</h3>
+                                                <p className="mt-1 text-sm text-[#475569]">
+                                                    Company: <span className="font-medium text-[#1e3a5f]">{verification.company_name}</span>
                                                 </p>
-                                                <p className="mt-1 text-sm text-gray-400">
-                                                    Submitted: {verification.created_at_human}
-                                                </p>
+                                                <p className="mt-1 text-sm text-[#64748b]">Submitted: {verification.created_at_human}</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* What's Next */}
                                     <div className="space-y-4">
-                                <h3 className="text-lg font-semibold text-white">What happens next?</h3>
-                                <div className="space-y-3">
-                                    <div className="flex items-start gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-4">
-                                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-500/20">
-                                            <span className="text-sm font-bold text-blue-400">1</span>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-white">Admin Review</p>
-                                            <p className="mt-1 text-sm text-gray-400">
-                                                Our team is reviewing your application and documents
-                                            </p>
+                                        <h3 className="text-lg font-semibold text-[#1e3a5f]">What happens next?</h3>
+                                        <div className="space-y-3">
+                                            <div className="flex items-start gap-3 rounded-lg border border-[#c7ddff] bg-[#f8fafc] p-4">
+                                                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#2d4a6f]/10">
+                                                    <span className="text-sm font-bold text-[#2d4a6f]">1</span>
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-[#1e3a5f]">Admin Review</p>
+                                                    <p className="mt-1 text-sm text-[#64748b]">Our team is reviewing your application and documents</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-start gap-3 rounded-lg border border-[#c7ddff] bg-[#f8fafc] p-4">
+                                                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#2d4a6f]/10">
+                                                    <span className="text-sm font-bold text-[#2d4a6f]">2</span>
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-[#1e3a5f]">Verification</p>
+                                                    <p className="mt-1 text-sm text-[#64748b]">We verify your business credentials and documents</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-start gap-3 rounded-lg border border-[#c7ddff] bg-[#f8fafc] p-4">
+                                                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                                                    <span className="text-sm font-bold text-emerald-600">3</span>
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-[#1e3a5f]">Approval</p>
+                                                    <p className="mt-1 text-sm text-[#64748b]">
+                                                        Once approved, you'll receive access to the B2B portal
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-start gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-4">
-                                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-500/20">
-                                            <span className="text-sm font-bold text-blue-400">2</span>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-white">Verification</p>
-                                            <p className="mt-1 text-sm text-gray-400">
-                                                We verify your business credentials and documents
+                                    {/* Info Box - Only show if not rejected */}
+                                    {!isRejected && (
+                                        <div className="rounded-lg border border-[#c7ddff] bg-[#eef6ff] p-4">
+                                            <p className="text-sm text-[#64748b]">
+                                                <strong className="text-[#1e3a5f]">Note:</strong> The review process typically takes 1-3 business days.
+                                                You will be notified via email once your application has been reviewed.
                                             </p>
                                         </div>
-                                    </div>
-
-                                    <div className="flex items-start gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-4">
-                                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-500/20">
-                                            <span className="text-sm font-bold text-green-400">3</span>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-white">Approval</p>
-                                            <p className="mt-1 text-sm text-gray-400">
-                                                Once approved, you'll receive access to the B2B portal
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Info Box - Only show if not rejected */}
-                            {!isRejected && (
-                                <div className="rounded-lg border border-gray-700 bg-gray-900/50 p-4">
-                                    <p className="text-sm text-gray-400">
-                                        <strong className="text-white">Note:</strong> The review process typically takes 1-3 business days.
-                                        You will be notified via email once your application has been reviewed.
-                                    </p>
-                                </div>
-                            )}
+                                    )}
                                 </>
                             )}
 
                             {/* Rejection Notice with Admin Notes */}
                             {isRejected && (
-                                <div className="rounded-xl border-2 border-red-500/30 bg-gradient-to-br from-red-500/10 via-red-500/5 to-red-500/10 p-6 backdrop-blur-sm">
+                                <div className="rounded-xl border-2 border-red-200 bg-red-50 p-6">
                                     <div className="flex items-start gap-4">
-                                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-500/20 ring-4 ring-red-500/10">
-                                            <AlertCircle className="h-6 w-6 text-red-400" />
+                                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 ring-4 ring-red-100/50">
+                                            <AlertCircle className="h-6 w-6 text-red-500" />
                                         </div>
                                         <div className="flex-1">
-                                            <h3 className="mb-3 text-xl font-bold text-red-300">Application Rejected</h3>
+                                            <h3 className="mb-3 text-xl font-bold text-red-700">Application Rejected</h3>
                                             {verification.admin_notes ? (
-                                                <div className="mb-4 max-h-[300px] overflow-y-auto rounded-lg border border-red-500/20 bg-red-500/5 p-4">
-                                                    <p className="mb-3 text-sm font-semibold text-red-200">Reason for Rejection:</p>
-                                                    <div className="whitespace-pre-wrap break-words">
-                                                        <p className="text-base leading-relaxed text-gray-200">{verification.admin_notes}</p>
+                                                <div className="mb-4 max-h-[300px] overflow-y-auto rounded-lg border border-red-200 bg-red-50/50 p-4">
+                                                    <p className="mb-3 text-sm font-semibold text-red-600">Reason for Rejection:</p>
+                                                    <div className="break-words whitespace-pre-wrap">
+                                                        <p className="text-base leading-relaxed text-[#334155]">{verification.admin_notes}</p>
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <p className="mb-4 text-sm text-gray-300">
+                                                <p className="mb-4 text-sm text-[#475569]">
                                                     Your application has been reviewed and unfortunately cannot be approved at this time.
                                                 </p>
                                             )}
                                             <div className="mt-6">
                                                 <Link
                                                     href="/b2b/register"
-                                                    className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3 text-base font-semibold text-white transition-all hover:from-orange-600 hover:to-amber-600 hover:shadow-lg hover:shadow-orange-500/20"
+                                                    className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#ff5200] to-[#ff6b35] px-6 py-3 text-base font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:brightness-110"
                                                 >
                                                     <RefreshCw className="h-5 w-5" />
                                                     Submit New Application
                                                 </Link>
                                             </div>
-                                            <p className="mt-4 text-xs text-gray-400">
+                                            <p className="mt-4 text-xs text-[#64748b]">
                                                 Please review the feedback above and submit a new application with the necessary corrections.
                                             </p>
                                         </div>

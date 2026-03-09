@@ -150,7 +150,7 @@ export default function EditableVideo({
                     >
                         {guide.short && (
                             <div className="w-full pt-6 pb-2">
-                                <span className="mx-4 inline-block rounded-lg border-2 border-amber-400 bg-gradient-to-r from-amber-900 to-orange-900 px-5 py-2.5 text-xs font-bold text-amber-50 shadow-xl">
+                                <span className="mx-4 inline-block rounded-lg border-2 border-primary bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-xs font-bold text-white shadow-xl">
                                     {guide.short}
                                 </span>
                             </div>

@@ -102,7 +102,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
         switch (verification.status) {
             case 'pending':
                 return (
-                    <Badge className="border-amber-500/30 bg-amber-500/20 text-amber-300">
+                    <Badge className="border-accent/30 bg-accent/20 text-accent">
                         <Clock className="mr-1 h-3 w-3" />
                         Pending
                     </Badge>
@@ -164,7 +164,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                     </div>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
                                 <Building2 className="h-6 w-6 text-white" />
                             </div>
                             <div>
@@ -194,7 +194,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                         <Label className="text-gray-400">Business Type</Label>
                                         <p className="mt-1 text-white">{verification.business_type}</p>
                                         {verification.business_type === 'Other' && verification.business_type_other && (
-                                            <div className="mt-2 rounded-lg border border-orange-500/20 bg-orange-500/10 p-3">
+                                            <div className="mt-2 rounded-lg border border-accent/20 bg-accent/10 p-3">
                                                 <Label className="text-xs text-orange-300">Specified Business Type:</Label>
                                                 <p className="mt-1 text-sm font-medium text-white">{verification.business_type_other}</p>
                                             </div>
@@ -478,9 +478,9 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent className="border-gray-700 bg-gray-800">
-                                                        <SelectItem value="pending" className="text-white hover:bg-amber-500/20">
+                                                        <SelectItem value="pending" className="text-white hover:bg-accent/20">
                                                             <div className="flex items-center gap-2">
-                                                                <Clock className="h-4 w-4 text-amber-400" />
+                                                                <Clock className="h-4 w-4 text-accent" />
                                                                 Pending
                                                             </div>
                                                         </SelectItem>

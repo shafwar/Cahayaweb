@@ -270,39 +270,37 @@ export default function Highlights() {
                 description="Best travel experiences and highlights from Cahaya Anbiya Travel for Umrah and premium travel."
             />
 
-            <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black">
+            <div className="bg-section-photos-home min-h-screen border-t border-[#d4af37]/20">
                 <section className="relative mx-auto max-w-7xl px-4 pt-12 pb-8 sm:px-6 md:pt-16 md:pb-10">
-                    <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute top-0 left-1/4 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(254,201,1,0.06),transparent_70%)] blur-3xl" />
-                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_70%)] blur-3xl" />
+                    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                        <div className="absolute top-0 left-1/4 h-[420px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.07),transparent_65%)] blur-3xl" />
+                        <div className="absolute right-1/4 bottom-0 h-[400px] w-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_65%)] blur-3xl" />
                     </div>
 
                     <div className="relative mb-8 text-center md:mb-10">
                         <div className="mb-4 inline-block">
-                            <div className="rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/25 to-orange-500/25 px-4 py-1.5 shadow-xl">
-                                <span className="text-xs font-semibold tracking-wider text-amber-200 uppercase sm:text-sm">
-                                    ✨ Premium Travel Highlights
-                                </span>
+                            <div className="rounded-full border-2 border-[#ff5200] bg-[#ff5200]/15 px-4 py-1.5 shadow-md">
+                                <span className="text-xs font-bold text-[#e64a00] uppercase sm:text-sm">✨ Premium Travel Highlights</span>
                             </div>
                         </div>
-                        <h1 className="mb-4 bg-gradient-to-r from-amber-200 via-white to-amber-200 bg-clip-text text-3xl leading-tight font-bold text-transparent sm:text-4xl md:text-5xl lg:text-6xl">
+                        <h1 className="mb-4 text-3xl leading-tight font-bold text-[#1e3a5f] sm:text-4xl md:text-5xl lg:text-6xl">
                             Travel Highlights & Experiences
                         </h1>
-                        <p className="mx-auto mb-6 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base md:text-lg lg:text-xl">
+                        <p className="mx-auto mb-6 max-w-2xl text-sm leading-relaxed text-[#475569] sm:text-base md:text-lg lg:text-xl">
                             Discover our most popular and unforgettable travel experiences. From spiritual journeys to luxury adventures, each
                             highlight represents the best of what we offer.
                         </p>
-                        <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/70 sm:gap-6 sm:text-sm">
+                        <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-[#64748b] sm:gap-6 sm:text-sm">
                             <div className="flex items-center gap-2">
-                                <div className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 shadow-md" />
+                                <div className="h-2 w-2 rounded-full bg-gradient-to-r from-[#3d5a80] to-[#ff5200] shadow-md" />
                                 <span className="font-medium">Premium Experiences</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="h-2 w-2 rounded-full bg-gradient-to-r from-orange-400 to-red-400 shadow-md" />
+                                <div className="h-2 w-2 rounded-full bg-gradient-to-r from-accent to-orange-500 shadow-md" />
                                 <span className="font-medium">Expert Guidance</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="h-2 w-2 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 shadow-md" />
+                                <div className="h-2 w-2 rounded-full bg-gradient-to-r from-[#fec901] to-accent shadow-md" />
                                 <span className="font-medium">Unforgettable Memories</span>
                             </div>
                         </div>
@@ -312,7 +310,7 @@ export default function Highlights() {
                         {highlights.map((h) => (
                             <article
                                 key={h.id}
-                                className="group flex h-full flex-col overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 shadow-xl transition-all duration-300 hover:-translate-y-1.5"
+                                className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#d4af37]/25 bg-white shadow-xl transition-all duration-300 hover:-translate-y-1.5"
                             >
                                 <div className="relative aspect-video overflow-hidden">
                                     <img
@@ -366,44 +364,44 @@ export default function Highlights() {
                                         </div>
                                     )}
 
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                    <div className="pointer-events-none absolute inset-0 bg-transparent" />
                                 </div>
 
                                 <div className="flex flex-1 flex-col p-5 sm:p-6">
-                                    <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-amber-300 sm:text-xl">
+                                    <h3 className="mb-2 text-lg font-bold text-[#1e3a5f] transition-colors group-hover:text-primary sm:text-xl">
                                         {getContent(`highlights.${h.id}.title`, h.title)}
                                     </h3>
-                                    <p className="mb-3 text-sm font-semibold text-amber-300 sm:text-base">
+                                    <p className="mb-3 text-sm font-semibold text-primary sm:text-base">
                                         {getContent(`highlights.${h.id}.subtitle`, h.subtitle)}
                                     </p>
-                                    <p className="mb-4 text-sm leading-relaxed text-white/80 sm:text-base">
+                                    <p className="mb-4 text-sm leading-relaxed text-[#475569] sm:text-base">
                                         {getContent(`highlights.${h.id}.description`, h.description)}
                                     </p>
 
-                                    <div className="mb-4 grid grid-cols-3 gap-3 rounded-xl border border-white/10 bg-white/5 p-4 shadow-lg">
+                                    <div className="mb-4 grid grid-cols-3 gap-3 rounded-xl border border-[#d4af37]/20 bg-[#f8f6f2] p-4 shadow-lg">
                                         <div className="text-center">
-                                            <div className="text-lg font-bold text-amber-300 sm:text-xl">
+                                            <div className="text-lg font-bold text-primary sm:text-xl">
                                                 {getContent(`highlights.${h.id}.stats.travelers`, h.stats.travelers)}
                                             </div>
-                                            <div className="text-xs font-medium text-white/70">Travelers</div>
+                                            <div className="text-xs font-medium text-[#64748b]">Travelers</div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="text-lg font-bold text-amber-300 sm:text-xl">
+                                            <div className="text-lg font-bold text-primary sm:text-xl">
                                                 {getContent(`highlights.${h.id}.stats.satisfaction`, h.stats.satisfaction)}
                                             </div>
-                                            <div className="text-xs font-medium text-white/70">Satisfaction</div>
+                                            <div className="text-xs font-medium text-[#64748b]">Satisfaction</div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="text-lg font-bold text-amber-300 sm:text-xl">
+                                            <div className="text-lg font-bold text-primary sm:text-xl">
                                                 {getContent(`highlights.${h.id}.stats.experience`, h.stats.experience)}
                                             </div>
-                                            <div className="text-xs font-medium text-white/70">Experience</div>
+                                            <div className="text-xs font-medium text-[#64748b]">Experience</div>
                                         </div>
                                     </div>
 
                                     <div className="mb-4">
-                                        <h4 className="mb-2 text-sm font-bold text-white sm:text-base">Key Features</h4>
-                                        <ul className="space-y-1.5 text-xs text-white/80 sm:text-sm">
+                                        <h4 className="mb-2 text-sm font-bold text-[#1e3a5f] sm:text-base">Key Features</h4>
+                                        <ul className="space-y-1.5 text-xs text-[#475569] sm:text-sm">
                                             {h.features.map((f, idx) => (
                                                 <li key={idx} className="flex items-center gap-2">
                                                     <Check className="h-3.5 w-3.5 flex-shrink-0 text-green-400" />
@@ -418,20 +416,20 @@ export default function Highlights() {
                                             href="https://wa.me/6281234567890"
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="block rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-center text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-amber-400 hover:to-orange-400 sm:px-6 sm:py-3 sm:text-base"
+                                            className="block rounded-lg bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-center text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:opacity-95 sm:px-6 sm:py-3 sm:text-base"
                                         >
                                             Contact Us
                                         </a>
                                     </div>
                                 </div>
 
-                                <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 shadow-md transition-transform duration-500 group-hover:scale-x-100" />
+                                <div className="h-0.5 origin-left scale-x-0 transform bg-gradient-to-r from-primary via-accent to-primary shadow-md transition-transform duration-500 group-hover:scale-x-100" />
                             </article>
                         ))}
                     </div>
 
-                    <div className="relative mt-12 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-8 text-center shadow-xl md:mt-16">
-                        <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/10" />
+                    <div className="relative mt-12 overflow-hidden rounded-xl bg-gradient-to-r from-primary to-accent p-8 text-center shadow-xl md:mt-16">
+                        <div className="absolute inset-0 bg-transparent" />
                         <div className="relative mx-auto max-w-3xl">
                             <h3 className="mb-4 text-2xl font-bold text-white sm:text-3xl md:text-4xl">Ready to Experience These Highlights?</h3>
                             <p className="mb-6 text-sm text-white/95 sm:text-base md:text-lg">
@@ -442,14 +440,14 @@ export default function Highlights() {
                                     href="https://wa.me/6281234567890"
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black shadow-xl transition-all hover:scale-105 hover:bg-white/95 sm:px-8 sm:py-4 sm:text-base"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-primary shadow-xl transition-all hover:scale-105 hover:bg-white/95 sm:px-8 sm:py-4 sm:text-base"
                                 >
                                     Start Your Journey
                                     <ArrowRight className="h-5 w-5" />
                                 </a>
                                 <a
                                     href="/destinations"
-                                    className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white px-6 py-3 text-sm font-bold text-white transition-all hover:scale-105 hover:bg-white hover:text-black sm:px-8 sm:py-4 sm:text-base"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white px-6 py-3 text-sm font-bold text-white transition-all hover:scale-105 hover:bg-white hover:text-primary sm:px-8 sm:py-4 sm:text-base"
                                 >
                                     View All Destinations
                                     <ArrowRight className="h-5 w-5" />
@@ -459,9 +457,7 @@ export default function Highlights() {
                     </div>
 
                     <div className="mt-12 md:mt-16">
-                        <h3 className="mb-8 bg-gradient-to-r from-amber-200 to-white bg-clip-text text-center text-2xl font-bold text-transparent sm:text-3xl md:text-4xl">
-                            What Our Travelers Say
-                        </h3>
+                        <h3 className="mb-8 text-center text-2xl font-bold text-[#1e3a5f] sm:text-3xl md:text-4xl">What Our Travelers Say</h3>
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
                             {[
                                 {
@@ -486,19 +482,16 @@ export default function Highlights() {
                                     trip: 'Dubai Luxury',
                                 },
                             ].map((t, i) => (
-                                <div
-                                    key={i}
-                                    className="rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/95 to-slate-900/80 p-5 shadow-xl sm:p-6"
-                                >
+                                <div key={i} className="rounded-xl border border-[#d4af37]/25 bg-white p-5 shadow-xl sm:p-6">
                                     <div className="mb-4 flex items-center gap-1">
                                         {[...Array(t.rating)].map((_, j) => (
-                                            <Star key={j} className="h-4 w-4 fill-amber-400 text-amber-400 sm:h-5 sm:w-5" />
+                                            <Star key={j} className="h-4 w-4 fill-accent text-accent sm:h-5 sm:w-5" />
                                         ))}
                                     </div>
-                                    <p className="mb-4 text-sm leading-relaxed text-white/80 sm:text-base">&quot;{t.testimonial}&quot;</p>
-                                    <div className="flex items-center justify-between border-t border-white/10 pt-4">
-                                        <div className="text-xs text-white/60 sm:text-sm">{t.location}</div>
-                                        <div className="text-xs font-bold text-amber-300 sm:text-sm">{t.trip}</div>
+                                    <p className="mb-4 text-sm leading-relaxed text-[#475569] sm:text-base">&quot;{t.testimonial}&quot;</p>
+                                    <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                                        <div className="text-xs text-[#64748b] sm:text-sm">{t.location}</div>
+                                        <div className="text-xs font-bold text-primary sm:text-sm">{t.trip}</div>
                                     </div>
                                 </div>
                             ))}
@@ -506,7 +499,7 @@ export default function Highlights() {
                     </div>
                 </section>
 
-                <footer className="relative border-t border-white/10 bg-black/70">
+                <footer className="relative border-t-2 border-[#d4af37]/30 bg-gradient-to-b from-[#1e3a5f] to-[#2d4a6f]">
                     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
                         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
                             <div className="text-center text-base text-white/70 md:text-left">
@@ -521,7 +514,7 @@ export default function Highlights() {
                                         href={`https://${social.toLowerCase()}.com`}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="text-base font-semibold text-white/70 transition-all hover:scale-110 hover:text-amber-400"
+                                        className="text-base font-semibold text-white/70 transition-all hover:scale-110 hover:text-accent"
                                     >
                                         {social}
                                     </a>
@@ -539,7 +532,7 @@ export default function Highlights() {
                 {editMode && editorOpen && (
                     <motion.div
                         key={editorOpen.id}
-                        className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/95 p-6 shadow-2xl"
+                        className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border-2 border-[#d4af37]/30 bg-gradient-to-b from-[#1e3a5f] to-[#2d4a6f] p-6 shadow-2xl"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 20 }}
@@ -556,21 +549,21 @@ export default function Highlights() {
                                             value={editorOpen[field]}
                                             onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
                                             rows={4}
-                                            className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                            className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
                                         />
                                     ) : (
                                         <input
                                             type="text"
                                             value={editorOpen[field]}
                                             onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
-                                            className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                                            className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
                                         />
                                     )}
                                 </div>
                             ))}
                             <div>
                                 <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
-                                <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-xs text-amber-100">
+                                <p className="mb-2 rounded-lg border border-primary/30 bg-primary/20 px-3 py-2 text-xs text-white/90">
                                     {IMAGE_GUIDE}
                                 </p>
                                 <input
@@ -584,7 +577,7 @@ export default function Highlights() {
                                         }
                                         e.target.value = '';
                                     }}
-                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
+                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/90"
                                 />
                                 {pendingFile && <p className="mt-2 text-xs text-emerald-400">✓ Gambar siap (sudah di-adjust)</p>}
                             </div>
@@ -602,7 +595,7 @@ export default function Highlights() {
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
+                                className="rounded-lg bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
                             >
                                 {saving ? 'Saving…' : 'Save Changes'}
                             </button>
