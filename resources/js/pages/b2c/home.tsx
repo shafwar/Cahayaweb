@@ -399,9 +399,12 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
 
     useEffect(() => {
         if (prev === null) return;
-        const id = setTimeout(() => setPrev(null), 1600);
+        const id = setTimeout(() => setPrev(null), 2400);
         return () => clearTimeout(id);
     }, [prev]);
+
+    const transitionDuration = 2.2;
+    const transitionEase = [0.33, 1, 0.68, 1] as const;
 
     return (
         <motion.div
@@ -421,14 +424,23 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
                         style={{ zIndex: isActive ? 2 : 1 }}
                         initial={isActive ? { opacity: 0 } : false}
                         animate={{ opacity: isActive ? 1 : 0 }}
-                        transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
+                        transition={{
+                            duration: transitionDuration,
+                            ease: transitionEase,
+                        }}
                     >
                         <img
                             src={slide.image}
                             alt={slide.title}
-                            className="h-full w-full object-cover"
+                            className={`h-full w-full object-center ${i === 2 ? 'object-contain' : 'object-cover'}`}
+                            style={
+                                i === 2
+                                    ? { imageRendering: '-webkit-optimize-contrast' as React.CSSProperties['imageRendering'] }
+                                    : undefined
+                            }
                             loading={i < 2 ? 'eager' : 'lazy'}
                             decoding="async"
+                            fetchPriority={i < 2 ? 'high' : undefined}
                         />
                     </motion.div>
                 );
