@@ -1,24 +1,28 @@
 import SeoHead from '@/components/SeoHead';
 import { RippleButton } from '@/components/ui/ripple-button';
 import { getR2Url } from '@/utils/imageHelper';
-import { Link } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 
 export default function SelectMode() {
+    const { props } = usePage<{ props: { autoRedirectToB2c?: boolean } }>();
+    const autoRedirectToB2c = props.autoRedirectToB2c === true;
+
     const [showSplash, setShowSplash] = useState(true);
     const [nextPath, setNextPath] = useState<string | null>(null);
 
     useEffect(() => {
-        // Support redirect back after forced splash (e.g. user clicked /home from Google).
-        try {
-            const params = new URLSearchParams(window.location.search);
-            const next = params.get('next');
-            if (next && next.startsWith('/') && !next.startsWith('//')) {
-                setNextPath(next);
+        if (!autoRedirectToB2c) {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const next = params.get('next');
+                if (next && next.startsWith('/') && !next.startsWith('//')) {
+                    setNextPath(next);
+                }
+            } catch {
+                // ignore
             }
-        } catch {
-            // ignore
         }
 
         const visited = localStorage.getItem('cahaya-anbiya-visited');
@@ -40,7 +44,13 @@ export default function SelectMode() {
             }, 3500);
             return () => clearTimeout(timer);
         }
-    }, []);
+    }, [autoRedirectToB2c]);
+
+    // Root "/": after splash, redirect directly to B2C home
+    useEffect(() => {
+        if (!autoRedirectToB2c || showSplash) return;
+        router.visit('/home');
+    }, [autoRedirectToB2c, showSplash]);
 
     // Premium easing curves
     const ease = [0.22, 1, 0.36, 1];
@@ -398,7 +408,8 @@ export default function SelectMode() {
                 <div className="absolute right-1/4 -bottom-20 h-[380px] w-[480px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,82,0,0.06),transparent_65%)] blur-3xl sm:-bottom-40 sm:h-[500px] sm:w-[600px]" />
             </div>
 
-            {/* Main content */}
+            {/* Main content: hide when root splash is redirecting to B2C home */}
+            {!autoRedirectToB2c && (
             <motion.div
                 className="relative z-10 w-full max-w-6xl px-3 sm:px-0"
                 variants={containerVariants}
@@ -529,9 +540,10 @@ export default function SelectMode() {
                     </motion.div>
                 </motion.div>
             </motion.div>
+            )}
 
             {/* Footer - Optimized for mobile */}
-            {!showSplash && (
+            {!showSplash && !autoRedirectToB2c && (
                 <motion.div
                     className="absolute bottom-3 left-1/2 w-full -translate-x-1/2 px-4 text-center sm:bottom-6"
                     initial={{ opacity: 0, y: 20 }}

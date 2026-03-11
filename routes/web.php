@@ -164,9 +164,15 @@ Route::get('/sitemap.xml', function () {
         ->header('Cache-Control', 'public, max-age=3600');
 });
 
+// Root: splash then redirect to B2C home (no mode choice)
 Route::get('/', function () {
-    return Inertia::render('landing/select-mode');
+    return Inertia::render('landing/select-mode', ['autoRedirectToB2c' => true]);
 })->name('home');
+
+// Select-mode: B2C/B2B choice (used only from admin "Admin CMS" link)
+Route::get('/select-mode', function () {
+    return Inertia::render('landing/select-mode', ['autoRedirectToB2c' => false]);
+})->name('select-mode');
 
 // Public B2C pages (Term 1 UI only)
 // Note: PublicLayout will enforce splash screen redirect for direct access

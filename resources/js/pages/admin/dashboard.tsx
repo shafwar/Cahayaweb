@@ -32,10 +32,10 @@ export default function AdminDashboard() {
             hoverShadow: 'hover:shadow-primary/20',
         },
         {
-            href: '/',
+            href: '/select-mode',
             icon: Layout,
             title: 'Admin CMS',
-            description: 'Customize and manage content for B2B and B2C portals. Edit sections, upload images, and personalize your website.',
+            description: 'Choose B2C or B2B portal to edit content. Customize sections, upload images, and manage your website.',
             gradient: 'from-blue-500/10 via-indigo-500/10 to-purple-500/10',
             borderColor: 'border-blue-500/30 hover:border-blue-500/60',
             iconBg: 'bg-blue-500/20',
