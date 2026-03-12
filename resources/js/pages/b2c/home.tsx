@@ -361,7 +361,6 @@ function HeroVideoUploadTrigger() {
 const heroSlides = [
     { image: '/Destination Cahaya.jpeg', title: 'Egypt Wonders', subtitle: 'Pyramid & Giza' },
     { image: '/Destination Cahaya 1.jpeg', title: 'Jordan – Petra', subtitle: '7 Wonders of the World' },
-    { image: '/Destination Cahaya 2.jpeg', title: 'Jordan – Wadi Rum', subtitle: 'Desert Valley Adventure' },
     { image: '/Destination Cahaya 3.jpeg', title: 'Sinai Heritage', subtitle: 'Mount Sinai & History' },
     { image: '/Destination Cahaya 4.jpeg', title: 'Palestine', subtitle: 'Mount of Olives' },
     { image: '/Destination Cahaya 5.jpeg', title: 'Palestine – Jericho', subtitle: 'Ancient City' },
@@ -373,7 +372,7 @@ const heroSlides = [
 function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
     const [current, setCurrent] = useState(0);
     const [prev, setPrev] = useState<number | null>(null);
-    const [loaded, setLoaded] = useState<Set<number>>(new Set([0, 1]));
+    const [loaded, setLoaded] = useState<Set<number>>(new Set());
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const goTo = useCallback((next: number) => {
@@ -382,20 +381,59 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
     }, [current]);
 
     useEffect(() => {
+        // Preload all slides once to avoid blank frames during transitions.
+        let cancelled = false;
+        const imgs: HTMLImageElement[] = [];
+
+        heroSlides.forEach((slide, idx) => {
+            const img = new Image();
+            img.decoding = 'async';
+            img.loading = 'eager';
+            img.src = slide.image;
+            img.onload = () => {
+                if (cancelled) return;
+                setLoaded((s) => {
+                    if (s.has(idx)) return s;
+                    const copy = new Set(s);
+                    copy.add(idx);
+                    return copy;
+                });
+            };
+            imgs.push(img);
+        });
+
+        // Mark the initial slide as ready immediately (so first paint never waits).
         setLoaded((s) => {
+            if (s.has(0)) return s;
             const copy = new Set(s);
-            copy.add((current + 1) % heroSlides.length);
-            copy.add((current + 2) % heroSlides.length);
+            copy.add(0);
             return copy;
         });
-    }, [current]);
+
+        return () => {
+            cancelled = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
-        timerRef.current = setTimeout(() => {
-            goTo((current + 1) % heroSlides.length);
-        }, 6000);
+        const nextIdx = (current + 1) % heroSlides.length;
+
+        // Only advance when next image is already loaded to prevent blank frames.
+        const schedule = () => {
+            timerRef.current = setTimeout(() => {
+                if (loaded.has(nextIdx)) {
+                    goTo(nextIdx);
+                } else {
+                    // Retry shortly until the next image is ready.
+                    schedule();
+                }
+            }, loaded.has(nextIdx) ? 6000 : 250);
+        };
+
+        schedule();
         return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-    }, [current, goTo]);
+    }, [current, goTo, loaded]);
 
     useEffect(() => {
         if (prev === null) return;
@@ -415,7 +453,6 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
                 const isActive = i === current;
                 const isLeaving = i === prev;
                 if (!isActive && !isLeaving) return null;
-                if (!loaded.has(i)) return null;
 
                 return (
                     <motion.div
@@ -432,12 +469,7 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
                         <img
                             src={slide.image}
                             alt={slide.title}
-                            className={`h-full w-full object-center ${i === 2 ? 'object-contain' : 'object-cover'}`}
-                            style={
-                                i === 2
-                                    ? { imageRendering: '-webkit-optimize-contrast' as React.CSSProperties['imageRendering'] }
-                                    : undefined
-                            }
+                            className="h-full w-full object-cover object-center"
                             loading={i < 2 ? 'eager' : 'lazy'}
                             decoding="async"
                             fetchPriority={i < 2 ? 'high' : undefined}
