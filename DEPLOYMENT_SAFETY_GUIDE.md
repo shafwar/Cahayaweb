@@ -142,6 +142,45 @@ Sebelum setiap deployment, pastikan:
 
 ---
 
+## 📦 CACHE HEADERS UNTUK BUILD ASSETS
+
+Agar 4G/sinyal lemah lebih cepat pada kunjungan berikutnya, set cache lama untuk aset yang di-hash (`/build/assets/*`).
+
+### Nginx (Railway / VPS)
+
+Tambahkan di dalam `server { ... }`:
+
+```nginx
+location /build/ {
+    add_header Cache-Control "public, max-age=31536000, immutable";
+}
+```
+
+### Apache (.htaccess di root `public/`)
+
+Jika Anda menyajikan dari `public/`, tambahkan di `public/.htaccess`:
+
+```apache
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css|woff2?|ttf|eot)$">
+        <If "%{REQUEST_URI} =~ m#^/build/#">
+            Header set Cache-Control "public, max-age=31536000, immutable"
+        </If>
+    </FilesMatch>
+</IfModule>
+```
+
+Atau untuk seluruh folder build:
+
+```apache
+<IfModule mod_headers.c>
+    SetEnvIf Request_URI "^/build/" is_build_asset
+    Header set Cache-Control "public, max-age=31536000, immutable" env=is_build_asset
+</IfModule>
+```
+
+---
+
 ## 🚨 EMERGENCY PROCEDURES
 
 ### **Jika Website Down:**

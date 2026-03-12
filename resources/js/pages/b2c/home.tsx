@@ -4,7 +4,7 @@ import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getImageUrl, getVideoUrl } from '@/utils/imageHelper';
-import { router, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, ChevronDown, Edit3, Sparkles } from 'lucide-react';
@@ -380,16 +380,14 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
         setCurrent(next);
     }, [current]);
 
+    // Preload first slide only for LCP; preload next when advancing to avoid blank frames.
     useEffect(() => {
-        // Preload all slides once to avoid blank frames during transitions.
         let cancelled = false;
-        const imgs: HTMLImageElement[] = [];
-
-        heroSlides.forEach((slide, idx) => {
+        const preload = (idx: number) => {
+            if (idx < 0 || idx >= heroSlides.length) return;
             const img = new Image();
             img.decoding = 'async';
-            img.loading = 'eager';
-            img.src = slide.image;
+            img.src = heroSlides[idx].image;
             img.onload = () => {
                 if (cancelled) return;
                 setLoaded((s) => {
@@ -399,22 +397,31 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
                     return copy;
                 });
             };
-            imgs.push(img);
-        });
-
-        // Mark the initial slide as ready immediately (so first paint never waits).
+        };
+        preload(0);
         setLoaded((s) => {
-            if (s.has(0)) return s;
             const copy = new Set(s);
             copy.add(0);
             return copy;
         });
-
-        return () => {
-            cancelled = true;
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        return () => { cancelled = true; };
     }, []);
+
+    // Preload next slide when current changes so it's ready before transition.
+    useEffect(() => {
+        const nextIdx = (current + 1) % heroSlides.length;
+        if (loaded.has(nextIdx)) return;
+        const img = new Image();
+        img.src = heroSlides[nextIdx].image;
+        img.onload = () => {
+            setLoaded((s) => {
+                if (s.has(nextIdx)) return s;
+                const copy = new Set(s);
+                copy.add(nextIdx);
+                return copy;
+            });
+        };
+    }, [current]);
 
     useEffect(() => {
         const nextIdx = (current + 1) % heroSlides.length;
@@ -470,9 +477,10 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
                             src={slide.image}
                             alt={slide.title}
                             className="h-full w-full object-cover object-center"
-                            loading={i < 2 ? 'eager' : 'lazy'}
+                            sizes="100vw"
+                            loading={i === 0 ? 'eager' : 'lazy'}
                             decoding="async"
-                            fetchPriority={i < 2 ? 'high' : undefined}
+                            fetchPriority={i === 0 ? 'high' : undefined}
                         />
                     </motion.div>
                 );
@@ -607,6 +615,9 @@ export default function Home() {
                     description="Cahaya Anbiya - B2B & B2C premium Hajj, Umrah, and travel services with trusted guidance. Explore our destinations, packages, and travel highlights. Travel Halal Spesialis Aqsa & 3TAN."
                     keywords="cahaya anbiya, umrah, haji, halal travel, aqsa, 3tan, jakarta travel agency, umrah jakarta, haji jakarta, umrah packages, hajj packages"
                 />
+                <Head>
+                    <link rel="preload" as="image" href={heroSlides[0].image} />
+                </Head>
 
                 <div ref={containerRef}>
                     {/* Hero Section - Destination Photo Slideshow */}
