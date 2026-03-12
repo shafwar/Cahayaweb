@@ -1098,7 +1098,7 @@ export default function Packages() {
                 </footer>
             </div>
 
-            {/* Image Lightbox – hanya tutup via tombol X atau tombol ESC (klik di luar gambar tidak menutup) */}
+            {/* Image Lightbox – tutup via tombol X, klik area luar gambar, atau ESC */}
             <AnimatePresence>
                 {imageLightbox && (
                     <motion.div
@@ -1106,14 +1106,18 @@ export default function Packages() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="lightbox-backdrop fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4"
-                        onClick={(e) => e.stopPropagation()}
-                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            if (e.target === e.currentTarget) setImageLightbox(null);
+                        }}
+                        onPointerDown={(e) => {
+                            if (e.target === e.currentTarget) setImageLightbox(null);
+                        }}
                         role="dialog"
                         aria-modal="true"
                         aria-label="Tampilan gambar diperbesar"
                         style={{ touchAction: 'manipulation' }}
                     >
-                        {/* Close Button - Larger and more visible for mobile */}
+                        {/* Close Button - selalu terlihat, besar untuk mobile */}
                         <button
                             type="button"
                             onClick={(e) => {
@@ -1126,20 +1130,15 @@ export default function Packages() {
                                 e.stopPropagation();
                                 setImageLightbox(null);
                             }}
-                            onTouchStart={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setImageLightbox(null);
-                            }}
-                            className="absolute top-4 right-4 z-[10000] flex h-14 w-14 touch-manipulation items-center justify-center rounded-full bg-white/25 p-3 text-white shadow-lg transition-all hover:bg-white/35 active:scale-95 active:bg-white/45"
-                            aria-label="Close"
+                            className="absolute top-3 right-3 z-[10001] flex h-12 w-12 min-w-[48px] min-h-[48px] touch-manipulation items-center justify-center rounded-full border-2 border-white/60 bg-black/60 text-white shadow-xl transition-all hover:bg-black/80 hover:border-white/80 active:scale-95 sm:top-4 sm:right-4 sm:h-14 sm:w-14 sm:min-w-[56px] sm:min-h-[56px]"
+                            aria-label="Tutup gambar"
                             style={{
                                 WebkitTapHighlightColor: 'transparent',
                                 touchAction: 'manipulation',
                                 cursor: 'pointer',
                             }}
                         >
-                            <X className="h-8 w-8 sm:h-7 sm:w-7" strokeWidth={2.5} />
+                            <X className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={2.5} />
                         </button>
                         <motion.div
                             ref={lightboxContentRef}
@@ -1147,13 +1146,12 @@ export default function Packages() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="flex h-full w-full flex-col items-center justify-center gap-4"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                            }}
+                            className="flex flex-shrink-0 flex-col items-center justify-center gap-4"
+                            onClick={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
                             style={{ touchAction: 'manipulation' }}
                         >
-                            <div className="flex h-full max-h-[90vh] w-full max-w-[90vw] items-center justify-center">
+                            <div className="flex max-h-[90vh] max-w-[90vw] items-center justify-center">
                                 <img
                                     src={imageLightbox.src}
                                     alt={imageLightbox.alt}
@@ -1171,7 +1169,7 @@ export default function Packages() {
                             {imageLightbox.caption && (
                                 <p className="mt-2 max-w-2xl px-4 text-center text-sm text-white/80">{imageLightbox.caption}</p>
                             )}
-                            <p className="mt-2 text-center text-xs text-white/50">Tekan tombol X atau ESC untuk menutup</p>
+                            <p className="mt-2 text-center text-xs text-white/50">Tap X, tap area gelap, atau ESC untuk menutup</p>
                         </motion.div>
                     </motion.div>
                 )}
