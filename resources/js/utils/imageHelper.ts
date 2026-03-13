@@ -100,6 +100,31 @@ export function getR2Url(path: string): string {
 }
 
 /**
+ * Optional: append resize/quality params to R2 (or any CDN) image URL for lighter delivery.
+ * When your R2 is behind Cloudflare Image Resizing (or a worker that reads ?w= & ?q=),
+ * this makes 4G/slow connections load smaller images without changing quality on fast connections.
+ * If your CDN does not support these params, they are ignored and the image is served as usual.
+ */
+/** Set true when your R2/CDN supports ?w= & ?q= (e.g. Cloudflare Image Resizing or custom worker). */
+const R2_OPTIMIZE_PARAMS = true;
+const R2_OPTIMIZE_WIDTH = 1280;
+const R2_OPTIMIZE_QUALITY = 85;
+
+export function getOptimizedImageUrl(
+    url: string,
+    options?: { width?: number; quality?: number; skip?: boolean }
+): string {
+    if (!url || typeof url !== 'string') return url;
+    if (options?.skip || !R2_OPTIMIZE_PARAMS) return url;
+    const width = options?.width ?? R2_OPTIMIZE_WIDTH;
+    const quality = options?.quality ?? R2_OPTIMIZE_QUALITY;
+    const isR2 = url.includes('assets.cahayaanbiya.com');
+    if (!isR2) return url;
+    const sep = url.includes('?') ? '&' : '?';
+    return `${url}${sep}w=${width}&q=${quality}`;
+}
+
+/**
  * Get R2 URL for video files
  * Videos are typically stored in the videos/ folder or public root
  * IMPORTANT: Always returns R2 URL, never local path

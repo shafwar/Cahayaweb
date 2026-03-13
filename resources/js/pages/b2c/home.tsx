@@ -3,7 +3,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
-import { getImageUrl, getVideoUrl } from '@/utils/imageHelper';
+import { getImageUrl, getOptimizedImageUrl, getVideoUrl } from '@/utils/imageHelper';
 import { Head, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -539,7 +539,8 @@ export default function Home() {
 
     // Helper function to get image URL with R2 support
     const getImageSrc = (sectionKey: string, fallbackPath: string) => {
-        return getImageUrl(props.sections, sectionKey, fallbackPath);
+        const url = getImageUrl(props.sections, sectionKey, fallbackPath);
+        return getOptimizedImageUrl(url, { width: 1280, quality: 85 });
     };
 
     // Best Sellers: 4 random from all Destination Cahaya photos (stable per page load)
@@ -734,6 +735,7 @@ export default function Home() {
                                                         className="h-full w-full object-cover"
                                                         loading="lazy"
                                                         decoding="async"
+                                                        sizes="(max-width: 768px) 100vw, 50vw"
                                                         whileHover={{ scale: 1.1 }}
                                                         transition={{ duration: 0.8, ease }}
                                                         style={{ willChange: 'transform' }}
@@ -872,6 +874,9 @@ export default function Home() {
                                                 src={getImageSrc(`home.new.${newDestinations[0].id}.image`, newDestinations[0].image)}
                                                 alt={newDestinations[0].title}
                                                 className="h-full w-full object-cover"
+                                                loading="lazy"
+                                                decoding="async"
+                                                sizes="(max-width: 768px) 100vw, 50vw"
                                                 whileHover={{ scale: 1.08 }}
                                                 transition={{ duration: 0.6, ease }}
                                             />
@@ -949,6 +954,9 @@ export default function Home() {
                                                 src={getImageSrc(`home.new.${newDestinations[1].id}.image`, newDestinations[1].image)}
                                                 alt={newDestinations[1].title}
                                                 className="h-full w-full object-cover"
+                                                loading="lazy"
+                                                decoding="async"
+                                                sizes="(max-width: 768px) 100vw, 50vw"
                                                 whileHover={{ scale: 1.08 }}
                                                 transition={{ duration: 0.6, ease }}
                                             />
@@ -1026,6 +1034,9 @@ export default function Home() {
                                                 src={getImageSrc(`home.new.${newDestinations[2].id}.image`, newDestinations[2].image)}
                                                 alt={newDestinations[2].title}
                                                 className="h-full w-full object-cover"
+                                                loading="lazy"
+                                                decoding="async"
+                                                sizes="(max-width: 768px) 100vw, 50vw"
                                                 whileHover={{ scale: 1.08 }}
                                                 transition={{ duration: 0.6, ease }}
                                             />
@@ -1103,6 +1114,9 @@ export default function Home() {
                                                 src={getImageSrc(`home.new.${newDestinations[3].id}.image`, newDestinations[3].image)}
                                                 alt={newDestinations[3].title}
                                                 className="h-full w-full object-cover"
+                                                loading="lazy"
+                                                decoding="async"
+                                                sizes="(max-width: 768px) 100vw, 50vw"
                                                 whileHover={{ scale: 1.08 }}
                                                 transition={{ duration: 0.6, ease }}
                                             />
@@ -1229,6 +1243,9 @@ export default function Home() {
                                                     src={getImageSrc(`home.highlights.${item.id}.image`, item.image)}
                                                     alt={item.title}
                                                     className="h-full w-full object-cover"
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                     whileHover={{ scale: 1.15 }}
                                                     transition={{ duration: 0.9, ease }}
                                                 />
