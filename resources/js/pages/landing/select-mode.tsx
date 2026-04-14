@@ -1,9 +1,9 @@
 import SeoHead from '@/components/SeoHead';
 import { RippleButton } from '@/components/ui/ripple-button';
-import { getR2Url } from '@/utils/imageHelper';
+import { getOptimizedImageUrl, getR2Url } from '@/utils/imageHelper';
 import { Link, router, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, startTransition } from 'react';
 
 export default function SelectMode() {
     const { props } = usePage<{ props: { autoRedirectToB2c?: boolean } }>();
@@ -46,11 +46,23 @@ export default function SelectMode() {
         }
     }, [autoRedirectToB2c]);
 
-    // Root "/": after splash, redirect directly to B2C home
+    // Root "/": after splash, redirect directly to B2C home (transition keeps main thread freer for INP)
     useEffect(() => {
         if (!autoRedirectToB2c || showSplash) return;
-        router.visit('/home');
+        startTransition(() => {
+            router.visit('/home');
+        });
     }, [autoRedirectToB2c, showSplash]);
+
+    // Warm cache for first B2C home hero image while splash runs (same URL home will use for LCP)
+    useEffect(() => {
+        if (!autoRedirectToB2c) return;
+        const href = getOptimizedImageUrl(getR2Url('/Destination Cahaya.jpeg'), { width: 1920, quality: 82 });
+        const img = new Image();
+        img.decoding = 'async';
+        img.fetchPriority = 'low';
+        img.src = href;
+    }, [autoRedirectToB2c]);
 
     // Premium easing curves
     const ease = [0.22, 1, 0.36, 1];
@@ -269,6 +281,8 @@ export default function SelectMode() {
                                 <motion.img
                                     src={getR2Url('/cahayanbiyalogo.png')}
                                     alt="Cahaya Anbiya Logo"
+                                    decoding="async"
+                                    fetchPriority="high"
                                     className="h-auto w-[50vw] max-w-[280px] sm:h-40 sm:w-auto md:h-48 lg:h-56 xl:h-64"
                                     style={{
                                         filter: 'drop-shadow(0 4px 20px rgba(30,58,95,0.2)) drop-shadow(0 0 24px rgba(255,82,0,0.15))',

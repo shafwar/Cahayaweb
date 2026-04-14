@@ -1,174 +1,20 @@
-import { EditableText, EditableVideo, ImageCropModal, triggerVideoUpload, useEditMode } from '@/components/cms';
+import { EditableText, triggerVideoUpload, useEditMode } from '@/components/cms';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
-import { getImageUrl, getOptimizedImageUrl, getVideoUrl } from '@/utils/imageHelper';
+import { getImageUrl, getOptimizedImageUrl, getR2Url } from '@/utils/imageHelper';
 import { Head, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, ChevronDown, Edit3, Sparkles } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
-// Video component with R2 fallback - Simplified and safer
-function VideoWithFallback({ r2Url, fallbackUrl }: { r2Url: string; fallbackUrl: string }) {
-    try {
-        const videoRef = useRef<HTMLVideoElement>(null);
-        const [videoSrc, setVideoSrc] = useState(() => {
-            try {
-                // Always use R2 URL, never local path
-                return r2Url || fallbackUrl || 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4';
-            } catch {
-                // Even on error, use R2 URL structure
-                return 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4';
-            }
-        });
-        const [hasError, setHasError] = useState(false);
+const LazyImageCropModal = lazy(() => import('@/components/cms/ImageCropModal'));
 
-        useEffect(() => {
-            try {
-                const video = videoRef.current;
-                if (!video) return;
-
-                const handleError = () => {
-                    try {
-                        if (!hasError && videoSrc && videoSrc.includes('assets.cahayaanbiya.com')) {
-                            setHasError(true);
-                            // Try alternative R2 path variations
-                            const currentUrl = videoSrc;
-                            let altUrl = fallbackUrl;
-
-                            // Try multiple path variations
-                            if (currentUrl.includes('/public/videos/')) {
-                                // Try without /public/
-                                altUrl = currentUrl.replace('/public/videos/', '/videos/');
-                            } else if (currentUrl.includes('/public/')) {
-                                // Try without /public/
-                                altUrl = currentUrl.replace('/public/', '/');
-                            } else if (currentUrl.includes('/videos/')) {
-                                // Try with /public/ prefix
-                                altUrl = currentUrl.replace('/videos/', '/public/videos/');
-                            } else {
-                                // Try with /public/videos/ prefix
-                                const fileName = currentUrl.split('/').pop() || 'b2cherosectionvideo.mp4';
-                                altUrl = `https://assets.cahayaanbiya.com/public/videos/${fileName}`;
-                            }
-
-                            console.log('[Video] Trying alternative R2 path:', altUrl);
-                            setVideoSrc(altUrl || 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4');
-                            video.load();
-                        }
-                    } catch (err) {
-                        console.error('Error in video error handler:', err);
-                    }
-                };
-
-                video.addEventListener('error', handleError);
-                return () => {
-                    try {
-                        video.removeEventListener('error', handleError);
-                    } catch (err) {
-                        console.error('Error removing video event listener:', err);
-                    }
-                };
-            } catch (err) {
-                console.error('Error in VideoWithFallback useEffect:', err);
-            }
-        }, [videoSrc, fallbackUrl, hasError]);
-
-        return (
-            <video
-                ref={videoRef}
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                className="absolute inset-0 h-full w-full"
-                style={{
-                    objectFit: 'cover',
-                    objectPosition: 'center center',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    minWidth: '100%',
-                    minHeight: '100%',
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    zIndex: 0,
-                }}
-            >
-                <source src={videoSrc} type="video/mp4" />
-                Your browser does not support the video tag.
-            </video>
-        );
-    } catch (error) {
-        console.error('Error rendering VideoWithFallback:', error);
-        // Fallback to R2 URL, not local path
-        try {
-            const fallbackR2Url = getVideoUrl(fallbackUrl || 'b2cherosectionvideo.mp4');
-            return (
-                <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="auto"
-                    className="absolute inset-0 h-full w-full"
-                    style={{
-                        objectFit: 'cover',
-                        objectPosition: 'center center',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        minWidth: '100%',
-                        minHeight: '100%',
-                        maxWidth: '100%',
-                        maxHeight: '100%',
-                        zIndex: 0,
-                    }}
-                >
-                    <source src={fallbackR2Url} type="video/mp4" />
-                    <source src={fallbackUrl || 'https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4'} type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
-            );
-        } catch (fallbackError) {
-            console.error('Error in VideoWithFallback fallback:', fallbackError);
-            // Last resort: use R2 URL directly
-            return (
-                <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="auto"
-                    className="absolute inset-0 h-full w-full"
-                    style={{
-                        objectFit: 'cover',
-                        objectPosition: 'center center',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        minWidth: '100%',
-                        minHeight: '100%',
-                        maxWidth: '100%',
-                        maxHeight: '100%',
-                        zIndex: 0,
-                    }}
-                >
-                    <source src="https://assets.cahayaanbiya.com/public/videos/b2cherosectionvideo.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
-            );
-        }
-    }
+/** Hero LCP: same R2 + ?w=&q= pipeline as cards, sized for full-viewport hero. */
+function heroSlideSrc(path: string): string {
+    return getOptimizedImageUrl(getR2Url(path), { width: 1920, quality: 82 });
 }
 
 // Hero slides data - Updated with new images from Mba Hanum
@@ -387,7 +233,7 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
             if (idx < 0 || idx >= heroSlides.length) return;
             const img = new Image();
             img.decoding = 'async';
-            img.src = heroSlides[idx].image;
+            img.src = heroSlideSrc(heroSlides[idx].image);
             img.onload = () => {
                 if (cancelled) return;
                 setLoaded((s) => {
@@ -412,7 +258,7 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
         const nextIdx = (current + 1) % heroSlides.length;
         if (loaded.has(nextIdx)) return;
         const img = new Image();
-        img.src = heroSlides[nextIdx].image;
+        img.src = heroSlideSrc(heroSlides[nextIdx].image);
         img.onload = () => {
             setLoaded((s) => {
                 if (s.has(nextIdx)) return s;
@@ -474,7 +320,7 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
                         }}
                     >
                         <img
-                            src={slide.image}
+                            src={heroSlideSrc(slide.image)}
                             alt={slide.title}
                             className="h-full w-full object-cover object-center"
                             sizes="100vw"
@@ -617,7 +463,7 @@ export default function Home() {
                     keywords="cahaya anbiya, umrah, haji, halal travel, aqsa, 3tan, jakarta travel agency, umrah jakarta, haji jakarta, umrah packages, hajj packages"
                 />
                 <Head>
-                    <link rel="preload" as="image" href={heroSlides[0].image} />
+                    <link rel="preload" as="image" href={heroSlideSrc(heroSlides[0].image)} />
                 </Head>
 
                 <div ref={containerRef}>
@@ -1452,22 +1298,24 @@ export default function Home() {
                     )}
 
                     {cropImageSrc && (
-                        <ImageCropModal
-                            open={cropModalOpen}
-                            onOpenChange={setCropModalOpen}
-                            imageSrc={cropImageSrc}
-                            aspect={16 / 9}
-                            onApply={async (blob) => {
-                                const file = new File([blob], 'image.jpg', { type: blob.type });
-                                setPendingFile(file);
-                                URL.revokeObjectURL(cropImageSrc);
-                                setCropImageSrc(null);
-                            }}
-                            onCancel={() => {
-                                URL.revokeObjectURL(cropImageSrc);
-                                setCropImageSrc(null);
-                            }}
-                        />
+                        <Suspense fallback={null}>
+                            <LazyImageCropModal
+                                open={cropModalOpen}
+                                onOpenChange={setCropModalOpen}
+                                imageSrc={cropImageSrc}
+                                aspect={16 / 9}
+                                onApply={async (blob) => {
+                                    const file = new File([blob], 'image.jpg', { type: blob.type });
+                                    setPendingFile(file);
+                                    URL.revokeObjectURL(cropImageSrc);
+                                    setCropImageSrc(null);
+                                }}
+                                onCancel={() => {
+                                    URL.revokeObjectURL(cropImageSrc);
+                                    setCropImageSrc(null);
+                                }}
+                            />
+                        </Suspense>
                     )}
 
                     {/* Hidden Image Input */}
@@ -1498,14 +1346,6 @@ export default function Home() {
                                     newMap.set(imageTargetKey, previewUrl);
                                     return newMap;
                                 });
-
-                                const match = imageTargetKey.match(/home\.hero\.(\d+)\.image/);
-                                if (match) {
-                                    const slideId = parseInt(match[1]);
-                                    setHeroSlides((prevSlides) =>
-                                        prevSlides.map((slide) => (slide.id === slideId ? { ...slide, image: previewUrl } : slide)),
-                                    );
-                                }
 
                                 setImageTargetKey(null);
                                 (e.target as HTMLInputElement).value = '';

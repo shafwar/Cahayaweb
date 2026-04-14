@@ -23,9 +23,12 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks: (id) => {
-                    if (id.includes('node_modules')) {
-                        return 'vendor';
-                    }
+                    if (!id.includes('node_modules')) return;
+                    if (id.includes('framer-motion')) return 'framer';
+                    if (id.includes('@inertiajs')) return 'inertia';
+                    if (id.includes('lucide-react')) return 'icons';
+                    if (id.includes('react-dom') || id.includes('/node_modules/react/')) return 'react-vendor';
+                    return 'vendor';
                 },
             },
         },
