@@ -22,13 +22,12 @@ export default defineConfig({
         minify: 'esbuild',
         rollupOptions: {
             output: {
+                // Single vendor chunk avoids stale CDN/browser mixes of old+new chunk hashes
+                // (which can cause "Cannot read properties of undefined (reading 'Component')").
                 manualChunks: (id) => {
-                    if (!id.includes('node_modules')) return;
-                    if (id.includes('framer-motion')) return 'framer';
-                    if (id.includes('@inertiajs')) return 'inertia';
-                    if (id.includes('lucide-react')) return 'icons';
-                    if (id.includes('react-dom') || id.includes('/node_modules/react/')) return 'react-vendor';
-                    return 'vendor';
+                    if (id.includes('node_modules')) {
+                        return 'vendor';
+                    }
                 },
             },
         },
