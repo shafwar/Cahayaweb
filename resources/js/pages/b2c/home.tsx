@@ -12,9 +12,30 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 
 const LazyImageCropModal = lazy(() => import('@/components/cms/ImageCropModal'));
 
-/** Hero LCP: same R2 + ?w=&q= pipeline as cards, sized for full-viewport hero. */
-function heroSlideSrc(path: string): string {
-    return getOptimizedImageUrl(getR2Url(path), { width: 1920, quality: 82 });
+/** Hero: R2 + ?w=&q=; pick width/quality for CDN bytes (Cloudflare-style params). */
+function heroSlideUrl(path: string, width: number, quality: number): string {
+    return getOptimizedImageUrl(getR2Url(path), { width, quality });
+}
+
+/** Responsive hero URLs so mobile does not download 1920px wallpaper. */
+function heroSlideSrcSet(path: string): string {
+    return [
+        `${heroSlideUrl(path, 640, 74)} 640w`,
+        `${heroSlideUrl(path, 960, 76)} 960w`,
+        `${heroSlideUrl(path, 1280, 78)} 1280w`,
+        `${heroSlideUrl(path, 1600, 80)} 1600w`,
+        `${heroSlideUrl(path, 1920, 80)} 1920w`,
+    ].join(', ');
+}
+
+/** Default `src` when browser ignores srcset; middle tier balances LCP vs bytes. */
+function heroSlideDefaultSrc(path: string): string {
+    return heroSlideUrl(path, 1280, 78);
+}
+
+/** Preload URL aligned with default src (browser may upgrade via srcset). */
+function heroSlidePreloadHref(path: string): string {
+    return heroSlideUrl(path, 1280, 78);
 }
 
 // Hero slides data - Updated with new images from Mba Hanum
@@ -233,7 +254,7 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
             if (idx < 0 || idx >= heroSlides.length) return;
             const img = new Image();
             img.decoding = 'async';
-            img.src = heroSlideSrc(heroSlides[idx].image);
+            img.src = heroSlidePreloadHref(heroSlides[idx].image);
             img.onload = () => {
                 if (cancelled) return;
                 setLoaded((s) => {
@@ -258,7 +279,7 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
         const nextIdx = (current + 1) % heroSlides.length;
         if (loaded.has(nextIdx)) return;
         const img = new Image();
-        img.src = heroSlideSrc(heroSlides[nextIdx].image);
+        img.src = heroSlidePreloadHref(heroSlides[nextIdx].image);
         img.onload = () => {
             setLoaded((s) => {
                 if (s.has(nextIdx)) return s;
@@ -320,7 +341,8 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
                         }}
                     >
                         <img
-                            src={heroSlideSrc(slide.image)}
+                            src={heroSlideDefaultSrc(slide.image)}
+                            srcSet={heroSlideSrcSet(slide.image)}
                             alt={slide.title}
                             className="h-full w-full object-cover object-center"
                             sizes="100vw"
@@ -383,10 +405,10 @@ export default function Home() {
     // Helper to get content from sections (no inline edit - edit only via pencil modal)
     const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
 
-    // Helper function to get image URL with R2 support
+    // Card / grid images: smaller CDN width than hero (≤50vw on md ≈ 960px logical max).
     const getImageSrc = (sectionKey: string, fallbackPath: string) => {
         const url = getImageUrl(props.sections, sectionKey, fallbackPath);
-        return getOptimizedImageUrl(url, { width: 1280, quality: 85 });
+        return getOptimizedImageUrl(url, { width: 960, quality: 78 });
     };
 
     // Best Sellers: 4 random from all Destination Cahaya photos (stable per page load)
@@ -463,7 +485,7 @@ export default function Home() {
                     keywords="cahaya anbiya, umrah, haji, halal travel, aqsa, 3tan, jakarta travel agency, umrah jakarta, haji jakarta, umrah packages, hajj packages"
                 />
                 <Head>
-                    <link rel="preload" as="image" href={heroSlideSrc(heroSlides[0].image)} />
+                    <link rel="preload" as="image" href={heroSlidePreloadHref(heroSlides[0].image)} />
                 </Head>
 
                 <div ref={containerRef}>
