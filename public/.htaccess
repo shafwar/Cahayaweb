@@ -23,3 +23,9 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Long-lived cache for fingerprinted Vite assets (safe: filename changes each build)
+<IfModule mod_headers.c>
+    SetEnvIf Request_URI "^/build/assets/" BUILD_VITE_ASSET
+    Header set Cache-Control "public, max-age=31536000, immutable" env=BUILD_VITE_ASSET
+</IfModule>

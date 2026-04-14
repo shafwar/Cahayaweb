@@ -179,6 +179,10 @@ Atau untuk seluruh folder build:
 </IfModule>
 ```
 
+### HTML (Inertia / Blade) — jangan di-cache agresif di edge
+
+Jika CDN/browser menyimpan **HTML lama** yang masih memuat URL Vite (`app-XXXX.css`, `vendor-YYYY.js`) sementara deploy sudah mengganti file di `/build/`, pengunjung bisa white screen. Aplikasi memakai middleware **`PreventAggressiveHtmlCaching`** (`no-store` pada respons `text/html`). **Cloudflare:** set rule “Bypass cache” atau “Cache Level: Standard” dengan **respect origin** untuk HTML, atau purge cache setelah deploy.
+
 ---
 
 ## 🚨 EMERGENCY PROCEDURES
