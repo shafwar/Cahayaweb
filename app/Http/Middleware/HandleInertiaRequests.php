@@ -55,7 +55,7 @@ class HandleInertiaRequests extends Middleware
             // CRITICAL: ALWAYS use HTTPS URL to prevent Mixed Content errors
             // Force HTTPS regardless of request detection - if page is HTTPS, all URLs must be HTTPS
             $baseUrl = $request->getSchemeAndHttpHost();
-            
+
             // CRITICAL: Always force HTTPS if current request URL is HTTPS
             // This prevents Mixed Content errors where HTTPS page tries to make HTTP requests
             $currentUrl = $request->url();
@@ -63,23 +63,23 @@ class HandleInertiaRequests extends Middleware
                 // Current page is HTTPS - force all URLs to HTTPS
                 $baseUrl = str_replace('http://', 'https://', $baseUrl);
                 // Also ensure baseUrl starts with https://
-                if (!str_starts_with($baseUrl, 'https://')) {
-                    $baseUrl = 'https://' . str_replace(['http://', 'https://'], '', $baseUrl);
+                if (! str_starts_with($baseUrl, 'https://')) {
+                    $baseUrl = 'https://'.str_replace(['http://', 'https://'], '', $baseUrl);
                 }
             } elseif ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
                 // Request detected as secure - force HTTPS
                 $baseUrl = str_replace('http://', 'https://', $baseUrl);
             }
-            
+
             // Final safety check: if baseUrl still starts with http://, force to https://
             if (str_starts_with($baseUrl, 'http://')) {
                 $baseUrl = str_replace('http://', 'https://', $baseUrl);
                 Log::warning('Forced baseUrl to HTTPS as fallback', ['original' => $request->getSchemeAndHttpHost(), 'forced' => $baseUrl]);
             }
-            
+
             $ziggyArray = ['url' => $baseUrl, 'routes' => []];
             try {
-                $ziggy = new Ziggy();
+                $ziggy = new Ziggy;
                 $ziggyArray = $ziggy->toArray();
                 $ziggyArray['url'] = $baseUrl; // Use forced HTTPS URL
             } catch (\Throwable $e) {
@@ -111,7 +111,7 @@ class HandleInertiaRequests extends Middleware
             // CRITICAL: ALWAYS use HTTPS URL to prevent Mixed Content errors
             // Use the same baseUrl logic as above to ensure consistency
             // Don't re-check - use the baseUrl that was already forced to HTTPS above
-            
+
             // Ensure location URL is also HTTPS
             $locationUrl = $request->url();
             if (str_starts_with($locationUrl, 'http://')) {
@@ -121,7 +121,7 @@ class HandleInertiaRequests extends Middleware
                     Log::info('Converted location URL to HTTPS', ['original' => $request->url(), 'converted' => $locationUrl]);
                 }
             }
-            
+
             // Only log Ziggy URL configuration in development/local (reduce production logging)
             if (app()->environment(['local', 'development'])) {
                 Log::info('Ziggy URL configuration', [
@@ -132,7 +132,7 @@ class HandleInertiaRequests extends Middleware
                     'xForwardedProto' => $request->header('X-Forwarded-Proto'),
                 ]);
             }
-            
+
             $ziggyData = [
                 'url' => $baseUrl, // Already forced to HTTPS above
                 'location' => $locationUrl, // Use HTTPS location URL
@@ -146,7 +146,7 @@ class HandleInertiaRequests extends Middleware
                     'location' => $locationUrl, // Use HTTPS location URL
                     'forceHttps' => true,
                 ];
-                
+
                 // CRITICAL: Final verification - ensure URL is HTTPS
                 if (isset($ziggyData['url']) && str_starts_with($ziggyData['url'], 'http://')) {
                     $ziggyData['url'] = str_replace('http://', 'https://', $ziggyData['url']);
@@ -160,8 +160,12 @@ class HandleInertiaRequests extends Middleware
             $sectionsData = [];
             try {
                 // Wrap in additional try-catch to ensure we never crash the app
-                $sectionsData = Section::getAllSections();
-                if (!is_array($sectionsData)) {
+                if ($this->shouldOmitSharedSectionsForFullDocument($request)) {
+                    $sectionsData = [];
+                } else {
+                    $sectionsData = Section::getAllSections();
+                }
+                if (! is_array($sectionsData)) {
                     Log::warning('getAllSections returned non-array', [
                         'type' => gettype($sectionsData),
                     ]);
@@ -171,7 +175,7 @@ class HandleInertiaRequests extends Middleware
                 // Database connection issue - don't crash, just log and continue
                 Log::warning('Database error getting sections in HandleInertiaRequests', [
                     'error' => $e->getMessage(),
-                    'url' => $request->url()
+                    'url' => $request->url(),
                 ]);
                 $sectionsData = [];
             } catch (\Throwable $e) {
@@ -179,7 +183,7 @@ class HandleInertiaRequests extends Middleware
                 Log::error('Error getting sections in HandleInertiaRequests', [
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString(),
-                    'url' => $request->url()
+                    'url' => $request->url(),
                 ]);
                 $sectionsData = [];
             }
@@ -208,41 +212,41 @@ class HandleInertiaRequests extends Middleware
             Log::error('Fatal error in HandleInertiaRequests::share', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'url' => $request->url()
+                'url' => $request->url(),
             ]);
-            
+
             // Last resort: return minimal safe props (all evaluated, no closures)
             // CRITICAL: ALWAYS use HTTPS URL to prevent Mixed Content errors
             $baseUrl = $request->getSchemeAndHttpHost();
             $currentUrl = $request->url();
-            
+
             // Always force HTTPS if current URL is HTTPS
             if (str_starts_with($currentUrl, 'https://')) {
                 $baseUrl = str_replace('http://', 'https://', $baseUrl);
-                if (!str_starts_with($baseUrl, 'https://')) {
-                    $baseUrl = 'https://' . str_replace(['http://', 'https://'], '', $baseUrl);
+                if (! str_starts_with($baseUrl, 'https://')) {
+                    $baseUrl = 'https://'.str_replace(['http://', 'https://'], '', $baseUrl);
                 }
             } elseif ($request->secure() || $request->header('X-Forwarded-Proto') === 'https') {
                 $baseUrl = str_replace('http://', 'https://', $baseUrl);
             }
-            
+
             // Final safety check
             if (str_starts_with($baseUrl, 'http://')) {
                 $baseUrl = str_replace('http://', 'https://', $baseUrl);
             }
-            
+
             $locationUrl = $request->url();
             if (str_starts_with($locationUrl, 'http://')) {
                 $locationUrl = str_replace('http://', 'https://', $locationUrl);
             }
-            
+
             $fallbackZiggy = [
                 'url' => $baseUrl,
                 'location' => $locationUrl,
                 'routes' => [],
                 'forceHttps' => true,
             ];
-            
+
             return [
                 'name' => 'Cahaya Anbiya',
                 'quote' => ['message' => 'Welcome', 'author' => 'Cahaya Anbiya'],
@@ -253,5 +257,27 @@ class HandleInertiaRequests extends Middleware
                 'cmsMediaGuide' => config('cms_media_guide', []),
             ];
         }
+    }
+
+    /**
+     * Splash / mode-choice routes never read `sections` in the UI. Omitting them on the
+     * initial full-document GET avoids a large JSON blob + DB work before the first paint.
+     *
+     * Any Inertia XHR (prefetch of /home, partial reloads, client navigations) must still
+     * receive full sections so CMS tools and other pages behave normally.
+     */
+    protected function shouldOmitSharedSectionsForFullDocument(Request $request): bool
+    {
+        if (! $request->isMethod('GET')) {
+            return false;
+        }
+
+        if ($request->headers->has('X-Inertia')) {
+            return false;
+        }
+
+        $path = trim($request->path(), '/');
+
+        return $path === '' || $path === 'select-mode';
     }
 }

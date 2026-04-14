@@ -5,12 +5,23 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState, startTransition } from 'react';
 
+/** Align with B2C home hero default CDN tier so splash does not compete with LCP for a 1920px fetch. */
+const HOME_HERO_WARM_WIDTH = 1280;
+const HOME_HERO_WARM_QUALITY = 78;
+const HOME_PREFETCH_CACHE_MS = 5 * 60 * 1000;
+
 export default function SelectMode() {
     const { props } = usePage<{ props: { autoRedirectToB2c?: boolean } }>();
     const autoRedirectToB2c = props.autoRedirectToB2c === true;
 
     const [showSplash, setShowSplash] = useState(true);
     const [nextPath, setNextPath] = useState<string | null>(null);
+
+    // Prefetch B2C home during root splash only (?next= uses the Link's own prefetch).
+    useEffect(() => {
+        if (!autoRedirectToB2c) return;
+        router.prefetch('/home', {}, { cacheFor: HOME_PREFETCH_CACHE_MS });
+    }, [autoRedirectToB2c]);
 
     useEffect(() => {
         if (!autoRedirectToB2c) {
@@ -57,7 +68,10 @@ export default function SelectMode() {
     // Warm cache for first B2C home hero image while splash runs (same URL home will use for LCP)
     useEffect(() => {
         if (!autoRedirectToB2c) return;
-        const href = getOptimizedImageUrl(getR2Url('/Destination Cahaya.jpeg'), { width: 1920, quality: 82 });
+        const href = getOptimizedImageUrl(getR2Url('/Destination Cahaya.jpeg'), {
+            width: HOME_HERO_WARM_WIDTH,
+            quality: HOME_HERO_WARM_QUALITY,
+        });
         const img = new Image();
         img.decoding = 'async';
         img.fetchPriority = 'low';
@@ -517,8 +531,10 @@ export default function SelectMode() {
                             </p>
 
                             <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-                                <Link 
-                                    href={nextPath || '/home'} 
+                                <Link
+                                    href={nextPath || '/home'}
+                                    prefetch={['mount']}
+                                    cacheFor={HOME_PREFETCH_CACHE_MS}
                                     className="flex-1"
                                     onClick={() => {
                                         // Set sessionStorage immediately when clicking B2C to prevent redirect loop

@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use App\Support\SectionDefaults;
 use App\Support\R2Helper;
+use App\Support\SectionDefaults;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Arr;
 
 class Section extends Model
 {
     protected static bool $snapshotsPaused = false;
+
     protected $fillable = [
         'key',
         'content',
@@ -38,11 +38,11 @@ class Section extends Model
             } catch (\Throwable $e) {
                 // Don't let booted() crash the application
                 Log::warning('Error in Section::booted() saved callback', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         });
-        
+
         static::deleted(function () {
             try {
                 // Clear cache when section is deleted
@@ -50,7 +50,7 @@ class Section extends Model
             } catch (\Throwable $e) {
                 // Don't let booted() crash the application
                 Log::warning('Error in Section::booted() deleted callback', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         });
@@ -60,7 +60,7 @@ class Section extends Model
     {
         try {
             // Check if database tables exist before attempting snapshot
-            if (! \Illuminate\Support\Facades\Schema::hasTable('sections') || 
+            if (! \Illuminate\Support\Facades\Schema::hasTable('sections') ||
                 ! \Illuminate\Support\Facades\Schema::hasTable('section_snapshots')) {
                 return;
             }
@@ -76,12 +76,12 @@ class Section extends Model
         } catch (\PDOException $e) {
             // Database connection issue - log but don't crash
             Log::warning('Database error during snapshot creation', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         } catch (\Exception $e) {
             // Any other error - log but don't crash
             Log::warning('Error creating snapshot', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -108,183 +108,185 @@ class Section extends Model
 
     /**
      * Get all sections as key-value pairs
-     * Cached for 5 minutes to improve performance (sections don't change frequently)
+     * Cached (sections change rarely; longer TTL cuts DB + CPU on every real page).
      */
     public static function getAllSections(): array
     {
         // Cache key - include app environment to avoid cache conflicts
-        $cacheKey = 'sections_all_' . config('app.env', 'production');
-        
-        // Try to get from cache first (5 minutes TTL)
+        $cacheKey = 'sections_all_'.config('app.env', 'production');
+
+        // Try to get from cache first (15 minutes TTL)
         // Wrap in try-catch to prevent crashes if cache driver is not available
         try {
-            return \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () {
-            try {
-                // Check if table exists before querying
-                if (! \Illuminate\Support\Facades\Schema::hasTable('sections')) {
+            return \Illuminate\Support\Facades\Cache::remember($cacheKey, 900, function () {
+                try {
+                    // Check if table exists before querying
+                    if (! \Illuminate\Support\Facades\Schema::hasTable('sections')) {
+                        $live = collect([]);
+                    } else {
+                        $live = static::all()->mapWithKeys(fn ($section) => [$section->key => $section]);
+                    }
+                } catch (\PDOException $e) {
+                    Log::warning('Database error getting sections', [
+                        'error' => $e->getMessage(),
+                    ]);
                     $live = collect([]);
-                } else {
-                    $live = static::all()->mapWithKeys(fn ($section) => [$section->key => $section]);
+                } catch (\Exception $e) {
+                    Log::warning('Error getting sections', [
+                        'error' => $e->getMessage(),
+                    ]);
+                    $live = collect([]);
+                } catch (\Throwable $e) {
+                    Log::error('Fatal error getting sections', [
+                        'error' => $e->getMessage(),
+                    ]);
+                    $live = collect([]);
                 }
-            } catch (\PDOException $e) {
-                Log::warning('Database error getting sections', [
-                    'error' => $e->getMessage()
-                ]);
-                $live = collect([]);
-            } catch (\Exception $e) {
-                Log::warning('Error getting sections', [
-                    'error' => $e->getMessage()
-                ]);
-                $live = collect([]);
-            } catch (\Throwable $e) {
-                Log::error('Fatal error getting sections', [
-                    'error' => $e->getMessage()
-                ]);
-                $live = collect([]);
-            }
-            
-            try {
-                $snapshot = SectionSnapshot::latestPayload();
-            } catch (\Throwable $e) {
-                Log::warning('Error getting snapshot', [
-                    'error' => $e->getMessage()
-                ]);
-                $snapshot = collect([]);
-            }
-            
-            try {
-                $defaults = SectionDefaults::all();
-            } catch (\Throwable $e) {
-                Log::warning('Error getting defaults', [
-                    'error' => $e->getMessage()
-                ]);
-                $defaults = [];
-            }
 
-            try {
-                $keys = $snapshot->keys()
-                    ->merge($live->keys())
-                    ->merge(collect(array_keys($defaults)))
-                    ->unique();
+                try {
+                    $snapshot = SectionSnapshot::latestPayload();
+                } catch (\Throwable $e) {
+                    Log::warning('Error getting snapshot', [
+                        'error' => $e->getMessage(),
+                    ]);
+                    $snapshot = collect([]);
+                }
 
-                return $keys->mapWithKeys(function ($key) use ($live, $snapshot, $defaults) {
-                    try {
-                        $section = $live->get($key);
-                        $payload = $snapshot->get($key);
+                try {
+                    $defaults = SectionDefaults::all();
+                } catch (\Throwable $e) {
+                    Log::warning('Error getting defaults', [
+                        'error' => $e->getMessage(),
+                    ]);
+                    $defaults = [];
+                }
 
-                        // Priority: Live DB > Snapshot > Default
-                        $content = $section?->content ?? Arr::get($payload, 'content');
-                        $imagePath = $section?->image ?? Arr::get($payload, 'image');
+                try {
+                    $keys = $snapshot->keys()
+                        ->merge($live->keys())
+                        ->merge(collect(array_keys($defaults)))
+                        ->unique();
 
-                        // If no content from live/snapshot, try default
-                        if (! $content && isset($defaults[$key]['content'])) {
-                            $content = $defaults[$key]['content'];
-                        }
+                    return $keys->mapWithKeys(function ($key) use ($live, $snapshot, $defaults) {
+                        try {
+                            $section = $live->get($key);
+                            $payload = $snapshot->get($key);
 
-                        // Handle image URL with error handling
-                        $imageUrl = null;
-                        if ($imagePath) {
-                            try {
-                                // Image from DB or snapshot - use R2 URL
-                                $r2Url = R2Helper::url($imagePath);
-                                if ($r2Url) {
-                                    $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                                    $imageUrl = $r2Url . (str_contains($r2Url, '?') ? '&' : '?') . 'v=' . $timestamp;
-                                } else {
-                                    // R2 not configured - still use R2 URL structure
+                            // Priority: Live DB > Snapshot > Default
+                            $content = $section?->content ?? Arr::get($payload, 'content');
+                            $imagePath = $section?->image ?? Arr::get($payload, 'image');
+
+                            // If no content from live/snapshot, try default
+                            if (! $content && isset($defaults[$key]['content'])) {
+                                $content = $defaults[$key]['content'];
+                            }
+
+                            // Handle image URL with error handling
+                            $imageUrl = null;
+                            if ($imagePath) {
+                                try {
+                                    // Image from DB or snapshot - use R2 URL
+                                    $r2Url = R2Helper::url($imagePath);
+                                    if ($r2Url) {
+                                        $timestamp = optional($section?->updated_at)->timestamp ?? time();
+                                        $imageUrl = $r2Url.(str_contains($r2Url, '?') ? '&' : '?').'v='.$timestamp;
+                                    } else {
+                                        // R2 not configured - still use R2 URL structure
+                                        $r2BaseUrl = 'https://assets.cahayaanbiya.com';
+                                        $cleanPath = trim($imagePath, '/');
+                                        $r2Url = $r2BaseUrl.'/public/images/'.$cleanPath;
+                                        $timestamp = optional($section?->updated_at)->timestamp ?? time();
+                                        $imageUrl = $r2Url.'?v='.$timestamp;
+                                    }
+                                } catch (\Exception $e) {
+                                    Log::warning('Error generating image URL for section', [
+                                        'key' => $key,
+                                        'path' => $imagePath,
+                                        'error' => $e->getMessage(),
+                                    ]);
+                                    // On error, still use R2 URL structure
                                     $r2BaseUrl = 'https://assets.cahayaanbiya.com';
                                     $cleanPath = trim($imagePath, '/');
-                                    $r2Url = $r2BaseUrl . '/public/images/' . $cleanPath;
+                                    $r2Url = $r2BaseUrl.'/public/images/'.$cleanPath;
                                     $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                                    $imageUrl = $r2Url . '?v=' . $timestamp;
+                                    $imageUrl = $r2Url.'?v='.$timestamp;
                                 }
-                            } catch (\Exception $e) {
-                                Log::warning('Error generating image URL for section', [
-                                    'key' => $key,
-                                    'path' => $imagePath,
-                                    'error' => $e->getMessage()
-                                ]);
-                                // On error, still use R2 URL structure
-                                $r2BaseUrl = 'https://assets.cahayaanbiya.com';
-                                $cleanPath = trim($imagePath, '/');
-                                $r2Url = $r2BaseUrl . '/public/images/' . $cleanPath;
-                                $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                                $imageUrl = $r2Url . '?v=' . $timestamp;
-                            }
-                        } elseif (isset($defaults[$key])) {
-                            try {
-                                $url = SectionDefaults::imageUrl($key);
-                                if ($url) {
-                                    $imageUrl = $url;
+                            } elseif (isset($defaults[$key])) {
+                                try {
+                                    $url = SectionDefaults::imageUrl($key);
+                                    if ($url) {
+                                        $imageUrl = $url;
+                                    }
+                                } catch (\Exception $e) {
+                                    Log::warning('Error getting default image URL', [
+                                        'key' => $key,
+                                        'error' => $e->getMessage(),
+                                    ]);
                                 }
-                            } catch (\Exception $e) {
-                                Log::warning('Error getting default image URL', [
-                                    'key' => $key,
-                                    'error' => $e->getMessage()
-                                ]);
                             }
-                        }
 
-                        $videoUrl = null;
-                        $videoPath = $section?->video ?? Arr::get($payload, 'video');
-                        if ($videoPath) {
-                            try {
-                                $r2Url = R2Helper::url($videoPath);
-                                if ($r2Url) {
-                                    $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                                    $videoUrl = $r2Url . (str_contains($r2Url, '?') ? '&' : '?') . 'v=' . $timestamp;
-                                } else {
-                                    $r2BaseUrl = 'https://assets.cahayaanbiya.com';
-                                    $cleanPath = trim($videoPath, '/');
-                                    $videoUrl = $r2BaseUrl . '/public/' . (str_starts_with($cleanPath, 'videos/') ? $cleanPath : 'videos/' . $cleanPath) . '?v=' . (optional($section?->updated_at)->timestamp ?? time());
+                            $videoUrl = null;
+                            $videoPath = $section?->video ?? Arr::get($payload, 'video');
+                            if ($videoPath) {
+                                try {
+                                    $r2Url = R2Helper::url($videoPath);
+                                    if ($r2Url) {
+                                        $timestamp = optional($section?->updated_at)->timestamp ?? time();
+                                        $videoUrl = $r2Url.(str_contains($r2Url, '?') ? '&' : '?').'v='.$timestamp;
+                                    } else {
+                                        $r2BaseUrl = 'https://assets.cahayaanbiya.com';
+                                        $cleanPath = trim($videoPath, '/');
+                                        $videoUrl = $r2BaseUrl.'/public/'.(str_starts_with($cleanPath, 'videos/') ? $cleanPath : 'videos/'.$cleanPath).'?v='.(optional($section?->updated_at)->timestamp ?? time());
+                                    }
+                                } catch (\Exception $e) {
+                                    Log::warning('Error generating video URL for section', ['key' => $key, 'error' => $e->getMessage()]);
                                 }
-                            } catch (\Exception $e) {
-                                Log::warning('Error generating video URL for section', ['key' => $key, 'error' => $e->getMessage()]);
+                            } elseif (isset($defaults[$key]['video_path'])) {
+                                try {
+                                    $videoUrl = R2Helper::url($defaults[$key]['video_path']);
+                                } catch (\Exception $e) {
+                                    // ignore
+                                }
                             }
-                        } elseif (isset($defaults[$key]['video_path'])) {
-                            try {
-                                $videoUrl = R2Helper::url($defaults[$key]['video_path']);
-                            } catch (\Exception $e) {
-                                // ignore
-                            }
-                        }
 
-                        return [$key => [
-                            'content' => $content,
-                            'image' => $imageUrl,
-                            'video' => $videoUrl,
-                        ]];
-                    } catch (\Exception $e) {
-                        Log::warning('Error processing section', [
-                            'key' => $key,
-                            'error' => $e->getMessage()
-                        ]);
-                        // Return empty section on error
-                        return [$key => [
-                            'content' => null,
-                            'image' => null,
-                            'video' => null,
-                        ]];
-                    }
-                })->filter(function ($value) {
-                    return $value['content'] !== null || $value['image'] !== null || $value['video'] !== null;
-                })->toArray();
-            } catch (\Throwable $e) {
-                Log::error('Fatal error in getAllSections mapWithKeys', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                // Return empty array on fatal error to prevent 500
-                return [];
-            }
+                            return [$key => [
+                                'content' => $content,
+                                'image' => $imageUrl,
+                                'video' => $videoUrl,
+                            ]];
+                        } catch (\Exception $e) {
+                            Log::warning('Error processing section', [
+                                'key' => $key,
+                                'error' => $e->getMessage(),
+                            ]);
+
+                            // Return empty section on error
+                            return [$key => [
+                                'content' => null,
+                                'image' => null,
+                                'video' => null,
+                            ]];
+                        }
+                    })->filter(function ($value) {
+                        return $value['content'] !== null || $value['image'] !== null || $value['video'] !== null;
+                    })->toArray();
+                } catch (\Throwable $e) {
+                    Log::error('Fatal error in getAllSections mapWithKeys', [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+
+                    // Return empty array on fatal error to prevent 500
+                    return [];
+                }
             });
         } catch (\Throwable $e) {
             // If cache fails, execute the closure directly without caching
             // This ensures the application still works even if cache driver is unavailable
             Log::warning('Cache error in getAllSections, executing without cache', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             // Execute the same logic but without caching
             try {
                 // Check if table exists before querying
@@ -295,35 +297,35 @@ class Section extends Model
                 }
             } catch (\PDOException $e) {
                 Log::warning('Database error getting sections', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 $live = collect([]);
             } catch (\Exception $e) {
                 Log::warning('Error getting sections', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 $live = collect([]);
             } catch (\Throwable $e) {
                 Log::error('Fatal error getting sections', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 $live = collect([]);
             }
-            
+
             try {
                 $snapshot = SectionSnapshot::latestPayload();
             } catch (\Throwable $e) {
                 Log::warning('Error getting snapshot', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 $snapshot = collect([]);
             }
-            
+
             try {
                 $defaults = SectionDefaults::all();
             } catch (\Throwable $e) {
                 Log::warning('Error getting defaults', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 $defaults = [];
             }
@@ -356,27 +358,27 @@ class Section extends Model
                                 $r2Url = R2Helper::url($imagePath);
                                 if ($r2Url) {
                                     $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                                    $imageUrl = $r2Url . (str_contains($r2Url, '?') ? '&' : '?') . 'v=' . $timestamp;
+                                    $imageUrl = $r2Url.(str_contains($r2Url, '?') ? '&' : '?').'v='.$timestamp;
                                 } else {
                                     // R2 not configured - still use R2 URL structure
                                     $r2BaseUrl = 'https://assets.cahayaanbiya.com';
                                     $cleanPath = trim($imagePath, '/');
-                                    $r2Url = $r2BaseUrl . '/public/images/' . $cleanPath;
+                                    $r2Url = $r2BaseUrl.'/public/images/'.$cleanPath;
                                     $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                                    $imageUrl = $r2Url . '?v=' . $timestamp;
+                                    $imageUrl = $r2Url.'?v='.$timestamp;
                                 }
                             } catch (\Exception $e) {
                                 Log::warning('Error generating image URL for section', [
                                     'key' => $key,
                                     'path' => $imagePath,
-                                    'error' => $e->getMessage()
+                                    'error' => $e->getMessage(),
                                 ]);
                                 // On error, still use R2 URL structure
                                 $r2BaseUrl = 'https://assets.cahayaanbiya.com';
                                 $cleanPath = trim($imagePath, '/');
-                                $r2Url = $r2BaseUrl . '/public/images/' . $cleanPath;
+                                $r2Url = $r2BaseUrl.'/public/images/'.$cleanPath;
                                 $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                                $imageUrl = $r2Url . '?v=' . $timestamp;
+                                $imageUrl = $r2Url.'?v='.$timestamp;
                             }
                         } elseif (isset($defaults[$key])) {
                             try {
@@ -387,7 +389,7 @@ class Section extends Model
                             } catch (\Exception $e) {
                                 Log::warning('Error getting default image URL', [
                                     'key' => $key,
-                                    'error' => $e->getMessage()
+                                    'error' => $e->getMessage(),
                                 ]);
                             }
                         }
@@ -399,11 +401,11 @@ class Section extends Model
                                 $r2Url = R2Helper::url($videoPath);
                                 if ($r2Url) {
                                     $timestamp = optional($section?->updated_at)->timestamp ?? time();
-                                    $videoUrl = $r2Url . (str_contains($r2Url, '?') ? '&' : '?') . 'v=' . $timestamp;
+                                    $videoUrl = $r2Url.(str_contains($r2Url, '?') ? '&' : '?').'v='.$timestamp;
                                 } else {
                                     $r2BaseUrl = 'https://assets.cahayaanbiya.com';
                                     $cleanPath = trim($videoPath, '/');
-                                    $videoUrl = $r2BaseUrl . '/public/' . (str_starts_with($cleanPath, 'videos/') ? $cleanPath : 'videos/' . $cleanPath) . '?v=' . (optional($section?->updated_at)->timestamp ?? time());
+                                    $videoUrl = $r2BaseUrl.'/public/'.(str_starts_with($cleanPath, 'videos/') ? $cleanPath : 'videos/'.$cleanPath).'?v='.(optional($section?->updated_at)->timestamp ?? time());
                                 }
                             } catch (\Exception $e) {
                                 Log::warning('Error generating video URL for section', ['key' => $key, 'error' => $e->getMessage()]);
@@ -424,8 +426,9 @@ class Section extends Model
                     } catch (\Exception $e) {
                         Log::warning('Error processing section', [
                             'key' => $key,
-                            'error' => $e->getMessage()
+                            'error' => $e->getMessage(),
                         ]);
+
                         // Return empty section on error
                         return [$key => [
                             'content' => null,
@@ -439,8 +442,9 @@ class Section extends Model
             } catch (\Throwable $e) {
                 Log::error('Fatal error in getAllSections mapWithKeys', [
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ]);
+
                 // Return empty array on fatal error to prevent 500
                 return [];
             }
@@ -453,11 +457,11 @@ class Section extends Model
     public static function clearCache(): void
     {
         try {
-            \Illuminate\Support\Facades\Cache::forget('sections_all_' . config('app.env', 'production'));
+            \Illuminate\Support\Facades\Cache::forget('sections_all_'.config('app.env', 'production'));
         } catch (\Throwable $e) {
             // If cache clear fails, log but don't crash
             Log::warning('Failed to clear sections cache', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -474,9 +478,10 @@ class Section extends Model
                 } catch (\Exception $e) {
                     Log::warning('Failed to delete section during restore', [
                         'key' => $key,
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ]);
                 }
+
                 return false;
             }
 
@@ -497,8 +502,8 @@ class Section extends Model
                 $imageMatch = ($payload['image'] ?? null) === $section->image;
                 $videoMatch = ($payload['video'] ?? null) === ($section->video ?? null);
                 $restored = $contentMatch && $imageMatch && $videoMatch;
-                
-                if (!$restored) {
+
+                if (! $restored) {
                     Log::warning('Restore verification failed in restoreFromSnapshot', [
                         'key' => $key,
                         'expected_content' => $payload['content'] ?? null,
@@ -516,15 +521,17 @@ class Section extends Model
         } catch (\PDOException $e) {
             Log::error('Database error during restore from snapshot', [
                 'key' => $key,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         } catch (\Exception $e) {
             Log::error('Error restoring section from snapshot', [
                 'key' => $key,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return false;
         }
     }
@@ -551,18 +558,18 @@ class Section extends Model
     public static function updateWithBackup(string $key, array $data, string $changeType = 'update'): self
     {
         $section = static::firstOrNew(['key' => $key]);
-        
+
         // Create revision before updating (if section exists)
         if ($section->exists) {
             $section->createRevision($changeType);
         }
-        
+
         $section->fill($data);
         $section->save();
-        
+
         // Clear cache after update (save() triggers booted() which clears cache, but ensure it's cleared)
         static::clearCache();
-        
+
         return $section;
     }
 
@@ -572,8 +579,8 @@ class Section extends Model
     public function restoreFromRevision(int $revisionId): bool
     {
         $revision = SectionRevision::find($revisionId);
-        
-        if (!$revision || $revision->key !== $this->key) {
+
+        if (! $revision || $revision->key !== $this->key) {
             return false;
         }
 
@@ -590,4 +597,3 @@ class Section extends Model
         return true;
     }
 }
-
