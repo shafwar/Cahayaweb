@@ -1,7 +1,7 @@
 import SimpleLayout from '@/layouts/simple-layout';
 import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Building2, Layout, ArrowRight, Sparkles, LogOut } from 'lucide-react';
+import { Building2, Layout, ArrowRight, Sparkles, LogOut, ClipboardList } from 'lucide-react';
 import { useLogout } from '@/hooks/useLogout';
 
 export default function AdminDashboard() {
@@ -42,6 +42,17 @@ export default function AdminDashboard() {
             iconColor: 'text-blue-400',
             hoverShadow: 'hover:shadow-blue-500/20',
         },
+        {
+            href: '/admin/b2c-packages',
+            icon: ClipboardList,
+            title: 'B2C registration',
+            description: 'Manage bookable travel packages, capacity, deadlines, and view participant registrations from the public site.',
+            gradient: 'from-emerald-500/10 via-teal-500/10 to-cyan-500/10',
+            borderColor: 'border-emerald-500/30 hover:border-emerald-500/60',
+            iconBg: 'bg-emerald-500/20',
+            iconColor: 'text-emerald-400',
+            hoverShadow: 'hover:shadow-emerald-500/20',
+        },
     ];
 
     return (
@@ -76,12 +87,12 @@ export default function AdminDashboard() {
                             Admin Dashboard
                         </h1>
                         <p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-600 dark:text-gray-400 sm:text-xl">
-                            Manage your CMS content and review B2B agent verification applications
+                            Manage CMS content, B2B agent verifications, and B2C package registrations
                         </p>
                     </motion.div>
 
                     {/* Cards Grid */}
-                    <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:gap-8">
+                    <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
                         {cards.map((card, index) => {
                             const Icon = card.icon;
                             return (

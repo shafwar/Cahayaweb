@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -52,6 +53,14 @@ class User extends Authenticatable
     public function agentVerification()
     {
         return $this->hasOne(AgentVerification::class);
+    }
+
+    /**
+     * B2C travel package registrations linked to this account (participant).
+     */
+    public function b2cPackageRegistrations(): HasMany
+    {
+        return $this->hasMany(B2cPackageRegistration::class);
     }
 
     /**

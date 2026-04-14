@@ -3,7 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\B2cTravelPackageAdminController;
 use App\Http\Controllers\AgentVerificationController;
+use App\Http\Controllers\B2cPublicPackageController;
+use App\Http\Controllers\B2cRegistrationController;
 use Inertia\Inertia;
 
 // Admin login page - accessible without auth
@@ -66,6 +69,15 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     Route::post('/admin/agent-verifications/{verification}/reject', [AgentVerificationController::class, 'reject'])->name('admin.agent-verification.reject');
     Route::post('/admin/agent-verifications/{verification}/update', [AgentVerificationController::class, 'update'])->name('admin.agent-verification.update');
     Route::delete('/admin/agent-verifications/{verification}', [AgentVerificationController::class, 'destroy'])->name('admin.agent-verification.destroy');
+
+    // B2C travel packages & registrations (admin workflow)
+    Route::get('/admin/b2c-packages', [B2cTravelPackageAdminController::class, 'index'])->name('admin.b2c-packages.index');
+    Route::get('/admin/b2c-packages/create', [B2cTravelPackageAdminController::class, 'create'])->name('admin.b2c-packages.create');
+    Route::post('/admin/b2c-packages', [B2cTravelPackageAdminController::class, 'store'])->name('admin.b2c-packages.store');
+    Route::get('/admin/b2c-packages/{b2cTravelPackage}/edit', [B2cTravelPackageAdminController::class, 'edit'])->name('admin.b2c-packages.edit');
+    Route::put('/admin/b2c-packages/{b2cTravelPackage}', [B2cTravelPackageAdminController::class, 'update'])->name('admin.b2c-packages.update');
+    Route::delete('/admin/b2c-packages/{b2cTravelPackage}', [B2cTravelPackageAdminController::class, 'destroy'])->name('admin.b2c-packages.destroy');
+    Route::get('/admin/b2c-packages/{b2cTravelPackage}/registrations', [B2cTravelPackageAdminController::class, 'registrations'])->name('admin.b2c-packages.registrations');
 });
 
 // Add this at the very top, before existing routes
@@ -182,7 +194,9 @@ Route::get('/home', function () {
 
 Route::get('/about', fn () => Inertia::render('b2c/about'))->name('b2c.about');
 Route::get('/destinations', fn () => Inertia::render('b2c/destinations'))->name('b2c.destinations');
-Route::get('/packages', fn () => Inertia::render('b2c/packages/index'))->name('b2c.packages');
+Route::get('/packages/register/{b2cTravelPackage}', [B2cRegistrationController::class, 'create'])->name('b2c.packages.register');
+Route::post('/packages/register/{b2cTravelPackage}', [B2cRegistrationController::class, 'store'])->name('b2c.packages.register.store');
+Route::get('/packages', [B2cPublicPackageController::class, 'index'])->name('b2c.packages');
 Route::get('/packages/{slug}', fn ($slug) => Inertia::render('b2c/packages/show', ['slug' => $slug]))->name('b2c.packages.show');
 Route::get('/highlights', fn () => Inertia::render('b2c/highlights'))->name('b2c.highlights');
 Route::get('/blog', fn () => Inertia::render('b2c/blog/index'))->name('b2c.blog');

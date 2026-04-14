@@ -5,16 +5,40 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import PublicLayout from '@/layouts/public-layout';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getImageUrl } from '@/utils/imageHelper';
-import { router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, ChevronDown, ChevronUp, Edit3, ImageIcon, Sparkles, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const IMAGE_GUIDE = '1920×1080px recommended · Max 5MB · Auto-compressed · JPEG, PNG, WebP';
 
+type TravelPackageRow = Record<string, unknown> & {
+    id: number;
+    title: string;
+    location: string;
+    duration: string;
+    price: string;
+    pax: string;
+    type: string;
+    image: string;
+    highlights?: string[];
+    description: string;
+    features?: string[];
+    dates?: { date: string; status: string }[];
+    hotels?: { name: string; location: string; stars: number }[];
+    slug?: string;
+    registration_open?: boolean;
+    from_database?: boolean;
+    filter_pax_capacity?: number;
+};
+
 export default function Packages() {
-    const { props } = usePage<{ sections?: Record<string, { content?: string; image?: string }> }>();
+    const { props } = usePage<{
+        sections?: Record<string, { content?: string; image?: string }>;
+        travelPackages?: TravelPackageRow[] | null;
+        flash?: { type: string; message: string } | null;
+    }>();
     const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
     const getImageSrc = (sectionKey: string, fallbackPath: string) => getImageUrl(props.sections, sectionKey, fallbackPath);
 
@@ -71,7 +95,7 @@ export default function Packages() {
         };
     }, [imageLightbox]);
 
-    const packages = [
+    const LEGACY_PACKAGES_DATA: TravelPackageRow[] = [
         {
             id: 1,
             title: 'Konsorsium Mesir Aqsa Jordan',
@@ -346,6 +370,16 @@ export default function Packages() {
         },
     ];
 
+    const packages = useMemo(() => {
+        const rows = props.travelPackages;
+        if (rows && rows.length > 0) {
+            return rows as TravelPackageRow[];
+        }
+        return LEGACY_PACKAGES_DATA;
+    }, [props.travelPackages]);
+
+    const flash = props.flash;
+
     const typeOptions = ['All', 'Religious', 'Cultural', 'Adventure', 'Luxury'];
     const priceOptions = ['All', 'Under $2,000', '$2,000 - $2,500', '$2,500 - $3,000', 'Over $3,000', 'Rp 25-30 JT'];
     const durationOptions = ['All', '4-6 Days', '7-9 Days', '10+ Days'];
@@ -378,21 +412,23 @@ export default function Packages() {
             }
         }
         if (selectedDuration && selectedDuration !== 'All') {
-            const days = parseInt(pkg.duration.match(/\d+/)?.[0] || '0');
-            switch (selectedDuration) {
-                case '4-6 Days':
-                    if (days < 4 || days > 6) return false;
-                    break;
-                case '7-9 Days':
-                    if (days < 7 || days > 9) return false;
-                    break;
-                case '10+ Days':
-                    if (days < 10) return false;
-                    break;
+            const days = parseInt(String(pkg.duration).match(/\d+/)?.[0] || '0');
+            if (days > 0) {
+                switch (selectedDuration) {
+                    case '4-6 Days':
+                        if (days < 4 || days > 6) return false;
+                        break;
+                    case '7-9 Days':
+                        if (days < 7 || days > 9) return false;
+                        break;
+                    case '10+ Days':
+                        if (days < 10) return false;
+                        break;
+                }
             }
         }
         if (selectedPax && selectedPax !== 'All') {
-            const maxPax = parseInt(pkg.pax.match(/\d+/)?.[0] || '0');
+            const maxPax = pkg.filter_pax_capacity ?? parseInt(String(pkg.pax).match(/\d+/)?.[0] || '0');
             switch (selectedPax) {
                 case 'Small Group (15-25)':
                     if (maxPax < 15 || maxPax > 25) return false;
@@ -417,6 +453,18 @@ export default function Packages() {
             />
 
             <div className="bg-section-photos-home min-h-screen border-t border-[#d4af37]/20">
+                {flash?.message ? (
+                    <div
+                        className={`mx-auto max-w-7xl px-4 pt-4 sm:px-6 ${
+                            flash.type === 'error'
+                                ? 'rounded-xl border border-red-300/60 bg-red-500/10 text-red-100'
+                                : 'rounded-xl border border-emerald-300/50 bg-emerald-500/10 text-emerald-100'
+                        } py-3 text-center text-sm font-medium`}
+                        role="status"
+                    >
+                        {flash.message}
+                    </div>
+                ) : null}
                 {/* Main Content Section */}
                 <section className="relative mx-auto max-w-7xl px-4 pt-16 pb-20 sm:px-6 md:pt-20">
                     {/* Sentuhan emas & oranye halus di background */}
@@ -843,15 +891,30 @@ export default function Packages() {
                                                 </>
                                             )}
                                         </span>
-                                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                                            <a
-                                                href="https://wa.me/6285285522122"
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-primary/90 hover:to-accent/90"
-                                            >
-                                                Register Now
-                                            </a>
+                                        <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
+                                            {pkg.from_database && pkg.slug ? (
+                                                pkg.registration_open ? (
+                                                    <Link
+                                                        href={`/packages/register/${pkg.slug}`}
+                                                        className="rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-primary/90 hover:to-accent/90"
+                                                    >
+                                                        Register Online
+                                                    </Link>
+                                                ) : (
+                                                    <span className="rounded-xl border border-white/20 bg-black/30 px-4 py-2 text-center text-xs font-bold text-white/70">
+                                                        Registration closed
+                                                    </span>
+                                                )
+                                            ) : (
+                                                <a
+                                                    href="https://wa.me/6285285522122"
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-primary/90 hover:to-accent/90"
+                                                >
+                                                    Register Now
+                                                </a>
+                                            )}
                                             <a
                                                 href="https://wa.me/6285285522121"
                                                 target="_blank"
