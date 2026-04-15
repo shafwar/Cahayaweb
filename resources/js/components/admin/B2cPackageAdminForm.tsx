@@ -37,19 +37,25 @@ type Props = {
     data: B2cPackageFormShape;
     setData: SetDataFn;
     errors: Errors;
-    /** Edit-only: show booked pax row */
     showPaxBooked?: boolean;
 };
+
+const fieldGroup =
+    'rounded-xl border border-slate-100 bg-slate-50/40 p-4 shadow-inner shadow-slate-100/80 sm:p-5';
+
+const fieldGroupLabel = 'mb-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400';
 
 export default function B2cPackageAdminForm({ data, setData, errors, showPaxBooked }: Props) {
     return (
         <div className="space-y-8">
             <AdminFormSection
+                id="b2c-pkg-identity"
+                step={1}
                 title="Identity & naming"
                 description="Unique code and display name appear on the public packages list."
                 icon={<Package className="h-5 w-5" />}
             >
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid gap-6 sm:grid-cols-2 sm:gap-x-8">
                     <AdminField label="Package code (unique)" error={errors.package_code}>
                         <input
                             className={adminInput}
@@ -65,82 +71,103 @@ export default function B2cPackageAdminForm({ data, setData, errors, showPaxBook
             </AdminFormSection>
 
             <AdminFormSection
+                id="b2c-pkg-schedule"
+                step={2}
                 title="Schedule & capacity"
                 description="Shown to visitors; deadline controls when registration closes."
                 icon={<CalendarRange className="h-5 w-5" />}
             >
-                <div className="grid gap-5 sm:grid-cols-2">
-                    <AdminField
-                        label="Departure period"
-                        hint='Example: "14–24 April 2026"'
-                        error={errors.departure_period}
-                    >
-                        <input
-                            className={adminInput}
-                            value={data.departure_period}
-                            onChange={(e) => setData('departure_period', e.target.value)}
-                            placeholder="14–24 April 2026"
-                        />
-                    </AdminField>
-                    <AdminField label="Duration label (optional)" hint='For filters, e.g. "10 Days"' error={errors.duration_label}>
-                        <input
-                            className={adminInput}
-                            value={data.duration_label}
-                            onChange={(e) => setData('duration_label', e.target.value)}
-                            placeholder="10 Days"
-                        />
-                    </AdminField>
-                    <AdminField label="Registration deadline" error={errors.registration_deadline}>
-                        <input
-                            type="datetime-local"
-                            className={adminInput}
-                            value={data.registration_deadline}
-                            onChange={(e) => setData('registration_deadline', e.target.value)}
-                        />
-                    </AdminField>
-                    <AdminField label="Status" error={errors.status}>
-                        <select
-                            className={adminSelect}
-                            value={data.status}
-                            onChange={(e) => setData('status', e.target.value as 'open' | 'closed')}
-                        >
-                            <option value="open">Open — accepting registrations</option>
-                            <option value="closed">Closed — no new registrations</option>
-                        </select>
-                    </AdminField>
-                    <AdminField label="Pax capacity" error={errors.pax_capacity}>
-                        <input
-                            type="number"
-                            min={1}
-                            className={adminInput}
-                            value={data.pax_capacity}
-                            onChange={(e) => setData('pax_capacity', parseInt(e.target.value || '1', 10))}
-                        />
-                    </AdminField>
-                    {showPaxBooked ? (
-                        <AdminField
-                            label="Pax booked"
-                            hint="Usually increases automatically when participants register."
-                            error={errors.pax_booked}
-                        >
+                <div className="space-y-6">
+                    <div className={fieldGroup}>
+                        <p className={fieldGroupLabel}>Period & label</p>
+                        <div className="grid gap-6 sm:grid-cols-2 sm:gap-x-8">
+                            <AdminField
+                                label="Departure period"
+                                hint='Example: "14–24 April 2026"'
+                                error={errors.departure_period}
+                            >
+                                <input
+                                    className={adminInput}
+                                    value={data.departure_period}
+                                    onChange={(e) => setData('departure_period', e.target.value)}
+                                    placeholder="14–24 April 2026"
+                                />
+                            </AdminField>
+                            <AdminField label="Duration label (optional)" hint='For filters, e.g. "10 Days"' error={errors.duration_label}>
+                                <input
+                                    className={adminInput}
+                                    value={data.duration_label}
+                                    onChange={(e) => setData('duration_label', e.target.value)}
+                                    placeholder="10 Days"
+                                />
+                            </AdminField>
+                        </div>
+                    </div>
+
+                    <div className={fieldGroup}>
+                        <p className={fieldGroupLabel}>Registration</p>
+                        <div className="grid gap-6 sm:grid-cols-2 sm:gap-x-8">
+                            <AdminField label="Registration deadline" error={errors.registration_deadline}>
+                                <input
+                                    type="datetime-local"
+                                    className={adminInput}
+                                    value={data.registration_deadline}
+                                    onChange={(e) => setData('registration_deadline', e.target.value)}
+                                />
+                            </AdminField>
+                            <AdminField label="Status" error={errors.status}>
+                                <select
+                                    className={adminSelect}
+                                    value={data.status}
+                                    onChange={(e) => setData('status', e.target.value as 'open' | 'closed')}
+                                >
+                                    <option value="open">Open — accepting registrations</option>
+                                    <option value="closed">Closed — no new registrations</option>
+                                </select>
+                            </AdminField>
+                        </div>
+                    </div>
+
+                    <div className="max-w-md">
+                        <AdminField label="Pax capacity" error={errors.pax_capacity}>
                             <input
                                 type="number"
-                                min={0}
+                                min={1}
                                 className={adminInput}
-                                value={data.pax_booked ?? 0}
-                                onChange={(e) => setData('pax_booked', parseInt(e.target.value || '0', 10))}
+                                value={data.pax_capacity}
+                                onChange={(e) => setData('pax_capacity', parseInt(e.target.value || '1', 10))}
                             />
                         </AdminField>
+                    </div>
+
+                    {showPaxBooked ? (
+                        <div className="max-w-md">
+                            <AdminField
+                                label="Pax booked"
+                                hint="Usually increases automatically when participants register."
+                                error={errors.pax_booked}
+                            >
+                                <input
+                                    type="number"
+                                    min={0}
+                                    className={adminInput}
+                                    value={data.pax_booked ?? 0}
+                                    onChange={(e) => setData('pax_booked', parseInt(e.target.value || '0', 10))}
+                                />
+                            </AdminField>
+                        </div>
                     ) : null}
                 </div>
             </AdminFormSection>
 
             <AdminFormSection
+                id="b2c-pkg-offer"
+                step={3}
                 title="Offer details"
                 description="Location, category, and how price is shown on the card."
                 icon={<Tag className="h-5 w-5" />}
             >
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid gap-6 sm:grid-cols-2 sm:gap-x-8">
                     <AdminField label="Location" error={errors.location}>
                         <input className={adminInput} value={data.location} onChange={(e) => setData('location', e.target.value)} />
                     </AdminField>
@@ -180,6 +207,8 @@ export default function B2cPackageAdminForm({ data, setData, errors, showPaxBook
             </AdminFormSection>
 
             <AdminFormSection
+                id="b2c-pkg-media"
+                step={4}
                 title="Media"
                 description="Path to the hero/card image (R2 or public path as used elsewhere)."
                 icon={<ImageIcon className="h-5 w-5" />}
@@ -195,11 +224,13 @@ export default function B2cPackageAdminForm({ data, setData, errors, showPaxBook
             </AdminFormSection>
 
             <AdminFormSection
+                id="b2c-pkg-copy"
+                step={5}
                 title="Copy for the public page"
                 description="Description and terms are shown (or required) on the registration flow."
                 icon={<FileText className="h-5 w-5" />}
             >
-                <div className="space-y-5">
+                <div className="space-y-6">
                     <AdminField label="Short description" error={errors.description}>
                         <textarea
                             rows={5}
@@ -220,11 +251,13 @@ export default function B2cPackageAdminForm({ data, setData, errors, showPaxBook
             </AdminFormSection>
 
             <AdminFormSection
+                id="b2c-pkg-lists"
+                step={6}
                 title="Structured lists"
                 description="One entry per line. Use the pipe formats shown so the B2C page can parse rows."
                 icon={<ListOrdered className="h-5 w-5" />}
             >
-                <div className="grid gap-5 lg:grid-cols-2">
+                <div className="grid gap-6 lg:grid-cols-2 lg:gap-x-8">
                     <AdminField label="Highlights" hint="One bullet per line.">
                         <textarea
                             rows={5}

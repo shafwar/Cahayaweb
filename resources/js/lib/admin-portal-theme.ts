@@ -8,7 +8,7 @@ export const adminPageBg =
 
 /** Oranye & emas sangat lembut di atas putih */
 export const adminAmbient =
-    'pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_0%_0%,rgba(255,82,0,0.06),transparent_50%),radial-gradient(ellipse_at_100%_20%,rgba(254,201,1,0.08),transparent_45%),radial-gradient(ellipse_at_50%_100%,rgba(30,58,95,0.04),transparent_55%)]';
+    'pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_0%_0%,rgba(255,82,0,0.06),transparent_50%),radial-gradient(ellipse_at_100%_20%,rgba(254,201,1,0.08),transparent_45%),radial-gradient(ellipse_at_50%_100%,rgba(15,23,42,0.02),transparent_55%)]';
 
 export const adminContent = 'relative z-10';
 
@@ -24,6 +24,9 @@ export const adminMuted = 'text-slate-500';
 
 export const adminPageTitle = 'text-3xl font-semibold tracking-tight text-[#1e3a5f] sm:text-4xl';
 
+/** Judul hero form (create/edit paket) — netral, tanpa biru navy */
+export const adminFormHeroTitle = 'text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl';
+
 export const adminFieldLabel = 'block text-sm font-medium text-slate-700';
 
 export const adminInput =
@@ -35,7 +38,7 @@ export const adminTextarea = `${adminInput} min-h-[5rem] resize-y font-sans`;
 
 export const adminTextareaMono = `${adminTextarea} font-mono text-xs leading-relaxed`;
 
-export const adminSectionTitle = 'text-lg font-semibold tracking-tight text-[#1e3a5f]';
+export const adminSectionTitle = 'text-lg font-semibold tracking-tight text-slate-900';
 
 export const adminSectionDesc = `mt-1 text-sm ${adminMuted}`;
 
