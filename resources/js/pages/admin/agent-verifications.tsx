@@ -1,5 +1,7 @@
+import AdminPortalShell from '@/components/admin/AdminPortalShell';
+import { adminBackLink, adminGhostBtn } from '@/lib/admin-portal-theme';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Head, Link, router } from '@inertiajs/react';
@@ -110,7 +112,7 @@ export default function AgentVerifications({ verifications, pagination }: Props)
         switch (status) {
             case 'pending':
                 return (
-                    <Badge className="bg-accent/20 text-accent border-accent/30">
+                    <Badge className="border border-[#ff5200]/35 bg-[#ff5200]/15 text-[#fec901]">
                         <Clock className="mr-1 h-3 w-3" />
                         Pending
                     </Badge>
@@ -135,25 +137,22 @@ export default function AgentVerifications({ verifications, pagination }: Props)
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <AdminPortalShell className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             <Head title="Agent Verifications - Admin" />
 
-            <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <div>
                 {/* Header */}
                 <div className="mb-8">
                     {/* Navigation Buttons */}
                     <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-                        <Link
-                            href="/admin"
-                            className="inline-flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-2 text-sm font-medium text-gray-300 transition-all hover:border-gray-600 hover:bg-gray-800 hover:text-white"
-                        >
+                        <Link href="/admin" className={adminBackLink}>
                             <ArrowLeft className="h-4 w-4" />
                             Back to Dashboard
                         </Link>
                         <button
                             onClick={logout}
                             disabled={isLoggingOut}
-                            className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition-all hover:border-red-500/50 hover:bg-red-500/20 hover:text-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`${adminGhostBtn} border-red-400/35 text-red-200 hover:border-red-400/50 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50`}
                         >
                             <LogOut className="h-4 w-4" />
                             {isLoggingOut ? 'Logging out...' : 'Logout'}
@@ -161,12 +160,12 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                     </div>
 
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#ff5200] to-[#e64a00] shadow-lg shadow-orange-900/30">
                             <Building2 className="h-6 w-6 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-white">Agent Verifications</h1>
-                            <p className="text-gray-400">Manage B2B agent access applications</p>
+                            <h1 className="text-3xl font-semibold text-white">Agent Verifications</h1>
+                            <p className="text-[#94a3b8]">Manage B2B agent access applications</p>
                         </div>
                     </div>
 
@@ -175,28 +174,44 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                         <Button
                             variant={filter === 'all' ? 'default' : 'outline'}
                             onClick={() => setFilter('all')}
-                            className={filter === 'all' ? 'bg-primary text-white' : 'border-gray-600 text-gray-300'}
+                            className={
+                                filter === 'all'
+                                    ? 'border-[#2d4a6f] bg-[#2d4a6f] text-white'
+                                    : 'border-[#2d4a6f]/50 bg-transparent text-[#cbd5e1] hover:bg-[#1e3a5f]/40'
+                            }
                         >
                             All ({pagination.total})
                         </Button>
                         <Button
                             variant={filter === 'pending' ? 'default' : 'outline'}
                             onClick={() => setFilter('pending')}
-                            className={filter === 'pending' ? 'bg-accent text-white' : 'border-gray-600 text-gray-300'}
+                            className={
+                                filter === 'pending'
+                                    ? 'border-[#ff5200] bg-gradient-to-r from-[#ff5200] to-[#e64a00] text-white'
+                                    : 'border-[#2d4a6f]/50 bg-transparent text-[#cbd5e1] hover:bg-[#ff5200]/10'
+                            }
                         >
                             Pending ({verifications.data.filter(v => v.status === 'pending').length})
                         </Button>
                         <Button
                             variant={filter === 'approved' ? 'default' : 'outline'}
                             onClick={() => setFilter('approved')}
-                            className={filter === 'approved' ? 'bg-green-500 text-white' : 'border-gray-600 text-gray-300'}
+                            className={
+                                filter === 'approved'
+                                    ? 'border-emerald-600/60 bg-emerald-600 text-white'
+                                    : 'border-[#2d4a6f]/50 bg-transparent text-[#cbd5e1] hover:bg-emerald-600/15'
+                            }
                         >
                             Approved ({verifications.data.filter(v => v.status === 'approved').length})
                         </Button>
                         <Button
                             variant={filter === 'rejected' ? 'default' : 'outline'}
                             onClick={() => setFilter('rejected')}
-                            className={filter === 'rejected' ? 'bg-red-500 text-white' : 'border-gray-600 text-gray-300'}
+                            className={
+                                filter === 'rejected'
+                                    ? 'border-red-500/50 bg-red-600 text-white'
+                                    : 'border-[#2d4a6f]/50 bg-transparent text-[#cbd5e1] hover:bg-red-500/15'
+                            }
                         >
                             Rejected ({verifications.data.filter(v => v.status === 'rejected').length})
                         </Button>
@@ -204,21 +219,21 @@ export default function AgentVerifications({ verifications, pagination }: Props)
 
                     {/* Selection and Delete Actions */}
                     {filteredVerifications.length > 0 && (
-                        <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-lg border border-gray-700 bg-gray-800/50">
+                        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#2d4a6f]/40 bg-[#0d1422]/80 p-4">
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={handleSelectAll}
-                                    className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors"
+                                    className="flex items-center gap-2 text-sm text-[#cbd5e1] transition-colors hover:text-white"
                                 >
                                     {allFilteredSelected ? (
-                                        <CheckSquare className="h-5 w-5 text-primary" />
+                                        <CheckSquare className="h-5 w-5 text-[#fec901]" />
                                     ) : (
-                                        <Square className="h-5 w-5 text-gray-400" />
+                                        <Square className="h-5 w-5 text-[#64748b]" />
                                     )}
                                     <span>{allFilteredSelected ? 'Deselect All' : 'Select All'}</span>
                                 </button>
                                 {selectedIds.length > 0 && (
-                                    <span className="text-sm text-gray-400">
+                                    <span className="text-sm text-[#94a3b8]">
                                         {selectedIds.length} selected
                                     </span>
                                 )}
@@ -250,14 +265,14 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                 {/* Verifications List */}
                 <div className="space-y-4">
                     {filteredVerifications.length === 0 ? (
-                        <Card className="border-gray-700 bg-gray-800/50">
+                        <Card className="border-[#2d4a6f]/40 bg-[#0d1422]/70">
                             <CardContent className="py-12 text-center">
-                                <p className="text-gray-400">No verifications found</p>
+                                <p className="text-[#94a3b8]">No verifications found</p>
                             </CardContent>
                         </Card>
                     ) : (
                         filteredVerifications.map((verification) => (
-                            <Card key={verification.id} className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+                            <Card key={verification.id} className="border-[#2d4a6f]/40 bg-[#0d1422]/75 backdrop-blur-sm">
                                 <CardContent className="p-6">
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="flex items-start gap-3 flex-1">
@@ -266,9 +281,9 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                                                 className="mt-1 flex-shrink-0"
                                             >
                                                 {selectedIds.includes(verification.id) ? (
-                                                    <CheckSquare className="h-5 w-5 text-primary" />
+                                                    <CheckSquare className="h-5 w-5 text-[#fec901]" />
                                                 ) : (
-                                                    <Square className="h-5 w-5 text-gray-400 hover:text-gray-300" />
+                                                    <Square className="h-5 w-5 text-[#64748b] hover:text-[#94a3b8]" />
                                                 )}
                                             </button>
                                             <div className="flex-1">
@@ -281,42 +296,42 @@ export default function AgentVerifications({ verifications, pagination }: Props)
 
                                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 mb-4">
                                                 <div>
-                                                    <p className="text-sm text-gray-400">Contact Person</p>
+                                                    <p className="text-sm text-[#94a3b8]">Contact Person</p>
                                                     <p className="text-white">{verification.contact_person_name}</p>
-                                                    <p className="text-sm text-gray-500">{verification.contact_person_email}</p>
+                                                    <p className="text-sm text-[#64748b]">{verification.contact_person_email}</p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm text-gray-400">Company Email</p>
+                                                    <p className="text-sm text-[#94a3b8]">Company Email</p>
                                                     <p className="text-white">{verification.company_email}</p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm text-gray-400">Company Phone</p>
+                                                    <p className="text-sm text-[#94a3b8]">Company Phone</p>
                                                     <p className="text-white">{verification.company_phone}</p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm text-gray-400">User Account</p>
+                                                    <p className="text-sm text-[#94a3b8]">User Account</p>
                                                     <p className="text-white">{verification.user_name}</p>
-                                                    <p className="text-sm text-gray-500">{verification.user_email}</p>
+                                                    <p className="text-sm text-[#64748b]">{verification.user_email}</p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm text-gray-400">Submitted</p>
+                                                    <p className="text-sm text-[#94a3b8]">Submitted</p>
                                                     <p className="text-white">{verification.created_at_human}</p>
                                                 </div>
                                                 {verification.reviewed_at && (
                                                     <div>
-                                                        <p className="text-sm text-gray-400">Reviewed</p>
+                                                        <p className="text-sm text-[#94a3b8]">Reviewed</p>
                                                         <p className="text-white">{verification.reviewed_at}</p>
                                                         {verification.reviewed_by && (
-                                                            <p className="text-sm text-gray-500">by {verification.reviewed_by}</p>
+                                                            <p className="text-sm text-[#64748b]">by {verification.reviewed_by}</p>
                                                         )}
                                                     </div>
                                                 )}
                                             </div>
 
                                             {verification.admin_notes && (
-                                                <div className="mt-4 rounded-lg border border-gray-700 bg-gray-900/50 p-3">
-                                                    <p className="text-sm font-medium text-gray-400 mb-1">Admin Notes:</p>
-                                                    <p className="text-sm text-gray-300">{verification.admin_notes}</p>
+                                                <div className="mt-4 rounded-lg border border-[#2d4a6f]/40 bg-[#070d16]/80 p-3">
+                                                    <p className="mb-1 text-sm font-medium text-[#94a3b8]">Admin Notes:</p>
+                                                    <p className="text-sm text-[#e2e8f0]">{verification.admin_notes}</p>
                                                 </div>
                                             )}
                                             </div>
@@ -325,7 +340,7 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                                         <div className="flex flex-col gap-2 flex-shrink-0">
                                             <Link
                                                 href={route('admin.agent-verification.show', verification.id)}
-                                                className="inline-flex items-center gap-2 rounded-md bg-blue-500/20 px-4 py-2 text-sm font-medium text-blue-300 hover:bg-blue-500/30 transition-colors"
+                                                className="inline-flex items-center gap-2 rounded-xl border border-[#ff5200]/35 bg-[#ff5200]/10 px-4 py-2 text-sm font-medium text-[#fec901] transition-colors hover:bg-[#ff5200]/20"
                                             >
                                                 <Eye className="h-4 w-4" />
                                                 View Details
@@ -345,18 +360,18 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                             variant="outline"
                             disabled={pagination.current_page === 1}
                             onClick={() => router.get(route('admin.agent-verifications'), { page: pagination.current_page - 1 })}
-                            className="border-gray-600 text-gray-300"
+                            className="border-[#2d4a6f]/50 text-[#cbd5e1] hover:bg-[#1e3a5f]/30"
                         >
                             Previous
                         </Button>
-                        <span className="flex items-center px-4 text-gray-300">
+                        <span className="flex items-center px-4 text-[#94a3b8]">
                             Page {pagination.current_page} of {pagination.last_page}
                         </span>
                         <Button
                             variant="outline"
                             disabled={pagination.current_page === pagination.last_page}
                             onClick={() => router.get(route('admin.agent-verifications'), { page: pagination.current_page + 1 })}
-                            className="border-gray-600 text-gray-300"
+                            className="border-[#2d4a6f]/50 text-[#cbd5e1] hover:bg-[#1e3a5f]/30"
                         >
                             Next
                         </Button>
@@ -365,10 +380,10 @@ export default function AgentVerifications({ verifications, pagination }: Props)
 
                 {/* Delete Selected Confirmation Dialog */}
                 <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                    <DialogContent className="bg-gray-800 border-gray-700 text-white">
+                    <DialogContent className="border-[#2d4a6f]/50 bg-[#0d1422] text-white">
                         <DialogHeader>
                             <DialogTitle className="text-red-400">Confirm Delete</DialogTitle>
-                            <DialogDescription className="text-gray-300">
+                            <DialogDescription className="text-[#94a3b8]">
                                 Are you sure you want to delete {selectedIds.length} selected verification(s)? This action cannot be undone.
                             </DialogDescription>
                         </DialogHeader>
@@ -376,7 +391,7 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                             <Button
                                 variant="outline"
                                 onClick={() => setDeleteDialogOpen(false)}
-                                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                                className="border-[#2d4a6f]/50 text-[#e2e8f0] hover:bg-[#1e3a5f]/40"
                             >
                                 Cancel
                             </Button>
@@ -393,10 +408,10 @@ export default function AgentVerifications({ verifications, pagination }: Props)
 
                 {/* Delete All Confirmation Dialog */}
                 <Dialog open={deleteAllDialogOpen} onOpenChange={setDeleteAllDialogOpen}>
-                    <DialogContent className="bg-gray-800 border-gray-700 text-white">
+                    <DialogContent className="border-[#2d4a6f]/50 bg-[#0d1422] text-white">
                         <DialogHeader>
                             <DialogTitle className="text-red-400">Confirm Delete All</DialogTitle>
-                            <DialogDescription className="text-gray-300">
+                            <DialogDescription className="text-[#94a3b8]">
                                 Are you sure you want to delete ALL {pagination.total} verification(s)? This action cannot be undone and will delete all applications regardless of their status.
                             </DialogDescription>
                         </DialogHeader>
@@ -404,7 +419,7 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                             <Button
                                 variant="outline"
                                 onClick={() => setDeleteAllDialogOpen(false)}
-                                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                                className="border-[#2d4a6f]/50 text-[#e2e8f0] hover:bg-[#1e3a5f]/40"
                             >
                                 Cancel
                             </Button>
@@ -419,6 +434,6 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                     </DialogContent>
                 </Dialog>
             </div>
-        </div>
+        </AdminPortalShell>
     );
 }

@@ -1,7 +1,10 @@
+import AdminPortalShell from '@/components/admin/AdminPortalShell';
+import B2cPackageAdminForm, { type B2cPackageFormShape } from '@/components/admin/B2cPackageAdminForm';
 import { Button } from '@/components/ui/button';
+import { adminChip, adminGhostBtn, adminMuted, adminPrimaryBtn, adminBackLink } from '@/lib/admin-portal-theme';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
-import { FormEventHandler, type ReactNode } from 'react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
+import { FormEventHandler } from 'react';
 
 export default function B2cPackagesCreate() {
     const { data, setData, post, processing, errors } = useForm({
@@ -30,216 +33,50 @@ export default function B2cPackagesCreate() {
         post('/admin/b2c-packages');
     };
 
-    const field = (label: string, child: ReactNode, err?: string) => (
-        <div>
-            <label className="mb-1 block text-sm font-medium text-slate-200">{label}</label>
-            {child}
-            {err ? <p className="mt-1 text-xs text-red-400">{err}</p> : null}
-        </div>
-    );
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+        <AdminPortalShell className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:py-10">
             <Head title="New B2C package" />
-            <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-                <Link href="/admin/b2c-packages" className="mb-6 inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white">
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to packages
-                </Link>
-                <h1 className="text-2xl font-bold">Create package</h1>
-                <p className="mt-1 text-sm text-slate-400">Packages created here replace the static list on the public Packages page.</p>
 
-                <form onSubmit={submit} className="mt-8 space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6">
-                    {field(
-                        'Package code (unique)',
-                        <input
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.package_code}
-                            onChange={(e) => setData('package_code', e.target.value)}
-                        />,
-                        errors.package_code,
-                    )}
-                    {field(
-                        'Package name',
-                        <input
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                        />,
-                        errors.name,
-                    )}
-                    {field(
-                        'Departure period (shown to participants)',
-                        <input
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.departure_period}
-                            onChange={(e) => setData('departure_period', e.target.value)}
-                            placeholder="e.g. 14–24 April 2026"
-                        />,
-                        errors.departure_period,
-                    )}
-                    {field(
-                        'Duration label (optional, for filters)',
-                        <input
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.duration_label}
-                            onChange={(e) => setData('duration_label', e.target.value)}
-                            placeholder="e.g. 10 Days"
-                        />,
-                        errors.duration_label,
-                    )}
-                    {field(
-                        'Location',
-                        <input
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.location}
-                            onChange={(e) => setData('location', e.target.value)}
-                        />,
-                        errors.location,
-                    )}
-                    {field(
-                        'Type',
-                        <input
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.package_type}
-                            onChange={(e) => setData('package_type', e.target.value)}
-                        />,
-                        errors.package_type,
-                    )}
-                    {field(
-                        'Price (display)',
-                        <input
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.price_display}
-                            onChange={(e) => setData('price_display', e.target.value)}
-                            placeholder="$2,350"
-                        />,
-                        errors.price_display,
-                    )}
-                    {field(
-                        'Pax capacity',
-                        <input
-                            type="number"
-                            min={1}
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.pax_capacity}
-                            onChange={(e) => setData('pax_capacity', parseInt(e.target.value || '1', 10))}
-                        />,
-                        errors.pax_capacity,
-                    )}
-                    {field(
-                        'Registration deadline',
-                        <input
-                            type="datetime-local"
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.registration_deadline}
-                            onChange={(e) => setData('registration_deadline', e.target.value)}
-                        />,
-                        errors.registration_deadline,
-                    )}
-                    {field(
-                        'Status',
-                        <select
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.status}
-                            onChange={(e) => setData('status', e.target.value as 'open' | 'closed')}
-                        >
-                            <option value="open">Open</option>
-                            <option value="closed">Closed</option>
-                        </select>,
-                        errors.status,
-                    )}
-                    {field(
-                        'Image path',
-                        <input
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.image_path}
-                            onChange={(e) => setData('image_path', e.target.value)}
-                            placeholder="/images/packages/..."
-                        />,
-                        errors.image_path,
-                    )}
-                    {field(
-                        'Description',
-                        <textarea
-                            rows={5}
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
-                        />,
-                        errors.description,
-                    )}
-                    {field(
-                        'Terms & conditions (required for registration)',
-                        <textarea
-                            rows={6}
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.terms_and_conditions}
-                            onChange={(e) => setData('terms_and_conditions', e.target.value)}
-                        />,
-                        errors.terms_and_conditions,
-                    )}
-                    {field(
-                        'Highlights (one per line)',
-                        <textarea
-                            rows={4}
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm font-mono text-xs"
-                            value={data.highlights_text}
-                            onChange={(e) => setData('highlights_text', e.target.value)}
-                        />,
-                    )}
-                    {field(
-                        'Features (one per line)',
-                        <textarea
-                            rows={4}
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm font-mono text-xs"
-                            value={data.features_text}
-                            onChange={(e) => setData('features_text', e.target.value)}
-                        />,
-                    )}
-                    {field(
-                        'Departure dates (one per line: Date|Status)',
-                        <textarea
-                            rows={3}
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm font-mono text-xs"
-                            value={data.dates_text}
-                            onChange={(e) => setData('dates_text', e.target.value)}
-                            placeholder={'14 April 2026|Available'}
-                        />,
-                    )}
-                    {field(
-                        'Hotels (one per line: Name|Location|Stars)',
-                        <textarea
-                            rows={3}
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm font-mono text-xs"
-                            value={data.hotels_text}
-                            onChange={(e) => setData('hotels_text', e.target.value)}
-                            placeholder={'Golden Tulip|Amman|4'}
-                        />,
-                    )}
-                    {field(
-                        'Sort order',
-                        <input
-                            type="number"
-                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
-                            value={data.sort_order}
-                            onChange={(e) => setData('sort_order', parseInt(e.target.value || '0', 10))}
-                        />,
-                        errors.sort_order,
-                    )}
+            <Link href="/admin/b2c-packages" className={`${adminBackLink} mb-6`}>
+                <ArrowLeft className="h-4 w-4" />
+                Back to packages
+            </Link>
 
-                    <div className="flex gap-3 pt-4">
-                        <Button type="submit" disabled={processing} className="bg-emerald-600 hover:bg-emerald-500">
-                            {processing ? 'Saving…' : 'Create package'}
-                        </Button>
-                        <Link href="/admin/b2c-packages">
-                            <Button type="button" variant="outline" className="border-white/20 text-slate-200">
-                                Cancel
+            <header className="mb-8">
+                <div className={adminChip}>
+                    <Sparkles className="h-3.5 w-3.5" />
+                    B2C registration
+                </div>
+                <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Create package</h1>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#94a3b8] sm:text-base">
+                    Packages you save here power the public Packages page. Use the sections below — required fields are grouped at the top so
+                    you can publish faster.
+                </p>
+            </header>
+
+            <form onSubmit={submit} className="space-y-8 pb-28">
+                <B2cPackageAdminForm
+                    data={data as B2cPackageFormShape}
+                    setData={(key, value) => setData(key as keyof typeof data, value as never)}
+                    errors={errors}
+                />
+
+                <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[#2d4a6f]/40 bg-[#0a1628]/95 px-4 py-4 backdrop-blur-md sm:px-6">
+                    <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <p className={`text-xs sm:text-sm ${adminMuted}`}>Draft is saved only after you click Create package.</p>
+                        <div className="flex flex-wrap gap-2 sm:justify-end">
+                            <Link href="/admin/b2c-packages">
+                                <button type="button" className={adminGhostBtn}>
+                                    Cancel
+                                </button>
+                            </Link>
+                            <Button type="submit" disabled={processing} className={adminPrimaryBtn}>
+                                {processing ? 'Saving…' : 'Create package'}
                             </Button>
-                        </Link>
+                        </div>
                     </div>
-                </form>
-            </div>
-        </div>
+                </div>
+            </form>
+        </AdminPortalShell>
     );
 }

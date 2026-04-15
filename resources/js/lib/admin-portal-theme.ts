@@ -1,0 +1,46 @@
+/**
+ * Shared “Cahaya Anbiya” admin visuals — aligned with B2C splash / home (navy, warm orange, gold).
+ * Avoid cold blue as the dominant accent.
+ */
+
+export const adminPageBg =
+    'relative min-h-screen overflow-hidden bg-[#0a1628] text-[#e8ecf4] antialiased';
+
+export const adminAmbient =
+    'pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(255,82,0,0.12),transparent_55%),radial-gradient(ellipse_at_80%_100%,rgba(254,201,1,0.08),transparent_50%),radial-gradient(ellipse_at_50%_50%,rgba(45,74,111,0.25),transparent_65%)]';
+
+export const adminContent = 'relative z-10';
+
+export const adminGlassPanel =
+    'rounded-2xl border border-[#2d4a6f]/35 bg-[#0d1422]/85 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.55)] backdrop-blur-md';
+
+export const adminMuted = 'text-[#94a3b8]';
+
+export const adminLabel = 'mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#cbd5e1]';
+
+export const adminInput =
+    'w-full rounded-xl border border-[#2d4a6f]/45 bg-[#070d16]/70 px-3.5 py-2.5 text-sm text-[#f8fafc] shadow-inner placeholder:text-slate-500 transition-colors focus:border-[#ff5200]/55 focus:outline-none focus:ring-2 focus:ring-[#ff5200]/25';
+
+export const adminSelect = `${adminInput} cursor-pointer appearance-none bg-[#070d16]/90`;
+
+export const adminTextarea = `${adminInput} min-h-[5rem] resize-y font-sans`;
+
+export const adminTextareaMono = `${adminTextarea} font-mono text-xs leading-relaxed`;
+
+export const adminSectionTitle = 'text-lg font-semibold tracking-tight text-white';
+
+export const adminSectionDesc = `mt-1 text-sm ${adminMuted}`;
+
+export const adminChip =
+    'inline-flex items-center gap-2 rounded-full border border-[#ff5200]/25 bg-[#ff5200]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#fec901]';
+
+export const adminPrimaryBtn =
+    'rounded-xl bg-gradient-to-r from-[#ff5200] to-[#e64a00] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-900/30 transition hover:from-[#ff6b35] hover:to-[#ff5200] disabled:opacity-60';
+
+export const adminGhostBtn =
+    'rounded-xl border border-[#2d4a6f]/50 bg-transparent px-5 py-2.5 text-sm font-medium text-[#e8ecf4] transition hover:border-[#fec901]/40 hover:bg-[#fec901]/5';
+
+export const adminLinkSubtle = 'text-sm text-[#94a3b8] transition hover:text-[#fec901]';
+
+export const adminBackLink =
+    'inline-flex items-center gap-2 rounded-xl border border-[#2d4a6f]/40 bg-[#0d1422]/60 px-3 py-2 text-sm font-medium text-[#cbd5e1] transition hover:border-[#ff5200]/35 hover:text-white';

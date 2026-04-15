@@ -285,6 +285,7 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
         <AuthLayout
             title={mode === 'admin' ? "Admin Login" : "Log in to your account"}
             description={mode === 'admin' ? "Enter your admin credentials to access the admin dashboard" : "Enter your email and password below to log in"}
+            variant={mode === 'admin' ? 'admin' : 'default'}
         >
             <Head title={mode === 'admin' ? "Admin Login" : "Log in"} />
 
@@ -420,10 +421,14 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                         <Label htmlFor="remember" className={(processing || isSubmitting) ? 'opacity-60 cursor-not-allowed' : ''}>Remember me</Label>
                     </div>
 
-                    <Button 
-                        type="submit" 
-                        className="mt-4 w-full relative min-h-[44px]" 
-                        tabIndex={4} 
+                    <Button
+                        type="submit"
+                        className={
+                            mode === 'admin'
+                                ? 'relative mt-4 min-h-[44px] w-full border-0 bg-gradient-to-r from-[#ff5200] to-[#e64a00] font-semibold text-white shadow-lg shadow-orange-900/25 hover:from-[#ff6b35] hover:to-[#ff5200]'
+                                : 'relative mt-4 min-h-[44px] w-full'
+                        }
+                        tabIndex={4}
                         disabled={processing || isSubmitting}
                     >
                         {(processing || isSubmitting) ? (

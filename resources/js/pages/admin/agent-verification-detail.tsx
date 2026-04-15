@@ -1,3 +1,5 @@
+import AdminPortalShell from '@/components/admin/AdminPortalShell';
+import { adminBackLink, adminGhostBtn, adminPrimaryBtn } from '@/lib/admin-portal-theme';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -102,7 +104,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
         switch (verification.status) {
             case 'pending':
                 return (
-                    <Badge className="border-accent/30 bg-accent/20 text-accent">
+                    <Badge className="border-[#ff5200]/35 bg-[#ff5200]/15 text-[#fec901]">
                         <Clock className="mr-1 h-3 w-3" />
                         Pending
                     </Badge>
@@ -125,10 +127,10 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <AdminPortalShell className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
             <Head title={`Verification: ${verification.company_name} - Admin`} />
 
-            <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+            <div>
                 {/* Flash messages (e.g. download error) */}
                 {flash?.error && <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-red-300">{flash.error}</div>}
                 {flash?.success && (
@@ -138,16 +140,13 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                 <div className="mb-6">
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                         <div className="flex flex-wrap items-center gap-3">
-                            <Link
-                                href="/admin"
-                                className="inline-flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-2 text-sm font-medium text-gray-300 transition-all hover:border-gray-600 hover:bg-gray-800 hover:text-white"
-                            >
+                            <Link href="/admin" className={adminBackLink}>
                                 <ArrowLeft className="h-4 w-4" />
                                 Back to Dashboard
                             </Link>
                             <Link
                                 href={route('admin.agent-verifications')}
-                                className="inline-flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-2 text-sm font-medium text-gray-300 transition-all hover:border-gray-600 hover:bg-gray-800 hover:text-white"
+                                className={adminBackLink}
                             >
                                 <ArrowLeft className="h-4 w-4" />
                                 Back to List
@@ -156,7 +155,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                         <button
                             onClick={logout}
                             disabled={isLoggingOut}
-                            className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition-all hover:border-red-500/50 hover:bg-red-500/20 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-50"
+                            className={`${adminGhostBtn} border-red-400/35 text-red-200 hover:border-red-400/50 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50`}
                         >
                             <LogOut className="h-4 w-4" />
                             {isLoggingOut ? 'Logging out...' : 'Logout'}
@@ -164,12 +163,12 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                     </div>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#ff5200] to-[#e64a00] shadow-lg shadow-orange-900/30">
                                 <Building2 className="h-6 w-6 text-white" />
                             </div>
                             <div>
                                 <h1 className="text-3xl font-bold text-white">{verification.company_name}</h1>
-                                <p className="text-gray-400">Agent Verification Details</p>
+                                <p className="text-[#94a3b8]">Agent Verification Details</p>
                             </div>
                         </div>
                         {getStatusBadge()}
@@ -180,18 +179,18 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                     {/* Main Content */}
                     <div className="space-y-6 lg:col-span-2">
                         {/* Company Information */}
-                        <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+                        <Card className="border-[#2d4a6f]/40 bg-[#0d1422]/75 backdrop-blur-sm">
                             <CardHeader>
                                 <CardTitle className="text-white">Company Information</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div>
-                                        <Label className="text-gray-400">Company Name</Label>
+                                        <Label className="text-[#94a3b8]">Company Name</Label>
                                         <p className="mt-1 text-white">{verification.company_name}</p>
                                     </div>
                                     <div>
-                                        <Label className="text-gray-400">Business Type</Label>
+                                        <Label className="text-[#94a3b8]">Business Type</Label>
                                         <p className="mt-1 text-white">{verification.business_type}</p>
                                         {verification.business_type === 'Other' && verification.business_type_other && (
                                             <div className="mt-2 rounded-lg border border-accent/20 bg-accent/10 p-3">
@@ -201,21 +200,21 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                         )}
                                     </div>
                                     <div>
-                                        <Label className="text-gray-400">Company Email</Label>
+                                        <Label className="text-[#94a3b8]">Company Email</Label>
                                         <p className="mt-1 text-white">{verification.company_email}</p>
                                     </div>
                                     <div>
-                                        <Label className="text-gray-400">Company Phone</Label>
+                                        <Label className="text-[#94a3b8]">Company Phone</Label>
                                         <p className="mt-1 text-white">{verification.company_phone}</p>
                                     </div>
                                     <div className="sm:col-span-2">
-                                        <Label className="text-gray-400">Address</Label>
+                                        <Label className="text-[#94a3b8]">Address</Label>
                                         <p className="mt-1 text-white">
                                             {verification.company_address}, {verification.company_city}, {verification.company_province}{' '}
                                             {verification.company_postal_code}
                                         </p>
-                                        <div className="mt-2 rounded-lg border border-blue-500/30 bg-blue-500/10 p-3">
-                                            <Label className="text-xs font-semibold text-blue-300">Country of Origin:</Label>
+                                        <div className="mt-2 rounded-lg border border-[#fec901]/30 bg-[#fec901]/10 p-3">
+                                            <Label className="text-xs font-semibold text-[#fef3c7]">Country of Origin:</Label>
                                             <p className="mt-1 text-base font-bold text-white">{verification.company_country}</p>
                                         </div>
                                     </div>
@@ -224,7 +223,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                         </Card>
 
                         {/* Business Information */}
-                        <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+                        <Card className="border-[#2d4a6f]/40 bg-[#0d1422]/75 backdrop-blur-sm">
                             <CardHeader>
                                 <CardTitle className="text-white">Business Information</CardTitle>
                             </CardHeader>
@@ -232,26 +231,26 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     {verification.business_license_number && (
                                         <div>
-                                            <Label className="text-gray-400">Business License Number</Label>
+                                            <Label className="text-[#94a3b8]">Business License Number</Label>
                                             <p className="mt-1 text-white">{verification.business_license_number}</p>
                                         </div>
                                     )}
                                     {verification.tax_id_number && (
                                         <div>
-                                            <Label className="text-gray-400">Tax ID Number (NPWP)</Label>
+                                            <Label className="text-[#94a3b8]">Tax ID Number (NPWP)</Label>
                                             <p className="mt-1 text-white">{verification.tax_id_number}</p>
                                         </div>
                                     )}
                                     {verification.years_in_business && (
                                         <div>
-                                            <Label className="text-gray-400">Years in Business</Label>
+                                            <Label className="text-[#94a3b8]">Years in Business</Label>
                                             <p className="mt-1 text-white">{verification.years_in_business} years</p>
                                         </div>
                                     )}
                                 </div>
                                 {verification.business_description && (
                                     <div>
-                                        <Label className="text-gray-400">Business Description</Label>
+                                        <Label className="text-[#94a3b8]">Business Description</Label>
                                         <p className="mt-1 text-white">{verification.business_description}</p>
                                     </div>
                                 )}
@@ -259,26 +258,26 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                         </Card>
 
                         {/* Contact Person */}
-                        <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+                        <Card className="border-[#2d4a6f]/40 bg-[#0d1422]/75 backdrop-blur-sm">
                             <CardHeader>
                                 <CardTitle className="text-white">Contact Person</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div>
-                                        <Label className="text-gray-400">Name</Label>
+                                        <Label className="text-[#94a3b8]">Name</Label>
                                         <p className="mt-1 text-white">{verification.contact_person_name}</p>
                                     </div>
                                     <div>
-                                        <Label className="text-gray-400">Position</Label>
+                                        <Label className="text-[#94a3b8]">Position</Label>
                                         <p className="mt-1 text-white">{verification.contact_person_position}</p>
                                     </div>
                                     <div>
-                                        <Label className="text-gray-400">Email</Label>
+                                        <Label className="text-[#94a3b8]">Email</Label>
                                         <p className="mt-1 text-white">{verification.contact_person_email}</p>
                                     </div>
                                     <div>
-                                        <Label className="text-gray-400">Phone</Label>
+                                        <Label className="text-[#94a3b8]">Phone</Label>
                                         <p className="mt-1 text-white">{verification.contact_person_phone}</p>
                                     </div>
                                 </div>
@@ -287,7 +286,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
 
                         {/* Documents */}
                         {(verification.business_license_file || verification.tax_certificate_file || verification.company_profile_file) && (
-                            <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+                            <Card className="border-[#2d4a6f]/40 bg-[#0d1422]/75 backdrop-blur-sm">
                                 <CardHeader>
                                     <CardTitle className="text-white">Supporting Documents</CardTitle>
                                 </CardHeader>
@@ -297,14 +296,14 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                             href={verification.business_license_file}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-3 transition-colors hover:bg-gray-900"
+                                            className="flex items-center gap-3 rounded-lg border border-[#2d4a6f]/40 bg-[#070d16]/70 p-3 transition-colors hover:bg-[#ff5200]/5"
                                         >
-                                            <FileText className="h-5 w-5 text-blue-400" />
+                                            <FileText className="h-5 w-5 text-[#fec901]" />
                                             <div className="flex-1">
                                                 <p className="text-white">Business License</p>
-                                                <p className="text-sm text-gray-400">Click to view/download</p>
+                                                <p className="text-sm text-[#94a3b8]">Click to view/download</p>
                                             </div>
-                                            <Download className="h-4 w-4 text-gray-400" />
+                                            <Download className="h-4 w-4 text-[#fec901]" />
                                         </a>
                                     )}
                                     {verification.tax_certificate_file && (
@@ -312,14 +311,14 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                             href={verification.tax_certificate_file}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-3 transition-colors hover:bg-gray-900"
+                                            className="flex items-center gap-3 rounded-lg border border-[#2d4a6f]/40 bg-[#070d16]/70 p-3 transition-colors hover:bg-[#ff5200]/5"
                                         >
                                             <FileText className="h-5 w-5 text-green-400" />
                                             <div className="flex-1">
                                                 <p className="text-white">Tax Certificate</p>
-                                                <p className="text-sm text-gray-400">Click to view/download</p>
+                                                <p className="text-sm text-[#94a3b8]">Click to view/download</p>
                                             </div>
-                                            <Download className="h-4 w-4 text-gray-400" />
+                                            <Download className="h-4 w-4 text-[#fec901]" />
                                         </a>
                                     )}
                                     {verification.company_profile_file && (
@@ -327,14 +326,14 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                             href={verification.company_profile_file}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center gap-3 rounded-lg border border-gray-700 bg-gray-900/50 p-3 transition-colors hover:bg-gray-900"
+                                            className="flex items-center gap-3 rounded-lg border border-[#2d4a6f]/40 bg-[#070d16]/70 p-3 transition-colors hover:bg-[#ff5200]/5"
                                         >
                                             <FileText className="h-5 w-5 text-purple-400" />
                                             <div className="flex-1">
                                                 <p className="text-white">Company Profile</p>
-                                                <p className="text-sm text-gray-400">Click to view/download</p>
+                                                <p className="text-sm text-[#94a3b8]">Click to view/download</p>
                                             </div>
-                                            <Download className="h-4 w-4 text-gray-400" />
+                                            <Download className="h-4 w-4 text-[#fec901]" />
                                         </a>
                                     )}
                                 </CardContent>
@@ -342,26 +341,26 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                         )}
 
                         {/* User Account Info */}
-                        <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+                        <Card className="border-[#2d4a6f]/40 bg-[#0d1422]/75 backdrop-blur-sm">
                             <CardHeader>
                                 <CardTitle className="text-white">User Account</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div>
-                                        <Label className="text-gray-400">Name</Label>
+                                        <Label className="text-[#94a3b8]">Name</Label>
                                         <p className="mt-1 text-white">{verification.user_name}</p>
                                     </div>
                                     <div>
-                                        <Label className="text-gray-400">Email</Label>
+                                        <Label className="text-[#94a3b8]">Email</Label>
                                         <p className="mt-1 text-white">{verification.user_email}</p>
                                     </div>
                                     <div>
-                                        <Label className="text-gray-400">User ID</Label>
+                                        <Label className="text-[#94a3b8]">User ID</Label>
                                         <p className="mt-1 text-white">{verification.user_id}</p>
                                     </div>
                                     <div>
-                                        <Label className="text-gray-400">Application Submitted</Label>
+                                        <Label className="text-[#94a3b8]">Application Submitted</Label>
                                         <p className="mt-1 text-white">{verification.created_at_human}</p>
                                     </div>
                                 </div>
@@ -377,7 +376,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                 <Card className="border-green-700 bg-green-900/10 backdrop-blur-sm">
                                     <CardHeader>
                                         <CardTitle className="text-green-300">Approve Application</CardTitle>
-                                        <CardDescription className="text-gray-400">Grant B2B access to this agent</CardDescription>
+                                        <CardDescription className="text-[#94a3b8]">Grant B2B access to this agent</CardDescription>
                                     </CardHeader>
                                     <CardContent>
                                         <form onSubmit={handleApprove}>
@@ -396,12 +395,12 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                 <Card className="border-red-700 bg-red-900/10 backdrop-blur-sm">
                                     <CardHeader>
                                         <CardTitle className="text-red-300">Reject Application</CardTitle>
-                                        <CardDescription className="text-gray-400">Reject this application (reason required)</CardDescription>
+                                        <CardDescription className="text-[#94a3b8]">Reject this application (reason required)</CardDescription>
                                     </CardHeader>
                                     <CardContent>
                                         <form onSubmit={handleReject} className="space-y-4">
                                             <div>
-                                                <Label htmlFor="reject_notes" className="text-gray-300">
+                                                <Label htmlFor="reject_notes" className="text-[#cbd5e1]">
                                                     Rejection Reason <span className="text-red-400">*</span>
                                                 </Label>
                                                 <textarea
@@ -409,7 +408,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                                     value={rejectForm.data.admin_notes}
                                                     onChange={(e) => rejectForm.setData('admin_notes', e.target.value)}
                                                     rows={4}
-                                                    className="mt-1 w-full rounded-md border border-gray-600 bg-gray-900/50 px-3 py-2 text-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 focus:outline-none"
+                                                    className="mt-1 w-full rounded-xl border border-[#2d4a6f]/50 bg-[#070d16]/80 px-3 py-2 text-white focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/25"
                                                     placeholder="Please provide a reason for rejection..."
                                                     required
                                                 />
@@ -426,7 +425,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
 
                         {/* Review Info */}
                         {verification.status !== 'pending' && (
-                            <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+                            <Card className="border-[#2d4a6f]/40 bg-[#0d1422]/75 backdrop-blur-sm">
                                 <CardHeader>
                                     <div className="flex items-center justify-between">
                                         <CardTitle className="text-white">Review Information</CardTitle>
@@ -435,7 +434,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                                 onClick={() => setIsEditing(true)}
                                                 variant="outline"
                                                 size="sm"
-                                                className="border-blue-500/30 bg-blue-500/10 text-blue-300 hover:bg-blue-500/20"
+                                                className="border-[#fec901]/35 bg-[#fec901]/10 text-[#fec901] hover:bg-[#fec901]/20"
                                             >
                                                 <Edit2 className="mr-2 h-4 w-4" />
                                                 Update
@@ -446,13 +445,13 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                 <CardContent className="space-y-3">
                                     {verification.reviewed_by && (
                                         <div>
-                                            <Label className="text-gray-400">Reviewed By</Label>
+                                            <Label className="text-[#94a3b8]">Reviewed By</Label>
                                             <p className="mt-1 text-white">{verification.reviewed_by}</p>
                                         </div>
                                     )}
                                     {verification.reviewed_at && (
                                         <div>
-                                            <Label className="text-gray-400">Reviewed At</Label>
+                                            <Label className="text-[#94a3b8]">Reviewed At</Label>
                                             <p className="mt-1 text-white">{verification.reviewed_at}</p>
                                         </div>
                                     )}
@@ -460,7 +459,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                     {isEditing ? (
                                         <form onSubmit={handleUpdate} className="space-y-4">
                                             <div>
-                                                <Label htmlFor="update_status" className="text-gray-300">
+                                                <Label htmlFor="update_status" className="text-[#cbd5e1]">
                                                     Status <span className="text-red-400">*</span>
                                                 </Label>
                                                 <Select
@@ -474,10 +473,10 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                                         }
                                                     }}
                                                 >
-                                                    <SelectTrigger className="mt-1 border-gray-600 bg-gray-900/50 text-white">
+                                                    <SelectTrigger className="mt-1 border-[#2d4a6f]/50 bg-[#070d16]/80 text-white">
                                                         <SelectValue />
                                                     </SelectTrigger>
-                                                    <SelectContent className="border-gray-700 bg-gray-800">
+                                                    <SelectContent className="border-[#2d4a6f]/50 bg-[#0d1422]">
                                                         <SelectItem value="pending" className="text-white hover:bg-accent/20">
                                                             <div className="flex items-center gap-2">
                                                                 <Clock className="h-4 w-4 text-accent" />
@@ -504,7 +503,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                             {/* Admin Notes - Only show if status is rejected */}
                                             {updateForm.data.status === 'rejected' && (
                                                 <div>
-                                                    <Label htmlFor="update_notes" className="text-gray-300">
+                                                    <Label htmlFor="update_notes" className="text-[#cbd5e1]">
                                                         Admin Notes <span className="text-red-400">*</span>
                                                     </Label>
                                                     <textarea
@@ -512,12 +511,12 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                                         value={updateForm.data.admin_notes}
                                                         onChange={(e) => updateForm.setData('admin_notes', e.target.value)}
                                                         rows={6}
-                                                        className="mt-1 w-full rounded-md border border-gray-600 bg-gray-900/50 px-3 py-2 text-white placeholder:text-gray-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 focus:outline-none"
+                                                        className="mt-1 w-full rounded-xl border border-[#2d4a6f]/50 bg-[#070d16]/80 px-3 py-2 text-white placeholder:text-[#64748b] focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/25"
                                                         placeholder="Please provide a reason for rejection..."
                                                         required
                                                     />
                                                     <InputError message={updateForm.errors.admin_notes} />
-                                                    <p className="mt-1 text-xs text-gray-400">Rejection reason is required</p>
+                                                    <p className="mt-1 text-xs text-[#94a3b8]">Rejection reason is required</p>
                                                 </div>
                                             )}
 
@@ -525,7 +524,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                                 <Button
                                                     type="submit"
                                                     disabled={updateForm.processing}
-                                                    className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700"
+                                                    className={`flex-1 ${adminPrimaryBtn}`}
                                                 >
                                                     <Save className="mr-2 h-4 w-4" />
                                                     {updateForm.processing ? 'Saving...' : 'Save Changes'}
@@ -535,7 +534,7 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                                     onClick={handleCancelEdit}
                                                     variant="outline"
                                                     disabled={updateForm.processing}
-                                                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                                                    className="border-[#2d4a6f]/50 text-[#e2e8f0] hover:bg-[#1e3a5f]/40"
                                                 >
                                                     <X className="mr-2 h-4 w-4" />
                                                     Cancel
@@ -546,15 +545,15 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                         <>
                                             {verification.admin_notes ? (
                                                 <div>
-                                                    <Label className="text-gray-400">Admin Notes</Label>
-                                                    <div className="mt-1 max-h-[200px] overflow-y-auto rounded-lg border border-gray-700 bg-gray-900/50 p-3">
+                                                    <Label className="text-[#94a3b8]">Admin Notes</Label>
+                                                    <div className="mt-1 max-h-[200px] overflow-y-auto rounded-lg border border-[#2d4a6f]/40 bg-[#070d16]/70 p-3">
                                                         <p className="break-words whitespace-pre-wrap text-white">{verification.admin_notes}</p>
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <div>
-                                                    <Label className="text-gray-400">Admin Notes</Label>
-                                                    <p className="mt-1 text-gray-500 italic">No notes provided</p>
+                                                    <Label className="text-[#94a3b8]">Admin Notes</Label>
+                                                    <p className="mt-1 text-[#64748b] italic">No notes provided</p>
                                                 </div>
                                             )}
                                         </>
@@ -565,6 +564,6 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                     </div>
                 </div>
             </div>
-        </div>
+        </AdminPortalShell>
     );
 }
