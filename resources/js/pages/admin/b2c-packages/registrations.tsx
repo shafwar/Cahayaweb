@@ -1,7 +1,7 @@
 import AdminPortalShell from '@/components/admin/AdminPortalShell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { adminBackLink, adminGhostBtn } from '@/lib/admin-portal-theme';
+import { adminBackLink, adminGhostBtn, adminMuted, adminPageTitle } from '@/lib/admin-portal-theme';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Users } from 'lucide-react';
 
@@ -41,20 +41,20 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
                 All packages
             </Link>
 
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-semibold text-white sm:text-3xl">{pkg.name}</h1>
-                    <p className="mt-1 font-mono text-xs text-[#94a3b8]">{pkg.package_code}</p>
+            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200/90 pb-8">
+                <div className="min-w-0">
+                    <h1 className={`break-words ${adminPageTitle}`}>{pkg.name}</h1>
+                    <p className={`mt-1 font-mono text-xs ${adminMuted}`}>{pkg.package_code}</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                    <Badge className="border border-[#2d4a6f]/50 bg-[#1e3a5f]/60 text-[#e2e8f0]">
+                    <Badge className="border border-slate-200 bg-slate-100 text-slate-800">
                         Pax {pkg.pax_booked}/{pkg.pax_capacity}
                     </Badge>
                     <Badge
                         className={
                             pkg.registration_open
-                                ? 'border border-[#fec901]/40 bg-[#fec901]/15 text-[#fef3c7]'
-                                : 'border border-[#475569]/50 bg-[#334155]/60 text-[#cbd5e1]'
+                                ? 'border border-amber-200 bg-amber-50 text-amber-900'
+                                : 'border border-slate-200 bg-slate-100 text-slate-600'
                         }
                     >
                         {pkg.registration_open ? 'Registration open' : 'Registration closed'}
@@ -67,17 +67,17 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
                 </div>
             </div>
 
-            <div className="mt-8 flex items-center gap-2 text-[#cbd5e1]">
-                <Users className="h-5 w-5 text-[#fec901]" />
+            <div className="mt-8 flex items-center gap-2 text-slate-700">
+                <Users className="h-5 w-5 text-amber-600" />
                 <span className="font-medium">{registrations.length} registration(s)</span>
             </div>
 
             {registrations.length === 0 ? (
-                <p className="mt-6 text-[#94a3b8]">No registrations yet.</p>
+                <p className={`mt-6 ${adminMuted}`}>No registrations yet.</p>
             ) : (
-                <div className="mt-4 overflow-hidden rounded-2xl border border-[#2d4a6f]/40 bg-[#0d1422]/70">
+                <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
                     <table className="w-full text-left text-sm">
-                        <thead className="border-b border-[#2d4a6f]/40 bg-[#070d16]/80 text-xs uppercase tracking-wide text-[#94a3b8]">
+                        <thead className="border-b border-slate-200 bg-slate-50/90 text-xs font-medium uppercase tracking-wide text-slate-500">
                             <tr>
                                 <th className="px-4 py-3">Participant</th>
                                 <th className="px-4 py-3">Contact</th>
@@ -87,21 +87,21 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
                                 <th className="px-4 py-3">Registered</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#2d4a6f]/30 text-[#e2e8f0]">
+                        <tbody className="divide-y divide-slate-100 text-slate-800">
                             {registrations.map((r) => (
-                                <tr key={r.id} className="hover:bg-[#ff5200]/5">
+                                <tr key={r.id} className="hover:bg-orange-50/30">
                                     <td className="px-4 py-3">
-                                        <div className="font-medium">{r.full_name}</div>
-                                        <div className="text-xs text-[#94a3b8]">{r.gender}</div>
+                                        <div className="font-medium text-[#1e3a5f]">{r.full_name}</div>
+                                        <div className="text-xs text-slate-500">{r.gender}</div>
                                     </td>
                                     <td className="px-4 py-3 text-xs">
                                         <div>{r.email}</div>
-                                        <div className="text-[#94a3b8]">{r.phone}</div>
+                                        <div className="text-slate-500">{r.phone}</div>
                                     </td>
                                     <td className="px-4 py-3 font-mono text-xs">{r.passport_number}</td>
-                                    <td className="max-w-xs truncate px-4 py-3 text-xs text-[#cbd5e1]">{r.address}</td>
+                                    <td className="max-w-xs truncate px-4 py-3 text-xs text-slate-600">{r.address}</td>
                                     <td className="px-4 py-3">{r.pax}</td>
-                                    <td className="px-4 py-3 text-xs text-[#94a3b8]">{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
+                                    <td className="px-4 py-3 text-xs text-slate-500">{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
                                 </tr>
                             ))}
                         </tbody>

@@ -300,21 +300,31 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                 {/* Loading overlay - shows when form is submitting */}
                 {/* Use both processing and isSubmitting for maximum reliability */}
                 {(processing || isSubmitting) && (
-                    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                        <div className="flex flex-col items-center gap-4 rounded-xl bg-gray-900/98 px-8 py-6 shadow-2xl border border-amber-500/20">
-                            <LoaderCircle className="h-10 w-10 animate-spin text-amber-500" />
+                    <div
+                        className={`fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm ${
+                            mode === 'admin' ? 'bg-slate-600/25' : 'bg-black/60'
+                        }`}
+                    >
+                        <div
+                            className={`flex flex-col items-center gap-4 rounded-xl border px-8 py-6 shadow-2xl ${
+                                mode === 'admin'
+                                    ? 'border-slate-200 bg-white shadow-slate-300/40'
+                                    : 'border-amber-500/20 bg-gray-900/98'
+                            }`}
+                        >
+                            <LoaderCircle className={`h-10 w-10 animate-spin ${mode === 'admin' ? 'text-orange-500' : 'text-amber-500'}`} />
                             <div className="text-center">
-                                <p className="text-base font-semibold text-white">
+                                <p className={`text-base font-semibold ${mode === 'admin' ? 'text-[#1e3a5f]' : 'text-white'}`}>
                                     {hasPreviousError ? 'Refreshing page...' : 'Validating credentials...'}
                                 </p>
-                                <p className="text-xs text-gray-400 mt-1">
-                                    {hasPreviousError 
+                                <p className={`mt-1 text-xs ${mode === 'admin' ? 'text-slate-500' : 'text-gray-400'}`}>
+                                    {hasPreviousError
                                         ? 'Please wait while we refresh and validate your credentials'
                                         : 'Please wait while we verify your information'}
                                 </p>
                             </div>
-                            <div className="w-48 h-1 bg-gray-700 rounded-full overflow-hidden mt-2">
-                                <div className="h-full bg-gradient-to-r from-amber-500 to-orange-500 animate-pulse" style={{ width: '60%' }}></div>
+                            <div className={`mt-2 h-1 w-48 overflow-hidden rounded-full ${mode === 'admin' ? 'bg-slate-200' : 'bg-gray-700'}`}>
+                                <div className="h-full animate-pulse bg-gradient-to-r from-amber-500 to-orange-500" style={{ width: '60%' }}></div>
                             </div>
                         </div>
                     </div>
@@ -425,7 +435,7 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                         type="submit"
                         className={
                             mode === 'admin'
-                                ? 'relative mt-4 min-h-[44px] w-full border-0 bg-gradient-to-r from-[#ff5200] to-[#e64a00] font-semibold text-white shadow-lg shadow-orange-900/25 hover:from-[#ff6b35] hover:to-[#ff5200]'
+                                ? 'relative mt-4 min-h-[44px] w-full border-0 bg-gradient-to-r from-[#ff5200] to-[#e64a00] font-semibold text-white shadow-lg shadow-orange-200/60 hover:from-[#ff6b35] hover:to-[#ff5200]'
                                 : 'relative mt-4 min-h-[44px] w-full'
                         }
                         tabIndex={4}
