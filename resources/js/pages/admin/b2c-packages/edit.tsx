@@ -2,9 +2,10 @@ import AdminPortalShell from '@/components/admin/AdminPortalShell';
 import B2cPackageAdminForm, { type B2cPackageFormShape } from '@/components/admin/B2cPackageAdminForm';
 import B2cPackageFormPageLayout from '@/components/admin/B2cPackageFormPageLayout';
 import { Button } from '@/components/ui/button';
-import { adminChip, adminGhostBtn, adminMuted, adminPrimaryBtn } from '@/lib/admin-portal-theme';
+import { adminGhostBtn, adminMuted, adminPrimaryBtn } from '@/lib/admin-portal-theme';
+import { useLogout } from '@/hooks/useLogout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Sparkles, Users } from 'lucide-react';
+import { LogOut, Users } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 type Pkg = {
@@ -32,6 +33,7 @@ type Pkg = {
 };
 
 export default function B2cPackagesEdit({ package: pkg }: { package: Pkg }) {
+    const { logout, isLoggingOut } = useLogout();
     const { data, setData, put, processing, errors } = useForm({
         package_code: pkg.package_code,
         name: pkg.name,
@@ -67,13 +69,21 @@ export default function B2cPackagesEdit({ package: pkg }: { package: Pkg }) {
                 <B2cPackageFormPageLayout
                     title={pkg.name}
                     description="Updates below are reflected on the public site after you save. On wide screens, use the list on the right to jump between sections."
-                    chip={
-                        <div className={adminChip}>
-                            <Sparkles className="h-3.5 w-3.5" aria-hidden />
-                            Edit package
-                        </div>
-                    }
                     meta={<p className={`font-mono text-xs ${adminMuted}`}>Slug: {pkg.slug}</p>}
+                    topBarEnd={
+                        <>
+                            <span className={`hidden text-xs sm:inline ${adminMuted}`}>Jump list →</span>
+                            <button
+                                type="button"
+                                onClick={logout}
+                                disabled={isLoggingOut}
+                                className={`${adminGhostBtn} border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50`}
+                            >
+                                <LogOut className="mr-2 h-4 w-4" />
+                                {isLoggingOut ? '…' : 'Logout'}
+                            </button>
+                        </>
+                    }
                     headerActions={
                         <Link
                             href={`/admin/b2c-packages/${pkg.slug}/registrations`}

@@ -6,25 +6,27 @@ import { B2C_PACKAGE_FORM_NAV } from '@/components/admin/b2c-package-form-nav';
 
 type Props = {
     title: string;
+    /** Satu baris opsional di bawah judul / meta */
     description?: string;
-    chip: ReactNode;
     headerActions?: ReactNode;
     meta?: ReactNode;
+    /** Kanan bar atas (mis. Logout) */
+    topBarEnd?: ReactNode;
     children: ReactNode;
     stickyNote: string;
     stickyActions: ReactNode;
 };
 
 /**
- * Kerangka halaman create/edit paket B2C: navigasi atas, hero kartu putih,
- * grid form + TOC desktop, bar aksi bawah (gunakan di dalam <form>).
+ * Halaman create/edit paket: tanpa kartu hero besar — bar atas (Back | aksi),
+ * lalu judul + slot kanan, lalu form + TOC.
  */
 export default function B2cPackageFormPageLayout({
     title,
     description,
-    chip,
-    headerActions,
     meta,
+    headerActions,
+    topBarEnd,
     children,
     stickyNote,
     stickyActions,
@@ -32,25 +34,26 @@ export default function B2cPackageFormPageLayout({
     return (
         <>
             <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:py-10">
-                <div className="mb-6 flex flex-col gap-4 border-b border-slate-200/80 pb-6 sm:flex-row sm:items-center sm:justify-between">
-                    <Link href="/admin/b2c-packages" className={adminBackLink}>
-                        <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
-                        Back to packages
-                    </Link>
-                    <p className={`text-xs sm:text-right ${adminMuted}`}>Wide screens: jump between sections using the list on the right.</p>
-                </div>
-
-                <header className="mb-8 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm sm:p-8">
-                    <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="min-w-0 flex-1 space-y-3">
-                            <div className="flex flex-wrap items-center gap-3">{chip}</div>
-                            <h1 className={adminFormHeroTitle}>{title}</h1>
-                            {meta ? <div className="pt-0.5">{meta}</div> : null}
-                            {description ? <p className={`max-w-2xl text-sm leading-relaxed sm:text-base ${adminMuted}`}>{description}</p> : null}
-                        </div>
-                        {headerActions ? <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">{headerActions}</div> : null}
+                <div className="mb-8 border-b border-slate-200/80 pb-5">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <Link href="/admin/b2c-packages" className={adminBackLink}>
+                            <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+                            Back to packages
+                        </Link>
+                        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">{topBarEnd}</div>
                     </div>
-                </header>
+
+                    <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                        <div className="min-w-0 flex-1">
+                            <h1 className={adminFormHeroTitle}>{title}</h1>
+                            {meta ? <div className="mt-2">{meta}</div> : null}
+                            {description ? (
+                                <p className={`mt-2 max-w-2xl text-sm leading-relaxed sm:text-base ${adminMuted}`}>{description}</p>
+                            ) : null}
+                        </div>
+                        {headerActions ? <div className="flex shrink-0 flex-wrap gap-2 sm:pt-0.5">{headerActions}</div> : null}
+                    </div>
+                </div>
 
                 <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_13.5rem] lg:items-start lg:gap-12">
                     <div className="min-w-0 space-y-8">{children}</div>

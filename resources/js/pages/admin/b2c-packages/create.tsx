@@ -2,12 +2,14 @@ import AdminPortalShell from '@/components/admin/AdminPortalShell';
 import B2cPackageAdminForm, { type B2cPackageFormShape } from '@/components/admin/B2cPackageAdminForm';
 import B2cPackageFormPageLayout from '@/components/admin/B2cPackageFormPageLayout';
 import { Button } from '@/components/ui/button';
-import { adminChip, adminGhostBtn, adminPrimaryBtn } from '@/lib/admin-portal-theme';
+import { adminGhostBtn, adminMuted, adminPrimaryBtn } from '@/lib/admin-portal-theme';
+import { useLogout } from '@/hooks/useLogout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Sparkles } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 export default function B2cPackagesCreate() {
+    const { logout, isLoggingOut } = useLogout();
     const { data, setData, post, processing, errors } = useForm({
         package_code: '',
         name: '',
@@ -41,12 +43,20 @@ export default function B2cPackagesCreate() {
             <form onSubmit={submit} className="pb-6">
                 <B2cPackageFormPageLayout
                     title="Create package"
-                    description="Packages you save here power the public Packages page when database packages are enabled. On wide screens, use the list on the right to jump between sections."
-                    chip={
-                        <div className={adminChip}>
-                            <Sparkles className="h-3.5 w-3.5" aria-hidden />
-                            B2C registration
-                        </div>
+                    description="On wide screens, use the list on the right to jump between sections."
+                    topBarEnd={
+                        <>
+                            <span className={`hidden text-xs sm:inline ${adminMuted}`}>Jump list →</span>
+                            <button
+                                type="button"
+                                onClick={logout}
+                                disabled={isLoggingOut}
+                                className={`${adminGhostBtn} border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50`}
+                            >
+                                <LogOut className="mr-2 h-4 w-4" />
+                                {isLoggingOut ? '…' : 'Logout'}
+                            </button>
+                        </>
                     }
                     stickyNote="Draft is saved only after you click Create package."
                     stickyActions={
