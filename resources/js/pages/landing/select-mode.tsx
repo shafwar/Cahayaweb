@@ -20,7 +20,7 @@ export default function SelectMode() {
     // Prefetch B2C home during root splash only (?next= uses the Link's own prefetch).
     useEffect(() => {
         if (!autoRedirectToB2c) return;
-        router.prefetch('/home', {}, { cacheFor: HOME_PREFETCH_CACHE_MS });
+        router.prefetch('/home', { method: 'get' }, { cacheFor: HOME_PREFETCH_CACHE_MS });
     }, [autoRedirectToB2c]);
 
     useEffect(() => {
