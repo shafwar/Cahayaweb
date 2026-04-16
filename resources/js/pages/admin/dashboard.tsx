@@ -51,36 +51,39 @@ export default function AdminDashboard() {
     ];
 
     return (
-        <AdminPortalShell className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <AdminPortalShell className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
             <Head title="Admin Dashboard" />
 
-            <div className="mb-6 flex justify-end">
-                <button
-                    onClick={logout}
-                    disabled={isLoggingOut}
-                    type="button"
-                    className={`${adminGhostBtn} border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50`}
+            {/* Satu baris: spacer + hero terpusat + logout — hindari bar penuh hanya untuk tombol yang mendorong konten ke bawah */}
+            <div className="mb-8 grid w-full grid-cols-[1fr_minmax(0,min(100%,42rem))_1fr] items-start gap-x-2 sm:mb-10 sm:gap-x-4">
+                <div aria-hidden className="min-w-0" />
+                <motion.div
+                    initial={{ opacity: 0, y: -16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                    className="col-start-2 row-start-1 w-full text-center"
                 >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    {isLoggingOut ? 'Logging out…' : 'Logout'}
-                </button>
-            </div>
-
-            <motion.div
-                initial={{ opacity: 0, y: -16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="mb-12 text-center sm:mb-16"
-            >
-                <div className={`${adminChip} mb-5`}>
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Admin portal
+                    <div className={`${adminChip} mb-4 sm:mb-5`}>
+                        <Sparkles className="h-3.5 w-3.5" />
+                        Admin portal
+                    </div>
+                    <h1 className={`mb-3 sm:mb-4 ${adminPageTitle} sm:text-5xl lg:text-6xl`}>Admin Dashboard</h1>
+                    <p className="mx-auto max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
+                        Manage CMS content, B2B agent verifications, and B2C package registrations — in one place.
+                    </p>
+                </motion.div>
+                <div className="col-start-3 row-start-1 flex justify-end self-start pt-0.5">
+                    <button
+                        onClick={logout}
+                        disabled={isLoggingOut}
+                        type="button"
+                        className={`${adminGhostBtn} shrink-0 border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50`}
+                    >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        {isLoggingOut ? 'Logging out…' : 'Logout'}
+                    </button>
                 </div>
-                <h1 className={`mb-4 ${adminPageTitle} sm:text-5xl lg:text-6xl`}>Admin Dashboard</h1>
-                <p className="mx-auto max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                    Manage CMS content, B2B agent verifications, and B2C package registrations — in one place.
-                </p>
-            </motion.div>
+            </div>
 
             <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
                 {cards.map((card, index) => {
@@ -116,7 +119,7 @@ export default function AdminDashboard() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.35 }}
-                className="mt-14 text-center text-sm text-slate-500"
+                className="mt-10 text-center text-sm text-slate-500 sm:mt-12"
             >
                 Need help? Contact your system administrator.
             </motion.p>
