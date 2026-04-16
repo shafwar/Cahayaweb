@@ -6,11 +6,11 @@ import { B2C_PACKAGE_FORM_NAV } from '@/components/admin/b2c-package-form-nav';
 
 type Props = {
     title: string;
-    /** Satu baris opsional di bawah judul / meta */
+    /** Teks penjelasan di bawah judul (tentang paket / alur simpan) */
     description?: string;
     headerActions?: ReactNode;
     meta?: ReactNode;
-    /** Kanan bar atas (mis. Logout) */
+    /** Kanan bar kedua (mis. Logout) */
     topBarEnd?: ReactNode;
     children: ReactNode;
     stickyNote: string;
@@ -18,8 +18,8 @@ type Props = {
 };
 
 /**
- * Halaman create/edit paket: tanpa kartu hero besar — bar atas (Back | aksi),
- * lalu judul + slot kanan, lalu form + TOC.
+ * Halaman create/edit paket: Back to dashboard, lalu Back to packages + aksi kanan,
+ * judul, deskripsi informatif, meta opsional, form + TOC.
  */
 export default function B2cPackageFormPageLayout({
     title,
@@ -35,6 +35,14 @@ export default function B2cPackageFormPageLayout({
         <>
             <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:py-10">
                 <div className="mb-8 border-b border-slate-200/80 pb-5">
+                    {/* Di atas judul: kembali ke dashboard admin */}
+                    <div className="mb-4">
+                        <Link href="/admin" className={adminBackLink}>
+                            <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+                            Back to dashboard
+                        </Link>
+                    </div>
+
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <Link href="/admin/b2c-packages" className={adminBackLink}>
                             <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
@@ -46,10 +54,10 @@ export default function B2cPackageFormPageLayout({
                     <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
                         <div className="min-w-0 flex-1">
                             <h1 className={adminFormHeroTitle}>{title}</h1>
-                            {meta ? <div className="mt-2">{meta}</div> : null}
                             {description ? (
-                                <p className={`mt-2 max-w-2xl text-sm leading-relaxed sm:text-base ${adminMuted}`}>{description}</p>
+                                <p className={`mt-3 max-w-2xl text-sm leading-relaxed sm:text-base ${adminMuted}`}>{description}</p>
                             ) : null}
+                            {meta ? <div className="mt-3">{meta}</div> : null}
                         </div>
                         {headerActions ? <div className="flex shrink-0 flex-wrap gap-2 sm:pt-0.5">{headerActions}</div> : null}
                     </div>

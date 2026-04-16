@@ -1,9 +1,16 @@
 import AdminPortalShell from '@/components/admin/AdminPortalShell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { adminFormHeroTitle, adminGhostBtn, adminMuted, adminPrimaryBtn } from '@/lib/admin-portal-theme';
+import {
+    adminBackLink,
+    adminChip,
+    adminGhostBtn,
+    adminMuted,
+    adminPageTitle,
+    adminPrimaryBtn,
+} from '@/lib/admin-portal-theme';
 import { Head, Link, router } from '@inertiajs/react';
-import { Calendar, LogOut, Pencil, Plus, Trash2, Users } from 'lucide-react';
+import { ArrowLeft, Calendar, LogOut, Package, Pencil, Plus, Sparkles, Trash2, Users } from 'lucide-react';
 import { useLogout } from '@/hooks/useLogout';
 
 type Row = {
@@ -35,8 +42,12 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
         <AdminPortalShell className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
             <Head title="B2C Packages — Admin" />
 
-            {/* Bar atas: hanya Logout */}
-            <div className="mb-6 flex justify-end">
+            {/* Bar navigasi: kembali ke dashboard | logout */}
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 pb-6">
+                <Link href="/admin" className={adminBackLink}>
+                    <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+                    Back to dashboard
+                </Link>
                 <Button
                     type="button"
                     variant="outline"
@@ -49,15 +60,31 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
                 </Button>
             </div>
 
-            {/* Judul + New package sejajar, di bawah bar logout */}
-            <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-                <h1 className={adminFormHeroTitle}>Packages</h1>
-                <Link href="/admin/b2c-packages/create">
-                    <Button type="button" className={`${adminPrimaryBtn} gap-2`}>
-                        <Plus className="h-4 w-4" />
-                        New package
-                    </Button>
-                </Link>
+            {/* Judul halaman: ikon + badge + deskripsi; New package di kanan */}
+            <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex min-w-0 flex-1 items-start gap-4">
+                    <div className="rounded-xl bg-gradient-to-br from-orange-50 to-amber-50 p-3 ring-1 ring-orange-100">
+                        <Package className="h-8 w-8 text-orange-600" aria-hidden />
+                    </div>
+                    <div className="min-w-0">
+                        <div className={adminChip}>
+                            <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                            B2C registration
+                        </div>
+                        <h1 className={`mt-3 ${adminPageTitle}`}>Packages</h1>
+                        <p className={`mt-2 max-w-2xl text-sm leading-relaxed sm:text-base ${adminMuted}`}>
+                            Create and manage bookable packages. The public Packages page uses this list when database packages are enabled.
+                        </p>
+                    </div>
+                </div>
+                <div className="shrink-0 sm:pt-1">
+                    <Link href="/admin/b2c-packages/create">
+                        <Button type="button" className={`${adminPrimaryBtn} gap-2`}>
+                            <Plus className="h-4 w-4" />
+                            New package
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             {flash?.message ? (
@@ -96,7 +123,7 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
                             {packages.map((p) => (
                                 <tr key={p.id} className="transition-colors hover:bg-orange-50/40">
                                     <td className="px-4 py-3">
-                                        <div className="font-medium text-slate-900">{p.name}</div>
+                                        <div className="font-medium text-[#1e3a5f]">{p.name}</div>
                                         <div className="text-xs text-slate-500">{p.departure_period}</div>
                                     </td>
                                     <td className="px-4 py-3 font-mono text-xs text-slate-600">{p.package_code}</td>

@@ -32,6 +32,9 @@ type Pkg = {
     sort_order: number;
 };
 
+const EDIT_INTRO =
+    'Edit the fields below to change what appears on the public B2C Packages page and in the registration flow. Capacity, deadlines, and copy should stay accurate for visitors. Changes apply after you click Save changes. On wide screens, use the list on the right to jump between sections.';
+
 export default function B2cPackagesEdit({ package: pkg }: { package: Pkg }) {
     const { logout, isLoggingOut } = useLogout();
     const { data, setData, put, processing, errors } = useForm({
@@ -68,7 +71,7 @@ export default function B2cPackagesEdit({ package: pkg }: { package: Pkg }) {
             <form onSubmit={submit} className="pb-6">
                 <B2cPackageFormPageLayout
                     title={pkg.name}
-                    description="Updates below are reflected on the public site after you save. On wide screens, use the list on the right to jump between sections."
+                    description={EDIT_INTRO}
                     meta={<p className={`font-mono text-xs ${adminMuted}`}>Slug: {pkg.slug}</p>}
                     topBarEnd={
                         <>

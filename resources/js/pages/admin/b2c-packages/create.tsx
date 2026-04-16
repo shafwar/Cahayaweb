@@ -8,6 +8,9 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { LogOut } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
+const CREATE_INTRO =
+    'A B2C package is what visitors see on the public Packages page: name, travel period, displayed price, capacity, registration deadline, and optional details (description, terms, highlights, hotels, etc.). Nothing is saved until you click Create package at the bottom. On wide screens, use the list on the right to jump between sections.';
+
 export default function B2cPackagesCreate() {
     const { logout, isLoggingOut } = useLogout();
     const { data, setData, post, processing, errors } = useForm({
@@ -43,7 +46,7 @@ export default function B2cPackagesCreate() {
             <form onSubmit={submit} className="pb-6">
                 <B2cPackageFormPageLayout
                     title="Create package"
-                    description="On wide screens, use the list on the right to jump between sections."
+                    description={CREATE_INTRO}
                     topBarEnd={
                         <>
                             <span className={`hidden text-xs sm:inline ${adminMuted}`}>Jump list →</span>
