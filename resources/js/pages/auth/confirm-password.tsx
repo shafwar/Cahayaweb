@@ -48,9 +48,19 @@ export default function ConfirmPassword() {
                     </div>
 
                     <div className="flex items-center">
-                        <Button className="w-full" disabled={processing}>
-                            {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                            Confirm password
+                        <Button
+                            type="submit"
+                            className="relative min-h-[44px] w-full border-0 bg-gradient-to-r from-[#ff5200] to-[#e64a00] font-semibold text-white shadow-lg shadow-orange-200/60 hover:from-[#ff6b35] hover:to-[#ff5200] disabled:opacity-70"
+                            disabled={processing}
+                        >
+                            {processing ? (
+                                <span className="flex items-center justify-center gap-2">
+                                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                                    Confirming…
+                                </span>
+                            ) : (
+                                'Confirm password'
+                            )}
                         </Button>
                     </div>
                 </div>

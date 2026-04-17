@@ -286,21 +286,13 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
         <AuthLayout
             title={mode === 'admin' ? "Admin Login" : "Log in to your account"}
             description={mode === 'admin' ? "Enter your admin credentials to access the admin dashboard" : "Enter your email and password below to log in"}
-            variant={mode === 'admin' ? 'admin' : 'default'}
         >
             <Head title={mode === 'admin' ? "Admin Login" : "Log in"} />
 
             {/* Display error message if provided */}
             {error && (
-                <div
-                    className={cn(
-                        'mb-4 rounded-lg border p-3',
-                        mode === 'admin'
-                            ? 'border-red-200 bg-red-50/90'
-                            : 'border-red-500/30 bg-red-500/10',
-                    )}
-                >
-                    <p className={cn('text-sm', mode === 'admin' ? 'text-red-800' : 'text-red-300')}>{error}</p>
+                <div className="mb-4 rounded-lg border border-red-200 bg-red-50/90 p-3">
+                    <p className="text-sm text-red-800">{error}</p>
                 </div>
             )}
 
@@ -308,30 +300,20 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                 {/* Loading overlay - shows when form is submitting */}
                 {/* Use both processing and isSubmitting for maximum reliability */}
                 {(processing || isSubmitting) && (
-                    <div
-                        className={`fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm ${
-                            mode === 'admin' ? 'bg-slate-600/25' : 'bg-black/60'
-                        }`}
-                    >
-                        <div
-                            className={`flex flex-col items-center gap-4 rounded-xl border px-8 py-6 shadow-2xl ${
-                                mode === 'admin'
-                                    ? 'border-slate-200 bg-white shadow-slate-300/40'
-                                    : 'border-amber-500/20 bg-gray-900/98'
-                            }`}
-                        >
-                            <LoaderCircle className={`h-10 w-10 animate-spin ${mode === 'admin' ? 'text-orange-500' : 'text-amber-500'}`} />
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-600/25 backdrop-blur-sm">
+                        <div className="flex flex-col items-center gap-4 rounded-xl border border-slate-200 bg-white px-8 py-6 shadow-2xl shadow-slate-300/40">
+                            <LoaderCircle className="h-10 w-10 animate-spin text-orange-500" />
                             <div className="text-center">
-                                <p className={`text-base font-semibold ${mode === 'admin' ? 'text-[#1e3a5f]' : 'text-white'}`}>
+                                <p className="text-base font-semibold text-[#1e3a5f]">
                                     {hasPreviousError ? 'Refreshing page...' : 'Validating credentials...'}
                                 </p>
-                                <p className={`mt-1 text-xs ${mode === 'admin' ? 'text-slate-500' : 'text-gray-400'}`}>
+                                <p className="mt-1 text-xs text-slate-500">
                                     {hasPreviousError
                                         ? 'Please wait while we refresh and validate your credentials'
                                         : 'Please wait while we verify your information'}
                                 </p>
                             </div>
-                            <div className={`mt-2 h-1 w-48 overflow-hidden rounded-full ${mode === 'admin' ? 'bg-slate-200' : 'bg-gray-700'}`}>
+                            <div className="mt-2 h-1 w-48 overflow-hidden rounded-full bg-slate-200">
                                 <div className="h-full animate-pulse bg-gradient-to-r from-amber-500 to-orange-500" style={{ width: '60%' }}></div>
                             </div>
                         </div>
@@ -358,38 +340,17 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                         />
                         <InputError message={errors.email} />
                         {errors.email && (
-                            <div
-                                className={cn(
-                                    'mt-2 rounded-lg border p-3',
-                                    mode === 'admin' ? 'border-red-200 bg-red-50/90' : 'border-red-500/30 bg-red-500/10',
-                                )}
-                            >
+                            <div className="mt-2 rounded-lg border border-red-200 bg-red-50/90 p-3">
                                 <div className="flex items-start gap-2">
-                                    <svg
-                                        className={cn(
-                                            'mt-0.5 h-4 w-4 flex-shrink-0',
-                                            mode === 'admin' ? 'text-red-600' : 'text-red-400',
-                                        )}
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                    >
+                                    <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                     </svg>
                                     <div className="flex-1">
-                                        <p className={cn('text-sm font-medium', mode === 'admin' ? 'text-red-800' : 'text-red-300')}>
-                                            {errors.email}
-                                        </p>
+                                        <p className="text-sm font-medium text-red-800">{errors.email}</p>
                                         {errors.email.includes('Admin accounts cannot login') && (
-                                            <p className={cn('mt-1 text-xs', mode === 'admin' ? 'text-red-700' : 'text-red-200')}>
+                                            <p className="mt-1 text-xs text-red-700">
                                                 Please use the admin login page directly at{' '}
-                                                <code
-                                                    className={cn(
-                                                        'rounded px-1 py-0.5 text-xs',
-                                                        mode === 'admin' ? 'bg-red-100 text-red-900' : 'bg-red-500/20',
-                                                    )}
-                                                >
-                                                    /admin
-                                                </code>
+                                                <code className="rounded bg-red-100 px-1 py-0.5 text-xs text-red-900">/admin</code>
                                             </p>
                                         )}
                                     </div>
@@ -405,12 +366,7 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                                 <TextLink
                                     href={route('password.request')}
                                     tabIndex={5}
-                                    className={cn(
-                                        'ml-auto text-sm font-medium underline underline-offset-4',
-                                        mode === 'admin'
-                                            ? 'text-[#c2410c] decoration-orange-300 hover:text-[#ea580c] hover:decoration-orange-400'
-                                            : 'text-foreground decoration-neutral-300',
-                                    )}
+                                    className="ml-auto text-sm font-medium text-[#c2410c] underline decoration-orange-300 underline-offset-4 hover:text-[#ea580c] hover:decoration-orange-400"
                                 >
                                     Forgot password?
                                 </TextLink>
@@ -434,10 +390,7 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                                 onClick={() => setShowPassword(!showPassword)}
                                 disabled={processing || isSubmitting}
                                 className={cn(
-                                    'absolute right-3 top-1/2 -translate-y-1/2 transition-colors focus:outline-none',
-                                    mode === 'admin'
-                                        ? 'text-slate-500 hover:text-slate-800 focus:text-slate-800'
-                                        : 'text-gray-400 hover:text-gray-600 focus:text-gray-600',
+                                    'absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 transition-colors hover:text-slate-800 focus:text-slate-800 focus:outline-none',
                                     (processing || isSubmitting) && 'cursor-not-allowed opacity-50',
                                 )}
                                 tabIndex={-1}
@@ -452,24 +405,12 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                         </div>
                         <InputError message={errors.password} />
                         {errors.password && (
-                            <div
-                                className={cn(
-                                    'mt-2 rounded-lg border p-3',
-                                    mode === 'admin' ? 'border-red-200 bg-red-50/90' : 'border-red-500/30 bg-red-500/10',
-                                )}
-                            >
+                            <div className="mt-2 rounded-lg border border-red-200 bg-red-50/90 p-3">
                                 <div className="flex items-start gap-2">
-                                    <svg
-                                        className={cn(
-                                            'mt-0.5 h-4 w-4 flex-shrink-0',
-                                            mode === 'admin' ? 'text-red-600' : 'text-red-400',
-                                        )}
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                    >
+                                    <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                     </svg>
-                                    <p className={cn('text-sm font-medium', mode === 'admin' ? 'text-red-800' : 'text-red-300')}>{errors.password}</p>
+                                    <p className="text-sm font-medium text-red-800">{errors.password}</p>
                                 </div>
                             </div>
                         )}
@@ -490,11 +431,7 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
 
                     <Button
                         type="submit"
-                        className={
-                            mode === 'admin'
-                                ? 'relative mt-4 min-h-[44px] w-full border-0 bg-gradient-to-r from-[#ff5200] to-[#e64a00] font-semibold text-white shadow-lg shadow-orange-200/60 hover:from-[#ff6b35] hover:to-[#ff5200]'
-                                : 'relative mt-4 min-h-[44px] w-full'
-                        }
+                        className="relative mt-4 min-h-[44px] w-full border-0 bg-gradient-to-r from-[#ff5200] to-[#e64a00] font-semibold text-white shadow-lg shadow-orange-200/60 hover:from-[#ff6b35] hover:to-[#ff5200]"
                         tabIndex={4}
                         disabled={processing || isSubmitting}
                     >
@@ -511,20 +448,20 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
 
                 {/* Hide sign up link for admin mode */}
                 {mode !== 'admin' && (
-                    <div className="text-center text-sm text-muted-foreground">
-                        Don't have an account?{' '}
-                        <TextLink href={route('register')} tabIndex={5}>
+                    <div className="text-center text-sm text-slate-600">
+                        Don&apos;t have an account?{' '}
+                        <TextLink
+                            href={route('register')}
+                            tabIndex={5}
+                            className="font-medium text-[#c2410c] underline decoration-orange-300 underline-offset-4 hover:text-[#ea580c]"
+                        >
                             Sign up
                         </TextLink>
                     </div>
                 )}
             </form>
 
-            {status && (
-                <div className={cn('mb-4 text-center text-sm font-medium', mode === 'admin' ? 'text-green-800' : 'text-green-600')}>
-                    {status}
-                </div>
-            )}
+            {status && <div className="mb-4 text-center text-sm font-medium text-green-800">{status}</div>}
         </AuthLayout>
     );
 }

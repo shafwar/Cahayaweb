@@ -23,11 +23,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
     };
 
     return (
-        <AuthLayout
-            variant="admin"
-            title="Forgot password"
-            description="Enter your email to receive a password reset link"
-        >
+        <AuthLayout title="Forgot password" description="Enter your email to receive a password reset link">
             <Head title="Forgot password" />
 
             {status && (

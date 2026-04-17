@@ -141,15 +141,15 @@ export default function Register() {
 
             {/* Display status messages */}
             {status && (
-                <div className="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 p-3">
-                    <p className="text-sm text-green-300">{status}</p>
+                <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50/90 p-3">
+                    <p className="text-sm font-medium text-emerald-900">{status}</p>
                 </div>
             )}
 
             {/* B2B flow: set expectation for redirect to verification */}
             {mode === 'b2b' && (
-                <div className="mb-4 rounded-lg border border-blue-500/30 bg-blue-500/10 p-3">
-                    <p className="text-sm text-blue-200">
+                <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50/90 p-3">
+                    <p className="text-sm text-amber-950">
                         After creating your account you will be redirected to the verification page to complete your B2B application.
                     </p>
                 </div>
@@ -197,10 +197,10 @@ export default function Register() {
                             (errors.email.includes('already registered') ||
                                 errors.email.includes('already been taken') ||
                                 errors.email.includes('unique')) && (
-                                <div className="mt-2 rounded-lg border-2 border-amber-500/50 bg-amber-500/20 p-4 shadow-lg">
+                                <div className="mt-2 rounded-lg border border-amber-300/80 bg-amber-50 p-4 shadow-sm">
                                     <div className="flex items-start gap-3">
                                         <div className="mt-0.5 flex-shrink-0">
-                                            <svg className="h-5 w-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg className="h-5 w-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
                                                 <path
                                                     fillRule="evenodd"
                                                     d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
@@ -209,16 +209,16 @@ export default function Register() {
                                             </svg>
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="mb-1 text-sm font-semibold text-amber-300">Email Already Registered</h4>
-                                            <p className="text-sm leading-relaxed text-amber-200/90">
-                                                The email address <strong className="font-semibold text-amber-100">{data.email}</strong> is already
+                                            <h4 className="mb-1 text-sm font-semibold text-amber-900">Email Already Registered</h4>
+                                            <p className="text-sm leading-relaxed text-amber-950/90">
+                                                The email address <strong className="font-semibold text-[#1e3a5f]">{data.email}</strong> is already
                                                 registered in our system.
                                             </p>
-                                            <p className="mt-2 text-sm text-amber-200/90">
+                                            <p className="mt-2 text-sm text-amber-950/90">
                                                 If this is your account, please{' '}
                                                 <TextLink
                                                     href={route('login', mode === 'b2b' ? { mode: 'b2b', redirect } : {})}
-                                                    className="font-semibold text-amber-100 underline hover:text-amber-50"
+                                                    className="font-semibold text-[#c2410c] underline decoration-orange-300 hover:text-[#ea580c]"
                                                 >
                                                     log in here
                                                 </TextLink>{' '}
@@ -246,11 +246,11 @@ export default function Register() {
                         />
                         <div className="flex items-start gap-2">
                             <InputError message={errors.password} />
-                            {!errors.password && <p className="text-xs text-muted-foreground">Password must be at least 8 characters long.</p>}
+                            {!errors.password && <p className="text-xs text-slate-600">Password must be at least 8 characters long.</p>}
                         </div>
                         {data.password && data.password.length > 0 && data.password.length < 8 && (
-                            <div className="mt-1 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2">
-                                <p className="text-xs text-amber-300">
+                            <div className="mt-1 rounded-lg border border-amber-200 bg-amber-50 p-2">
+                                <p className="text-xs text-amber-900">
                                     <strong>Password too short:</strong> Your password must be at least 8 characters. Currently:{' '}
                                     {data.password.length} character{data.password.length !== 1 ? 's' : ''}.
                                 </p>
@@ -273,15 +273,21 @@ export default function Register() {
                         />
                         <InputError message={errors.password_confirmation} />
                         {data.password && data.password_confirmation && data.password !== data.password_confirmation && (
-                            <div className="mt-1 rounded-lg border border-red-500/30 bg-red-500/10 p-2">
-                                <p className="text-xs text-red-300">
+                            <div className="mt-1 rounded-lg border border-red-200 bg-red-50 p-2">
+                                <p className="text-xs text-red-800">
                                     <strong>Passwords do not match.</strong> Please make sure both password fields contain the same password.
                                 </p>
                             </div>
                         )}
                     </div>
 
-                    <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={showLoading} aria-busy={showLoading}>
+                    <Button
+                        type="submit"
+                        className="relative mt-2 min-h-[44px] w-full border-0 bg-gradient-to-r from-[#ff5200] to-[#e64a00] font-semibold text-white shadow-lg shadow-orange-200/60 hover:from-[#ff6b35] hover:to-[#ff5200] disabled:opacity-70"
+                        tabIndex={5}
+                        disabled={showLoading}
+                        aria-busy={showLoading}
+                    >
                         {showLoading ? (
                             <>
                                 <LoaderCircle className="mr-2 h-4 w-4 shrink-0 animate-spin" aria-hidden />
@@ -295,14 +301,18 @@ export default function Register() {
 
                 {/* Display general errors if any */}
                 {errors && Object.keys(errors).length > 0 && !errors.name && !errors.email && !errors.password && !errors.password_confirmation && (
-                    <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
-                        <p className="text-sm text-red-300">Please check the form for errors and try again.</p>
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                        <p className="text-sm text-red-800">Please check the form for errors and try again.</p>
                     </div>
                 )}
 
-                <div className="text-center text-sm text-muted-foreground">
+                <div className="text-center text-sm text-slate-600">
                     Already have an account?{' '}
-                    <TextLink href={route('login', mode === 'b2b' ? { mode: 'b2b', redirect } : {})} tabIndex={6}>
+                    <TextLink
+                        href={route('login', mode === 'b2b' ? { mode: 'b2b', redirect } : {})}
+                        tabIndex={6}
+                        className="font-medium text-[#c2410c] underline decoration-orange-300 underline-offset-4 hover:text-[#ea580c]"
+                    >
                         Log in
                     </TextLink>
                 </div>
