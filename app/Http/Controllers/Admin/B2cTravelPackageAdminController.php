@@ -148,33 +148,46 @@ class B2cTravelPackageAdminController extends Controller
     {
         $validated = $this->validatePackage($request);
 
-        $slug = B2cTravelPackage::generateUniqueSlug($validated['name'], $validated['package_code']);
+        try {
+            $slug = B2cTravelPackage::generateUniqueSlug($validated['name'], $validated['package_code']);
 
-        B2cTravelPackage::query()->create([
-            'slug' => $slug,
-            'package_code' => $validated['package_code'],
-            'name' => $validated['name'],
-            'departure_period' => $validated['departure_period'],
-            'description' => $validated['description'],
-            'location' => $validated['location'] ?? null,
-            'duration_label' => $validated['duration_label'] ?? null,
-            'package_type' => $validated['package_type'] ?? 'Religious',
-            'price_display' => $validated['price_display'],
-            'pax_capacity' => (int) $validated['pax_capacity'],
-            'pax_booked' => (int) ($validated['pax_booked'] ?? 0),
-            'registration_deadline' => $validated['registration_deadline'],
-            'terms_and_conditions' => $validated['terms_and_conditions'],
-            'status' => $validated['status'],
-            'image_path' => $this->normalizedImagePath($validated['image_path'] ?? null),
-            'highlights_json' => $this->parseLines($request->input('highlights_text')),
-            'features_json' => $this->parseLines($request->input('features_text')),
-            'dates_json' => $this->parseDates($request->input('dates_text')),
-            'hotels_json' => $this->parseHotels($request->input('hotels_text')),
-            'sort_order' => (int) ($validated['sort_order'] ?? 0),
-        ]);
+            B2cTravelPackage::query()->create([
+                'slug' => $slug,
+                'package_code' => $validated['package_code'],
+                'name' => $validated['name'],
+                'departure_period' => $validated['departure_period'],
+                'description' => $validated['description'],
+                'location' => $validated['location'] ?? null,
+                'duration_label' => $validated['duration_label'] ?? null,
+                'package_type' => $validated['package_type'] ?? 'Religious',
+                'price_display' => $validated['price_display'],
+                'pax_capacity' => (int) $validated['pax_capacity'],
+                'pax_booked' => (int) ($validated['pax_booked'] ?? 0),
+                'registration_deadline' => $validated['registration_deadline'],
+                'terms_and_conditions' => $validated['terms_and_conditions'],
+                'status' => $validated['status'],
+                'image_path' => $this->normalizedImagePath($validated['image_path'] ?? null),
+                'highlights_json' => $this->parseLines($request->input('highlights_text')),
+                'features_json' => $this->parseLines($request->input('features_text')),
+                'dates_json' => $this->parseDates($request->input('dates_text')),
+                'hotels_json' => $this->parseHotels($request->input('hotels_text')),
+                'sort_order' => (int) ($validated['sort_order'] ?? 0),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('B2cTravelPackageAdminController::store failed', [
+                'message' => $e->getMessage(),
+                'exception' => $e::class,
+            ]);
 
-        return redirect()->route('admin.b2c-packages.index')
-            ->with('flash', ['type' => 'success', 'message' => 'Package created.']);
+            return back()
+                ->withErrors([
+                    '_debug_create' => $e->getMessage().' ['.$e::class.'] — cek juga storage/logs/laravel.log',
+                ])
+                ->withInput();
+        }
+
+        return redirect()->route('b2c.packages')
+            ->with('flash', ['type' => 'success', 'message' => 'Paket berhasil dibuat. Lihat daftar di halaman ini.']);
     }
 
     public function edit(B2cTravelPackage $b2cTravelPackage): Response

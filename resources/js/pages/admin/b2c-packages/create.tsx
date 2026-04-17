@@ -58,7 +58,18 @@ export default function B2cPackagesCreate() {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post('/admin/b2c-packages');
+        post('/admin/b2c-packages', {
+            preserveScroll: true,
+            onError: (errs) => {
+                const lines = Object.entries(errs).map(([key, val]) => {
+                    const text = Array.isArray(val) ? val.join(' ') : String(val);
+                    return `${key}: ${text}`;
+                });
+                window.alert(
+                    ['Gagal membuat paket (indikasi debug — perbaiki lalu coba lagi):', '', ...lines].join('\n'),
+                );
+            },
+        });
     };
 
     return (
@@ -83,7 +94,7 @@ export default function B2cPackagesCreate() {
                             </button>
                         </>
                     }
-                    stickyNote="Draft is saved only after you click Create package."
+                    stickyNote="Setelah berhasil, Anda diarahkan ke halaman publik Packages (/packages). Jika gagal, muncul alert berisi penyebab (debug)."
                     stickyActions={
                         <>
                             <Link href="/admin/b2c-packages">

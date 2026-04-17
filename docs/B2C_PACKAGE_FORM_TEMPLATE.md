@@ -8,6 +8,7 @@ Gunakan contoh di bawah sebagai **acuan** saat membuat paket baru. Selalu **ubah
 2. **Tanpa crop di browser**; file dikompres ringan di klien lalu diunggah.
 3. **Server** menjalankan **kompresi** GD (hingga ±1600×3200px, kualitas ~85%) lalu menyimpan ke **Cloudflare R2** di folder `images/b2c-packages/`.
 4. **Path** terisi otomatis di form; saat **Create package**, path tersimpan di database. Halaman **`/packages`** memuat daftar dari DB dan menampilkan gambar lewat URL CDN.
+5. Setelah sukses, browser diarahkan ke **`/packages`** (toast sukses). Jika gagal (validasi atau error server), **alert** menampilkan ringkasan field / pesan debug; detail ada di `storage/logs/laravel.log` untuk error saat simpan DB.
 
 ---
 
