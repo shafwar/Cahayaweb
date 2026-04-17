@@ -20,6 +20,18 @@ return [
         'short' => '1920×1080px recommended · Client auto-compressed · JPEG, PNG, WebP',
     ],
 
+    /*
+    | B2C package poster (vertical flyers) — upload endpoint uses these limits.
+    */
+    'b2c_package_poster' => [
+        'recommended' => '1080×1920px portrait (or taller); landscape also OK',
+        'max_dimension_width' => 1600,
+        'max_dimension_height' => 3200,
+        'max_file_size_mb' => 12,
+        'formats' => 'JPEG, PNG, WebP',
+        'short' => 'Poster portrait (±1080×1920 atau lebih tinggi) · JPEG/PNG/WebP · Maks 12MB · Tanpa crop — langsung unggah',
+    ],
+
     'videos' => [
         'recommended_width' => 1920,
         'recommended_height' => 1080,

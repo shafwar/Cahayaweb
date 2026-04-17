@@ -1,4 +1,3 @@
-import ImageCropModal from '@/components/cms/ImageCropModal';
 import { adminGhostBtn, adminMuted } from '@/lib/admin-portal-theme';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getR2Url } from '@/utils/imageHelper';
@@ -8,12 +7,16 @@ import { ImageIcon, Loader2, Trash2, Upload } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 
 const ACCEPT = 'image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp';
-const CARD_ASPECT = 16 / 9;
 
 export type B2cPackageImageUploadProps = {
     imagePath: string;
     onImagePathChange: (path: string) => void;
     error?: string;
+};
+
+type CmsGuide = {
+    b2c_package_poster?: { short?: string };
+    images?: { short?: string };
 };
 
 function previewUrl(path: string): string {
@@ -28,27 +31,65 @@ function previewUrl(path: string): string {
 }
 
 export default function B2cPackageImageUpload({ imagePath, onImagePathChange, error }: B2cPackageImageUploadProps) {
-    const { props } = usePage<{ cmsMediaGuide?: { images?: { short?: string } } }>();
-    const guide = props.cmsMediaGuide?.images?.short ?? '1920×1080px recommended · Max 5MB · JPEG, PNG, WebP · Compressed on server';
+    const { props } = usePage<{ cmsMediaGuide?: CmsGuide }>();
+    const guide =
+        props.cmsMediaGuide?.b2c_package_poster?.short ??
+        'Poster portrait (±1080×1920 atau lebih tinggi) · JPEG/PNG/WebP · Maks 12MB · Tanpa crop — langsung unggah';
 
     const inputRef = useRef<HTMLInputElement>(null);
     const [dragOver, setDragOver] = useState(false);
-    const [cropOpen, setCropOpen] = useState(false);
-    const [cropSrc, setCropSrc] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState<string | null>(null);
 
-    const beginPick = useCallback((file: File) => {
-        setUploadError(null);
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-        if (!validTypes.includes(file.type)) {
-            setUploadError('Gunakan JPEG, PNG, atau WebP.');
-            return;
-        }
-        const url = URL.createObjectURL(file);
-        setCropSrc(url);
-        setCropOpen(true);
-    }, []);
+    const uploadFile = useCallback(
+        async (file: File) => {
+            setUploading(true);
+            setUploadError(null);
+            try {
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    setUploadError('Gunakan JPEG, PNG, atau WebP.');
+                    return;
+                }
+
+                const compressed = await compressImageForUpload(file, {
+                    maxSizeMB: 10,
+                    maxWidthOrHeight: 2800,
+                    initialQuality: 0.88,
+                });
+                const form = new FormData();
+                form.append('image', compressed);
+
+                const { data } = await axios.post<{ path?: string; message?: string }>('/admin/b2c-packages/upload-image', form, {
+                    headers: { Accept: 'application/json' },
+                });
+
+                if (data?.path) {
+                    onImagePathChange(data.path);
+                } else {
+                    setUploadError('Respons server tidak berisi path gambar.');
+                }
+            } catch (err: unknown) {
+                const ax = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
+                const d = ax.response?.data;
+                const msg =
+                    d?.errors?.image?.[0] ?? d?.message ?? 'Upload gagal. Coba lagi atau periksa koneksi / R2.';
+                setUploadError(msg);
+                console.error(err);
+            } finally {
+                setUploading(false);
+            }
+        },
+        [onImagePathChange],
+    );
+
+    const beginPick = useCallback(
+        (file: File) => {
+            setUploadError(null);
+            void uploadFile(file);
+        },
+        [uploadFile],
+    );
 
     const onInputChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,67 +112,6 @@ export default function B2cPackageImageUpload({ imagePath, onImagePathChange, er
             }
         },
         [beginPick],
-    );
-
-    const uploadBlob = useCallback(
-        async (blob: Blob) => {
-            setUploading(true);
-            setUploadError(null);
-            try {
-                const file = new File([blob], 'package-hero.jpg', { type: blob.type || 'image/jpeg' });
-                const compressed = await compressImageForUpload(file);
-                const form = new FormData();
-                form.append('image', compressed);
-
-                const { data } = await axios.post<{ path?: string; message?: string }>('/admin/b2c-packages/upload-image', form, {
-                    headers: { Accept: 'application/json' },
-                });
-
-                if (data?.path) {
-                    onImagePathChange(data.path);
-                } else {
-                    setUploadError('Respons server tidak berisi path gambar.');
-                }
-            } catch (err: unknown) {
-                const ax = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
-                const d = ax.response?.data;
-                const msg =
-                    d?.errors?.image?.[0] ??
-                    d?.message ??
-                    'Upload gagal. Coba lagi atau periksa koneksi / R2.';
-                setUploadError(msg);
-                console.error(err);
-            } finally {
-                setUploading(false);
-            }
-        },
-        [onImagePathChange],
-    );
-
-    const onCropApply = useCallback(
-        async (blob: Blob) => {
-            const src = cropSrc;
-            try {
-                await uploadBlob(blob);
-            } finally {
-                if (src) {
-                    URL.revokeObjectURL(src);
-                }
-                setCropSrc(null);
-            }
-        },
-        [cropSrc, uploadBlob],
-    );
-
-    const onCropModalClose = useCallback(
-        (open: boolean) => {
-            if (!open && cropSrc) {
-                URL.revokeObjectURL(cropSrc);
-                setCropSrc(null);
-            }
-            setCropOpen(open);
-        },
-        [cropSrc],
     );
 
     const pv = previewUrl(imagePath);
@@ -168,7 +148,7 @@ export default function B2cPackageImageUpload({ imagePath, onImagePathChange, er
                 <input ref={inputRef} type="file" accept={ACCEPT} className="hidden" onChange={onInputChange} />
                 <ImageIcon className="mx-auto mb-3 h-10 w-10 text-orange-500/90" aria-hidden />
                 <p className="text-sm font-medium text-slate-800">Taruh gambar di sini atau pilih file</p>
-                <p className={`mt-1 text-xs ${adminMuted}`}>Setelah memilih, Anda bisa mengatur crop (rasio kartu paket) sebelum unggah.</p>
+                <p className={`mt-1 text-xs ${adminMuted}`}>File langsung diunggah ke R2 setelah kompresi ringan — tidak ada langkah crop/zoom.</p>
                 <button
                     type="button"
                     disabled={uploading}
@@ -194,11 +174,11 @@ export default function B2cPackageImageUpload({ imagePath, onImagePathChange, er
 
             {pv ? (
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/50 shadow-inner">
-                    <div className="relative aspect-video w-full max-w-xl bg-slate-900/5">
-                        <img src={pv} alt="Pratinjau gambar paket" className="h-full w-full object-cover" />
+                    <div className="relative flex max-h-[min(75vh,960px)] w-full max-w-md items-center justify-center bg-slate-100/80 p-2">
+                        <img src={pv} alt="Pratinjau poster paket" className="max-h-[min(75vh,960px)] w-full object-contain" />
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-4 py-3">
-                        <p className={`text-xs ${adminMuted}`}>Pratinjau seperti tampil di halaman paket publik.</p>
+                        <p className={`text-xs ${adminMuted}`}>Pratinjau utuh (rasio poster dipertahankan).</p>
                         <button
                             type="button"
                             onClick={() => {
@@ -212,16 +192,6 @@ export default function B2cPackageImageUpload({ imagePath, onImagePathChange, er
                         </button>
                     </div>
                 </div>
-            ) : null}
-
-            {cropSrc ? (
-                <ImageCropModal
-                    open={cropOpen}
-                    onOpenChange={onCropModalClose}
-                    imageSrc={cropSrc}
-                    aspect={CARD_ASPECT}
-                    onApply={onCropApply}
-                />
             ) : null}
         </div>
     );

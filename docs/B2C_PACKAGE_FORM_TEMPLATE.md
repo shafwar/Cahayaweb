@@ -4,10 +4,10 @@ Gunakan contoh di bawah sebagai **acuan** saat membuat paket baru. Selalu **ubah
 
 ## Ringkasan alur Media
 
-1. Di bagian **Media**, pilih atau seret file gambar (JPEG / PNG / WebP).
-2. Atur **crop** (rasio 16:9, cocok untuk kartu paket di halaman publik).
-3. Browser mengirim file; **server** menjalankan **kompresi** (GD, max ±1920px, kualitas ~85%) lalu menyimpan ke **Cloudflare R2** di folder `images/b2c-packages/`.
-4. Field **path** terisi otomatis, misalnya `images/b2c-packages/a1b2c3d4-....jpg`. Halaman publik membangun URL aset dari path ini (CDN `assets.cahayaanbiya.com`).
+1. Di bagian **Media**, pilih atau seret file gambar (JPEG / PNG / WebP) — **poster vertikal** didukung (mis. ±1080×1920).
+2. **Tanpa crop di browser**; file dikompres ringan di klien lalu diunggah.
+3. **Server** menjalankan **kompresi** GD (hingga ±1600×3200px, kualitas ~85%) lalu menyimpan ke **Cloudflare R2** di folder `images/b2c-packages/`.
+4. **Path** terisi otomatis di form; saat **Create package**, path tersimpan di database. Halaman **`/packages`** memuat daftar dari DB dan menampilkan gambar lewat URL CDN.
 
 ---
 

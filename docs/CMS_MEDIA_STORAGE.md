@@ -52,7 +52,7 @@ File: `config/cms_media_guide.php`
 | Endpoint | Method | Fungsi |
 |----------|--------|--------|
 | `/admin/upload-image` | POST | Upload gambar → R2, auto-compress |
-| `/admin/b2c-packages/upload-image` | POST | Upload gambar paket B2C → `images/b2c-packages/`, auto-compress, **tanpa** mengubah section CMS |
+| `/admin/b2c-packages/upload-image` | POST | Upload poster paket B2C → `images/b2c-packages/`, kompresi dengan batas tinggi hingga **3200px** (portrait), max **12MB** — lihat `config/cms_media_guide.php` → `b2c_package_poster` |
 | `/admin/upload-video` | POST | Upload video → R2 |
 | `/admin/update-section` | POST | Update teks/deskripsi → database saja |
 

@@ -17,8 +17,11 @@ class ImageCompressor
 
     /**
      * Compress image and return path to temp file, or null to use original.
+     *
+     * @param  int|null  $maxWidth  Override default max width (e.g. portrait posters).
+     * @param  int|null  $maxHeight  Override default max height.
      */
-    public static function compress(UploadedFile $file): ?string
+    public static function compress(UploadedFile $file, ?int $maxWidth = null, ?int $maxHeight = null): ?string
     {
         if (!extension_loaded('gd')) {
             Log::debug('GD not available, skipping image compression');
@@ -47,8 +50,11 @@ class ImageCompressor
             return null;
         }
 
+        $mw = $maxWidth ?? self::$maxWidth;
+        $mh = $maxHeight ?? self::$maxHeight;
+
         // Calculate new dimensions (maintain aspect ratio)
-        $ratio = min(self::$maxWidth / $width, self::$maxHeight / $height, 1);
+        $ratio = min($mw / $width, $mh / $height, 1);
         $newWidth = (int) round($width * $ratio);
         $newHeight = (int) round($height * $ratio);
 

@@ -370,13 +370,16 @@ export default function Packages() {
         },
     ];
 
+    /** DB-backed list from server: always honor explicit array (even empty). Legacy only when prop missing. */
     const packages = useMemo(() => {
         const rows = props.travelPackages;
-        if (rows && rows.length > 0) {
+        if (Array.isArray(rows)) {
             return rows as TravelPackageRow[];
         }
         return LEGACY_PACKAGES_DATA;
     }, [props.travelPackages]);
+
+    const hasDbPackages = Array.isArray(props.travelPackages);
 
     const flash = props.flash;
 
@@ -604,7 +607,11 @@ export default function Packages() {
                                 className="group cursor-pointer overflow-hidden rounded-3xl border-2 border-[#d4af37]/25 bg-white shadow-2xl transition-all duration-300 hover:-translate-y-2.5 hover:scale-105 hover:border-[#d4af37]/50"
                             >
                                 <div
-                                    className="relative aspect-video cursor-zoom-in overflow-hidden"
+                                    className={
+                                        pkg.from_database
+                                            ? 'relative aspect-[3/4] cursor-zoom-in overflow-hidden bg-slate-100 sm:aspect-[4/5]'
+                                            : 'relative aspect-video cursor-zoom-in overflow-hidden'
+                                    }
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setImageLightbox({
@@ -635,7 +642,11 @@ export default function Packages() {
                                         data-package-id={pkg.id}
                                         loading="lazy"
                                         decoding="async"
-                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        className={
+                                            pkg.from_database
+                                                ? 'h-full w-full object-contain object-top transition-transform duration-700 group-hover:scale-[1.02]'
+                                                : 'h-full w-full object-cover transition-transform duration-700 group-hover:scale-110'
+                                        }
                                         onError={(e) => {
                                             const target = e.currentTarget;
                                             if (target.src && target.src.includes('assets.cahayaanbiya.com')) {
@@ -938,10 +949,16 @@ export default function Packages() {
                     {filteredPackages.length === 0 && (
                         <div className="mt-16 text-center">
                             <div className="mx-auto max-w-md rounded-3xl border-2 border-[#d4af37]/25 bg-white p-12 shadow-2xl">
-                                <div className="mb-6 text-6xl">🔍</div>
-                                <h3 className="mb-3 text-2xl font-bold text-[#1e3a5f]">No packages found</h3>
+                                <div className="mb-6 text-6xl">{hasDbPackages && packages.length === 0 ? '📦' : '🔍'}</div>
+                                <h3 className="mb-3 text-2xl font-bold text-[#1e3a5f]">
+                                    {hasDbPackages && packages.length === 0
+                                        ? 'Belum ada paket wisata'
+                                        : 'Tidak ada paket yang cocok'}
+                                </h3>
                                 <p className="text-base text-[#475569]">
-                                    Try adjusting your filters to discover the perfect package for your journey.
+                                    {hasDbPackages && packages.length === 0
+                                        ? 'Buat paket di Admin → B2C registration → Create package; setelah disimpan, paket akan tampil di halaman ini.'
+                                        : 'Coba ubah filter tipe, harga, durasi, atau ukuran grup.'}
                                 </p>
                             </div>
                         </div>

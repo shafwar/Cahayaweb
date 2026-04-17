@@ -211,7 +211,7 @@ export default function B2cPackageAdminForm({ data, setData, errors, showPaxBook
                 id="b2c-pkg-media"
                 step={4}
                 title="Media"
-                description="Unggah gambar hero/kartu paket: crop di browser, kompresi di server, lalu disimpan ke R2. Path relatif disimpan di database untuk tampilan publik."
+                description="Poster paket (portrait didukung): unggah langsung ke R2 dengan kompresi di server. Path disimpan di database dan dipakai halaman publik /packages."
                 icon={<ImageIcon className="h-5 w-5" />}
             >
                 <B2cPackageImageUpload

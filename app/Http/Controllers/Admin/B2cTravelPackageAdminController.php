@@ -69,14 +69,16 @@ class B2cTravelPackageAdminController extends Controller
                 ], 422);
             }
 
-            $guide = config('cms_media_guide.images', []);
-            $maxMb = $guide['max_file_size_mb'] ?? 5;
+            $poster = config('cms_media_guide.b2c_package_poster', []);
+            $maxMb = (int) ($poster['max_file_size_mb'] ?? 12);
+            $maxW = (int) ($poster['max_dimension_width'] ?? 1600);
+            $maxH = (int) ($poster['max_dimension_height'] ?? 3200);
             $validated = $request->validate([
                 'image' => ['required', 'file', 'mimes:jpeg,png,jpg,webp', 'max:'.($maxMb * 1024)],
             ]);
 
             $file = $validated['image'];
-            $compressedPath = ImageCompressor::compress($file);
+            $compressedPath = ImageCompressor::compress($file, $maxW, $maxH);
             $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
             if (! in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
                 $ext = 'jpg';
