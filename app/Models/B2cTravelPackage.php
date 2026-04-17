@@ -114,7 +114,9 @@ class B2cTravelPackage extends Model
             'price' => $this->price_display,
             'pax' => $paxLabel,
             'type' => $this->package_type,
-            'image' => $this->image_path ?? '/images/packages/packages1.png',
+            'image' => ($this->image_path !== null && $this->image_path !== '')
+                ? $this->image_path
+                : '/images/packages/packages1.png',
             'highlights' => is_array($highlights) ? $highlights : [],
             'description' => $this->description,
             'features' => is_array($features) ? $features : [],

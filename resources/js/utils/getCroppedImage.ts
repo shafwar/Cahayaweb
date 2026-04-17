@@ -53,7 +53,9 @@ export async function getCroppedImage(
 function createImageElement(src: string): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
         const img = document.createElement('img');
-        img.crossOrigin = 'anonymous';
+        if (!src.startsWith('blob:') && !src.startsWith('data:')) {
+            img.crossOrigin = 'anonymous';
+        }
         img.src = src;
         img.onload = () => resolve(img);
         img.onerror = () => reject(new Error('Failed to load image'));

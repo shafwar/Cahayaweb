@@ -48,7 +48,10 @@ export default function ImageCropModal({
             
             // Preload image to ensure it's valid
             const img = new Image();
-            img.crossOrigin = 'anonymous';
+            // Blob/object URLs must not use crossOrigin or preload fails in some browsers.
+            if (!imageSrc.startsWith('blob:') && !imageSrc.startsWith('data:')) {
+                img.crossOrigin = 'anonymous';
+            }
             img.onload = () => {
                 setImageLoaded(true);
                 setImageError(false);

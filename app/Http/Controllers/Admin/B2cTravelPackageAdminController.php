@@ -4,9 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\B2cTravelPackage;
+use App\Support\ImageCompressor;
+use App\Support\R2Helper;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -49,6 +55,93 @@ class B2cTravelPackageAdminController extends Controller
         return Inertia::render('admin/b2c-packages/create');
     }
 
+    /**
+     * Upload a package hero/card image to R2 (or public disk), with server-side compression.
+     * Does not touch CMS sections — only returns path + URL for the B2C package form.
+     */
+    public function uploadImage(Request $request): JsonResponse
+    {
+        try {
+            if (! $request->hasFile('image')) {
+                return response()->json([
+                    'message' => 'File tidak diterima. Pastikan format JPEG/PNG/WebP dan ukuran sesuai panduan.',
+                    'errors' => ['image' => ['The image file could not be received.']],
+                ], 422);
+            }
+
+            $guide = config('cms_media_guide.images', []);
+            $maxMb = $guide['max_file_size_mb'] ?? 5;
+            $validated = $request->validate([
+                'image' => ['required', 'file', 'mimes:jpeg,png,jpg,webp', 'max:'.($maxMb * 1024)],
+            ]);
+
+            $file = $validated['image'];
+            $compressedPath = ImageCompressor::compress($file);
+            $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+            if (! in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+                $ext = 'jpg';
+            }
+            $filename = Str::uuid()->toString().'.'.$ext;
+            $storedPath = 'images/b2c-packages/'.$filename;
+
+            $contents = $file->get();
+            if ($compressedPath && is_readable($compressedPath)) {
+                try {
+                    $contents = file_get_contents($compressedPath);
+                } catch (\Throwable) {
+                    // keep original
+                } finally {
+                    @unlink($compressedPath);
+                }
+            }
+
+            $disk = R2Helper::diskForCms();
+            $diskName = R2Helper::isR2DiskConfigured() ? 'r2' : 'public';
+
+            try {
+                $putOk = $disk->put($storedPath, $contents);
+            } catch (\Throwable $putEx) {
+                Log::error('B2cTravelPackageAdminController::uploadImage put failed', [
+                    'error' => $putEx->getMessage(),
+                    'disk' => $diskName,
+                ]);
+
+                return response()->json([
+                    'message' => 'Penyimpanan gagal: '.$putEx->getMessage(),
+                    'errors' => ['image' => ['Storage failed']],
+                ], 500);
+            }
+
+            if (! $putOk) {
+                return response()->json([
+                    'message' => 'Gagal menyimpan file ke storage.',
+                    'errors' => ['image' => ['disk->put() returned false']],
+                ], 500);
+            }
+
+            $url = R2Helper::url($storedPath) ?? $disk->url($storedPath);
+
+            return response()->json([
+                'status' => 'ok',
+                'success' => true,
+                'path' => $storedPath,
+                'url' => $url,
+                'message' => 'Image uploaded',
+            ]);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            Log::error('B2cTravelPackageAdminController::uploadImage failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Upload gagal: '.$e->getMessage(),
+                'errors' => ['server' => [$e->getMessage()]],
+            ], 500);
+        }
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $this->validatePackage($request);
@@ -70,7 +163,7 @@ class B2cTravelPackageAdminController extends Controller
             'registration_deadline' => $validated['registration_deadline'],
             'terms_and_conditions' => $validated['terms_and_conditions'],
             'status' => $validated['status'],
-            'image_path' => $validated['image_path'] ?? null,
+            'image_path' => $this->normalizedImagePath($validated['image_path'] ?? null),
             'highlights_json' => $this->parseLines($request->input('highlights_text')),
             'features_json' => $this->parseLines($request->input('features_text')),
             'dates_json' => $this->parseDates($request->input('dates_text')),
@@ -150,7 +243,7 @@ class B2cTravelPackageAdminController extends Controller
             'registration_deadline' => $validated['registration_deadline'],
             'terms_and_conditions' => $validated['terms_and_conditions'],
             'status' => $validated['status'],
-            'image_path' => $validated['image_path'] ?? null,
+            'image_path' => $this->normalizedImagePath($validated['image_path'] ?? null),
             'highlights_json' => $this->parseLines($request->input('highlights_text')),
             'features_json' => $this->parseLines($request->input('features_text')),
             'dates_json' => $this->parseDates($request->input('dates_text')),
@@ -222,7 +315,7 @@ class B2cTravelPackageAdminController extends Controller
             $uniqueCode = $uniqueCode->ignore($ignoreId);
         }
 
-        return $request->validate([
+        $validated = $request->validate([
             'package_code' => ['required', 'string', 'max:64', $uniqueCode],
             'name' => ['required', 'string', 'max:255'],
             'departure_period' => ['required', 'string', 'max:500'],
@@ -239,6 +332,47 @@ class B2cTravelPackageAdminController extends Controller
             'image_path' => ['nullable', 'string', 'max:500'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:99999'],
         ]);
+
+        $img = $validated['image_path'] ?? null;
+        if ($img !== null && $img !== '' && ! $this->isSafePackageImagePath($img)) {
+            throw ValidationException::withMessages([
+                'image_path' => ['Use a full https image URL, a path under images/, or upload via Media.'],
+            ]);
+        }
+
+        return $validated;
+    }
+
+    /**
+     * Allow https URLs or relative paths under images/ (R2 object keys), reject traversal and odd schemes.
+     */
+    private function isSafePackageImagePath(string $value): bool
+    {
+        if (str_contains($value, '..') || str_contains($value, "\0")) {
+            return false;
+        }
+        if (preg_match('#^https?://#i', $value)) {
+            return (bool) filter_var($value, FILTER_VALIDATE_URL);
+        }
+
+        return (bool) preg_match('#^\/?images/[a-zA-Z0-9._\-/]+$#', $value);
+    }
+
+    private function normalizedImagePath(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        $t = trim($value);
+        if ($t === '') {
+            return null;
+        }
+        // R2 object keys are stored without a leading slash (same as CMS uploads).
+        if (str_starts_with($t, '/images/')) {
+            $t = ltrim($t, '/');
+        }
+
+        return $t;
     }
 
     /**

@@ -1,3 +1,4 @@
+import B2cPackageImageUpload from '@/components/admin/B2cPackageImageUpload';
 import {
     adminInput,
     adminSelect,
@@ -210,17 +211,14 @@ export default function B2cPackageAdminForm({ data, setData, errors, showPaxBook
                 id="b2c-pkg-media"
                 step={4}
                 title="Media"
-                description="Path to the hero/card image (R2 or public path as used elsewhere)."
+                description="Unggah gambar hero/kartu paket: crop di browser, kompresi di server, lalu disimpan ke R2. Path relatif disimpan di database untuk tampilan publik."
                 icon={<ImageIcon className="h-5 w-5" />}
             >
-                <AdminField label="Image path" hint="Example: /images/packages/your-file.png" error={errors.image_path}>
-                    <input
-                        className={adminInput}
-                        value={data.image_path}
-                        onChange={(e) => setData('image_path', e.target.value)}
-                        placeholder="/images/packages/..."
-                    />
-                </AdminField>
+                <B2cPackageImageUpload
+                    imagePath={data.image_path}
+                    onImagePathChange={(path) => setData('image_path', path)}
+                    error={errors.image_path}
+                />
             </AdminFormSection>
 
             <AdminFormSection

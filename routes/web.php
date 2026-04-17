@@ -73,6 +73,9 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     // B2C travel packages & registrations (admin workflow)
     Route::get('/admin/b2c-packages', [B2cTravelPackageAdminController::class, 'index'])->name('admin.b2c-packages.index');
     Route::get('/admin/b2c-packages/create', [B2cTravelPackageAdminController::class, 'create'])->name('admin.b2c-packages.create');
+    Route::post('/admin/b2c-packages/upload-image', [B2cTravelPackageAdminController::class, 'uploadImage'])
+        ->middleware('throttle:30,1')
+        ->name('admin.b2c-packages.upload-image');
     Route::post('/admin/b2c-packages', [B2cTravelPackageAdminController::class, 'store'])->name('admin.b2c-packages.store');
     Route::get('/admin/b2c-packages/{b2cTravelPackage}/edit', [B2cTravelPackageAdminController::class, 'edit'])->name('admin.b2c-packages.edit');
     Route::put('/admin/b2c-packages/{b2cTravelPackage}', [B2cTravelPackageAdminController::class, 'update'])->name('admin.b2c-packages.update');
