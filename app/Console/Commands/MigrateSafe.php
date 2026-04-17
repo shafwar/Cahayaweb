@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Database\Seeders\LegacyB2cTravelPackagesSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -47,7 +48,21 @@ class MigrateSafe extends Command
                 ]);
                 
                 if ($exitCode === 0) {
-                    $this->info("✅ Migration completed successfully!");
+                    $this->info('✅ Migration completed successfully!');
+
+                    try {
+                        $this->info('📋 Syncing legacy B2C packages into database (idempotent, safe to re-run)...');
+                        $this->call('db:seed', [
+                            '--class' => LegacyB2cTravelPackagesSeeder::class,
+                            '--force' => true,
+                        ]);
+                    } catch (\Throwable $e) {
+                        Log::warning('MigrateSafe: LegacyB2cTravelPackagesSeeder failed', [
+                            'error' => $e->getMessage(),
+                        ]);
+                        $this->warn('⚠️  Legacy B2C package seed skipped: '.$e->getMessage());
+                    }
+
                     return 0;
                 }
                 

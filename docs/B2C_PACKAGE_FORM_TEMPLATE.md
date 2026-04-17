@@ -5,12 +5,13 @@
 Daftar yang dulu hardcoded di halaman publik `/packages` bisa diisi ke tabel `b2c_travel_packages` (muncul di admin **Packages** dan di website) dengan:
 
 ```bash
-php artisan db:seed --class=LegacyB2cTravelPackagesSeeder
+php artisan db:seed --class=LegacyB2cTravelPackagesSeeder --force
 ```
 
 - **11 baris** (kode unik `LEGACY-01-` … `LEGACY-11-`) disesuaikan dengan kolom DB: nama, lokasi, periode, harga, kapasitas, gambar `images/packages/...`, highlights, features, dates, hotels, `sort_order` 1–11.
 - **Idempotent:** jika `package_code` sudah ada, baris dilewati (tidak duplikat).
 - **Deadline pendaftaran** diset seragam jauh ke depan (lihat konstanta di seeder) agar status “open” konsisten; sesuaikan di admin bila perlu.
+- **Production (Railway):** setelah deploy terbaru, `migrate:safe` juga memanggil seeder ini sekali per startup pasca-migrasi sukses — jadi katalog legacy ikut terisi tanpa perlu ingat perintah manual. Jika Anda belum deploy versi itu, jalankan perintah di atas sekali di **Railway → Service → Shell**.
 
 ---
 
