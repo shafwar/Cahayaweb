@@ -9,9 +9,8 @@ Gunakan contoh di bawah sebagai **acuan** saat membuat paket baru. Selalu **ubah
 3. Browser mengirim file; **server** menjalankan **kompresi** (GD, max ±1920px, kualitas ~85%) lalu menyimpan ke **Cloudflare R2** di folder `images/b2c-packages/`.
 4. Field **path** terisi otomatis, misalnya `images/b2c-packages/a1b2c3d4-....jpg`. Halaman publik membangun URL aset dari path ini (CDN `assets.cahayaanbiya.com`).
 
-Anda juga boleh menempel **URL https** penuh ke gambar yang sudah ada di CDN, jika perlu.
-
 ---
+
 
 ## Contoh nilai field
 
@@ -28,7 +27,7 @@ Anda juga boleh menempel **URL https** penuh ke gambar yang sudah ada di CDN, ji
 | Package type | `Umrah` (boleh teks bebas) |
 | Price display | `From Rp 45.000.000 / pax` |
 | Sort order | `10` |
-| Image path | *(kosongkan lalu unggah)* atau `images/b2c-packages/<uuid>.jpg` setelah upload |
+| Image | Unggah lewat form Media; path disimpan otomatis di database (tanpa input manual). |
 
 ### Description (short)
 

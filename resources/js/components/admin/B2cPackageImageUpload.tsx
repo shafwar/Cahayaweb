@@ -1,6 +1,5 @@
-import { AdminField } from '@/components/admin/AdminFormSection';
 import ImageCropModal from '@/components/cms/ImageCropModal';
-import { adminGhostBtn, adminInput, adminMuted } from '@/lib/admin-portal-theme';
+import { adminGhostBtn, adminMuted } from '@/lib/admin-portal-theme';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getR2Url } from '@/utils/imageHelper';
 import { usePage } from '@inertiajs/react';
@@ -191,6 +190,7 @@ export default function B2cPackageImageUpload({ imagePath, onImagePathChange, er
             </div>
 
             {uploadError ? <p className="text-sm text-red-600">{uploadError}</p> : null}
+            {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
             {pv ? (
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/50 shadow-inner">
@@ -198,7 +198,7 @@ export default function B2cPackageImageUpload({ imagePath, onImagePathChange, er
                         <img src={pv} alt="Pratinjau gambar paket" className="h-full w-full object-cover" />
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-4 py-3">
-                        <p className={`text-xs ${adminMuted}`}>Pratinjau dari path yang akan disimpan.</p>
+                        <p className={`text-xs ${adminMuted}`}>Pratinjau seperti tampil di halaman paket publik.</p>
                         <button
                             type="button"
                             onClick={() => {
@@ -208,25 +208,11 @@ export default function B2cPackageImageUpload({ imagePath, onImagePathChange, er
                             className={`${adminGhostBtn} border-slate-200 text-slate-600 hover:bg-red-50 hover:text-red-700`}
                         >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Hapus path
+                            Hapus gambar
                         </button>
                     </div>
                 </div>
             ) : null}
-
-            <AdminField
-                label="Path / URL gambar (tersisi otomatis setelah unggah)"
-                hint="Boleh diedit manual: path R2 seperti images/b2c-packages/….jpg atau URL https penuh."
-                error={error}
-            >
-                <input
-                    className={adminInput}
-                    value={imagePath}
-                    onChange={(e) => onImagePathChange(e.target.value)}
-                    placeholder="images/b2c-packages/… atau https://…"
-                    autoComplete="off"
-                />
-            </AdminField>
 
             {cropSrc ? (
                 <ImageCropModal
