@@ -36,7 +36,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
     };
 
     return (
-        <AuthLayout title="Reset password" description="Please enter your new password below">
+        <AuthLayout variant="admin" title="Reset password" description="Please enter your new password below">
             <Head title="Reset password" />
 
             <form method="POST" onSubmit={submit}>
@@ -87,9 +87,19 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         <InputError message={errors.password_confirmation} className="mt-2" />
                     </div>
 
-                    <Button type="submit" className="mt-4 w-full" disabled={processing}>
-                        {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Reset password
+                    <Button
+                        type="submit"
+                        className="relative mt-4 min-h-[44px] w-full border-0 bg-gradient-to-r from-[#ff5200] to-[#e64a00] font-semibold text-white shadow-lg shadow-orange-200/60 hover:from-[#ff6b35] hover:to-[#ff5200] disabled:opacity-70"
+                        disabled={processing}
+                    >
+                        {processing ? (
+                            <span className="flex items-center justify-center gap-2">
+                                <LoaderCircle className="h-4 w-4 animate-spin" />
+                                Saving…
+                            </span>
+                        ) : (
+                            'Reset password'
+                        )}
                     </Button>
                 </div>
             </form>

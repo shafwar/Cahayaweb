@@ -5,6 +5,7 @@ import { FormEventHandler, useEffect, useState } from 'react';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -291,8 +292,15 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
 
             {/* Display error message if provided */}
             {error && (
-                <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
-                    <p className="text-sm text-red-300">{error}</p>
+                <div
+                    className={cn(
+                        'mb-4 rounded-lg border p-3',
+                        mode === 'admin'
+                            ? 'border-red-200 bg-red-50/90'
+                            : 'border-red-500/30 bg-red-500/10',
+                    )}
+                >
+                    <p className={cn('text-sm', mode === 'admin' ? 'text-red-800' : 'text-red-300')}>{error}</p>
                 </div>
             )}
 
@@ -350,16 +358,38 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                         />
                         <InputError message={errors.email} />
                         {errors.email && (
-                            <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                            <div
+                                className={cn(
+                                    'mt-2 rounded-lg border p-3',
+                                    mode === 'admin' ? 'border-red-200 bg-red-50/90' : 'border-red-500/30 bg-red-500/10',
+                                )}
+                            >
                                 <div className="flex items-start gap-2">
-                                    <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg
+                                        className={cn(
+                                            'mt-0.5 h-4 w-4 flex-shrink-0',
+                                            mode === 'admin' ? 'text-red-600' : 'text-red-400',
+                                        )}
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                     </svg>
                                     <div className="flex-1">
-                                        <p className="text-sm font-medium text-red-300">{errors.email}</p>
+                                        <p className={cn('text-sm font-medium', mode === 'admin' ? 'text-red-800' : 'text-red-300')}>
+                                            {errors.email}
+                                        </p>
                                         {errors.email.includes('Admin accounts cannot login') && (
-                                            <p className="mt-1 text-xs text-red-200">
-                                                Please use the admin login page directly at <code className="text-xs bg-red-500/20 px-1 py-0.5 rounded">/admin</code>
+                                            <p className={cn('mt-1 text-xs', mode === 'admin' ? 'text-red-700' : 'text-red-200')}>
+                                                Please use the admin login page directly at{' '}
+                                                <code
+                                                    className={cn(
+                                                        'rounded px-1 py-0.5 text-xs',
+                                                        mode === 'admin' ? 'bg-red-100 text-red-900' : 'bg-red-500/20',
+                                                    )}
+                                                >
+                                                    /admin
+                                                </code>
                                             </p>
                                         )}
                                     </div>
@@ -372,7 +402,16 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                         <div className="flex items-center">
                             <Label htmlFor="password">Password</Label>
                             {canResetPassword && (
-                                <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
+                                <TextLink
+                                    href={route('password.request')}
+                                    tabIndex={5}
+                                    className={cn(
+                                        'ml-auto text-sm font-medium underline underline-offset-4',
+                                        mode === 'admin'
+                                            ? 'text-[#c2410c] decoration-orange-300 hover:text-[#ea580c] hover:decoration-orange-400'
+                                            : 'text-foreground decoration-neutral-300',
+                                    )}
+                                >
                                     Forgot password?
                                 </TextLink>
                             )}
@@ -394,7 +433,13 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 disabled={processing || isSubmitting}
-                                className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors ${(processing || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={cn(
+                                    'absolute right-3 top-1/2 -translate-y-1/2 transition-colors focus:outline-none',
+                                    mode === 'admin'
+                                        ? 'text-slate-500 hover:text-slate-800 focus:text-slate-800'
+                                        : 'text-gray-400 hover:text-gray-600 focus:text-gray-600',
+                                    (processing || isSubmitting) && 'cursor-not-allowed opacity-50',
+                                )}
                                 tabIndex={-1}
                                 aria-label={showPassword ? 'Hide password' : 'Show password'}
                             >
@@ -407,12 +452,24 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                         </div>
                         <InputError message={errors.password} />
                         {errors.password && (
-                            <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                            <div
+                                className={cn(
+                                    'mt-2 rounded-lg border p-3',
+                                    mode === 'admin' ? 'border-red-200 bg-red-50/90' : 'border-red-500/30 bg-red-500/10',
+                                )}
+                            >
                                 <div className="flex items-start gap-2">
-                                    <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg
+                                        className={cn(
+                                            'mt-0.5 h-4 w-4 flex-shrink-0',
+                                            mode === 'admin' ? 'text-red-600' : 'text-red-400',
+                                        )}
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                     </svg>
-                                    <p className="text-sm font-medium text-red-300">{errors.password}</p>
+                                    <p className={cn('text-sm font-medium', mode === 'admin' ? 'text-red-800' : 'text-red-300')}>{errors.password}</p>
                                 </div>
                             </div>
                         )}
@@ -463,7 +520,11 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                 )}
             </form>
 
-            {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
+            {status && (
+                <div className={cn('mb-4 text-center text-sm font-medium', mode === 'admin' ? 'text-green-800' : 'text-green-600')}>
+                    {status}
+                </div>
+            )}
         </AuthLayout>
     );
 }
