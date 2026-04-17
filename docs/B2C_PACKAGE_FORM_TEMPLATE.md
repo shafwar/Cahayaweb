@@ -1,5 +1,19 @@
 # Template pengisian — Admin B2C Create package
 
+## Mengembalikan daftar paket lama (legacy) ke database
+
+Daftar yang dulu hardcoded di halaman publik `/packages` bisa diisi ke tabel `b2c_travel_packages` (muncul di admin **Packages** dan di website) dengan:
+
+```bash
+php artisan db:seed --class=LegacyB2cTravelPackagesSeeder
+```
+
+- **11 baris** (kode unik `LEGACY-01-` … `LEGACY-11-`) disesuaikan dengan kolom DB: nama, lokasi, periode, harga, kapasitas, gambar `images/packages/...`, highlights, features, dates, hotels, `sort_order` 1–11.
+- **Idempotent:** jika `package_code` sudah ada, baris dilewati (tidak duplikat).
+- **Deadline pendaftaran** diset seragam jauh ke depan (lihat konstanta di seeder) agar status “open” konsisten; sesuaikan di admin bila perlu.
+
+---
+
 Gunakan contoh di bawah sebagai **acuan** saat membuat paket baru. Selalu **ubah `package_code` dan nama** agar unik di database. Deadline `registration_deadline` harus format datetime yang valid (field browser: datetime-local).
 
 ## Ringkasan alur Media
