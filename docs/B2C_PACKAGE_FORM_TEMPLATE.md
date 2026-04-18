@@ -29,7 +29,7 @@ Gunakan contoh di bawah sebagai **acuan** saat membuat paket baru. Selalu **ubah
 
 ### Deploy Railway (Dockerfile, bukan Nixpacks)
 
-Build production memakai **`Dockerfile`** di root repo (lihat `railway.json`: `builder: DOCKERFILE`). Ini menghindari error **504** saat Nixpacks mengunduh tarball **nixpkgs** dari GitHub. Aset front-end dibangun di stage **Node 22**; image akhir memakai **php:8.4-cli-bookworm** + ekstensi `pdo_mysql`, `gd`, `intl`, `zip`, `xml`, `dom`, dll. Proses jalan server memakai **`scripts/railway-start.sh`**: sengaja **tanpa** `route:cache` karena banyak route closure di `web.php` — `route:cache` akan gagal dan (dengan `&&`) memblokir `php artisan serve`, sehingga situs tidak bisa diakses.
+Build production memakai **`Dockerfile`** di root repo (lihat `railway.json`: `builder: DOCKERFILE`). Ini menghindari error **504** saat Nixpacks mengunduh tarball **nixpkgs** dari GitHub. Aset front-end dibangun di stage **Node 22**; image akhir memakai **php:8.4-cli-bookworm** + ekstensi `pdo_mysql`, `gd`, `intl`, `zip`, `xml`, `dom`, dll. Proses jalan server memakai **`scripts/railway-start.sh`**: setelah refactor route ke **controller** (bukan closure di `web.php`), startup memanggil **`route:cache`** dan **`view:cache`** (dengan `|| true` per langkah agar tetap jalan `serve` jika ada edge case).
 
 ### Troubleshooting: lonceng / toast / unggah tanpa crop tidak terlihat di production
 
