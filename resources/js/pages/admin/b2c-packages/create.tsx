@@ -1,3 +1,5 @@
+import AdminActionToastHost from '@/components/admin/AdminActionToastHost';
+import AdminB2cInboxBell from '@/components/admin/AdminB2cInboxBell';
 import AdminPortalShell from '@/components/admin/AdminPortalShell';
 import B2cPackageAdminForm, { type B2cPackageFormShape } from '@/components/admin/B2cPackageAdminForm';
 import B2cPackageFormPageLayout from '@/components/admin/B2cPackageFormPageLayout';
@@ -33,7 +35,7 @@ const FILL_TEMPLATE = {
     sort_order: 10,
 };
 
-export default function B2cPackagesCreate() {
+export default function B2cPackagesCreate({ flash }: { flash?: { type: string; message: string } | null }) {
     const { logout, isLoggingOut } = useLogout();
     const { data, setData, post, processing, errors } = useForm({
         package_code: '',
@@ -75,6 +77,7 @@ export default function B2cPackagesCreate() {
     return (
         <AdminPortalShell className="w-full max-w-none px-0">
             <Head title="New B2C package" />
+            <AdminActionToastHost flash={flash} />
 
             <form onSubmit={submit} className="pb-6">
                 <B2cPackageFormPageLayout
@@ -82,6 +85,7 @@ export default function B2cPackagesCreate() {
                     description={CREATE_INTRO}
                     topBarEnd={
                         <>
+                            <AdminB2cInboxBell />
                             <span className={`hidden text-xs sm:inline ${adminMuted}`}>Jump list →</span>
                             <button
                                 type="button"

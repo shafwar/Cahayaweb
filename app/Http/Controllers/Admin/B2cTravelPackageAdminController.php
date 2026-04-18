@@ -50,9 +50,11 @@ class B2cTravelPackageAdminController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
-        return Inertia::render('admin/b2c-packages/create');
+        return Inertia::render('admin/b2c-packages/create', [
+            'flash' => $request->session()->pull('flash'),
+        ]);
     }
 
     /**
@@ -190,11 +192,12 @@ class B2cTravelPackageAdminController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Paket berhasil dibuat. Lihat daftar di halaman ini.']);
     }
 
-    public function edit(B2cTravelPackage $b2cTravelPackage): Response
+    public function edit(Request $request, B2cTravelPackage $b2cTravelPackage): Response
     {
         $p = $b2cTravelPackage;
 
         return Inertia::render('admin/b2c-packages/edit', [
+            'flash' => $request->session()->pull('flash'),
             'package' => [
                 'id' => $p->id,
                 'slug' => $p->slug,
@@ -317,6 +320,7 @@ class B2cTravelPackageAdminController extends Controller
                 'registration_open' => $b2cTravelPackage->isOpenForRegistration(),
             ],
             'registrations' => $regs,
+            'flash' => $request->session()->pull('flash'),
         ]);
     }
 

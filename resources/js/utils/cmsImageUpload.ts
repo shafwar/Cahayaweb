@@ -13,6 +13,8 @@ export interface CompressOptions {
     maxSizeMB?: number;
     maxWidthOrHeight?: number;
     initialQuality?: number;
+    /** Default true; set false if web worker causes issues in some browsers. */
+    useWebWorker?: boolean;
 }
 
 /**
@@ -33,7 +35,7 @@ export async function compressImageForUpload(
             maxSizeMB: options.maxSizeMB ?? MAX_SIZE_MB,
             maxWidthOrHeight: options.maxWidthOrHeight ?? MAX_WIDTH_OR_HEIGHT,
             initialQuality: options.initialQuality ?? INITIAL_QUALITY,
-            useWebWorker: true,
+            useWebWorker: options.useWebWorker ?? true,
         });
         return compressed;
     } catch (err) {

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\B2cAdminInboxController;
 use App\Http\Controllers\Admin\B2cTravelPackageAdminController;
 use App\Http\Controllers\AgentVerificationController;
 use App\Http\Controllers\B2cPublicPackageController;
@@ -69,6 +70,14 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     Route::post('/admin/agent-verifications/{verification}/reject', [AgentVerificationController::class, 'reject'])->name('admin.agent-verification.reject');
     Route::post('/admin/agent-verifications/{verification}/update', [AgentVerificationController::class, 'update'])->name('admin.agent-verification.update');
     Route::delete('/admin/agent-verifications/{verification}', [AgentVerificationController::class, 'destroy'])->name('admin.agent-verification.destroy');
+
+    // B2C admin inbox (polled JSON — new registrations)
+    Route::get('/admin/b2c-inbox/summary', [B2cAdminInboxController::class, 'summary'])
+        ->middleware('throttle:120,1')
+        ->name('admin.b2c-inbox.summary');
+    Route::post('/admin/b2c-inbox/mark-seen', [B2cAdminInboxController::class, 'markSeen'])
+        ->middleware('throttle:60,1')
+        ->name('admin.b2c-inbox.mark-seen');
 
     // B2C travel packages & registrations (admin workflow)
     Route::get('/admin/b2c-packages', [B2cTravelPackageAdminController::class, 'index'])->name('admin.b2c-packages.index');

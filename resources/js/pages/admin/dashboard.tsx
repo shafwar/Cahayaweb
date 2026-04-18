@@ -1,3 +1,4 @@
+import AdminB2cInboxBell from '@/components/admin/AdminB2cInboxBell';
 import AdminPortalShell from '@/components/admin/AdminPortalShell';
 import { adminChip, adminDashboardCard, adminGhostBtn, adminPageTitle } from '@/lib/admin-portal-theme';
 import { Head, Link } from '@inertiajs/react';
@@ -72,7 +73,8 @@ export default function AdminDashboard() {
                         Manage CMS content, B2B agent verifications, and B2C package registrations — in one place.
                     </p>
                 </motion.div>
-                <div className="col-start-3 row-start-1 flex justify-end self-start pt-0.5">
+                <div className="col-start-3 row-start-1 flex justify-end gap-2 self-start pt-0.5">
+                    <AdminB2cInboxBell />
                     <button
                         onClick={logout}
                         disabled={isLoggingOut}

@@ -1,3 +1,5 @@
+import AdminActionToastHost from '@/components/admin/AdminActionToastHost';
+import AdminB2cInboxBell from '@/components/admin/AdminB2cInboxBell';
 import AdminPortalShell from '@/components/admin/AdminPortalShell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,16 +50,19 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
                     <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
                     Back to dashboard
                 </Link>
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={logout}
-                    disabled={isLoggingOut}
-                    className={`${adminGhostBtn} border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50`}
-                >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    {isLoggingOut ? '…' : 'Logout'}
-                </Button>
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AdminB2cInboxBell />
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={logout}
+                        disabled={isLoggingOut}
+                        className={`${adminGhostBtn} border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50`}
+                    >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        {isLoggingOut ? '…' : 'Logout'}
+                    </Button>
+                </div>
             </div>
 
             {/* Judul halaman: ikon + badge + deskripsi; New package di kanan */}
@@ -87,17 +92,7 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
                 </div>
             </div>
 
-            {flash?.message ? (
-                <div
-                    className={`mb-6 rounded-xl border px-4 py-3 text-sm ${
-                        flash.type === 'error'
-                            ? 'border-red-200 bg-red-50 text-red-800'
-                            : 'border-amber-200 bg-amber-50 text-amber-900'
-                    }`}
-                >
-                    {flash.message}
-                </div>
-            ) : null}
+            <AdminActionToastHost flash={flash} />
 
             {packages.length === 0 ? (
                 <div className="rounded-2xl border border-slate-200/90 bg-white p-10 text-center shadow-sm">

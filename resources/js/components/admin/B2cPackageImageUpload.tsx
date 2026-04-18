@@ -52,10 +52,12 @@ export default function B2cPackageImageUpload({ imagePath, onImagePathChange, er
                     return;
                 }
 
+                // Langsung ke server tanpa dialog crop. Kompresi ringan di main thread (tanpa web worker) agar perilaku stabil di semua browser.
                 const compressed = await compressImageForUpload(file, {
                     maxSizeMB: 10,
                     maxWidthOrHeight: 2800,
                     initialQuality: 0.88,
+                    useWebWorker: false,
                 });
                 const form = new FormData();
                 form.append('image', compressed);
