@@ -126,6 +126,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null; // Already handled above
             }
 
+            // Let Laravel redirect unauthenticated users (e.g. GET /dashboard as guest)
+            if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                return null;
+            }
+
+            // Let Laravel render normal 4xx pages (404, 403 invalid signature, etc.)
+            if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+                if ($e->getStatusCode() < 500) {
+                    return null;
+                }
+            }
+
             // Log the error for debugging
             \Log::error('Unhandled exception', [
                 'message' => $e->getMessage(),
@@ -185,7 +197,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             // For regular requests, show error page (Laravel default)
             // Don't expose error details in production
-            if (!app()->environment('local')) {
+            if (! app()->environment('local')) {
                 return response()->view('errors.500', [], 500);
             }
         });
