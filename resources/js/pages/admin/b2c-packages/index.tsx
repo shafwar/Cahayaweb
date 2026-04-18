@@ -56,22 +56,25 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
             <Head title="B2C Packages — Admin" />
             <AdminFloatingToast toast={toast} onDismiss={() => setToast(null)} />
 
-            {/* Bar navigasi: kembali ke dashboard | logout */}
+            {/* Bar navigasi: kembali ke dashboard | lonceng notifikasi + logout (selalu terlihat) */}
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 pb-6">
                 <Link href="/admin" className={adminBackLink}>
                     <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
                     Back to dashboard
                 </Link>
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={logout}
-                    disabled={isLoggingOut}
-                    className={`${adminGhostBtn} border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50`}
-                >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    {isLoggingOut ? '…' : 'Logout'}
-                </Button>
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                    <B2cAdminRegistrationBell />
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={logout}
+                        disabled={isLoggingOut}
+                        className={`${adminGhostBtn} border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50`}
+                    >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        {isLoggingOut ? '…' : 'Logout'}
+                    </Button>
+                </div>
             </div>
 
             {/* Judul halaman: ikon + badge + deskripsi; New package di kanan */}
@@ -92,7 +95,6 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
                     </div>
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:pt-1">
-                    <B2cAdminRegistrationBell />
                     <Link href="/admin/b2c-packages/create">
                         <Button type="button" className={`${adminPrimaryBtn} gap-2`}>
                             <Plus className="h-4 w-4" />

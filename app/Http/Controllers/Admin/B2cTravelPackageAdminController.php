@@ -302,7 +302,7 @@ class B2cTravelPackageAdminController extends Controller
         ]);
 
         return redirect()->route('admin.b2c-packages.index')
-            ->with('flash', ['type' => 'success', 'message' => 'Package updated.']);
+            ->with('flash', ['type' => 'success', 'message' => 'Perubahan paket disimpan.']);
     }
 
     public function destroy(B2cTravelPackage $b2cTravelPackage): RedirectResponse
@@ -310,14 +310,14 @@ class B2cTravelPackageAdminController extends Controller
         if ($b2cTravelPackage->registrations()->exists()) {
             return back()->with('flash', [
                 'type' => 'error',
-                'message' => 'Cannot delete a package that has registrations. Remove or archive registrations first.',
+                'message' => 'Paket tidak bisa dihapus karena masih ada pendaftaran. Hapus atau arsipkan pendaftaran terlebih dahulu.',
             ]);
         }
 
         $b2cTravelPackage->delete();
 
         return redirect()->route('admin.b2c-packages.index')
-            ->with('flash', ['type' => 'success', 'message' => 'Package deleted.']);
+            ->with('flash', ['type' => 'success', 'message' => 'Paket berhasil dihapus dari daftar.']);
     }
 
     public function registrations(B2cTravelPackage $b2cTravelPackage): Response

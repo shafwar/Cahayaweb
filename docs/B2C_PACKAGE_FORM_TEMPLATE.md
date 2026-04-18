@@ -27,6 +27,20 @@ Gunakan contoh di bawah sebagai **acuan** saat membuat paket baru. Selalu **ubah
 6. **Admin daftar paket** (`/admin/b2c-packages`): aksi sukses/gagal (hapus, update, dll.) memakai **toast** auto-dismiss di atas; **lonceng** membuka inbox pendaftaran terbaru (polling ringan ~16 dtk). Push instan: siapkan Laravel Reverb / Pusher + Echo.
 7. **Gambar paket (admin):** unggah langsung tanpa zoom/crop di form B2C — kompresi klien + server. Jika masih muncul dialog “Atur posisi gambar”, lakukan hard refresh atau pastikan deploy memakai build frontend terbaru (bukan mode edit CMS di halaman publik `/packages`).
 
+### Troubleshooting: lonceng / toast / unggah tanpa crop tidak terlihat di production
+
+Gejala yang berarti browser atau server masih memakai **versi lama**:
+
+- Ada **banner kuning** bertuliskan `Package deleted.` tepat di atas tabel (versi baru memakai **toast** di atas layar dengan ikon centang dan label **Berhasil**).
+- **Tidak ada ikon lonceng** di baris atas admin (sebelah tombol Logout).
+- Saat pilih gambar di **create**, masih muncul modal **Atur posisi gambar** (versi baru tidak memakai modal itu sama sekali di admin B2C).
+
+**Perbaikan:**
+
+1. Pastikan **Railway / CI** menjalankan `npm run build` pada deploy terbaru (lihat `railway.json` build).
+2. Setelah deploy, buka `/admin/b2c-packages` dengan **hard refresh**: `Ctrl+Shift+R` (Windows) atau `Cmd+Shift+R` (Mac), atau jendela **Incognito**.
+3. Jika domain di belakang **Cloudflare**, pertimbangkan **Bypass cache** untuk path `/admin*` (HTML) agar tag `@vite` memuat hash file JS/CSS terbaru.
+
 ---
 
 
