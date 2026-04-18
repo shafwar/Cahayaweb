@@ -60,10 +60,11 @@ RUN composer install \
         --prefer-dist \
         --optimize-autoloader \
     && mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache \
-    && chmod -R ug+rwx storage bootstrap/cache
+    && chmod -R ug+rwx storage bootstrap/cache \
+    && chmod +x scripts/railway-start.sh
 
 ENV PORT=8000
 EXPOSE 8000
 
-# Mirrors railway.json deploy: migrate + caches + serve (PORT from Railway)
-CMD ["sh", "-c", "php artisan config:clear && php artisan route:clear && php artisan view:clear && php artisan migrate:safe --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
+# Do not chain route:cache (closure routes). See scripts/railway-start.sh.
+CMD ["sh", "scripts/railway-start.sh"]
