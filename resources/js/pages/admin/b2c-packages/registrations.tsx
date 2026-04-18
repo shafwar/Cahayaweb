@@ -1,6 +1,5 @@
-import AdminActionToastHost from '@/components/admin/AdminActionToastHost';
-import AdminB2cInboxBell from '@/components/admin/AdminB2cInboxBell';
 import AdminPortalShell from '@/components/admin/AdminPortalShell';
+import B2cAdminRegistrationBell from '@/components/admin/B2cAdminRegistrationBell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { adminBackLink, adminGhostBtn, adminMuted, adminPageTitle } from '@/lib/admin-portal-theme';
@@ -33,19 +32,10 @@ type PkgSummary = {
     registration_open: boolean;
 };
 
-export default function B2cPackageRegistrations({
-    package: pkg,
-    registrations,
-    flash,
-}: {
-    package: PkgSummary;
-    registrations: Reg[];
-    flash?: { type: string; message: string } | null;
-}) {
+export default function B2cPackageRegistrations({ package: pkg, registrations }: { package: PkgSummary; registrations: Reg[] }) {
     return (
         <AdminPortalShell className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
             <Head title={`Registrations — ${pkg.name}`} />
-            <AdminActionToastHost flash={flash} />
 
             <Link href="/admin/b2c-packages" className={`${adminBackLink} mb-6`}>
                 <ArrowLeft className="h-4 w-4" />
@@ -58,7 +48,7 @@ export default function B2cPackageRegistrations({
                     <p className={`mt-1 font-mono text-xs ${adminMuted}`}>{pkg.package_code}</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                    <AdminB2cInboxBell />
+                    <B2cAdminRegistrationBell />
                     <Badge className="border border-slate-200 bg-slate-100 text-slate-800">
                         Pax {pkg.pax_booked}/{pkg.pax_capacity}
                     </Badge>

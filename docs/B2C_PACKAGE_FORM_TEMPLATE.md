@@ -23,7 +23,9 @@ Gunakan contoh di bawah sebagai **acuan** saat membuat paket baru. Selalu **ubah
 2. **Tanpa crop di browser**; file dikompres ringan di klien lalu diunggah.
 3. **Server** menjalankan **kompresi** GD (hingga ±1600×3200px, kualitas ~85%) lalu menyimpan ke **Cloudflare R2** di folder `images/b2c-packages/`.
 4. **Path** terisi otomatis di form; saat **Create package**, path tersimpan di database. Halaman **`/packages`** memuat daftar dari DB dan menampilkan gambar lewat URL CDN.
-5. Setelah sukses, browser diarahkan ke **`/packages`** (toast sukses). Jika gagal (validasi atau error server), **alert** menampilkan ringkasan field / pesan debug; detail ada di `storage/logs/laravel.log` untuk error saat simpan DB.
+5. Setelah sukses, browser diarahkan ke **`/packages`** (banner flash di halaman publik). Jika gagal (validasi atau error server), di halaman **create** muncul **toast** atas layar (bukan modal crop).
+6. **Admin daftar paket** (`/admin/b2c-packages`): aksi sukses/gagal (hapus, update, dll.) memakai **toast** auto-dismiss di atas; **lonceng** membuka inbox pendaftaran terbaru (polling ringan ~16 dtk). Push instan: siapkan Laravel Reverb / Pusher + Echo.
+7. **Gambar paket (admin):** unggah langsung tanpa zoom/crop di form B2C — kompresi klien + server. Jika masih muncul dialog “Atur posisi gambar”, lakukan hard refresh atau pastikan deploy memakai build frontend terbaru (bukan mode edit CMS di halaman publik `/packages`).
 
 ---
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\B2cPackageRegistration;
 use App\Models\B2cTravelPackage;
 use App\Support\ImageCompressor;
 use App\Support\R2Helper;
@@ -50,11 +51,43 @@ class B2cTravelPackageAdminController extends Controller
         ]);
     }
 
-    public function create(Request $request): Response
+    /**
+     * JSON feed for admin notification bell (recent B2C registrations, all packages).
+     * Polled from the SPA — keep payload small for scalability.
+     */
+    public function registrationFeed(): JsonResponse
     {
-        return Inertia::render('admin/b2c-packages/create', [
-            'flash' => $request->session()->pull('flash'),
+        $items = B2cPackageRegistration::query()
+            ->with(['package:id,slug,name'])
+            ->orderByDesc('id')
+            ->limit(25)
+            ->get()
+            ->map(static function (B2cPackageRegistration $r) {
+                $pkg = $r->package;
+
+                return [
+                    'id' => $r->id,
+                    'full_name' => $r->full_name,
+                    'email' => $r->email,
+                    'package_name' => $pkg?->name ?? '(Package removed)',
+                    'package_slug' => $pkg?->slug,
+                    'created_at' => $r->created_at?->toIso8601String(),
+                ];
+            })
+            ->values()
+            ->all();
+
+        $latestId = (int) (B2cPackageRegistration::query()->max('id') ?? 0);
+
+        return response()->json([
+            'latest_id' => $latestId,
+            'items' => $items,
         ]);
+    }
+
+    public function create(): Response
+    {
+        return Inertia::render('admin/b2c-packages/create');
     }
 
     /**
@@ -192,12 +225,11 @@ class B2cTravelPackageAdminController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Paket berhasil dibuat. Lihat daftar di halaman ini.']);
     }
 
-    public function edit(Request $request, B2cTravelPackage $b2cTravelPackage): Response
+    public function edit(B2cTravelPackage $b2cTravelPackage): Response
     {
         $p = $b2cTravelPackage;
 
         return Inertia::render('admin/b2c-packages/edit', [
-            'flash' => $request->session()->pull('flash'),
             'package' => [
                 'id' => $p->id,
                 'slug' => $p->slug,
@@ -320,7 +352,6 @@ class B2cTravelPackageAdminController extends Controller
                 'registration_open' => $b2cTravelPackage->isOpenForRegistration(),
             ],
             'registrations' => $regs,
-            'flash' => $request->session()->pull('flash'),
         ]);
     }
 

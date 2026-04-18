@@ -1,6 +1,6 @@
-import AdminActionToastHost from '@/components/admin/AdminActionToastHost';
-import AdminB2cInboxBell from '@/components/admin/AdminB2cInboxBell';
+import AdminFloatingToast, { type AdminToastPayload } from '@/components/admin/AdminFloatingToast';
 import AdminPortalShell from '@/components/admin/AdminPortalShell';
+import B2cAdminRegistrationBell from '@/components/admin/B2cAdminRegistrationBell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -13,6 +13,7 @@ import {
 } from '@/lib/admin-portal-theme';
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Calendar, LogOut, Package, Pencil, Plus, Sparkles, Trash2, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useLogout } from '@/hooks/useLogout';
 
 type Row = {
@@ -34,6 +35,16 @@ type Row = {
 
 export default function B2cPackagesIndex({ packages, flash }: { packages: Row[]; flash?: { type: string; message: string } | null }) {
     const { logout, isLoggingOut } = useLogout();
+    const [toast, setToast] = useState<AdminToastPayload | null>(null);
+
+    useEffect(() => {
+        if (flash?.message) {
+            setToast({
+                type: flash.type === 'error' ? 'error' : 'success',
+                message: flash.message,
+            });
+        }
+    }, [flash?.message, flash?.type]);
 
     const onDelete = (row: Row) => {
         if (!confirm(`Delete package "${row.name}"? This is only allowed if there are no registrations.`)) return;
@@ -43,6 +54,7 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
     return (
         <AdminPortalShell className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
             <Head title="B2C Packages — Admin" />
+            <AdminFloatingToast toast={toast} onDismiss={() => setToast(null)} />
 
             {/* Bar navigasi: kembali ke dashboard | logout */}
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 pb-6">
@@ -50,19 +62,16 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
                     <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
                     Back to dashboard
                 </Link>
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                    <AdminB2cInboxBell />
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={logout}
-                        disabled={isLoggingOut}
-                        className={`${adminGhostBtn} border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50`}
-                    >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        {isLoggingOut ? '…' : 'Logout'}
-                    </Button>
-                </div>
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={logout}
+                    disabled={isLoggingOut}
+                    className={`${adminGhostBtn} border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50`}
+                >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    {isLoggingOut ? '…' : 'Logout'}
+                </Button>
             </div>
 
             {/* Judul halaman: ikon + badge + deskripsi; New package di kanan */}
@@ -82,7 +91,8 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
                         </p>
                     </div>
                 </div>
-                <div className="shrink-0 sm:pt-1">
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:pt-1">
+                    <B2cAdminRegistrationBell />
                     <Link href="/admin/b2c-packages/create">
                         <Button type="button" className={`${adminPrimaryBtn} gap-2`}>
                             <Plus className="h-4 w-4" />
@@ -91,8 +101,6 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
                     </Link>
                 </div>
             </div>
-
-            <AdminActionToastHost flash={flash} />
 
             {packages.length === 0 ? (
                 <div className="rounded-2xl border border-slate-200/90 bg-white p-10 text-center shadow-sm">

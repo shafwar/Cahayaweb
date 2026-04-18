@@ -1,6 +1,6 @@
-import AdminActionToastHost from '@/components/admin/AdminActionToastHost';
-import AdminB2cInboxBell from '@/components/admin/AdminB2cInboxBell';
+import AdminFloatingToast, { type AdminToastPayload } from '@/components/admin/AdminFloatingToast';
 import AdminPortalShell from '@/components/admin/AdminPortalShell';
+import B2cAdminRegistrationBell from '@/components/admin/B2cAdminRegistrationBell';
 import B2cPackageAdminForm, { type B2cPackageFormShape } from '@/components/admin/B2cPackageAdminForm';
 import B2cPackageFormPageLayout from '@/components/admin/B2cPackageFormPageLayout';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { adminGhostBtn, adminMuted, adminPrimaryBtn } from '@/lib/admin-portal-t
 import { useLogout } from '@/hooks/useLogout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { LogOut } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 
 const CREATE_INTRO =
     'A B2C package is what visitors see on the public Packages page: name, travel period, displayed price, capacity, registration deadline, and optional details (description, terms, highlights, hotels, etc.). Nothing is saved until you click Create package at the bottom. On wide screens, use the list on the right to jump between sections.';
@@ -35,8 +35,9 @@ const FILL_TEMPLATE = {
     sort_order: 10,
 };
 
-export default function B2cPackagesCreate({ flash }: { flash?: { type: string; message: string } | null }) {
+export default function B2cPackagesCreate() {
     const { logout, isLoggingOut } = useLogout();
+    const [toast, setToast] = useState<AdminToastPayload | null>(null);
     const { data, setData, post, processing, errors } = useForm({
         package_code: '',
         name: '',
@@ -67,9 +68,10 @@ export default function B2cPackagesCreate({ flash }: { flash?: { type: string; m
                     const text = Array.isArray(val) ? val.join(' ') : String(val);
                     return `${key}: ${text}`;
                 });
-                window.alert(
-                    ['Gagal membuat paket (indikasi debug — perbaiki lalu coba lagi):', '', ...lines].join('\n'),
-                );
+                setToast({
+                    type: 'error',
+                    message: ['Gagal membuat paket — periksa form.', ...lines].join('\n'),
+                });
             },
         });
     };
@@ -77,7 +79,7 @@ export default function B2cPackagesCreate({ flash }: { flash?: { type: string; m
     return (
         <AdminPortalShell className="w-full max-w-none px-0">
             <Head title="New B2C package" />
-            <AdminActionToastHost flash={flash} />
+            <AdminFloatingToast toast={toast} onDismiss={() => setToast(null)} durationMs={7000} />
 
             <form onSubmit={submit} className="pb-6">
                 <B2cPackageFormPageLayout
@@ -85,7 +87,7 @@ export default function B2cPackagesCreate({ flash }: { flash?: { type: string; m
                     description={CREATE_INTRO}
                     topBarEnd={
                         <>
-                            <AdminB2cInboxBell />
+                            <B2cAdminRegistrationBell />
                             <span className={`hidden text-xs sm:inline ${adminMuted}`}>Jump list →</span>
                             <button
                                 type="button"

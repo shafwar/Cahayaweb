@@ -1,6 +1,6 @@
-import AdminActionToastHost from '@/components/admin/AdminActionToastHost';
-import AdminB2cInboxBell from '@/components/admin/AdminB2cInboxBell';
+import AdminFloatingToast, { type AdminToastPayload } from '@/components/admin/AdminFloatingToast';
 import AdminPortalShell from '@/components/admin/AdminPortalShell';
+import B2cAdminRegistrationBell from '@/components/admin/B2cAdminRegistrationBell';
 import B2cPackageAdminForm, { type B2cPackageFormShape } from '@/components/admin/B2cPackageAdminForm';
 import B2cPackageFormPageLayout from '@/components/admin/B2cPackageFormPageLayout';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { adminGhostBtn, adminMuted, adminPrimaryBtn } from '@/lib/admin-portal-t
 import { useLogout } from '@/hooks/useLogout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { LogOut, Users } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 
 type Pkg = {
     id: number;
@@ -37,14 +37,9 @@ type Pkg = {
 const EDIT_INTRO =
     'Edit the fields below to change what appears on the public B2C Packages page and in the registration flow. Capacity, deadlines, and copy should stay accurate for visitors. Changes apply after you click Save changes. On wide screens, use the list on the right to jump between sections.';
 
-export default function B2cPackagesEdit({
-    package: pkg,
-    flash,
-}: {
-    package: Pkg;
-    flash?: { type: string; message: string } | null;
-}) {
+export default function B2cPackagesEdit({ package: pkg }: { package: Pkg }) {
     const { logout, isLoggingOut } = useLogout();
+    const [toast, setToast] = useState<AdminToastPayload | null>(null);
     const { data, setData, put, processing, errors } = useForm({
         package_code: pkg.package_code,
         name: pkg.name,
@@ -69,13 +64,25 @@ export default function B2cPackagesEdit({
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        put(`/admin/b2c-packages/${pkg.slug}`);
+        put(`/admin/b2c-packages/${pkg.slug}`, {
+            preserveScroll: true,
+            onError: (errs) => {
+                const lines = Object.entries(errs).map(([key, val]) => {
+                    const text = Array.isArray(val) ? val.join(' ') : String(val);
+                    return `${key}: ${text}`;
+                });
+                setToast({
+                    type: 'error',
+                    message: ['Gagal menyimpan — periksa form.', ...lines].join('\n'),
+                });
+            },
+        });
     };
 
     return (
         <AdminPortalShell className="w-full max-w-none px-0">
             <Head title={`Edit — ${pkg.name}`} />
-            <AdminActionToastHost flash={flash} />
+            <AdminFloatingToast toast={toast} onDismiss={() => setToast(null)} durationMs={7000} />
 
             <form onSubmit={submit} className="pb-6">
                 <B2cPackageFormPageLayout
@@ -84,7 +91,7 @@ export default function B2cPackagesEdit({
                     meta={<p className={`font-mono text-xs ${adminMuted}`}>Slug: {pkg.slug}</p>}
                     topBarEnd={
                         <>
-                            <AdminB2cInboxBell />
+                            <B2cAdminRegistrationBell />
                             <span className={`hidden text-xs sm:inline ${adminMuted}`}>Jump list →</span>
                             <button
                                 type="button"
