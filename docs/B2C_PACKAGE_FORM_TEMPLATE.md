@@ -27,6 +27,10 @@ Gunakan contoh di bawah sebagai **acuan** saat membuat paket baru. Selalu **ubah
 6. **Admin daftar paket** (`/admin/b2c-packages`): aksi sukses/gagal (hapus, update, dll.) memakai **toast** auto-dismiss di atas; **lonceng** membuka inbox pendaftaran terbaru (polling ringan ~16 dtk). Push instan: siapkan Laravel Reverb / Pusher + Echo.
 7. **Gambar paket (admin):** unggah langsung tanpa zoom/crop di form B2C — kompresi klien + server. Jika masih muncul dialog “Atur posisi gambar”, lakukan hard refresh atau pastikan deploy memakai build frontend terbaru (bukan mode edit CMS di halaman publik `/packages`).
 
+### Deploy Railway (Dockerfile, bukan Nixpacks)
+
+Build production memakai **`Dockerfile`** di root repo (lihat `railway.json`: `builder: DOCKERFILE`). Ini menghindari error **504** saat Nixpacks mengunduh tarball **nixpkgs** dari GitHub. Aset front-end dibangun di stage **Node 22**; image akhir memakai **php:8.4-cli-bookworm** + ekstensi `pdo_mysql`, `gd`, `intl`, `zip`, `xml`, `dom`, dll.
+
 ### Troubleshooting: lonceng / toast / unggah tanpa crop tidak terlihat di production
 
 Gejala yang berarti browser atau server masih memakai **versi lama**:

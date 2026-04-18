@@ -1,0 +1,30 @@
+# Dependencies & VCS (installed / built inside the image)
+vendor
+node_modules
+.git
+.github
+
+# Local / secrets
+.env
+.env.*
+!.env.example
+
+# Logs & caches (recreated at runtime)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+
+# Dev tooling
+tests
+.phpunit.result.cache
+phpunit.xml
+.editorconfig
+
+# Large local backups (not needed in production image)
+public/backup-images
+
+# Vite dev
+public/hot
