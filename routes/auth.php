@@ -36,6 +36,11 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    /** Fresh token for SPA (logout, etc.) — avoids 419 when meta/props lag behind session */
+    Route::get('auth/csrf-token', function () {
+        return response()->json(['csrf_token' => csrf_token()]);
+    })->name('auth.csrf-token');
+
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 
