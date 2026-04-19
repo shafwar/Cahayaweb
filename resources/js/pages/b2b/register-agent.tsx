@@ -7,7 +7,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import B2BLayout from '@/layouts/b2b-layout';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { AlertCircle, Briefcase, Building2, Check, FileText, Info, Mail, MapPin, Phone, RefreshCw, Upload, User, X } from 'lucide-react';
+import {
+    AlertCircle,
+    Briefcase,
+    Building2,
+    Check,
+    FileText,
+    Info,
+    LoaderCircle,
+    Mail,
+    MapPin,
+    Phone,
+    RefreshCw,
+    Upload,
+    User,
+    X,
+} from 'lucide-react';
 import { FormEvent, useState } from 'react';
 
 interface RejectedVerification {
@@ -181,7 +196,7 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
     const { auth } = pageProps;
     const isUserGuest = !auth.user || isGuest;
     const [showRejectionNotice, setShowRejectionNotice] = useState(!!rejectedVerification);
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, errors, reset } = useForm({
         company_name: '',
         company_email: '',
         company_phone: '',
@@ -209,6 +224,8 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
 
     const [filePreviews, setFilePreviews] = useState<Record<string, string>>({});
     const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
+    /** router.post does not drive useForm().processing — track visit explicitly */
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB per file
     const MAX_TOTAL_FILE_BYTES = 15 * 1024 * 1024; // combined cap (3 uploads)
     const FILE_FIELD_LIST = ['business_license_file', 'tax_certificate_file', 'company_profile_file'] as const;
@@ -289,6 +306,9 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
+        if (isSubmitting) {
+            return;
+        }
 
         // Validate file sizes before submission
         const fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
@@ -383,10 +403,15 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
 
         const submitUrl = '/b2b/register';
 
+        setIsSubmitting(true);
+
         router.post(submitUrl, formData, {
             preserveState: true,
             preserveScroll: true,
             forceFormData: true,
+            onFinish: () => {
+                setIsSubmitting(false);
+            },
             onError: (errors) => {
                 console.error('Form submission errors:', errors);
                 const errorMessage = (errors?.message as string) || (typeof errors === 'string' ? errors : '') || '';
@@ -1275,24 +1300,28 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                                         </p>
                                     </div>
                                 )}
-                                <Button
-                                    type="submit"
-                                    disabled={processing}
-                                    className="h-14 w-full bg-gradient-to-r from-[#ff5200] to-[#ff6b35] px-10 text-lg font-bold text-white shadow-lg transition-all hover:brightness-110 hover:shadow-xl disabled:opacity-50 sm:w-auto"
-                                >
-                                    {processing ? (
-                                        <span className="flex items-center gap-3">
-                                            <motion.div
-                                                animate={{ rotate: 360 }}
-                                                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                                                className="h-5 w-5 rounded-full border-2 border-white border-t-transparent"
-                                            />
-                                            Submitting...
-                                        </span>
-                                    ) : (
-                                        'Submit Application'
+                                <div className="flex w-full flex-col items-stretch gap-2 sm:items-end">
+                                    <Button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        aria-busy={isSubmitting}
+                                        className="h-14 min-w-[220px] bg-gradient-to-r from-[#ff5200] to-[#ff6b35] px-10 text-lg font-bold text-white shadow-lg transition-all hover:brightness-110 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+                                    >
+                                        {isSubmitting ? (
+                                            <span className="flex items-center justify-center gap-3">
+                                                <LoaderCircle className="h-5 w-5 shrink-0 animate-spin text-white" aria-hidden />
+                                                Uploading &amp; processing…
+                                            </span>
+                                        ) : (
+                                            'Submit Application'
+                                        )}
+                                    </Button>
+                                    {isSubmitting && (
+                                        <p className="max-w-md text-center text-xs leading-relaxed text-[#64748b] sm:text-right" role="status" aria-live="polite">
+                                            Please wait — your documents are being uploaded and the next step will open automatically.
+                                        </p>
                                     )}
-                                </Button>
+                                </div>
                             </motion.div>
                         </motion.form>
                     )}

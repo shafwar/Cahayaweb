@@ -1,5 +1,5 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { FormEventHandler, useEffect, useState } from 'react';
 
 import InputError from '@/components/input-error';
@@ -27,6 +27,8 @@ export default function Register() {
     const { url, props } = usePage();
     const status = (props as any)?.status;
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm<RegisterForm>({
         name: '',
@@ -232,18 +234,31 @@ export default function Register() {
 
                     <div className="grid gap-2">
                         <Label htmlFor="password">Password</Label>
-                        <Input
-                            id="password"
-                            type="password"
-                            required
-                            tabIndex={3}
-                            autoComplete="new-password"
-                            value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
-                            disabled={showLoading}
-                            placeholder="Password (minimum 8 characters)"
-                            minLength={8}
-                        />
+                        <div className="relative">
+                            <Input
+                                id="password"
+                                type={showPassword ? 'text' : 'password'}
+                                required
+                                tabIndex={3}
+                                autoComplete="new-password"
+                                value={data.password}
+                                onChange={(e) => setData('password', e.target.value)}
+                                disabled={showLoading}
+                                placeholder="Password (minimum 8 characters)"
+                                minLength={8}
+                                className="pr-11"
+                            />
+                            <button
+                                type="button"
+                                tabIndex={-1}
+                                onClick={() => setShowPassword((v) => !v)}
+                                disabled={showLoading}
+                                className="absolute top-1/2 right-2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-slate-500 outline-none transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:ring-2 focus-visible:ring-orange-400/60 disabled:opacity-50"
+                                aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                            >
+                                {showPassword ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
+                            </button>
+                        </div>
                         <div className="flex items-start gap-2">
                             <InputError message={errors.password} />
                             {!errors.password && <p className="text-xs text-slate-600">Password must be at least 8 characters long.</p>}
@@ -260,17 +275,30 @@ export default function Register() {
 
                     <div className="grid gap-2">
                         <Label htmlFor="password_confirmation">Confirm password</Label>
-                        <Input
-                            id="password_confirmation"
-                            type="password"
-                            required
-                            tabIndex={4}
-                            autoComplete="new-password"
-                            value={data.password_confirmation}
-                            onChange={(e) => setData('password_confirmation', e.target.value)}
-                            disabled={showLoading}
-                            placeholder="Confirm password"
-                        />
+                        <div className="relative">
+                            <Input
+                                id="password_confirmation"
+                                type={showPasswordConfirmation ? 'text' : 'password'}
+                                required
+                                tabIndex={4}
+                                autoComplete="new-password"
+                                value={data.password_confirmation}
+                                onChange={(e) => setData('password_confirmation', e.target.value)}
+                                disabled={showLoading}
+                                placeholder="Confirm password"
+                                className="pr-11"
+                            />
+                            <button
+                                type="button"
+                                tabIndex={-1}
+                                onClick={() => setShowPasswordConfirmation((v) => !v)}
+                                disabled={showLoading}
+                                className="absolute top-1/2 right-2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-slate-500 outline-none transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:ring-2 focus-visible:ring-orange-400/60 disabled:opacity-50"
+                                aria-label={showPasswordConfirmation ? 'Sembunyikan konfirmasi password' : 'Tampilkan konfirmasi password'}
+                            >
+                                {showPasswordConfirmation ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
+                            </button>
+                        </div>
                         <InputError message={errors.password_confirmation} />
                         {data.password && data.password_confirmation && data.password !== data.password_confirmation && (
                             <div className="mt-1 rounded-lg border border-red-200 bg-red-50 p-2">
