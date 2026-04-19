@@ -192,6 +192,8 @@ class HandleInertiaRequests extends Middleware
 
             return [
                 ...$parentShare,
+                /** Always current; client syncs <meta name="csrf-token"> (see CsrfSync) after regenerateToken() */
+                'csrf_token' => csrf_token(),
                 'name' => config('app.name', 'Cahaya Anbiya'),
                 'quote' => $quote,
                 'cmsMediaGuide' => $cmsMediaGuide,
@@ -248,6 +250,7 @@ class HandleInertiaRequests extends Middleware
             ];
 
             return [
+                'csrf_token' => csrf_token(),
                 'name' => 'Cahaya Anbiya',
                 'quote' => ['message' => 'Welcome', 'author' => 'Cahaya Anbiya'],
                 'auth' => ['user' => null],

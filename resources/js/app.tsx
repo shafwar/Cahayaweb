@@ -3,8 +3,10 @@ import '../css/app.css';
 import { createInertiaApp, type PageProps } from '@inertiajs/react';
 import axios from 'axios';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import type { ComponentType, Key, ReactNode } from 'react';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import CsrfSync from './components/CsrfSync';
 import { initializeTheme } from './hooks/use-appearance';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
@@ -15,6 +17,27 @@ const criticalPages: Record<string, React.ComponentType<PageProps>> = {
     'landing/select-mode': SelectModePage,
     'b2c/home': B2CHomePage,
 };
+
+/** Mirrors @inertiajs/react App default child render (layout chains) + prepends CsrfSync. */
+function renderInertiaPageTree(args: {
+    Component: ComponentType<Record<string, unknown>> & {
+        layout?: ((page: ReactNode) => ReactNode) | ComponentType<{ children?: ReactNode } & Record<string, unknown>>[];
+    };
+    props: Record<string, unknown>;
+    key: Key | null;
+}): ReactNode {
+    const { Component, props: pageProps, key } = args;
+    const child = React.createElement(Component, { key: key ?? undefined, ...pageProps });
+    if (typeof Component.layout === 'function') {
+        return Component.layout(child);
+    }
+    if (Array.isArray(Component.layout)) {
+        return Component.layout.concat(child).reverse().reduce((nested, Layout) => {
+            return React.createElement(Layout, { children: nested, ...pageProps });
+        });
+    }
+    return child;
+}
 
 if (typeof window !== 'undefined') {
     const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
@@ -61,7 +84,16 @@ createInertiaApp({
             el = document.getElementById('app') || document.querySelector('[data-page]') as HTMLElement;
         }
         const root = createRoot(el);
-        root.render(<App {...props} />);
+        root.render(
+            <App {...props}>
+                {(payload) => (
+                    <>
+                        <CsrfSync />
+                        {renderInertiaPageTree(payload)}
+                    </>
+                )}
+            </App>,
+        );
     },
     progress: {
         color: '#BC8E2E',
