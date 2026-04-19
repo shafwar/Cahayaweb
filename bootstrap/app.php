@@ -2,10 +2,13 @@
 
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\StartSessionWithAdminConfig;
+use App\Http\Middleware\SyncAdminPersistentSessionCookie;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Session\Middleware\StartSession;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -21,15 +24,21 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\RedirectWww::class,
         ]);
 
-        $middleware->web(append: [
-            HandleAppearance::class,
-            HandleInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
-            \App\Http\Middleware\PreventAggressiveHtmlCaching::class,
-            // Temporarily disabled to isolate 502 error - will re-enable with better error handling
-            // \App\Http\Middleware\CompressResponse::class,
-            // \App\Http\Middleware\AddCacheHeaders::class,
-        ]);
+        $middleware->web(
+            replace: [
+                StartSession::class => StartSessionWithAdminConfig::class,
+            ],
+            append: [
+                HandleAppearance::class,
+                HandleInertiaRequests::class,
+                AddLinkHeadersForPreloadedAssets::class,
+                \App\Http\Middleware\PreventAggressiveHtmlCaching::class,
+                SyncAdminPersistentSessionCookie::class,
+                // Temporarily disabled to isolate 502 error - will re-enable with better error handling
+                // \App\Http\Middleware\CompressResponse::class,
+                // \App\Http\Middleware\AddCacheHeaders::class,
+            ],
+        );
 
         $middleware->alias([
             'verify.b2b' => \App\Http\Middleware\VerifyB2BAccess::class,

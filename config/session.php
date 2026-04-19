@@ -34,6 +34,20 @@ return [
 
     'lifetime' => (int) env('SESSION_LIFETIME', 120),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin persistent session (idle window)
+    |--------------------------------------------------------------------------
+    |
+    | When an admin has the cahaya_admin_persistent cookie (set after admin
+    | login), server-side session lifetime uses this value (minutes) so the
+    | session is not garbage-collected while away. Non-admin users keep using
+    | "lifetime" above. Manual logout clears the cookie.
+    |
+    */
+
+    'admin_lifetime_minutes' => (int) env('SESSION_LIFETIME_ADMIN', 525600),
+
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
 
     /*

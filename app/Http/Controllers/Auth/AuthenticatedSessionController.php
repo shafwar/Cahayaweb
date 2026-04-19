@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\StartSessionWithAdminConfig;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Inertia\Response as InertiaResponse;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class AuthenticatedSessionController extends Controller
@@ -44,7 +45,7 @@ class AuthenticatedSessionController extends Controller
                 $request->session()->save();
             } catch (\Throwable $tokenError) {
                 \Log::warning('Failed to regenerate CSRF token in login page', [
-                    'error' => $tokenError->getMessage()
+                    'error' => $tokenError->getMessage(),
                 ]);
             }
         }
@@ -62,7 +63,7 @@ class AuthenticatedSessionController extends Controller
                         in_array($user->email, config('app.admin_emails', []), true);
                 } catch (\Throwable $e) {
                     \Log::warning('Error checking admin status in login page', [
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ]);
                 }
 
@@ -80,7 +81,7 @@ class AuthenticatedSessionController extends Controller
                 } catch (\Throwable $e) {
                     \Log::warning('Error checking B2B access in login page', [
                         'user_id' => $user->id ?? null,
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ]);
                     // Continue to registration if check fails
                 }
@@ -90,7 +91,7 @@ class AuthenticatedSessionController extends Controller
                     return redirect()->route('b2b.register');
                 } catch (\Throwable $e) {
                     \Log::error('Error redirecting to B2B register', [
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ]);
                     // Fall through to render login page if route doesn't exist
                 }
@@ -99,7 +100,7 @@ class AuthenticatedSessionController extends Controller
             // Log error but continue to render login page
             \Log::error('Error in login page user check', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
         }
 
@@ -133,7 +134,7 @@ class AuthenticatedSessionController extends Controller
                     $csrfToken = csrf_token();
                 } catch (\Throwable $e) {
                     \Log::debug('Failed to get CSRF token for header', [
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ]);
                 }
 
@@ -146,7 +147,7 @@ class AuthenticatedSessionController extends Controller
                 }
             } catch (\Throwable $e) {
                 \Log::warning('Failed to set cache headers', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 // Continue without headers - response is still valid
             }
@@ -156,7 +157,7 @@ class AuthenticatedSessionController extends Controller
             // Last resort: log error and return basic response
             \Log::error('Fatal error rendering login page', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             // Try to return basic Inertia response without extra data
@@ -171,7 +172,7 @@ class AuthenticatedSessionController extends Controller
             } catch (\Throwable $fallbackError) {
                 // Absolute last resort: return error response
                 \Log::critical('Cannot render login page at all', [
-                    'error' => $fallbackError->getMessage()
+                    'error' => $fallbackError->getMessage(),
                 ]);
                 abort(500, 'Unable to load login page. Please try again later.');
             }
@@ -203,14 +204,14 @@ class AuthenticatedSessionController extends Controller
                 // The user is already authenticated, so we can proceed
                 \Log::warning('Session regeneration failed during login', [
                     'user_id' => $user?->id,
-                    'error' => $sessionError->getMessage()
+                    'error' => $sessionError->getMessage(),
                 ]);
                 // Try to regenerate token anyway
                 try {
                     $request->session()->regenerateToken();
                 } catch (\Throwable $tokenError) {
                     \Log::warning('Token regeneration also failed', [
-                        'error' => $tokenError->getMessage()
+                        'error' => $tokenError->getMessage(),
                     ]);
                 }
             }
@@ -227,14 +228,14 @@ class AuthenticatedSessionController extends Controller
                         if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
                             $isAdmin = true;
                         }
-                        if (!$isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
+                        if (! $isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
                             $isAdmin = true;
                         }
                     }
                 } catch (\Throwable $adminCheckError) {
                     \Log::warning('Error checking admin status during B2B login', [
                         'user_id' => $user?->id,
-                        'error' => $adminCheckError->getMessage()
+                        'error' => $adminCheckError->getMessage(),
                     ]);
                     // If we can't determine admin status, allow login to proceed
                 }
@@ -247,7 +248,7 @@ class AuthenticatedSessionController extends Controller
                         $request->session()->regenerateToken();
                     } catch (\Throwable $logoutError) {
                         \Log::warning('Error during admin logout in B2B mode', [
-                            'error' => $logoutError->getMessage()
+                            'error' => $logoutError->getMessage(),
                         ]);
                     }
 
@@ -257,6 +258,7 @@ class AuthenticatedSessionController extends Controller
                             'email' => 'Admin accounts cannot login through B2B portal. Please use the admin login page directly.',
                         ])->withInput($request->only('email'));
                     }
+
                     return back()->withErrors([
                         'email' => 'Admin accounts cannot login through B2B portal. Please use the admin login page directly.',
                     ])->withInput($request->only('email'));
@@ -272,19 +274,19 @@ class AuthenticatedSessionController extends Controller
                         if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
                             $isAdmin = true;
                         }
-                        if (!$isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
+                        if (! $isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
                             $isAdmin = true;
                         }
                     }
                 } catch (\Throwable $adminCheckError) {
                     \Log::warning('Error checking admin status during admin login', [
                         'user_id' => $user?->id,
-                        'error' => $adminCheckError->getMessage()
+                        'error' => $adminCheckError->getMessage(),
                     ]);
                     // If we can't determine admin status, treat as non-admin
                 }
 
-                if (!$isAdmin) {
+                if (! $isAdmin) {
                     // Logout non-admin user immediately
                     try {
                         Auth::guard('web')->logout();
@@ -292,7 +294,7 @@ class AuthenticatedSessionController extends Controller
                         $request->session()->regenerateToken();
                     } catch (\Throwable $logoutError) {
                         \Log::warning('Error during non-admin logout in admin mode', [
-                            'error' => $logoutError->getMessage()
+                            'error' => $logoutError->getMessage(),
                         ]);
                     }
 
@@ -302,16 +304,21 @@ class AuthenticatedSessionController extends Controller
                             'email' => 'This account does not have admin access. Please login with an admin account.',
                         ])->withInput($request->only('email'));
                     }
+
                     return back()->withErrors([
                         'email' => 'This account does not have admin access. Please login with an admin account.',
                     ])->withInput($request->only('email'));
                 }
+
+                // Long-lived session + remember token: survives browser close; idle window from SESSION_LIFETIME_ADMIN
+                Auth::login($user, true);
 
                 // Admin verified - redirect to admin dashboard
                 // For Inertia requests, use location redirect
                 if ($request->header('X-Inertia')) {
                     return Inertia::location('/admin');
                 }
+
                 return redirect('/admin');
             }
 
@@ -332,7 +339,7 @@ class AuthenticatedSessionController extends Controller
                     'user_id' => $user?->id,
                     'mode' => $mode,
                     'error' => $redirectError->getMessage(),
-                    'trace' => $redirectError->getTraceAsString()
+                    'trace' => $redirectError->getTraceAsString(),
                 ]);
                 // Fallback to home page if redirect determination fails
                 $redirectTarget = route('home', absolute: false);
@@ -357,7 +364,7 @@ class AuthenticatedSessionController extends Controller
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             // For Inertia requests, return proper Inertia error response
@@ -392,7 +399,7 @@ class AuthenticatedSessionController extends Controller
                 $request->session()->invalidate();
             } catch (\Exception $sessionError) {
                 // Session might already be invalid - that's okay
-                \Log::debug('Session already invalid during logout: ' . $sessionError->getMessage());
+                \Log::debug('Session already invalid during logout: '.$sessionError->getMessage());
             }
 
             // Regenerate session ID for security (creates new empty session)
@@ -401,7 +408,7 @@ class AuthenticatedSessionController extends Controller
                 $request->session()->regenerate();
             } catch (\Exception $regenerateError) {
                 // Session regeneration might fail if session was already invalidated
-                \Log::debug('Session regeneration failed during logout: ' . $regenerateError->getMessage());
+                \Log::debug('Session regeneration failed during logout: '.$regenerateError->getMessage());
             }
 
             // Regenerate CSRF token after session regeneration
@@ -410,11 +417,11 @@ class AuthenticatedSessionController extends Controller
                 $request->session()->regenerateToken();
             } catch (\Exception $tokenError) {
                 // Token regeneration might fail - that's okay, new session will have new token
-                \Log::debug('Token regeneration failed during logout: ' . $tokenError->getMessage());
+                \Log::debug('Token regeneration failed during logout: '.$tokenError->getMessage());
             }
         } catch (\Exception $e) {
             // Log error for debugging but don't expose to user
-            \Log::error('Logout error: ' . $e->getMessage(), [
+            \Log::error('Logout error: '.$e->getMessage(), [
                 'exception' => $e,
                 'user_id' => $request->user()?->id,
             ]);
@@ -427,9 +434,11 @@ class AuthenticatedSessionController extends Controller
                 }
             } catch (\Exception $logoutError) {
                 // Ignore logout errors - user might already be logged out
-                \Log::debug('Fallback logout also failed (this is usually okay): ' . $logoutError->getMessage());
+                \Log::debug('Fallback logout also failed (this is usually okay): '.$logoutError->getMessage());
             }
         }
+
+        Cookie::queue(Cookie::forget(StartSessionWithAdminConfig::COOKIE_NAME));
 
         // For Inertia requests, use location redirect to ensure clean state
         // This prevents any Page Expired errors by doing a full page redirect
@@ -454,13 +463,13 @@ class AuthenticatedSessionController extends Controller
                 if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
                     $isAdmin = true;
                 }
-                if (!$isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
+                if (! $isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
                     $isAdmin = true;
                 }
             }
         } catch (\Throwable $e) {
             \Log::debug('Error checking admin status in determineRedirectTarget', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             // Continue with $isAdmin = false
         }
@@ -474,6 +483,7 @@ class AuthenticatedSessionController extends Controller
             if ($isAdmin) {
                 return '/admin';
             }
+
             // If somehow non-admin got through, redirect to home
             return route('home', absolute: false);
         }
@@ -485,6 +495,7 @@ class AuthenticatedSessionController extends Controller
                 \Log::warning('Admin user detected in B2B mode redirect', [
                     'user_id' => $user?->id,
                 ]);
+
                 return '/admin';
             }
 
@@ -507,23 +518,26 @@ class AuthenticatedSessionController extends Controller
                     'has_b2b_access' => $hasB2BAccess,
                 ]);
 
-                if (!$user || !$hasB2BAccess) {
+                if (! $user || ! $hasB2BAccess) {
                     \Log::info('User does not have B2B access - redirecting to registration', [
                         'user_id' => $user?->id,
                     ]);
+
                     return route('b2b.register', absolute: false);
                 }
 
                 \Log::info('User has B2B access - redirecting to B2B index', [
                     'user_id' => $user?->id,
                 ]);
+
                 return route('b2b.index', absolute: false);
             } catch (\Throwable $e) {
                 \Log::error('Error checking B2B access in determineRedirectTarget', [
                     'user_id' => $user?->id,
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ]);
+
                 // If error occurs, redirect to registration form as safe fallback
                 return route('b2b.register', absolute: false);
             }
@@ -536,6 +550,7 @@ class AuthenticatedSessionController extends Controller
             if (is_string($redirect) && str_starts_with($redirect, '/admin')) {
                 return $redirect;
             }
+
             // Default admin redirect
             return '/admin';
         }
