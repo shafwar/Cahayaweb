@@ -3,6 +3,7 @@
 /node_modules
 /public/build
 /public/hot
+/public/backup-images
 /public/storage
 /storage/*.key
 /storage/pail
