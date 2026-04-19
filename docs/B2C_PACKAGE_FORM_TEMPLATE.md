@@ -17,6 +17,8 @@ php artisan db:seed --class=LegacyB2cTravelPackagesSeeder --force
 
 Gunakan contoh di bawah sebagai **acuan** saat membuat paket baru. Selalu **ubah `package_code` dan nama** agar unik di database. Deadline `registration_deadline` harus format datetime yang valid (field browser: datetime-local).
 
+**Penting:** Dropdown **Status = Open** hanya satu bagian dari aturan. Tombol **Register Online** di situs publik aktif hanya jika (1) status Open, (2) kuota belum penuh, dan (3) **waktu sekarang masih sebelum `registration_deadline`**. Jika deadline sudah lewat, admin tetap bisa menampilkan “Open” di form, tetapi situs akan menampilkan “Registration closed” sampai Anda **memperpanjang deadline** (atau menutup paket secara manual). Zona waktu penyimpanan mengikuti `APP_TIMEZONE` (default **Asia/Jakarta**).
+
 ## Ringkasan alur Media
 
 1. Di bagian **Media**, pilih atau seret file gambar (JPEG / PNG / WebP) — **poster vertikal** didukung (mis. ±1080×1920).

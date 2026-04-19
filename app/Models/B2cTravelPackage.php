@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class B2cTravelPackage extends Model
@@ -56,18 +55,30 @@ class B2cTravelPackage extends Model
         return $this->hasMany(B2cPackageRegistration::class, 'b2c_travel_package_id');
     }
 
-    public function isOpenForRegistration(): bool
+    /**
+     * When online registration is blocked despite the admin "Status" dropdown.
+     *
+     * @return 'manual'|'full'|'deadline'|null null means accepting registrations now.
+     */
+    public function registrationBlockReason(): ?string
     {
         if ($this->status !== 'open') {
-            return false;
+            return 'manual';
         }
         if ($this->pax_booked >= $this->pax_capacity) {
-            return false;
+            return 'full';
         }
-        /** @var Carbon $deadline */
         $deadline = $this->registration_deadline;
+        if ($deadline === null) {
+            return null;
+        }
 
-        return $deadline->isFuture();
+        return $deadline->isFuture() ? null : 'deadline';
+    }
+
+    public function isOpenForRegistration(): bool
+    {
+        return $this->registrationBlockReason() === null;
     }
 
     public function availablePaxSlots(): int

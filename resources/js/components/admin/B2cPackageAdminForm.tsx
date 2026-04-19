@@ -108,7 +108,11 @@ export default function B2cPackageAdminForm({ data, setData, errors, showPaxBook
                     <div className={fieldGroup}>
                         <p className={fieldGroupLabel}>Registration</p>
                         <div className="grid gap-6 sm:grid-cols-2 sm:gap-x-8">
-                            <AdminField label="Registration deadline" error={errors.registration_deadline}>
+                            <AdminField
+                                label="Registration deadline"
+                                hint="Waktu ini memakai zona aplikasi (default WIB). Harus lebih dari sekarang agar tombol Register di situs publik aktif. Status “Open” saja tidak cukup jika deadline sudah lewat."
+                                error={errors.registration_deadline}
+                            >
                                 <input
                                     type="datetime-local"
                                     className={adminInput}

@@ -7,6 +7,7 @@ use App\Models\B2cPackageRegistration;
 use App\Models\B2cTravelPackage;
 use App\Support\ImageCompressor;
 use App\Support\R2Helper;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,6 +40,7 @@ class B2cTravelPackageAdminController extends Controller
                     'registration_deadline' => $p->registration_deadline->toIso8601String(),
                     'status' => $p->status,
                     'registration_open' => $p->isOpenForRegistration(),
+                    'registration_block_reason' => $p->registrationBlockReason(),
                     'registrations_count' => $p->registrations_count,
                     'sort_order' => $p->sort_order,
                     'updated_at' => $p->updated_at?->toIso8601String(),
@@ -243,7 +245,7 @@ class B2cTravelPackageAdminController extends Controller
                 'price_display' => $p->price_display,
                 'pax_capacity' => $p->pax_capacity,
                 'pax_booked' => $p->pax_booked,
-                'registration_deadline' => $p->registration_deadline->format('Y-m-d\TH:i'),
+                'registration_deadline' => $p->registration_deadline->copy()->timezone(config('app.timezone'))->format('Y-m-d\TH:i'),
                 'terms_and_conditions' => $p->terms_and_conditions,
                 'status' => $p->status,
                 'image_path' => $p->image_path,
@@ -388,6 +390,15 @@ class B2cTravelPackageAdminController extends Controller
             throw ValidationException::withMessages([
                 'image_path' => ['Use a full https image URL, a path under images/, or upload via Media.'],
             ]);
+        }
+
+        $deadlineRaw = $validated['registration_deadline'] ?? null;
+        if (is_string($deadlineRaw) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $deadlineRaw)) {
+            $validated['registration_deadline'] = Carbon::createFromFormat(
+                'Y-m-d H:i',
+                str_replace('T', ' ', $deadlineRaw),
+                config('app.timezone')
+            );
         }
 
         return $validated;

@@ -28,10 +28,27 @@ type Row = {
     registration_deadline: string;
     status: string;
     registration_open: boolean;
+    registration_block_reason: 'manual' | 'full' | 'deadline' | null;
     registrations_count: number;
     sort_order: number;
     updated_at: string | null;
 };
+
+function registrationStatusLabel(p: Row): string {
+    if (p.status === 'closed') {
+        return 'Closed';
+    }
+    if (p.registration_open) {
+        return 'Open';
+    }
+    if (p.registration_block_reason === 'deadline') {
+        return 'Deadline passed';
+    }
+    if (p.registration_block_reason === 'full') {
+        return 'Full';
+    }
+    return 'Unavailable';
+}
 
 export default function B2cPackagesIndex({ packages, flash }: { packages: Row[]; flash?: { type: string; message: string } | null }) {
     const { logout, isLoggingOut } = useLogout();
@@ -152,8 +169,17 @@ export default function B2cPackagesIndex({ packages, flash }: { packages: Row[];
                                                     ? 'border border-amber-200 bg-amber-50 text-amber-900'
                                                     : 'border border-slate-200 bg-slate-100 text-slate-600'
                                             }
+                                            title={
+                                                p.registration_block_reason === 'deadline'
+                                                    ? 'Status is Open but the registration deadline is in the past. Extend the deadline to enable the public Register button.'
+                                                    : p.registration_block_reason === 'full'
+                                                      ? 'Capacity is reached.'
+                                                      : p.registration_block_reason === 'manual'
+                                                        ? 'Status is set to Closed in the form.'
+                                                        : undefined
+                                            }
                                         >
-                                            {p.status === 'open' && p.registration_open ? 'Open' : p.status === 'closed' ? 'Closed' : 'Unavailable'}
+                                            {registrationStatusLabel(p)}
                                         </Badge>
                                     </td>
                                     <td className="px-4 py-3 text-right">

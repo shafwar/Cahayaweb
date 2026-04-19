@@ -25,7 +25,8 @@ const FILL_TEMPLATE = {
     package_type: 'Umrah',
     price_display: 'From Rp 45.000.000 / pax',
     pax_capacity: 40,
-    registration_deadline: '2026-04-01T23:59',
+    // Must stay in the future until that moment; set before departure (trip 14–24 Apr → close regis e.g. 12 Apr).
+    registration_deadline: '2026-04-12T23:59',
     terms_and_conditions:
         'Peserta wajib memiliki paspor min. 6 bulan validitas. Pembatalan <30 hari sebelum keberangkatan dikenakan biaya sesuai kebijakan maskapai. Cahaya Anbiya berhak menolak pendaftaran jika kuota penuh.',
     highlights_text: 'Hotel 5* walking distance\nMutawwif berbahasa Indonesia\nManasik intensif',
