@@ -1,5 +1,40 @@
 # Template pengisian — Admin B2C Create package
 
+## Production: paket sudah ada (mis. Umrah Premium) — Register Online “mati” karena deadline
+
+Ikuti urutan ini; setelah simpan, tombol **Register Online** akan hidup selama **Status = Open**, kuota belum penuh, dan **deadline masih di masa depan**.
+
+### Opsi A — Satu klik di halaman Edit (disarankan)
+
+1. Login admin → **Packages** → buka paket yang bermasalah (**Edit**).
+2. Di atas form, buka panel **“Template & perbaikan cepat”**.
+3. Klik **“Aktifkan Register Online (deadline 30 Apr 2026 23:59 + Open)”** — field **Registration deadline** dan **Status** terisi otomatis.
+4. Klik **Save changes** di bawah.
+5. Buka situs `/packages` dan cek kartu paket (hard refresh bila perlu).
+
+Opsional: tombol **“Isi teks & jadwal dari template Umrah April …”** mengisi deskripsi, syarat, highlights, dll. **tanpa mengubah** kode paket atau nama (slug tetap aman).
+
+### Opsi B — Isi manual (salin-tempel)
+
+1. Buka **Edit** paket yang sama.
+2. Isi field berikut (datetime pakai input **datetime-local** di browser; nilai internal: `YYYY-MM-DD` + `T` + `HH:mm`).
+
+| Field | Nilai untuk salin |
+|--------|-------------------|
+| Registration deadline | `2026-04-30T23:59` (tampilan picker: sesuai zona browser; server menyimpan sesuai **APP_TIMEZONE**, default **Asia/Jakarta**) |
+| Status | **Open — accepting registrations** |
+| Pax capacity / Pax booked | Sesuaikan (mis. 40 / 0) |
+
+3. **Save changes**.
+
+> **Catatan:** Keberangkatan contoh **14–24 April 2026**. Jika Anda ingin tutup pendaftaran **sebelum** tanggal berangkat, set deadline lebih awal (mis. `2026-04-10T23:59`). Tanggal **30 April** dipakai sebagai contoh “masih jauh ke depan” agar Register Online pasti aktif; sesuaikan kebijakan bisnis Anda.
+
+### Railway / server
+
+- Set **`APP_TIMEZONE=Asia/Jakarta`** di environment jika belum (default di kode sudah Jakarta).
+
+---
+
 ## Mengembalikan daftar paket lama (legacy) ke database
 
 Daftar yang dulu hardcoded di halaman publik `/packages` bisa diisi ke tabel `b2c_travel_packages` (muncul di admin **Packages** dan di website) dengan:
@@ -50,6 +85,8 @@ Gejala yang berarti browser atau server masih memakai **versi lama**:
 ---
 
 
+Nilai teknis yang sama dipakai di kode: `resources/js/lib/b2cPackageFillTemplates.ts` (tombol cepat di halaman **Edit** / **Create**).
+
 ## Contoh nilai field
 
 | Field | Contoh |
@@ -58,7 +95,7 @@ Gejala yang berarti browser atau server masih memakai **versi lama**:
 | Package name | `Umrah Premium 12 Hari — April 2026` |
 | Departure period | `14–24 April 2026` |
 | Duration label | `10 Days` |
-| Registration deadline | `2026-04-01 23:59` (sesuaikan dengan timezone server) |
+| Registration deadline | `2026-04-30T23:59` (format datetime-local; harus **masih ke depan** agar Register Online aktif) |
 | Status | `Open` atau `Closed` |
 | Pax capacity | `40` |
 | Location | `Makkah & Madinah` |

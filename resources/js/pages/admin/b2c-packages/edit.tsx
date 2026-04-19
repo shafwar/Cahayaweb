@@ -8,6 +8,7 @@ import { adminGhostBtn, adminMuted, adminPrimaryBtn } from '@/lib/admin-portal-t
 import { useLogout } from '@/hooks/useLogout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { LogOut, Users } from 'lucide-react';
+import { B2C_QUICK_FIX_DEADLINE_AND_OPEN, B2C_UMRAH_APRIL_2026_FULL } from '@/lib/b2cPackageFillTemplates';
 import { FormEventHandler, useState } from 'react';
 
 type Pkg = {
@@ -127,6 +128,53 @@ export default function B2cPackagesEdit({ package: pkg }: { package: Pkg }) {
                         </>
                     }
                 >
+                    <details className="mb-6 rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/90 to-orange-50/50 px-4 py-3 sm:px-5">
+                        <summary className="cursor-pointer text-sm font-semibold text-amber-950">
+                            Template & perbaikan cepat (klik untuk buka)
+                        </summary>
+                        <p className={`mt-2 text-xs sm:text-sm ${adminMuted}`}>
+                            Jika tombol <strong>Register Online</strong> di situs mati karena deadline lewat: gunakan tombol biru di bawah, lalu{' '}
+                            <strong>Save changes</strong>. Panduan salin manual:{' '}
+                            <code className="rounded bg-white/80 px-1 py-0.5 text-[11px]">docs/B2C_PACKAGE_FORM_TEMPLATE.md</code>
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            <button
+                                type="button"
+                                className={`${adminPrimaryBtn} border border-amber-400/80 bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-sm hover:from-amber-700 hover:to-orange-700`}
+                                onClick={() => {
+                                    setData('registration_deadline', B2C_QUICK_FIX_DEADLINE_AND_OPEN.registration_deadline);
+                                    setData('status', B2C_QUICK_FIX_DEADLINE_AND_OPEN.status);
+                                }}
+                            >
+                                Aktifkan Register Online (deadline 30 Apr 2026 23:59 + Open)
+                            </button>
+                            <button
+                                type="button"
+                                className={`${adminGhostBtn} border-amber-300/80 text-amber-950 hover:bg-white/90`}
+                                onClick={() => {
+                                    const T = B2C_UMRAH_APRIL_2026_FULL;
+                                    setData('departure_period', T.departure_period);
+                                    setData('description', T.description);
+                                    setData('location', T.location);
+                                    setData('duration_label', T.duration_label);
+                                    setData('package_type', T.package_type);
+                                    setData('price_display', T.price_display);
+                                    setData('pax_capacity', T.pax_capacity);
+                                    setData('registration_deadline', T.registration_deadline);
+                                    setData('terms_and_conditions', T.terms_and_conditions);
+                                    setData('highlights_text', T.highlights_text);
+                                    setData('features_text', T.features_text);
+                                    setData('dates_text', T.dates_text);
+                                    setData('hotels_text', T.hotels_text);
+                                    setData('sort_order', T.sort_order);
+                                    setData('status', 'open');
+                                }}
+                            >
+                                Isi teks & jadwal dari template Umrah April (tanpa ubah kode/nama)
+                            </button>
+                        </div>
+                    </details>
+
                     <B2cPackageAdminForm
                         data={data as B2cPackageFormShape}
                         setData={(key, value) => setData(key as keyof typeof data, value as never)}
