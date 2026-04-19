@@ -282,14 +282,24 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                             </CardContent>
                         </Card>
 
-                        {/* Documents */}
-                        {(verification.business_license_file || verification.tax_certificate_file || verification.company_profile_file) && (
-                            <Card className="border border-slate-200/90 bg-white shadow-sm">
-                                <CardHeader>
-                                    <CardTitle className="text-[#1e3a5f]">Supporting Documents</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                    {verification.business_license_file && (
+                        {/* Documents — always show so admins see when nothing was stored */}
+                        <Card className="border border-slate-200/90 bg-white shadow-sm">
+                            <CardHeader>
+                                <CardTitle className="text-[#1e3a5f]">Supporting Documents</CardTitle>
+                                <CardDescription className="text-slate-600">
+                                    Files are stored on the configured disk (e.g. R2); links use a secure admin download route.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                {!verification.business_license_file &&
+                                    !verification.tax_certificate_file &&
+                                    !verification.company_profile_file && (
+                                        <p className="rounded-lg border border-amber-200 bg-amber-50/80 p-4 text-sm text-amber-900">
+                                            No document paths are stored for this application. The applicant may not have completed uploads, or the
+                                            draft/session step did not persist files (check server logs and R2 credentials).
+                                        </p>
+                                    )}
+                                {verification.business_license_file && (
                                         <a
                                             href={verification.business_license_file}
                                             target="_blank"
@@ -334,9 +344,8 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                             <Download className="h-4 w-4 text-orange-600" />
                                         </a>
                                     )}
-                                </CardContent>
-                            </Card>
-                        )}
+                            </CardContent>
+                        </Card>
 
                         {/* User Account Info */}
                         <Card className="border border-slate-200/90 bg-white shadow-sm">

@@ -99,8 +99,8 @@ class AgentVerificationController extends Controller
         $maxTotalSize = 15 * 1024 * 1024; // 15MB
         if ($totalSize > $maxTotalSize) {
             return back()->withErrors([
-                'file_size' => 'Total file size exceeds the maximum allowed limit of 15MB. Please ensure each file is no larger than 5MB.',
-            ])->withInput();
+                'file_size' => 'Total ukuran ketiga file melebihi 15MB. Kurangi ukuran file atau ganti file yang lebih kecil (maks. 5MB per file, 15MB total).',
+            ])->withInput($request->except($fileFields));
         }
 
         $user = $request->user();
@@ -145,40 +145,75 @@ class AgentVerificationController extends Controller
                 $request->session()->put('b2b_registration_files', $fileData);
             }
 
-            // Draft: save files to shared storage (R2) so continue works when session is lost (e.g. multi-instance)
+            // Draft: persist form + file paths on shared disk (R2 when configured) so /register/continue works
+            // across load balancers (local public temp is not shared between instances).
             $redirectUrl = null;
+            $formData = $request->except([
+                '_token', 'business_license_file', 'tax_certificate_file', 'company_profile_file',
+                'company_phone_country_code', 'contact_person_phone_country_code',
+            ]);
+
             if (!empty($fileData)) {
+                $token = Str::random(64);
+                $uploadDiskName = $this->getAgentVerificationUploadDiskName();
+                $draftFilePaths = [];
+
                 try {
-                    $token = Str::random(64);
-                    $uploadDiskName = $this->getAgentVerificationUploadDiskName();
-                    $draftFilePaths = [];
                     foreach ($fileData as $field => $localPath) {
                         $contents = Storage::disk('public')->get($localPath);
-                        if ($contents !== null) {
-                            $ext = pathinfo($localPath, PATHINFO_EXTENSION);
-                            $newPath = 'temp-b2b-drafts/' . $token . '/' . Str::uuid()->toString() . '.' . $ext;
-                            Storage::disk($uploadDiskName)->put($newPath, $contents);
-                            $draftFilePaths[$field] = $newPath;
+                        if ($contents === null || $contents === '') {
+                            Log::error('B2B guest upload: temp file missing on public disk', ['field' => $field, 'path' => $localPath]);
+                            continue;
                         }
-                    }
-                    if (!empty($draftFilePaths)) {
-                        $formData = $request->except([
-                            '_token', 'business_license_file', 'tax_certificate_file', 'company_profile_file',
-                            'company_phone_country_code', 'contact_person_phone_country_code',
-                        ]);
-                        B2BRegistrationDraft::create([
-                            'token' => $token,
-                            'payload' => $formData,
-                            'file_paths' => $draftFilePaths,
-                            'expires_at' => now()->addHour(),
-                        ]);
-                        $redirectUrl = route('b2b.register.store.continue', ['b2b_token' => $token], true);
-                        Log::info('B2B draft created', ['token_preview' => substr($token, 0, 8) . '...', 'redirect_url' => $redirectUrl]);
+                        $ext = pathinfo($localPath, PATHINFO_EXTENSION);
+                        $newPath = 'temp-b2b-drafts/' . $token . '/' . Str::uuid()->toString() . '.' . $ext;
+                        if (! Storage::disk($uploadDiskName)->put($newPath, $contents)) {
+                            Log::error('B2B guest upload: failed to write draft file', ['field' => $field, 'disk' => $uploadDiskName]);
+                            continue;
+                        }
+                        $draftFilePaths[$field] = $newPath;
+                        Storage::disk('public')->delete($localPath);
                     }
                 } catch (\Throwable $e) {
-                    Log::warning('B2B draft creation failed', ['message' => $e->getMessage()]);
+                    Log::error('B2B draft creation failed', ['message' => $e->getMessage()]);
+                    foreach ($fileData as $localPath) {
+                        Storage::disk('public')->delete($localPath);
+                    }
+
+                    return back()->withErrors([
+                        'message' => 'Dokumen tidak dapat disimpan sementara. Coba lagi atau periksa koneksi penyimpanan (R2).',
+                    ])->withInput($formData);
                 }
+
+                if (count($draftFilePaths) !== count($fileData)) {
+                    foreach ($draftFilePaths as $p) {
+                        Storage::disk($uploadDiskName)->delete($p);
+                    }
+                    foreach ($fileData as $localPath) {
+                        Storage::disk('public')->delete($localPath);
+                    }
+                    $request->session()->forget('b2b_registration_files');
+
+                    return back()->withErrors([
+                        'message' => 'Beberapa dokumen gagal diunggah. Pastikan ukuran total maks. 15MB dan coba lagi.',
+                    ])->withInput($formData);
+                }
+
+                B2BRegistrationDraft::create([
+                    'token' => $token,
+                    'payload' => $formData,
+                    'file_paths' => $draftFilePaths,
+                    'expires_at' => now()->addHours(2),
+                ]);
+                $redirectUrl = route('b2b.register.store.continue', ['b2b_token' => $token], true);
+                Log::info('B2B draft created', ['token_preview' => substr($token, 0, 8) . '...', 'redirect_url' => $redirectUrl]);
+
+                $request->session()->forget('b2b_registration_files');
+            } else {
+                // No files: session-only continue URL is enough for single-instance; optional payload-only draft could be added later
+                $redirectUrl = route('b2b.register.store.continue', [], true);
             }
+
             if ($redirectUrl === null) {
                 $redirectUrl = route('b2b.register.store.continue', [], true);
             }
@@ -428,14 +463,25 @@ class AgentVerificationController extends Controller
             return redirect($registerUrl);
         }
 
-        // Check if there's stored registration data (session) or draft (b2b_token) when session lost (e.g. multi-instance)
-        $storedData = $request->session()->get('b2b_registration_data');
-        $storedFiles = $request->session()->get('b2b_registration_files');
+        // Already submitted — must run before draft/session so we do not create duplicates or skip files
+        if ($user->agentVerification) {
+            $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
+            $pendingUrl = route('b2b.pending', [], true);
+            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
+            }
+            return redirect($pendingUrl)->with('info', 'You already have a verification application.');
+        }
 
-        if (!$storedData && $request->filled('b2b_token')) {
+        // Prefer draft (b2b_token) first: files live on R2/shared disk; session file paths often break on multi-instance.
+        if ($request->filled('b2b_token')) {
             Log::info('B2B continue: using draft (b2b_token)', ['user_id' => $user->id]);
+
             return $this->storeContinueFromDraft($request, $user);
         }
+
+        $storedData = $request->session()->get('b2b_registration_data');
+        $storedFiles = $request->session()->get('b2b_registration_files');
 
         if (!$storedData) {
             Log::warning('B2B continue: no session data and no b2b_token', ['user_id' => $user->id]);
@@ -444,16 +490,6 @@ class AgentVerificationController extends Controller
                 $registerUrl = str_replace('http://', 'https://', $registerUrl);
             }
             return redirect($registerUrl)->with('error', 'No registration data found. Please fill the form again.');
-        }
-
-        // Check if user already has a verification
-        if ($user->agentVerification) {
-            $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
-            $pendingUrl = route('b2b.pending', [], true);
-            if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
-                $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
-            }
-            return redirect($pendingUrl)->with('info', 'You already have a verification application.');
         }
 
         // Validate stored data

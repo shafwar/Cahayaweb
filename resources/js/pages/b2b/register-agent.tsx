@@ -209,7 +209,9 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
 
     const [filePreviews, setFilePreviews] = useState<Record<string, string>>({});
     const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB per file
+    const MAX_TOTAL_FILE_BYTES = 15 * 1024 * 1024; // combined cap (3 uploads)
+    const FILE_FIELD_LIST = ['business_license_file', 'tax_certificate_file', 'company_profile_file'] as const;
 
     const formatFileSize = (bytes: number): string => {
         if (bytes === 0) return '0 Bytes';
@@ -243,6 +245,26 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                 return;
             }
 
+            let combined = 0;
+            for (const f of FILE_FIELD_LIST) {
+                const part = f === field ? file : (data as Record<string, unknown>)[f];
+                if (part instanceof File) {
+                    combined += part.size;
+                }
+            }
+            if (combined > MAX_TOTAL_FILE_BYTES) {
+                const msg = `Total ukuran ketiga file (${formatFileSize(combined)}) melebihi batas 15MB. Ganti salah satu file dengan versi yang lebih kecil.`;
+                setFileErrors((prev) => ({ ...prev, [field]: msg, _total: msg }));
+                return;
+            }
+
+            setFileErrors((prev) => {
+                const next = { ...prev };
+                delete next._total;
+                delete next[field];
+                return next;
+            });
+
             setData(field as any, file);
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -250,6 +272,12 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
             };
             reader.readAsDataURL(file);
         } else {
+            setFileErrors((prev) => {
+                const next = { ...prev };
+                delete next[field];
+                delete next._total;
+                return next;
+            });
             setData(field as any, null);
             setFilePreviews((prev) => {
                 const newPreviews = { ...prev };
@@ -267,6 +295,19 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
         let hasFileError = false;
         const newFileErrors: Record<string, string> = {};
 
+        let combinedBytes = 0;
+        fileFields.forEach((field) => {
+            const f = (data as any)[field];
+            if (f instanceof File) {
+                combinedBytes += f.size;
+            }
+        });
+        if (combinedBytes > MAX_TOTAL_FILE_BYTES) {
+            const msg = `Total ukuran file (${formatFileSize(combinedBytes)}) melebihi batas 15MB. Kurangi ukuran atau ganti file.`;
+            newFileErrors._total = msg;
+            hasFileError = true;
+        }
+
         fileFields.forEach((field) => {
             const file = (data as any)[field];
             if (file && file.size > MAX_FILE_SIZE) {
@@ -277,10 +318,10 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
         });
 
         if (hasFileError) {
-            setFileErrors(newFileErrors);
+            setFileErrors((prev) => ({ ...prev, ...newFileErrors }));
             // Scroll to first error
-            const firstErrorField = Object.keys(newFileErrors)[0];
-            const errorElement = document.getElementById(firstErrorField);
+            const firstKey = Object.keys(newFileErrors)[0];
+            const errorElement = document.getElementById(firstKey === '_total' ? 'business_license_file' : firstKey);
             if (errorElement) {
                 errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
@@ -343,8 +384,8 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
         const submitUrl = '/b2b/register';
 
         router.post(submitUrl, formData, {
-            preserveState: false,
-            preserveScroll: false,
+            preserveState: true,
+            preserveScroll: true,
             forceFormData: true,
             onError: (errors) => {
                 console.error('Form submission errors:', errors);
@@ -591,7 +632,7 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                                                     <li>Compress PDF files using online tools or PDF compression software</li>
                                                     <li>Reduce image resolution or convert to a more efficient format (WebP)</li>
                                                     <li>Split large documents into smaller files if necessary</li>
-                                                    <li>Ensure each file is no larger than 5MB</li>
+                                                    <li>Each file max 5MB; combined total max 15MB</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -1129,6 +1170,11 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                                         </div>
                                     </CardHeader>
                                     <CardContent className="space-y-6 p-6 sm:p-8">
+                                        {(fileErrors._total || (errors as { file_size?: string }).file_size) && (
+                                            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                                                {fileErrors._total || (errors as { file_size?: string }).file_size}
+                                            </div>
+                                        )}
                                         {[
                                             {
                                                 field: 'business_license_file',
@@ -1195,7 +1241,7 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                                                                 <p className="mb-1 text-sm font-medium text-[#475569]">
                                                                     Click to upload or drag and drop
                                                                 </p>
-                                                                <p className="text-xs text-[#94a3b8]">PDF, JPG, PNG (Max 5MB)</p>
+                                                                <p className="text-xs text-[#94a3b8]">PDF, JPG, PNG (maks. 5MB per file; total gabungan 15MB)</p>
                                                             </>
                                                         )}
                                                     </label>
