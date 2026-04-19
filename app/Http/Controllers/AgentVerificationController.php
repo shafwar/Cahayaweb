@@ -917,17 +917,7 @@ class AgentVerificationController extends Controller
      */
     public function destroy(AgentVerification $verification)
     {
-        // Delete associated files
-        if ($verification->business_license_file) {
-            Storage::disk('public')->delete($verification->business_license_file);
-        }
-        if ($verification->tax_certificate_file) {
-            Storage::disk('public')->delete($verification->tax_certificate_file);
-        }
-        if ($verification->company_profile_file) {
-            Storage::disk('public')->delete($verification->company_profile_file);
-        }
-
+        // Files on R2/public removed by AgentVerificationObserver (sync with DB)
         $verification->delete();
 
         return back()->with('success', 'Agent verification deleted successfully.');
@@ -946,17 +936,6 @@ class AgentVerificationController extends Controller
         $verifications = AgentVerification::whereIn('id', $validated['ids'])->get();
 
         foreach ($verifications as $verification) {
-            // Delete associated files
-            if ($verification->business_license_file) {
-                Storage::disk('public')->delete($verification->business_license_file);
-            }
-            if ($verification->tax_certificate_file) {
-                Storage::disk('public')->delete($verification->tax_certificate_file);
-            }
-            if ($verification->company_profile_file) {
-                Storage::disk('public')->delete($verification->company_profile_file);
-            }
-
             $verification->delete();
         }
 
@@ -973,17 +952,6 @@ class AgentVerificationController extends Controller
         $count = $verifications->count();
 
         foreach ($verifications as $verification) {
-            // Delete associated files
-            if ($verification->business_license_file) {
-                Storage::disk('public')->delete($verification->business_license_file);
-            }
-            if ($verification->tax_certificate_file) {
-                Storage::disk('public')->delete($verification->tax_certificate_file);
-            }
-            if ($verification->company_profile_file) {
-                Storage::disk('public')->delete($verification->company_profile_file);
-            }
-
             $verification->delete();
         }
 

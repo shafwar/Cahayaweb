@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\AgentVerification;
 use App\Models\Section;
 use App\Models\SectionSnapshot;
+use App\Models\User;
+use App\Observers\AgentVerificationObserver;
+use App\Observers\UserObserver;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        AgentVerification::observe(AgentVerificationObserver::class);
+        User::observe(UserObserver::class);
+
         // Force HTTPS for all generated URLs in production (prevents Mixed Content when frontend loads over HTTPS)
         if (app()->environment('production') || config('app.force_https', false)) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
