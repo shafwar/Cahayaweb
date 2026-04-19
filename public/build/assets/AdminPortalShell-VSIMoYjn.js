@@ -1,1 +1,0 @@
-import{j as a}from"./vendor-ac3J8dzO.js";import{r as i,s as t,t as e}from"./admin-portal-theme-Z9hMkSV7.js";function x({children:s,className:m="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8"}){return a.jsxs("div",{className:i,children:[a.jsx("div",{className:t,"aria-hidden":!0}),a.jsx("div",{className:`${e} ${m}`,children:s})]})}export{x as A};

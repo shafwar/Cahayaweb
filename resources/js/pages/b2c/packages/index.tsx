@@ -41,6 +41,8 @@ export default function Packages() {
     }>();
     const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
     const getImageSrc = (sectionKey: string, fallbackPath: string) => getImageUrl(props.sections, sectionKey, fallbackPath);
+    /** Package cards are managed in Admin → B2C packages; do not use CMS section keys for listing images. */
+    const packageCardImageSrc = (pkg: TravelPackageRow) => getImageUrl(undefined, '_', pkg.image);
 
     const [editMode, setEditModeUI] = useState<boolean>(false);
     useEffect(() => {
@@ -55,21 +57,10 @@ export default function Packages() {
     const [selectedPrice, setSelectedPrice] = useState<string>('');
     const [selectedDuration, setSelectedDuration] = useState<string>('');
     const [selectedPax, setSelectedPax] = useState<string>('');
-    const [editorOpen, setEditorOpen] = useState<null | {
-        id: number;
-        title: string;
-        location: string;
-        duration: string;
-        price: string;
-        pax: string;
-        type: string;
-        description: string;
-    }>(null);
     const [saving, setSaving] = useState(false);
-    const [pendingFile, setPendingFile] = useState<File | null>(null);
     const [cropModalOpen, setCropModalOpen] = useState(false);
     const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
-    const [cropModalTarget, setCropModalTarget] = useState<'package' | 'gallery' | null>(null);
+    const [cropModalTarget, setCropModalTarget] = useState<'gallery' | null>(null);
     const [galleryEditorOpen, setGalleryEditorOpen] = useState<null | {
         id: number;
         title: string;
@@ -483,7 +474,7 @@ export default function Packages() {
                             <div className="group inline-flex items-center gap-2 rounded-full border-2 border-[#d4af37] bg-[#d4af37]/15 px-5 py-2 shadow-md transition-all duration-300 hover:scale-105 hover:border-[#ff5200] hover:bg-[#ff5200]/15">
                                 <Sparkles className="h-4 w-4 text-[#b8860b] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12 group-hover:text-[#e64a00]" />
                                 <span className="text-xs font-bold tracking-wider text-[#b8860b] uppercase group-hover:text-[#e64a00] sm:text-sm">
-                                    <EditableText sectionKey="packages.header.badge" value="Premium Travel Packages" tag="span" />
+                                    {getContent('packages.header.badge', 'Premium Travel Packages')}
                                 </span>
                             </div>
                         </div>
@@ -495,7 +486,7 @@ export default function Packages() {
 
                         {/* Subtitle */}
                         <h2 className="mx-auto mb-5 max-w-3xl text-xl leading-snug font-semibold text-[#334155] sm:text-2xl md:text-3xl">
-                            <EditableText sectionKey="packages.header.descriptionTitle" value="Your Perfect Journey Awaits" tag="span" />
+                            {getContent('packages.header.descriptionTitle', 'Your Perfect Journey Awaits')}
                         </h2>
 
                         {/* Description */}
@@ -615,8 +606,8 @@ export default function Packages() {
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setImageLightbox({
-                                            src: getImageSrc(`packages.${pkg.id}.image`, pkg.image),
-                                            alt: getContent(`packages.${pkg.id}.title`, pkg.title),
+                                            src: packageCardImageSrc(pkg),
+                                            alt: pkg.title,
                                             caption: (pkg as { imageCaption?: string }).imageCaption,
                                         });
                                     }}
@@ -627,8 +618,8 @@ export default function Packages() {
                                             e.preventDefault();
                                             e.stopPropagation();
                                             setImageLightbox({
-                                                src: getImageSrc(`packages.${pkg.id}.image`, pkg.image),
-                                                alt: getContent(`packages.${pkg.id}.title`, pkg.title),
+                                                src: packageCardImageSrc(pkg),
+                                                alt: pkg.title,
                                                 caption: (pkg as { imageCaption?: string }).imageCaption,
                                             });
                                         }
@@ -636,8 +627,8 @@ export default function Packages() {
                                     aria-label="Click to view full size image"
                                 >
                                     <img
-                                        src={getImageSrc(`packages.${pkg.id}.image`, pkg.image)}
-                                        alt={getContent(`packages.${pkg.id}.title`, pkg.title)}
+                                        src={packageCardImageSrc(pkg)}
+                                        alt={pkg.title}
                                         title="Click to view full size"
                                         data-package-id={pkg.id}
                                         loading="lazy"
@@ -673,7 +664,7 @@ export default function Packages() {
 
                                     <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                                         <span className="rounded-full bg-black/70 px-4 py-2 text-sm font-bold text-white shadow-xl">
-                                            {getContent(`packages.${pkg.id}.type`, pkg.type)}
+                                            {pkg.type}
                                         </span>
                                         {(pkg as { freeBadge?: string }).freeBadge && (
                                             <span className="rounded-full bg-accent/90 px-3 py-1.5 text-xs font-bold text-white shadow-xl">
@@ -681,32 +672,6 @@ export default function Packages() {
                                             </span>
                                         )}
                                     </div>
-
-                                    {editMode && (
-                                        <div className="absolute right-3 bottom-3 z-10">
-                                            <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setEditorOpen({
-                                                        id: pkg.id,
-                                                        title: getContent(`packages.${pkg.id}.title`, pkg.title),
-                                                        location: getContent(`packages.${pkg.id}.location`, pkg.location),
-                                                        duration: getContent(`packages.${pkg.id}.duration`, pkg.duration),
-                                                        price: getContent(`packages.${pkg.id}.price`, pkg.price),
-                                                        pax: getContent(`packages.${pkg.id}.pax`, pkg.pax),
-                                                        type: getContent(`packages.${pkg.id}.type`, pkg.type),
-                                                        description: getContent(`packages.${pkg.id}.description`, pkg.description),
-                                                    });
-                                                    setPendingFile(null);
-                                                }}
-                                                className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-2xl ring-2 ring-blue-400/50 transition-all hover:scale-110 hover:rotate-12"
-                                                title="Edit content & image"
-                                            >
-                                                <Edit3 className="h-6 w-6" strokeWidth={2.5} />
-                                            </button>
-                                        </div>
-                                    )}
 
                                     <div className="pointer-events-none absolute inset-0 bg-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-0" />
                                 </div>
@@ -721,11 +686,10 @@ export default function Packages() {
 
                                 <div className="p-6">
                                     <h3 className="mb-2 text-xl font-bold text-[#1e3a5f] transition-colors group-hover:text-primary sm:text-2xl">
-                                        {getContent(`packages.${pkg.id}.title`, pkg.title)}
+                                        {pkg.title}
                                     </h3>
                                     <p className="mb-3 text-sm leading-relaxed text-[#475569] sm:text-base">
-                                        {getContent(`packages.${pkg.id}.location`, pkg.location)} •{' '}
-                                        {getContent(`packages.${pkg.id}.duration`, pkg.duration)}
+                                        {pkg.location} • {pkg.duration}
                                     </p>
 
                                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -737,7 +701,7 @@ export default function Packages() {
                                                     </span>
                                                 )}
                                                 <span className="text-xl font-bold text-primary sm:text-2xl">
-                                                    {getContent(`packages.${pkg.id}.price`, pkg.price)}
+                                                    {pkg.price}
                                                 </span>
                                             </div>
                                             {(pkg as { priceNote?: string }).priceNote && (
@@ -745,14 +709,14 @@ export default function Packages() {
                                             )}
                                         </div>
                                         <div className="text-xs font-medium text-[#64748b] sm:text-sm">
-                                            {getContent(`packages.${pkg.id}.pax`, pkg.pax)}
+                                            {pkg.pax}
                                         </div>
                                     </div>
 
                                     <p
                                         className={`mb-3 text-xs text-[#475569] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-sm ${expandedPackageId === pkg.id ? 'line-clamp-none' : 'line-clamp-2'}`}
                                     >
-                                        {getContent(`packages.${pkg.id}.description`, pkg.description)}
+                                        {pkg.description}
                                     </p>
 
                                     <AnimatePresence initial={false}>
@@ -1255,136 +1219,7 @@ export default function Packages() {
                 )}
             </AnimatePresence>
 
-            {/* Editor Modal - floating bottom, same as Destinations */}
-            <AnimatePresence>
-                {editMode && editorOpen && (
-                    <motion.div
-                        key={editorOpen.id}
-                        className="fixed bottom-6 left-1/2 z-[9998] w-[min(640px,92vw)] -translate-x-1/2 rounded-xl border border-white/10 bg-black/95 p-6 shadow-2xl"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                    >
-                        <div className="mb-4 flex items-center justify-between">
-                            <span className="text-sm font-semibold text-white">Edit Package #{editorOpen.id}</span>
-                        </div>
-                        <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2">
-                            {(['title', 'location', 'duration', 'price', 'pax', 'type'] as const).map((field) => (
-                                <div key={field}>
-                                    <label className="mb-1 block text-xs font-medium text-gray-300 capitalize">
-                                        {field === 'pax' ? 'Group Size' : field}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={editorOpen[field]}
-                                        onChange={(e) => setEditorOpen({ ...editorOpen, [field]: e.target.value })}
-                                        className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
-                                    />
-                                </div>
-                            ))}
-                            <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-300">Description</label>
-                                <textarea
-                                    value={editorOpen.description}
-                                    onChange={(e) => setEditorOpen({ ...editorOpen, description: e.target.value })}
-                                    rows={4}
-                                    className="w-full rounded-lg border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-2 block text-xs font-medium text-gray-300">Replace Image</label>
-                                <p className="mb-2 rounded-lg border border-primary/30 bg-primary/20 px-3 py-2 text-xs text-white/90">
-                                    {IMAGE_GUIDE}
-                                </p>
-                                <input
-                                    type="file"
-                                    accept="image/jpeg,image/png,image/webp"
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            setCropImageSrc(URL.createObjectURL(file));
-                                            setCropModalTarget('package');
-                                            setCropModalOpen(true);
-                                        }
-                                        e.target.value = '';
-                                    }}
-                                    className="w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/90"
-                                />
-                                {pendingFile && <p className="mt-2 text-xs text-emerald-400">✓ Gambar siap (sudah di-adjust)</p>}
-                            </div>
-                        </div>
-                        <div className="mt-6 flex items-center justify-end gap-3">
-                            <button
-                                onClick={() => {
-                                    setEditorOpen(null);
-                                    setPendingFile(null);
-                                }}
-                                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 ring-1 ring-white/10 transition-all hover:bg-white/5"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={async () => {
-                                    if (!editorOpen) return;
-                                    setSaving(true);
-                                    try {
-                                        const updates = [
-                                            { key: `packages.${editorOpen.id}.title`, content: editorOpen.title },
-                                            { key: `packages.${editorOpen.id}.location`, content: editorOpen.location },
-                                            { key: `packages.${editorOpen.id}.duration`, content: editorOpen.duration },
-                                            { key: `packages.${editorOpen.id}.price`, content: editorOpen.price },
-                                            { key: `packages.${editorOpen.id}.pax`, content: editorOpen.pax },
-                                            { key: `packages.${editorOpen.id}.type`, content: editorOpen.type },
-                                            { key: `packages.${editorOpen.id}.description`, content: editorOpen.description },
-                                        ];
-                                        await Promise.all(updates.map((u) => axios.post('/admin/update-section', u)));
-                                        if (pendingFile) {
-                                            const compressed = await compressImageForUpload(pendingFile);
-                                            const form = new FormData();
-                                            form.append('key', `packages.${editorOpen.id}.image`);
-                                            form.append('image', compressed);
-                                            const r = await axios.post('/admin/upload-image', form, {
-                                                headers: { Accept: 'application/json' },
-                                            });
-                                            const url = r.data?.url || r.data?.imageUrl;
-                                            if (url) {
-                                                const img = document.querySelector(
-                                                    `img[data-package-id="${editorOpen.id}"]`,
-                                                ) as HTMLImageElement | null;
-                                                if (img) img.src = url;
-                                            }
-                                        }
-                                        setEditorOpen(null);
-                                        setPendingFile(null);
-                                        router.reload({ only: ['sections'] });
-                                    } catch (err: unknown) {
-                                        console.error(err);
-                                        const ax =
-                                            err && typeof err === 'object' && 'response' in err
-                                                ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
-                                                : null;
-                                        const data = ax?.response?.data;
-                                        let msg = data?.message || (err instanceof Error ? err.message : 'Failed to save');
-                                        if (data?.errors && typeof data.errors === 'object') {
-                                            const flat = Object.values(data.errors).flat().filter(Boolean);
-                                            if (flat.length) msg = flat.join('. ');
-                                        }
-                                        alert(msg);
-                                    } finally {
-                                        setSaving(false);
-                                    }
-                                }}
-                                disabled={saving}
-                                className="rounded-lg bg-gradient-to-r from-primary to-accent px-6 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-60"
-                            >
-                                {saving ? 'Saving…' : 'Save Changes'}
-                            </button>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Gallery Editor Modal - floating bottom, same structure */}
+            {/* Gallery Editor Modal — package cards are edited in Admin → B2C packages */}
             <AnimatePresence>
                 {editMode && galleryEditorOpen && (
                     <motion.div
@@ -1516,8 +1351,9 @@ export default function Packages() {
                     aspect={16 / 9}
                     onApply={async (blob) => {
                         const file = new File([blob], 'image.jpg', { type: blob.type });
-                        if (cropModalTarget === 'package') setPendingFile(file);
-                        else if (cropModalTarget === 'gallery') setGalleryPendingFile(file);
+                        if (cropModalTarget === 'gallery') {
+                            setGalleryPendingFile(file);
+                        }
                         URL.revokeObjectURL(cropImageSrc);
                         setCropImageSrc(null);
                         setCropModalTarget(null);
