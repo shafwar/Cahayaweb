@@ -4,16 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\AgentVerification;
 use App\Models\B2BRegistrationDraft;
+use App\Models\User;
 use App\Support\R2Helper;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use Inertia\Response;
 
 class AgentVerificationController extends Controller
 {
@@ -42,7 +41,7 @@ class AgentVerificationController extends Controller
             if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
                 $isAdmin = true;
             }
-            if (!$isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
+            if (! $isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
                 $isAdmin = true;
             }
 
@@ -76,7 +75,7 @@ class AgentVerificationController extends Controller
         }
 
         return Inertia::render('b2b/register-agent', [
-            'isGuest' => !$user,
+            'isGuest' => ! $user,
             'rejectedVerification' => $rejectedVerification,
         ]);
     }
@@ -106,7 +105,7 @@ class AgentVerificationController extends Controller
         $user = $request->user();
 
         // If user is not logged in, store form data in session and redirect to register/login
-        if (!$user) {
+        if (! $user) {
             // Store form data in session for after registration (exclude country code fields as they're combined with phone)
             $request->session()->put('b2b_registration_data', $request->except([
                 '_token',
@@ -114,7 +113,7 @@ class AgentVerificationController extends Controller
                 'tax_certificate_file',
                 'company_profile_file',
                 'company_phone_country_code',
-                'contact_person_phone_country_code'
+                'contact_person_phone_country_code',
             ]));
 
             // Store files temporarily if uploaded
@@ -125,7 +124,7 @@ class AgentVerificationController extends Controller
                     $file = $request->file($field);
                     $path = $file->storeAs(
                         'temp-agent-verifications',
-                        Str::uuid()->toString() . '.' . $file->getClientOriginalExtension(),
+                        Str::uuid()->toString().'.'.$file->getClientOriginalExtension(),
                         'public'
                     );
                     $fileData[$field] = $path;
@@ -141,7 +140,7 @@ class AgentVerificationController extends Controller
                 'files_received' => count($fileData),
             ]);
 
-            if (!empty($fileData)) {
+            if (! empty($fileData)) {
                 $request->session()->put('b2b_registration_files', $fileData);
             }
 
@@ -153,7 +152,7 @@ class AgentVerificationController extends Controller
                 'company_phone_country_code', 'contact_person_phone_country_code',
             ]);
 
-            if (!empty($fileData)) {
+            if (! empty($fileData)) {
                 $token = Str::random(64);
                 $uploadDiskName = $this->getAgentVerificationUploadDiskName();
                 $draftFilePaths = [];
@@ -163,12 +162,14 @@ class AgentVerificationController extends Controller
                         $contents = Storage::disk('public')->get($localPath);
                         if ($contents === null || $contents === '') {
                             Log::error('B2B guest upload: temp file missing on public disk', ['field' => $field, 'path' => $localPath]);
+
                             continue;
                         }
                         $ext = pathinfo($localPath, PATHINFO_EXTENSION);
-                        $newPath = 'temp-b2b-drafts/' . $token . '/' . Str::uuid()->toString() . '.' . $ext;
+                        $newPath = 'temp-b2b-drafts/'.$token.'/'.Str::uuid()->toString().'.'.$ext;
                         if (! Storage::disk($uploadDiskName)->put($newPath, $contents)) {
                             Log::error('B2B guest upload: failed to write draft file', ['field' => $field, 'disk' => $uploadDiskName]);
+
                             continue;
                         }
                         $draftFilePaths[$field] = $newPath;
@@ -206,7 +207,7 @@ class AgentVerificationController extends Controller
                     'expires_at' => now()->addHours(2),
                 ]);
                 $redirectUrl = route('b2b.register.store.continue', ['b2b_token' => $token], true);
-                Log::info('B2B draft created', ['token_preview' => substr($token, 0, 8) . '...', 'redirect_url' => $redirectUrl]);
+                Log::info('B2B draft created', ['token_preview' => substr($token, 0, 8).'...', 'redirect_url' => $redirectUrl]);
 
                 $request->session()->forget('b2b_registration_files');
             } else {
@@ -234,7 +235,7 @@ class AgentVerificationController extends Controller
         // Check if user already has a verification
         if ($user->agentVerification) {
             return back()->withErrors([
-                'message' => 'You already have a verification application. Please wait for admin approval.'
+                'message' => 'You already have a verification application. Please wait for admin approval.',
             ]);
         }
 
@@ -246,7 +247,7 @@ class AgentVerificationController extends Controller
         if ($storedData) {
             // Merge stored data with any new file uploads
             $validated = array_merge($storedData, $request->only([
-                'business_license_file', 'tax_certificate_file', 'company_profile_file'
+                'business_license_file', 'tax_certificate_file', 'company_profile_file',
             ]));
 
             // Validate stored data
@@ -352,7 +353,7 @@ class AgentVerificationController extends Controller
                     $contents = Storage::disk('public')->get($tempPath);
                     if ($contents !== null) {
                         $fileName = basename($tempPath);
-                        $path = $this->putFileWithFallback($contents, $basePath . '/' . $fileName, $uploadDiskName, $field);
+                        $path = $this->putFileWithFallback($contents, $basePath.'/'.$fileName, $uploadDiskName, $field);
                         if ($path !== null) {
                             Storage::disk('public')->delete($tempPath);
                         }
@@ -392,15 +393,17 @@ class AgentVerificationController extends Controller
      */
     private function storeFileWithFallback($file, string $basePath, string $primaryDisk, string $fieldName): ?string
     {
-        $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+        $filename = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
         try {
             $stored = $file->storeAs($basePath, $filename, $primaryDisk);
             if (is_string($stored)) {
                 if ($primaryDisk === 'r2') {
                     Log::info('B2B document uploaded to R2', ['field' => $fieldName, 'path' => $stored]);
                 }
+
                 return $stored;
             }
+
             return null;
         } catch (\Throwable $e) {
             Log::warning('B2B file upload failed (primary disk), using public', [
@@ -410,9 +413,11 @@ class AgentVerificationController extends Controller
             ]);
             try {
                 $stored = $file->storeAs($basePath, $filename, 'public');
+
                 return is_string($stored) ? $stored : null;
             } catch (\Throwable $e2) {
                 Log::error('B2B file upload failed (public fallback)', ['field' => $fieldName, 'error' => $e2->getMessage()]);
+
                 return null;
             }
         }
@@ -429,6 +434,7 @@ class AgentVerificationController extends Controller
                 if ($primaryDisk === 'r2') {
                     Log::info('B2B document uploaded to R2 (from temp)', ['field' => $fieldName, 'path' => $path]);
                 }
+
                 return $path;
             }
         } catch (\Throwable $e) {
@@ -445,6 +451,7 @@ class AgentVerificationController extends Controller
         } catch (\Throwable $e2) {
             Log::error('B2B put file failed (public fallback)', ['field' => $fieldName, 'error' => $e2->getMessage()]);
         }
+
         return null;
     }
 
@@ -455,11 +462,19 @@ class AgentVerificationController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
+            Log::warning('B2B register continue: unauthenticated (session not recognized after register redirect)', [
+                'has_session' => $request->hasSession(),
+                'inertia' => (bool) $request->header('X-Inertia'),
+                'has_b2b_token' => $request->filled('b2b_token'),
+                'forwarded_proto' => $request->header('X-Forwarded-Proto'),
+                'host' => $request->getHost(),
+            ]);
             $registerUrl = route('b2b.register', [], true);
             if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
                 $registerUrl = str_replace('http://', 'https://', $registerUrl);
             }
+
             return redirect($registerUrl);
         }
 
@@ -470,6 +485,7 @@ class AgentVerificationController extends Controller
             if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
                 $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
             }
+
             return redirect($pendingUrl)->with('info', 'You already have a verification application.');
         }
 
@@ -483,12 +499,13 @@ class AgentVerificationController extends Controller
         $storedData = $request->session()->get('b2b_registration_data');
         $storedFiles = $request->session()->get('b2b_registration_files');
 
-        if (!$storedData) {
+        if (! $storedData) {
             Log::warning('B2B continue: no session data and no b2b_token', ['user_id' => $user->id]);
             $registerUrl = route('b2b.register', [], true);
             if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
                 $registerUrl = str_replace('http://', 'https://', $registerUrl);
             }
+
             return redirect($registerUrl)->with('error', 'No registration data found. Please fill the form again.');
         }
 
@@ -520,6 +537,7 @@ class AgentVerificationController extends Controller
             if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
                 $registerUrl = str_replace('http://', 'https://', $registerUrl);
             }
+
             return redirect($registerUrl)->withErrors($validator)->with('error', 'Invalid registration data. Please fill the form again.');
         }
 
@@ -542,14 +560,14 @@ class AgentVerificationController extends Controller
             $basePath = $this->getB2BDocumentBasePath((int) $user->id, (int) $verification->id);
 
             foreach ($fileFields as $field) {
-                if (!isset($storedFiles[$field])) {
+                if (! isset($storedFiles[$field])) {
                     continue;
                 }
                 $tempPath = $storedFiles[$field];
                 $contents = Storage::disk('public')->get($tempPath);
                 if ($contents !== null) {
                     $fileName = basename($tempPath);
-                    $path = $this->putFileWithFallback($contents, $basePath . '/' . $fileName, $uploadDiskName, $field);
+                    $path = $this->putFileWithFallback($contents, $basePath.'/'.$fileName, $uploadDiskName, $field);
                     if ($path !== null) {
                         $verification->update([$field => $path]);
                         Storage::disk('public')->delete($tempPath);
@@ -570,6 +588,7 @@ class AgentVerificationController extends Controller
             if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
                 $registerUrl = str_replace('http://', 'https://', $registerUrl);
             }
+
             return redirect($registerUrl)->with('error', 'Could not save your application. Please try again or contact support.');
         }
 
@@ -580,6 +599,7 @@ class AgentVerificationController extends Controller
         if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
             $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
         }
+
         return redirect($pendingUrl)->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
     }
 
@@ -591,8 +611,8 @@ class AgentVerificationController extends Controller
         $token = $request->input('b2b_token');
         $draft = B2BRegistrationDraft::where('token', $token)->first();
 
-        if (!$draft || $draft->isExpired()) {
-            Log::warning('B2B draft not found or expired', ['token_preview' => $token ? substr($token, 0, 8) . '...' : null]);
+        if (! $draft || $draft->isExpired()) {
+            Log::warning('B2B draft not found or expired', ['token_preview' => $token ? substr($token, 0, 8).'...' : null]);
             if ($draft) {
                 $draft->delete();
             }
@@ -600,6 +620,7 @@ class AgentVerificationController extends Controller
             if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
                 $registerUrl = str_replace('http://', 'https://', $registerUrl);
             }
+
             return redirect($registerUrl)->with('error', 'Registration link expired or invalid. Please fill the form again.');
         }
 
@@ -633,6 +654,7 @@ class AgentVerificationController extends Controller
             if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
                 $registerUrl = str_replace('http://', 'https://', $registerUrl);
             }
+
             return redirect($registerUrl)->withErrors($validator)->with('error', 'Invalid registration data. Please fill the form again.');
         }
 
@@ -655,7 +677,7 @@ class AgentVerificationController extends Controller
             $basePath = $this->getB2BDocumentBasePath((int) $user->id, (int) $verification->id);
 
             foreach ($fileFields as $field) {
-                if (!isset($storedFiles[$field])) {
+                if (! isset($storedFiles[$field])) {
                     continue;
                 }
                 $tempPath = $storedFiles[$field];
@@ -663,8 +685,8 @@ class AgentVerificationController extends Controller
                     $contents = Storage::disk($uploadDiskName)->get($tempPath);
                     if ($contents !== null && strlen($contents) > 0) {
                         $ext = pathinfo($tempPath, PATHINFO_EXTENSION);
-                        $fileName = Str::uuid()->toString() . '.' . $ext;
-                        $path = $this->putFileWithFallback($contents, $basePath . '/' . $fileName, $uploadDiskName, $field);
+                        $fileName = Str::uuid()->toString().'.'.$ext;
+                        $path = $this->putFileWithFallback($contents, $basePath.'/'.$fileName, $uploadDiskName, $field);
                         if ($path !== null) {
                             $verification->update([$field => $path]);
                         }
@@ -678,7 +700,7 @@ class AgentVerificationController extends Controller
             }
 
             try {
-                $files = Storage::disk($uploadDiskName)->files('temp-b2b-drafts/' . $token);
+                $files = Storage::disk($uploadDiskName)->files('temp-b2b-drafts/'.$token);
                 foreach ($files as $file) {
                     Storage::disk($uploadDiskName)->delete($file);
                 }
@@ -694,6 +716,7 @@ class AgentVerificationController extends Controller
             if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
                 $registerUrl = str_replace('http://', 'https://', $registerUrl);
             }
+
             return redirect($registerUrl)->with('error', 'Could not complete registration. Please try again.');
         }
 
@@ -704,6 +727,7 @@ class AgentVerificationController extends Controller
         if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
             $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
         }
+
         return redirect($pendingUrl)->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
     }
 
@@ -714,13 +738,13 @@ class AgentVerificationController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('b2b.register');
         }
 
         $verification = $user->agentVerification;
 
-        if (!$verification) {
+        if (! $verification) {
             return redirect()->route('b2b.register');
         }
 
@@ -736,7 +760,7 @@ class AgentVerificationController extends Controller
                 'admin_notes' => $verification->admin_notes,
                 'created_at' => $verification->created_at->format('Y-m-d H:i:s'),
                 'created_at_human' => $verification->created_at->diffForHumans(),
-            ]
+            ],
         ]);
     }
 
@@ -780,7 +804,7 @@ class AgentVerificationController extends Controller
                 'last_page' => $verifications->lastPage(),
                 'per_page' => $verifications->perPage(),
                 'total' => $verifications->total(),
-            ]
+            ],
         ]);
     }
 
@@ -834,7 +858,7 @@ class AgentVerificationController extends Controller
                 'reviewed_at' => $verification->reviewed_at?->format('Y-m-d H:i:s'),
                 'created_at' => $verification->created_at->format('Y-m-d H:i:s'),
                 'created_at_human' => $verification->created_at->diffForHumans(),
-            ]
+            ],
         ]);
     }
 
@@ -881,7 +905,7 @@ class AgentVerificationController extends Controller
             'reviewed_at' => now(),
         ]);
 
-        $statusMessage = match($validated['status']) {
+        $statusMessage = match ($validated['status']) {
             'approved' => 'Agent verification approved successfully.',
             'rejected' => 'Agent verification rejected successfully.',
             'pending' => 'Agent verification status updated to pending.',
@@ -913,14 +937,49 @@ class AgentVerificationController extends Controller
     }
 
     /**
+     * Remove the B2B application and the applicant's user record so the email can be registered again.
+     * Documents: UserObserver::deleting purges R2/public before the user row is removed; DB cascade drops agent_verifications.
+     * Privileged admin accounts are never deleted (only the verification row is removed if that edge case exists).
+     */
+    private function deleteAgentApplicationAndApplicantUser(AgentVerification $verification): void
+    {
+        $user = $verification->user;
+        if ($user === null) {
+            $verification->delete();
+
+            return;
+        }
+
+        if ($this->isPrivilegedAdminUser($user)) {
+            Log::warning('Agent verification deleted without removing privileged user account.', [
+                'user_id' => $user->id,
+                'verification_id' => $verification->id,
+            ]);
+            $verification->delete();
+
+            return;
+        }
+
+        $user->delete();
+    }
+
+    private function isPrivilegedAdminUser(User $user): bool
+    {
+        if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
+            return true;
+        }
+
+        return in_array($user->email, config('app.admin_emails', []), true);
+    }
+
+    /**
      * Admin: Delete a single agent verification
      */
     public function destroy(AgentVerification $verification)
     {
-        // Files on R2/public removed by AgentVerificationObserver (sync with DB)
-        $verification->delete();
+        $this->deleteAgentApplicationAndApplicantUser($verification);
 
-        return back()->with('success', 'Agent verification deleted successfully.');
+        return back()->with('success', 'Agent verification and applicant account removed successfully.');
     }
 
     /**
@@ -933,35 +992,66 @@ class AgentVerificationController extends Controller
             'ids.*' => ['required', 'integer', 'exists:agent_verifications,id'],
         ]);
 
-        $verifications = AgentVerification::whereIn('id', $validated['ids'])->get();
+        $userIds = AgentVerification::query()
+            ->whereIn('id', $validated['ids'])
+            ->pluck('user_id')
+            ->unique()
+            ->values();
 
-        foreach ($verifications as $verification) {
-            $verification->delete();
+        foreach ($userIds as $userId) {
+            $user = User::query()->find($userId);
+            if ($user === null) {
+                continue;
+            }
+            if ($this->isPrivilegedAdminUser($user)) {
+                AgentVerification::query()
+                    ->whereIn('id', $validated['ids'])
+                    ->where('user_id', $userId)
+                    ->get()
+                    ->each(function (AgentVerification $v) {
+                        $v->delete();
+                    });
+
+                continue;
+            }
+            $user->delete();
         }
 
         $count = count($validated['ids']);
-        return redirect()->route('admin.agent-verifications')->with('success', "{$count} agent verification(s) deleted successfully.");
+
+        return redirect()->route('admin.agent-verifications')->with('success', "{$count} application(s) and associated applicant account(s) removed successfully.");
     }
 
     /**
      * Admin: Delete all agent verifications
      */
-    public function destroyAll(Request $request)
+    public function destroyAll()
     {
-        $verifications = AgentVerification::all();
-        $count = $verifications->count();
+        $totalRows = AgentVerification::query()->count();
+        $userIds = AgentVerification::query()->pluck('user_id')->unique()->values();
 
-        foreach ($verifications as $verification) {
-            $verification->delete();
+        foreach ($userIds as $userId) {
+            $user = User::query()->find($userId);
+            if ($user === null) {
+                continue;
+            }
+            if ($this->isPrivilegedAdminUser($user)) {
+                AgentVerification::query()->where('user_id', $userId)->get()->each(function (AgentVerification $v) {
+                    $v->delete();
+                });
+
+                continue;
+            }
+            $user->delete();
         }
 
-        return redirect()->route('admin.agent-verifications')->with('success', "All {$count} agent verification(s) deleted successfully.");
+        return redirect()->route('admin.agent-verifications')->with('success', "All {$totalRows} application(s) and associated applicant account(s) removed successfully.");
     }
 
     /**
      * Get file URL - handles both R2 and local storage
      *
-     * @param string|null $path File path stored in database
+     * @param  string|null  $path  File path stored in database
      * @return string|null Full URL to the file or null if path is empty
      */
     /**
@@ -976,29 +1066,29 @@ class AgentVerificationController extends Controller
 
         try {
             $user = $request->user();
-            if (!$user) {
+            if (! $user) {
                 abort(403, 'Unauthorized');
             }
 
             $isAdmin = ($user->role ?? null) === 'admin' ||
                 in_array($user->email, config('app.admin_emails', []), true);
 
-            if (!$isAdmin) {
+            if (! $isAdmin) {
                 abort(403, 'Unauthorized - Admin access required');
             }
 
             switch ($documentType) {
                 case 'business-license':
                     $filePath = $verification->business_license_file;
-                    $baseFileName = 'business-license-' . $verificationId;
+                    $baseFileName = 'business-license-'.$verificationId;
                     break;
                 case 'tax-certificate':
                     $filePath = $verification->tax_certificate_file;
-                    $baseFileName = 'tax-certificate-' . $verificationId;
+                    $baseFileName = 'tax-certificate-'.$verificationId;
                     break;
                 case 'company-profile':
                     $filePath = $verification->company_profile_file;
-                    $baseFileName = 'company-profile-' . $verificationId;
+                    $baseFileName = 'company-profile-'.$verificationId;
                     break;
                 default:
                     abort(404, 'Document type not found');
@@ -1014,14 +1104,14 @@ class AgentVerificationController extends Controller
 
             $filePath = ltrim((string) $filePath, '/');
             $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-            $fileName = $baseFileName . '.' . ($extension ?: 'pdf');
+            $fileName = $baseFileName.'.'.($extension ?: 'pdf');
             $mimeType = $this->getMimeType($extension);
 
             // Paths to try: must match what we store (documents/agent-verifications/... or public/...)
             $pathsToTry = [
                 $filePath,
                 ltrim(str_replace('public/', '', $filePath), '/'),
-                'public/' . ltrim($filePath, '/'),
+                'public/'.ltrim($filePath, '/'),
             ];
             $pathsToTry = array_values(array_unique(array_filter($pathsToTry)));
 
@@ -1034,7 +1124,7 @@ class AgentVerificationController extends Controller
                     }
                 }, 200, [
                     'Content-Type' => $mimeType,
-                    'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                    'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
                     'Cache-Control' => 'private, max-age=3600',
                 ]);
             };
@@ -1050,6 +1140,7 @@ class AgentVerificationController extends Controller
                                     'path' => $path,
                                     'verification_id' => $verificationId,
                                 ]);
+
                                 return $streamResponse($r2Disk, $path);
                             }
                         } catch (\Throwable $e) {
@@ -1073,6 +1164,7 @@ class AgentVerificationController extends Controller
                             'path' => $path,
                             'verification_id' => $verificationId,
                         ]);
+
                         return $streamResponse($publicDisk, $path);
                     }
                 } catch (\Throwable $e) {
@@ -1113,7 +1205,7 @@ class AgentVerificationController extends Controller
      */
     private function getB2BDocumentBasePath(int $userId, int $verificationId): string
     {
-        return self::B2B_DOCUMENT_PATH_PREFIX . '/' . $userId . '/' . $verificationId;
+        return self::B2B_DOCUMENT_PATH_PREFIX.'/'.$userId.'/'.$verificationId;
     }
 
     /**

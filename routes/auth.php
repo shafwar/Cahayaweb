@@ -11,6 +11,13 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
+/** Fresh CSRF for SPA (guest or auth): avoids 419 when meta lags session; same exposure as any HTML page with meta tag */
+Route::get('auth/csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+})
+    ->middleware('throttle:120,1')
+    ->name('auth.csrf-token');
+
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
@@ -36,11 +43,6 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    /** Fresh token for SPA (logout, etc.) — avoids 419 when meta/props lag behind session */
-    Route::get('auth/csrf-token', function () {
-        return response()->json(['csrf_token' => csrf_token()]);
-    })->name('auth.csrf-token');
-
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 

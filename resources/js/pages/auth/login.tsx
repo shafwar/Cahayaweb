@@ -5,6 +5,7 @@ import { FormEventHandler, useEffect, useState } from 'react';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
+import { fetchFreshCsrfToken } from '@/lib/csrf';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -68,41 +69,50 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
 
                 // Small delay to ensure form is ready, then auto-submit
                 setTimeout(() => {
-                    setIsSubmitting(true);
-                    const loginUrl = '/login';
-                    const submitData = { email: formData.email || '', password: formData.password || '', remember: formData.remember || false, mode: formData.mode, redirect: formData.redirect };
+                    void (async () => {
+                        setIsSubmitting(true);
+                        await fetchFreshCsrfToken();
+                        const loginUrl = '/login';
+                        const submitData = {
+                            email: formData.email || '',
+                            password: formData.password || '',
+                            remember: formData.remember || false,
+                            mode: formData.mode,
+                            redirect: formData.redirect,
+                        };
 
-                    const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-                    if (csrfToken && typeof window !== 'undefined' && (window as any).axios) {
-                        (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
-                    }
+                        const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+                        if (csrfToken && typeof window !== 'undefined' && (window as any).axios) {
+                            (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+                        }
 
-                    router.post(loginUrl, submitData, {
-                        preserveState: true,
-                        preserveScroll: false,
-                        onStart: () => setIsSubmitting(true),
-                        onProgress: () => setIsSubmitting(true),
-                        onFinish: () => {
-                            setIsSubmitting(false);
-                            reset('password');
-                            setHasPreviousError(false);
-                            sessionStorage.removeItem('login_pending_resubmit');
-                            console.log('[Login] Auto-resubmit finished');
-                        },
-                        onSuccess: () => {
-                            sessionStorage.removeItem('login_pending_resubmit');
-                            setHasPreviousError(false);
-                        },
-                        onError: () => {
-                            setTimeout(() => setIsSubmitting(false), 150);
+                        router.post(loginUrl, submitData, {
+                            preserveState: true,
+                            preserveScroll: false,
+                            onStart: () => setIsSubmitting(true),
+                            onProgress: () => setIsSubmitting(true),
+                            onFinish: () => {
+                                setIsSubmitting(false);
+                                reset('password');
+                                setHasPreviousError(false);
+                                sessionStorage.removeItem('login_pending_resubmit');
+                                console.log('[Login] Auto-resubmit finished');
+                            },
+                            onSuccess: () => {
+                                sessionStorage.removeItem('login_pending_resubmit');
+                                setHasPreviousError(false);
+                            },
+                            onError: () => {
+                                setTimeout(() => setIsSubmitting(false), 150);
+                                setHasPreviousError(true);
+                                sessionStorage.removeItem('login_pending_resubmit');
+                            },
+                        }).catch(() => {
                             setHasPreviousError(true);
+                            setTimeout(() => setIsSubmitting(false), 400);
                             sessionStorage.removeItem('login_pending_resubmit');
-                        },
-                    }).catch(() => {
-                        setHasPreviousError(true);
-                        setTimeout(() => setIsSubmitting(false), 400);
-                        sessionStorage.removeItem('login_pending_resubmit');
-                    });
+                        });
+                    })();
                 }, 300);
             } catch (e) {
                 console.error('[Login] Failed to parse pending resubmit data:', e);
@@ -206,80 +216,72 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
             return;
         }
 
-        // Get CSRF token from meta tag (guaranteed fresh from server-side regeneration)
-        // Server always regenerates token on page load, so token is always fresh
-        const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-        
-        // Validate token exists before submitting
-        if (!csrfToken) {
-            console.error('CSRF token not found in meta tag');
-            // Don't reload automatically - let server handle it
-            // Server will regenerate token on next request anyway
-            // Just show error to user
-            return;
-        }
-        
-        // Set CSRF token for axios if available
-        if (csrfToken && typeof window !== 'undefined' && (window as any).axios) {
-            (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
-        }
+        void (async () => {
+            setIsSubmitting(true);
+            await fetchFreshCsrfToken();
 
-        // CRITICAL: Set loading state IMMEDIATELY before any async operations
-        setIsSubmitting(true);
+            const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
 
-        // CRITICAL: Use RELATIVE URL to let browser resolve HTTPS automatically
-        const loginUrl = '/login';
-        console.log('[Login] Form submission started - validating credentials...');
-
-        // Use router.post so we can .catch() network/request failures (ERR_NETWORK, AxiosError)
-        // useForm().post() doesn't expose promise rejection for network errors
-        router.post(loginUrl, data, {
-            preserveState: true,
-            preserveScroll: false,
-            forceFormData: false,
-            onStart: () => {
-                setIsSubmitting(true);
-            },
-            onProgress: () => {
-                setIsSubmitting(true);
-            },
-            onFinish: () => {
+            if (!csrfToken) {
+                console.error('CSRF token not found in meta tag');
                 setIsSubmitting(false);
-                reset('password');
-                console.log('[Login] Form submission finished');
-            },
-            onSuccess: (page) => {
-                console.log('[Login] Success - redirecting...', { url: page.url, component: page.component });
-                sessionStorage.removeItem('login_pending_resubmit');
-                setHasPreviousError(false);
-            },
-            onError: (errs: Record<string, string>) => {
-                console.error('[Login] Error occurred:', errs);
-                setTimeout(() => setIsSubmitting(false), 150);
+                return;
+            }
+
+            if (csrfToken && typeof window !== 'undefined' && (window as any).axios) {
+                (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+            }
+
+            const loginUrl = '/login';
+            console.log('[Login] Form submission started - validating credentials...');
+
+            router.post(loginUrl, data, {
+                preserveState: true,
+                preserveScroll: false,
+                forceFormData: false,
+                onStart: () => {
+                    setIsSubmitting(true);
+                },
+                onProgress: () => {
+                    setIsSubmitting(true);
+                },
+                onFinish: () => {
+                    setIsSubmitting(false);
+                    reset('password');
+                    console.log('[Login] Form submission finished');
+                },
+                onSuccess: (page) => {
+                    console.log('[Login] Success - redirecting...', { url: page.url, component: page.component });
+                    sessionStorage.removeItem('login_pending_resubmit');
+                    setHasPreviousError(false);
+                },
+                onError: (errs: Record<string, string>) => {
+                    console.error('[Login] Error occurred:', errs);
+                    setTimeout(() => setIsSubmitting(false), 150);
+                    setHasPreviousError(true);
+
+                    const errMsg = errs?.message || (typeof errs === 'string' ? errs : '') || '';
+                    const errStr = JSON.stringify(errs || {});
+                    const isCsrfError =
+                        /419|expired|PAGE EXPIRED|csrf|token/i.test(errMsg) || /419|expired|csrf|token/i.test(errStr);
+
+                    if (isCsrfError) {
+                        console.warn('[Login] CSRF token expired, reloading page...');
+                        setTimeout(() => window.location.reload(), 400);
+                        return;
+                    }
+
+                    const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+                    if (metaToken && typeof window !== 'undefined' && (window as any).axios) {
+                        (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = metaToken.content;
+                    }
+                },
+            }).catch((err: unknown) => {
+                console.error('[Login] Request failed (network or other):', err);
                 setHasPreviousError(true);
-
-                const errMsg = errs?.message || (typeof errs === 'string' ? errs : '') || '';
-                const errStr = JSON.stringify(errs || {});
-                const isCsrfError =
-                    /419|expired|PAGE EXPIRED|csrf|token/i.test(errMsg) || /419|expired|csrf|token/i.test(errStr);
-
-                if (isCsrfError) {
-                    console.warn('[Login] CSRF token expired, reloading page...');
-                    setTimeout(() => window.location.reload(), 400);
-                    return;
-                }
-
-                const metaToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-                if (metaToken && typeof window !== 'undefined' && (window as any).axios) {
-                    (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = metaToken.content;
-                }
-            },
-        }).catch((err: unknown) => {
-            // Network error (ERR_NETWORK, AxiosError) or request failed before response
-            console.error('[Login] Request failed (network or other):', err);
-            setHasPreviousError(true);
-            setTimeout(() => setIsSubmitting(false), 400);
-        });
+                setTimeout(() => setIsSubmitting(false), 400);
+            });
+        })();
     };
 
     return (

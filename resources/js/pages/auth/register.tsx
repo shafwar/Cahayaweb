@@ -1,8 +1,10 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Eye, EyeOff, LoaderCircle } from 'lucide-react';
+import axios from 'axios';
 import { FormEventHandler, useEffect, useState } from 'react';
 
 import InputError from '@/components/input-error';
+import { fetchFreshCsrfToken } from '@/lib/csrf';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,77 +64,93 @@ export default function Register() {
 
         setIsSubmitting(true);
 
-        // Get CSRF token from meta tag (most reliable)
-        const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
-        let token = csrfToken;
-        if (!token && typeof document !== 'undefined') {
-            const xsrfCookie = document.cookie.split('; ').find((row) => row.startsWith('XSRF-TOKEN='));
-            if (xsrfCookie) {
-                token = decodeURIComponent(xsrfCookie.split('=')[1]);
-            }
-        }
-        if (token && typeof window !== 'undefined' && (window as any).axios) {
-            (window as any).axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
-        }
+        void (async () => {
+            try {
+                await fetchFreshCsrfToken();
 
-        // Build URL: use form state first, fallback to current URL params (backend also reads from query)
-        const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-        const modeFromUrl = urlParams.get('mode');
-        const redirectFromUrl = urlParams.get('redirect');
-        const modeToSend = data.mode || modeFromUrl;
-        const redirectToSend = data.redirect || redirectFromUrl;
-
-        let registerUrl = route('register');
-        const params = new URLSearchParams();
-        if (modeToSend) params.set('mode', modeToSend);
-        if (redirectToSend) params.set('redirect', redirectToSend);
-        if (params.toString()) registerUrl += '?' + params.toString();
-
-        if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
-            const absoluteUrl = new URL(registerUrl, window.location.origin);
-            if (absoluteUrl.protocol === 'http:') {
-                absoluteUrl.protocol = 'https:';
-                registerUrl = absoluteUrl.toString();
-            }
-        }
-
-        // Always inject mode/redirect from current URL into payload so backend receives them (avoids race with useEffect)
-        post(registerUrl, {
-            preserveState: false,
-            preserveScroll: false,
-            only: [],
-            transform: (payload) => {
-                const q = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-                const modeFromUrl = q.get('mode');
-                const redirectFromUrl = q.get('redirect');
-                return {
-                    ...payload,
-                    ...(modeFromUrl ? { mode: modeFromUrl } : {}),
-                    ...(redirectFromUrl ? { redirect: redirectFromUrl } : {}),
-                };
-            },
-            onError: (errors) => {
-                console.error('Registration errors:', errors);
-                const errorMessage = errors?.message || (typeof errors === 'string' ? errors : '');
-                if (errorMessage.includes('419') || errorMessage.includes('expired') || errorMessage.includes('PAGE EXPIRED')) {
-                    alert('Your session has expired. Please refresh the page and try again.');
-                    window.location.reload();
-                    return;
-                }
-                const firstErrorField = Object.keys(errors)[0];
-                if (firstErrorField) {
-                    const errorElement = document.getElementById(firstErrorField) || document.querySelector(`[name="${firstErrorField}"]`);
-                    if (errorElement) {
-                        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        (errorElement as HTMLElement).focus();
+                let token = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+                if (!token && typeof document !== 'undefined') {
+                    const xsrfCookie = document.cookie.split('; ').find((row) => row.startsWith('XSRF-TOKEN='));
+                    if (xsrfCookie) {
+                        token = decodeURIComponent(xsrfCookie.split('=')[1]);
                     }
                 }
-            },
-            onFinish: () => {
+                if (token) {
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+                }
+
+                // Build URL: use form state first, fallback to current URL params (backend also reads from query)
+                const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+                const modeFromUrl = urlParams.get('mode');
+                const redirectFromUrl = urlParams.get('redirect');
+                const modeToSend = data.mode || modeFromUrl;
+                const redirectToSend = data.redirect || redirectFromUrl;
+
+                let registerUrl = route('register');
+                const params = new URLSearchParams();
+                if (modeToSend) params.set('mode', modeToSend);
+                if (redirectToSend) params.set('redirect', redirectToSend);
+                if (params.toString()) registerUrl += '?' + params.toString();
+
+                if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+                    const absoluteUrl = new URL(registerUrl, window.location.origin);
+                    if (absoluteUrl.protocol === 'http:') {
+                        absoluteUrl.protocol = 'https:';
+                        registerUrl = absoluteUrl.toString();
+                    }
+                }
+
+                // Always inject mode/redirect from current URL into payload so backend receives them (avoids race with useEffect)
+                post(registerUrl, {
+                    preserveState: false,
+                    preserveScroll: false,
+                    only: [],
+                    onSuccess: (page) => {
+                        if (import.meta.env.DEV) {
+                            console.info('[Register] Inertia success', { url: page.url });
+                        }
+                    },
+                    transform: (payload) => {
+                        const q = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+                        const modeFromUrlInner = q.get('mode');
+                        const redirectFromUrlInner = q.get('redirect');
+                        return {
+                            ...payload,
+                            ...(modeFromUrlInner ? { mode: modeFromUrlInner } : {}),
+                            ...(redirectFromUrlInner ? { redirect: redirectFromUrlInner } : {}),
+                        };
+                    },
+                    onError: (errors) => {
+                        console.error('[Register] submission errors', errors);
+                        const errorMessage =
+                            (errors as { message?: string })?.message ||
+                            (typeof errors === 'string' ? errors : '') ||
+                            (errors as Record<string, string>)?.email ||
+                            '';
+                        if (errorMessage.includes('419') || errorMessage.includes('expired') || errorMessage.includes('PAGE EXPIRED')) {
+                            alert('Your session has expired. Please refresh the page and try again.');
+                            window.location.reload();
+                            return;
+                        }
+                        const firstErrorField = Object.keys(errors)[0];
+                        if (firstErrorField) {
+                            const errorElement =
+                                document.getElementById(firstErrorField) || document.querySelector(`[name="${firstErrorField}"]`);
+                            if (errorElement) {
+                                errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                (errorElement as HTMLElement).focus();
+                            }
+                        }
+                    },
+                    onFinish: () => {
+                        setIsSubmitting(false);
+                        reset('password', 'password_confirmation');
+                    },
+                });
+            } catch {
                 setIsSubmitting(false);
-                reset('password', 'password_confirmation');
-            },
-        });
+            }
+        })();
     };
 
     const showLoading = isSubmitting || processing;
