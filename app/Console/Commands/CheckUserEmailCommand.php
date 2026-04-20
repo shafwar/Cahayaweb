@@ -41,7 +41,7 @@ class CheckUserEmailCommand extends Command
             $this->error('Database connection failed.');
             $this->line($e->getMessage());
             $this->newLine();
-            $this->printRailwayConnectionHelp();
+            $this->printConnectionHelp($e, $email);
 
             return self::FAILURE;
         }
@@ -86,30 +86,51 @@ class CheckUserEmailCommand extends Command
         return self::SUCCESS;
     }
 
-    private function printRailwayConnectionHelp(): void
+    private function printConnectionHelp(QueryException $e, string $email): void
     {
-        $host = (string) config('database.connections.mysql.host', '');
-        $this->warn('Why this happens');
-        $this->line('  `railway run` runs Artisan on your Mac with env vars from Railway.');
-        $this->line('  Hostnames like mysql.railway.internal only work inside Railway’s network, not from your laptop.');
+        $msg = strtolower($e->getMessage());
+        $default = (string) config('database.default');
+        $cfg = config('database.connections.'.$default) ?? [];
+        $driver = (string) ($cfg['driver'] ?? $default);
+        $loc = ($driver === 'sqlite')
+            ? 'database: '.($cfg['database'] ?? '')
+            : 'host: '.($cfg['host'] ?? 'n/a').', database: '.($cfg['database'] ?? '');
+
+        $this->line("  Configured: {$driver} ({$loc})");
         $this->newLine();
-        $this->info('Fix (pick one)');
-        $this->line('  1) SSH into your Laravel / PHP service (recommended):');
-        $this->line('       railway ssh --service "<name-of-your-web-app-service>"');
-        $this->line('       cd /path/to/app  # if needed');
-        $this->line('       php artisan b2b:check-email <email>');
-        $this->newLine();
-        $this->line('  2) Use Railway’s public MySQL host (Dashboard → MySQL → Connect / Variables):');
-        $this->line('       export DB_HOST="…public host…" DB_PORT="…" DB_DATABASE="…" DB_USERNAME="…" DB_PASSWORD="…"');
-        $this->line('       php artisan b2b:check-email <email>');
-        $this->line('     (Do not commit credentials; one-off in your terminal.)');
-        $this->newLine();
-        $this->line('  3) Link the CLI to your web app service, not only MySQL:');
-        $this->line('       railway service   # then pick the Laravel service');
-        $this->line('     Still use (1) or (2) unless you use a public DATABASE_URL for local runs.');
-        if ($host !== '') {
+
+        $isLocalMysql = str_contains($msg, '127.0.0.1') || str_contains($msg, 'localhost');
+        $isConnRefused = str_contains($msg, 'connection refused');
+        $isRailwayInternal = str_contains($msg, 'railway.internal') || str_contains($msg, 'getaddrinfo');
+
+        if ($isLocalMysql && $isConnRefused) {
+            $this->warn('Diagnosis: Artisan is using your local .env (e.g. Herd / 127.0.0.1), and MySQL is not running or not reachable.');
+            $this->line('  The second command (`php artisan …`) ran on your Mac, not inside `railway ssh` (SSH did not open — wrong service name or missing link).');
             $this->newLine();
-            $this->line("  Current config DB host: {$host}");
+            $this->info('Do this (Railway — inspect production DB)');
+            $this->line('  From your project folder that is `railway link`-ed to **Cahaya Anbiya / production**:');
+            $this->line('    railway service          # pick your **Laravel / web** service, NOT MySQL');
+            $this->line('    railway ssh              # opens a shell **on the server** (use real service link)');
+            $this->line("    php artisan b2b:check-email {$email}");
+            $this->newLine();
+            $this->line('  If you see "Must provide project": run `railway link` again in this directory, then retry.');
+            $this->line('  Never use the literal placeholder `NAMA_SERVICE_LARAVEL_ANDA` — use the real service name from the menu.');
+            $this->newLine();
         }
+
+        if ($isRailwayInternal) {
+            $this->warn('Diagnosis: `railway run` injects DB_HOST=mysql.railway.internal — that hostname does not resolve on your laptop.');
+            $this->newLine();
+            $this->info('Use `railway ssh` into the web service (see above), or set a public MySQL host in your shell and run php artisan locally.');
+            $this->newLine();
+        }
+
+        $this->info('Verify script locally (no Railway)');
+        $this->line('  DB_CONNECTION=sqlite DB_DATABASE=/tmp/test.sqlite php artisan migrate --force');
+        $this->line('  DB_CONNECTION=sqlite DB_DATABASE=/tmp/test.sqlite php artisan b2b:check-email you@example.com');
+        $this->newLine();
+
+        $this->info('Alternative: public MySQL from Railway Dashboard');
+        $this->line('  MySQL service → Connect → copy host/port/user/pass → export DB_* then run php artisan b2b:check-email … on your Mac.');
     }
 }
