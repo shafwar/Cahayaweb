@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\AgentVerification;
 use App\Models\User;
 use App\Support\AgentVerificationFileCleanup;
 use Illuminate\Support\Facades\Log;
@@ -15,8 +16,7 @@ class UserObserver
     public function deleting(User $user): void
     {
         try {
-            $verification = $user->agentVerification;
-            if ($verification) {
+            foreach (AgentVerification::query()->where('user_id', $user->id)->cursor() as $verification) {
                 AgentVerificationFileCleanup::purgeStorageFor($verification);
             }
         } catch (\Throwable $e) {

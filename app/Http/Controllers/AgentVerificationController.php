@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AgentVerification;
 use App\Models\B2BRegistrationDraft;
 use App\Models\User;
+use App\Services\B2bApplicantPurgeService;
 use App\Support\R2Helper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -938,11 +939,13 @@ class AgentVerificationController extends Controller
 
     /**
      * Remove the B2B application and the applicant's user record so the email can be registered again.
-     * Documents: UserObserver::deleting purges R2/public before the user row is removed; DB cascade drops agent_verifications.
+     * Uses {@see B2bApplicantPurgeService} for DB + R2 cleanup (all verification rows, sessions, password resets).
      * Privileged admin accounts are never deleted (only the verification row is removed if that edge case exists).
      */
     private function deleteAgentApplicationAndApplicantUser(AgentVerification $verification): void
     {
+        $purge = app(B2bApplicantPurgeService::class);
+
         $user = $verification->user;
         if ($user === null) {
             $verification->delete();
@@ -950,7 +953,7 @@ class AgentVerificationController extends Controller
             return;
         }
 
-        if ($this->isPrivilegedAdminUser($user)) {
+        if ($purge->isPrivilegedAdmin($user)) {
             Log::warning('Agent verification deleted without removing privileged user account.', [
                 'user_id' => $user->id,
                 'verification_id' => $verification->id,
@@ -960,16 +963,7 @@ class AgentVerificationController extends Controller
             return;
         }
 
-        $user->delete();
-    }
-
-    private function isPrivilegedAdminUser(User $user): bool
-    {
-        if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
-            return true;
-        }
-
-        return in_array($user->email, config('app.admin_emails', []), true);
+        $purge->purgeApplicantUser($user);
     }
 
     /**
@@ -998,12 +992,14 @@ class AgentVerificationController extends Controller
             ->unique()
             ->values();
 
+        $purge = app(B2bApplicantPurgeService::class);
+
         foreach ($userIds as $userId) {
             $user = User::query()->find($userId);
             if ($user === null) {
                 continue;
             }
-            if ($this->isPrivilegedAdminUser($user)) {
+            if ($purge->isPrivilegedAdmin($user)) {
                 AgentVerification::query()
                     ->whereIn('id', $validated['ids'])
                     ->where('user_id', $userId)
@@ -1014,7 +1010,7 @@ class AgentVerificationController extends Controller
 
                 continue;
             }
-            $user->delete();
+            $purge->purgeApplicantUser($user);
         }
 
         $count = count($validated['ids']);
@@ -1030,19 +1026,21 @@ class AgentVerificationController extends Controller
         $totalRows = AgentVerification::query()->count();
         $userIds = AgentVerification::query()->pluck('user_id')->unique()->values();
 
+        $purge = app(B2bApplicantPurgeService::class);
+
         foreach ($userIds as $userId) {
             $user = User::query()->find($userId);
             if ($user === null) {
                 continue;
             }
-            if ($this->isPrivilegedAdminUser($user)) {
+            if ($purge->isPrivilegedAdmin($user)) {
                 AgentVerification::query()->where('user_id', $userId)->get()->each(function (AgentVerification $v) {
                     $v->delete();
                 });
 
                 continue;
             }
-            $user->delete();
+            $purge->purgeApplicantUser($user);
         }
 
         return redirect()->route('admin.agent-verifications')->with('success', "All {$totalRows} application(s) and associated applicant account(s) removed successfully.");

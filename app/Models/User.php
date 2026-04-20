@@ -56,6 +56,14 @@ class User extends Authenticatable
     }
 
     /**
+     * All agent verification rows for this user (normally at most one; DB does not enforce unique).
+     */
+    public function agentVerifications(): HasMany
+    {
+        return $this->hasMany(AgentVerification::class);
+    }
+
+    /**
      * B2C travel package registrations linked to this account (participant).
      */
     public function b2cPackageRegistrations(): HasMany
@@ -71,13 +79,15 @@ class User extends Authenticatable
         try {
             // Use relationship method to safely check if verification exists
             $verification = $this->agentVerification;
+
             return $verification && $verification->isApproved();
         } catch (\Throwable $e) {
             // If any error occurs (e.g., relationship not loaded, database error), return false
             \Log::debug('Error checking B2B access', [
                 'user_id' => $this->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -90,13 +100,15 @@ class User extends Authenticatable
         try {
             // Use relationship method to safely check if verification exists
             $verification = $this->agentVerification;
+
             return $verification && $verification->isPending();
         } catch (\Throwable $e) {
             // If any error occurs, return false
             \Log::debug('Error checking pending B2B verification', [
                 'user_id' => $this->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
