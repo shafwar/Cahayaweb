@@ -5,13 +5,16 @@ namespace App\Console\Commands;
 use App\Models\AgentVerification;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 /**
  * Read-only: shows whether an email still occupies users / verifications / related tables.
- * Run on production: railway run php artisan b2b:check-email naufalshafi15@gmail.com
+ *
+ * On Railway, `railway run` executes on your laptop: DB_HOST like mysql.railway.internal will NOT resolve.
+ * Use `railway ssh` into your Laravel service, or a public DB URL — see command output on connection failure.
  */
 class CheckUserEmailCommand extends Command
 {
@@ -31,6 +34,21 @@ class CheckUserEmailCommand extends Command
         $this->info("Checking: {$email}");
         $this->newLine();
 
+        try {
+            return $this->runChecks($email);
+        } catch (QueryException $e) {
+            $this->newLine();
+            $this->error('Database connection failed.');
+            $this->line($e->getMessage());
+            $this->newLine();
+            $this->printRailwayConnectionHelp();
+
+            return self::FAILURE;
+        }
+    }
+
+    private function runChecks(string $email): int
+    {
         $user = User::query()->whereRaw('LOWER(email) = ?', [$email])->first();
         if ($user) {
             $this->warn('BLOCKS registration: row exists in `users` table.');
@@ -66,5 +84,32 @@ class CheckUserEmailCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    private function printRailwayConnectionHelp(): void
+    {
+        $host = (string) config('database.connections.mysql.host', '');
+        $this->warn('Why this happens');
+        $this->line('  `railway run` runs Artisan on your Mac with env vars from Railway.');
+        $this->line('  Hostnames like mysql.railway.internal only work inside Railway’s network, not from your laptop.');
+        $this->newLine();
+        $this->info('Fix (pick one)');
+        $this->line('  1) SSH into your Laravel / PHP service (recommended):');
+        $this->line('       railway ssh --service "<name-of-your-web-app-service>"');
+        $this->line('       cd /path/to/app  # if needed');
+        $this->line('       php artisan b2b:check-email <email>');
+        $this->newLine();
+        $this->line('  2) Use Railway’s public MySQL host (Dashboard → MySQL → Connect / Variables):');
+        $this->line('       export DB_HOST="…public host…" DB_PORT="…" DB_DATABASE="…" DB_USERNAME="…" DB_PASSWORD="…"');
+        $this->line('       php artisan b2b:check-email <email>');
+        $this->line('     (Do not commit credentials; one-off in your terminal.)');
+        $this->newLine();
+        $this->line('  3) Link the CLI to your web app service, not only MySQL:');
+        $this->line('       railway service   # then pick the Laravel service');
+        $this->line('     Still use (1) or (2) unless you use a public DATABASE_URL for local runs.');
+        if ($host !== '') {
+            $this->newLine();
+            $this->line("  Current config DB host: {$host}");
+        }
     }
 }

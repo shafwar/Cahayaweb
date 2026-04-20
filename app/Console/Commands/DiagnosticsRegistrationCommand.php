@@ -68,7 +68,8 @@ class DiagnosticsRegistrationCommand extends Command
 
         $this->newLine();
         $this->info('Check if an email still exists in DB (read-only):');
-        $this->line('  php artisan b2b:check-email you@example.com');
+        $this->line('  On the server: railway ssh --service "<laravel-service>" then: php artisan b2b:check-email you@example.com');
+        $this->line('  (railway run on your Mac fails for mysql.railway.internal — see command help on error.)');
 
         return self::SUCCESS;
     }
