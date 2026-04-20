@@ -66,6 +66,10 @@ class DiagnosticsRegistrationCommand extends Command
         $this->info('Ghost email (still "already registered" after admin delete):');
         $this->line('  php artisan b2b:reclaim-email you@example.com --force');
 
+        $this->newLine();
+        $this->info('Check if an email still exists in DB (read-only):');
+        $this->line('  php artisan b2b:check-email you@example.com');
+
         return self::SUCCESS;
     }
 }
