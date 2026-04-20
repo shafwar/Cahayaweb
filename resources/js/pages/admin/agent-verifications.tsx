@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Building2, Clock, CheckCircle2, XCircle, Eye, ArrowLeft, LogOut, Trash2, CheckSquare, Square } from 'lucide-react';
 import { useState } from 'react';
 import { useLogout } from '@/hooks/useLogout';
@@ -47,6 +47,7 @@ const filterBtnBase = 'rounded-xl border px-4 py-2 text-sm font-medium transitio
 const filterInactive = `${filterBtnBase} border-slate-200 bg-white text-slate-600 hover:bg-slate-50`;
 
 export default function AgentVerifications({ verifications, pagination }: Props) {
+    const pageErrors = usePage().props.errors as Record<string, string> | undefined;
     const { logout, isLoggingOut } = useLogout();
     const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -160,6 +161,12 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                             <p className={adminMuted}>Manage B2B agent access applications</p>
                         </div>
                     </div>
+
+                    {pageErrors?.message && (
+                        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900" role="alert">
+                            {pageErrors.message}
+                        </div>
+                    )}
 
                     <div className="mb-4 flex flex-wrap gap-2">
                         <Button

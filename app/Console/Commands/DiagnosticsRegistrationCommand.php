@@ -62,6 +62,10 @@ class DiagnosticsRegistrationCommand extends Command
         $this->newLine();
         $this->info('Optional: REGISTER_DEBUG=1 in .env adds verbose registration logs (no passwords).');
 
+        $this->newLine();
+        $this->info('Ghost email (still "already registered" after admin delete):');
+        $this->line('  php artisan b2b:reclaim-email you@example.com --force');
+
         return self::SUCCESS;
     }
 }
