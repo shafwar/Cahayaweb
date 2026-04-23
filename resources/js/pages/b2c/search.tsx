@@ -5,7 +5,7 @@ import { searchItems, SearchResult } from '@/utils/search';
 import { Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { FileText, MapPin, Package, Search as SearchIcon, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 // Import destinations and packages data
 const destinations = [
@@ -128,9 +128,24 @@ const destinations = [
     },
 ];
 
-const packages = [
+type SearchTravelPackageCard = {
+    id: number;
+    slug?: string;
+    title?: string;
+    location?: string;
+    duration?: string;
+    price?: string;
+    type?: string;
+    image?: string;
+    highlights?: string[];
+    description?: string;
+    registration_open?: boolean;
+};
+
+const staticSearchPackages = [
     {
         id: 1,
+        href: '/packages',
         title: 'Konsorsium Mesir Aqsa Jordan',
         location: 'Jordan, Palestina & Mesir',
         duration: '9D8N',
@@ -144,6 +159,7 @@ const packages = [
     },
     {
         id: 2,
+        href: '/packages',
         title: '3 Countries in 1 Journey',
         location: 'Jordan, Palestine & Egypt',
         duration: '10D9N',
@@ -157,6 +173,7 @@ const packages = [
     },
     {
         id: 3,
+        href: '/packages',
         title: '10 Days Jordan Aqsa Egypt',
         location: 'Jordan, Aqsa & Egypt',
         duration: '10D9N',
@@ -231,26 +248,57 @@ const pages = [
 ];
 
 export default function SearchPage() {
-    const page = usePage();
+    const page = usePage<{ travelPackages?: SearchTravelPackageCard[] }>();
     const urlParams = new URLSearchParams(window.location.search);
     const initialQuery = urlParams.get('q') || '';
 
     const [searchQuery, setSearchQuery] = useState(initialQuery);
     const [results, setResults] = useState<SearchResult[]>([]);
 
+    const packageSearchPool = useMemo(() => {
+        const db = page.props.travelPackages;
+        const dbRows = Array.isArray(db)
+            ? db.map((p) => {
+                  const rawImg = p.image ?? '/images/packages/packages1.png';
+                  const image =
+                      rawImg.startsWith('http://') || rawImg.startsWith('https://')
+                          ? rawImg
+                          : rawImg.startsWith('/')
+                            ? rawImg
+                            : `/${rawImg}`;
+                  const highlightsStr = Array.isArray(p.highlights) ? p.highlights.join(', ') : '';
+                  const href =
+                      p.registration_open && p.slug ? `/packages/register/${p.slug}` : '/packages';
+                  return {
+                      id: `db-${p.slug ?? p.id}`,
+                      title: String(p.title ?? ''),
+                      location: String(p.location ?? ''),
+                      duration: String(p.duration ?? ''),
+                      price: String(p.price ?? ''),
+                      type: String(p.type ?? 'Religious'),
+                      image,
+                      highlights: highlightsStr,
+                      description: String(p.description ?? ''),
+                      href,
+                  };
+              })
+            : [];
+        return [...staticSearchPackages, ...dbRows];
+    }, [page.props.travelPackages]);
+
     useEffect(() => {
         if (searchQuery.trim()) {
-            const searchResults = searchItems(searchQuery, destinations, packages, pages);
+            const searchResults = searchItems(searchQuery, destinations, packageSearchPool, pages);
             setResults(searchResults);
         } else {
             setResults([]);
         }
-    }, [searchQuery]);
+    }, [searchQuery, packageSearchPool]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            const searchResults = searchItems(searchQuery, destinations, packages, pages);
+            const searchResults = searchItems(searchQuery, destinations, packageSearchPool, pages);
             setResults(searchResults);
             // Update URL without reload
             window.history.pushState({}, '', `/search?q=${encodeURIComponent(searchQuery.trim())}`);
@@ -459,7 +507,11 @@ export default function SearchPage() {
                                                     transition={{ delay: 0.2 + index * 0.05 }}
                                                 >
                                                     <Link
-                                                        href="/packages"
+                                                        href={
+                                                            typeof result.item.href === 'string' && result.item.href
+                                                                ? result.item.href
+                                                                : '/packages'
+                                                        }
                                                         className="group block overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/50 to-black/50 transition-all duration-300 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/20"
                                                     >
                                                         <div className="relative aspect-video overflow-hidden">

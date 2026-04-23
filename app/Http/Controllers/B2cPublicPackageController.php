@@ -11,19 +11,8 @@ class B2cPublicPackageController extends Controller
 {
     public function index(Request $request): Response
     {
-        $rows = B2cTravelPackage::query()
-            ->orderBy('sort_order')
-            ->orderByDesc('id')
-            ->get()
-            ->filter(fn (B2cTravelPackage $p) => $p->isOpenForRegistration())
-            ->values();
-
-        $travelPackages = $rows->isNotEmpty()
-            ? $rows->map(fn (B2cTravelPackage $p) => $p->toCardProps())->values()->all()
-            : [];
-
         return Inertia::render('b2c/packages/index', [
-            'travelPackages' => $travelPackages,
+            'travelPackages' => B2cTravelPackage::publicCatalogCards(),
             'flash' => $request->session()->pull('flash'),
         ]);
     }

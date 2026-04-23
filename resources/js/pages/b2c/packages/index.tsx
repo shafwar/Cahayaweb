@@ -361,16 +361,20 @@ export default function Packages() {
         },
     ];
 
-    /** DB-backed list from server: always honor explicit array (even empty). Legacy only when prop missing. */
+    /**
+     * DB-backed list: when the server sends rows (including closed packages), show them all so every
+     * catalog card stays visible with Register Online vs Registration closed. When the array is empty
+     * or the prop is missing, fall back to legacy marketing cards (WhatsApp CTAs).
+     */
     const packages = useMemo(() => {
         const rows = props.travelPackages;
-        if (Array.isArray(rows)) {
+        if (Array.isArray(rows) && rows.length > 0) {
             return rows as TravelPackageRow[];
         }
         return LEGACY_PACKAGES_DATA;
     }, [props.travelPackages]);
 
-    const hasDbPackages = Array.isArray(props.travelPackages);
+    const hasDbPackages = Array.isArray(props.travelPackages) && props.travelPackages.length > 0;
 
     const flash = props.flash;
 

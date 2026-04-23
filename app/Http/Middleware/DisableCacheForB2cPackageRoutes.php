@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Avoid CDN/browser serving stale package cards vs live DB (status / pax).
+ * Avoid CDN/browser serving stale catalog data vs live DB (status / pax) on B2C routes that embed packages.
  */
 class DisableCacheForB2cPackageRoutes
 {

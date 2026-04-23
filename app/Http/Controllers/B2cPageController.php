@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\B2cTravelPackage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,7 +23,9 @@ class B2cPageController extends Controller
 
     public function home(): Response
     {
-        return Inertia::render('b2c/home');
+        return Inertia::render('b2c/home', [
+            'travelPackages' => B2cTravelPackage::publicCatalogCards(),
+        ]);
     }
 
     public function about(): Response
@@ -62,6 +65,8 @@ class B2cPageController extends Controller
 
     public function search(): Response
     {
-        return Inertia::render('b2c/search');
+        return Inertia::render('b2c/search', [
+            'travelPackages' => B2cTravelPackage::publicCatalogCards(),
+        ]);
     }
 }

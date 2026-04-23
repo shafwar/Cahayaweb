@@ -66,11 +66,11 @@ Route::get('/', [B2cPageController::class, 'root'])->name('home');
 
 Route::get('/select-mode', [B2cPageController::class, 'selectMode'])->name('select-mode');
 
-Route::get('/home', [B2cPageController::class, 'home'])->name('b2c.home');
-
 Route::get('/about', [B2cPageController::class, 'about'])->name('b2c.about');
 Route::get('/destinations', [B2cPageController::class, 'destinations'])->name('b2c.destinations');
 Route::middleware(['no_cache.b2c.packages'])->group(function () {
+    Route::get('/home', [B2cPageController::class, 'home'])->name('b2c.home');
+    Route::get('/search', [B2cPageController::class, 'search'])->name('b2c.search');
     Route::get('/packages/register/{b2cTravelPackage}', [B2cRegistrationController::class, 'create'])->name('b2c.packages.register');
     Route::get('/packages', [B2cPublicPackageController::class, 'index'])->name('b2c.packages');
 });
@@ -83,7 +83,6 @@ Route::get('/highlights', [B2cPageController::class, 'highlights'])->name('b2c.h
 Route::get('/blog', [B2cPageController::class, 'blogIndex'])->name('b2c.blog');
 Route::get('/blog/{id}', [B2cPageController::class, 'blogShow'])->name('b2c.blog.show');
 Route::get('/contact', [B2cPageController::class, 'contact'])->name('b2c.contact');
-Route::get('/search', [B2cPageController::class, 'search'])->name('b2c.search');
 
 Route::get('/b2b/register', [AgentVerificationController::class, 'create'])->name('b2b.register');
 Route::post('/b2b/register', [AgentVerificationController::class, 'store'])->name('b2b.register.store');

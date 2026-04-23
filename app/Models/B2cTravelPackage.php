@@ -145,4 +145,21 @@ class B2cTravelPackage extends Model
             'filter_pax_capacity' => $this->pax_capacity,
         ];
     }
+
+    /**
+     * All B2C packages for public catalog cards (home, /packages, search). Includes open and closed;
+     * each card carries registration_open for CTA state.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function publicCatalogCards(): array
+    {
+        return static::query()
+            ->orderBy('sort_order')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (self $p) => $p->toCardProps())
+            ->values()
+            ->all();
+    }
 }

@@ -91,6 +91,24 @@ it('does not auto-close package when last seats are booked', function () {
     expect($pkg->status)->toBe('open');
 });
 
+it('lists open and closed packages in the public catalog card payload', function () {
+    createOpenB2cPackage([
+        'slug' => 'cat-open',
+        'package_code' => 'TEST-CAT-OPEN',
+        'status' => 'open',
+    ]);
+    createOpenB2cPackage([
+        'slug' => 'cat-closed',
+        'package_code' => 'TEST-CAT-CLOSED',
+        'status' => 'closed',
+    ]);
+
+    $cards = B2cTravelPackage::publicCatalogCards();
+
+    expect(count($cards))->toBe(2);
+    expect(array_column($cards, 'slug'))->toContain('cat-open')->toContain('cat-closed');
+});
+
 it('normalizes status casing on save', function () {
     $pkg = createOpenB2cPackage([
         'slug' => 'normalize-status-slug',
