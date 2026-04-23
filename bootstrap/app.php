@@ -42,6 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'verify.b2b' => \App\Http\Middleware\VerifyB2BAccess::class,
+            'no_cache.b2c.packages' => \App\Http\Middleware\DisableCacheForB2cPackageRoutes::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

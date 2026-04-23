@@ -133,8 +133,8 @@ export default function B2cPackagesEdit({ package: pkg }: { package: Pkg }) {
                             Template & perbaikan cepat (klik untuk buka)
                         </summary>
                         <p className={`mt-2 text-xs sm:text-sm ${adminMuted}`}>
-                            Jika tombol <strong>Register Online</strong> di situs mati karena deadline lewat: gunakan tombol biru di bawah, lalu{' '}
-                            <strong>Save changes</strong>. Panduan salin manual:{' '}
+                            Tombol <strong>Register Online</strong> di situs hanya mengikuti kolom <strong>Status</strong> (Open / Closed). Deadline hanya informasi untuk tamu. Jika form tidak terbuka: set Status ke <strong>Open</strong>, lalu{' '}
+                            <strong>Save changes</strong>. Tombol biru di bawah memperpanjang deadline sekaligus meng-set Open. Panduan salin manual:{' '}
                             <code className="rounded bg-white/80 px-1 py-0.5 text-[11px]">docs/B2C_PACKAGE_FORM_TEMPLATE.md</code>
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2">

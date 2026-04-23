@@ -8,6 +8,16 @@ use Illuminate\Support\Str;
 
 class B2cTravelPackage extends Model
 {
+    protected static function booted(): void
+    {
+        static::saving(function (self $model) {
+            if ($model->isDirty('status') && is_string($model->status)) {
+                $st = strtolower(trim($model->status));
+                $model->status = in_array($st, ['open', 'closed'], true) ? $st : 'closed';
+            }
+        });
+    }
+
     protected $fillable = [
         'slug',
         'package_code',
@@ -63,7 +73,9 @@ class B2cTravelPackage extends Model
      */
     public function registrationBlockReason(): ?string
     {
-        return strtolower(trim((string) $this->status)) === 'open' ? null : 'manual';
+        $raw = $this->attributes['status'] ?? $this->status;
+
+        return strtolower(trim((string) $raw)) === 'open' ? null : 'manual';
     }
 
     public function isOpenForRegistration(): bool

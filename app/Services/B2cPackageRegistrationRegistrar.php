@@ -24,7 +24,7 @@ class B2cPackageRegistrationRegistrar
             /** @var B2cTravelPackage $locked */
             $locked = B2cTravelPackage::query()->whereKey($package->id)->lockForUpdate()->firstOrFail();
 
-            if (strtolower(trim((string) $locked->status)) !== 'open') {
+            if (! $locked->isOpenForRegistration()) {
                 throw ValidationException::withMessages([
                     'package' => ['This package is not open for registration.'],
                 ]);
@@ -64,11 +64,6 @@ class B2cPackageRegistrationRegistrar
             ]);
 
             $locked->increment('pax_booked', $pax);
-            $locked->refresh();
-
-            if ($locked->pax_booked >= $locked->pax_capacity) {
-                $locked->forceFill(['status' => 'closed'])->save();
-            }
         });
     }
 }

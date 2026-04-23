@@ -12,9 +12,9 @@ use Inertia\Response;
 
 class B2cRegistrationController extends Controller
 {
-    public function create(B2cTravelPackage $package): Response|RedirectResponse
+    public function create(B2cTravelPackage $b2cTravelPackage): Response|RedirectResponse
     {
-        if (! $package->isOpenForRegistration()) {
+        if (! $b2cTravelPackage->isOpenForRegistration()) {
             return redirect()
                 ->route('b2c.packages')
                 ->with('flash', [
@@ -25,29 +25,29 @@ class B2cRegistrationController extends Controller
 
         return Inertia::render('b2c/packages/register', [
             'package' => [
-                'id' => $package->id,
-                'slug' => $package->slug,
-                'name' => $package->name,
-                'departure_period' => $package->departure_period,
-                'price_display' => $package->price_display,
-                'terms_and_conditions' => $package->terms_and_conditions,
-                'registration_deadline' => $package->registration_deadline?->toIso8601String() ?? '',
-                'pax_capacity' => $package->pax_capacity,
-                'pax_booked' => $package->pax_booked,
-                'available_pax' => $package->availablePaxSlots(),
+                'id' => $b2cTravelPackage->id,
+                'slug' => $b2cTravelPackage->slug,
+                'name' => $b2cTravelPackage->name,
+                'departure_period' => $b2cTravelPackage->departure_period,
+                'price_display' => $b2cTravelPackage->price_display,
+                'terms_and_conditions' => $b2cTravelPackage->terms_and_conditions,
+                'registration_deadline' => $b2cTravelPackage->registration_deadline?->toIso8601String() ?? '',
+                'pax_capacity' => $b2cTravelPackage->pax_capacity,
+                'pax_booked' => $b2cTravelPackage->pax_booked,
+                'available_pax' => $b2cTravelPackage->availablePaxSlots(),
             ],
         ]);
     }
 
-    public function store(StoreB2cPackageRegistrationRequest $request, B2cTravelPackage $package, B2cPackageRegistrationRegistrar $registrar): RedirectResponse
+    public function store(StoreB2cPackageRegistrationRequest $request, B2cTravelPackage $b2cTravelPackage, B2cPackageRegistrationRegistrar $registrar): RedirectResponse
     {
         $validated = $request->validated();
 
         try {
-            $registrar->register($package, $validated);
+            $registrar->register($b2cTravelPackage, $validated);
         } catch (ValidationException $e) {
             return redirect()
-                ->route('b2c.packages.register', ['b2cTravelPackage' => $package->slug])
+                ->route('b2c.packages.register', ['b2cTravelPackage' => $b2cTravelPackage->slug])
                 ->withErrors($e->errors())
                 ->withInput();
         }
