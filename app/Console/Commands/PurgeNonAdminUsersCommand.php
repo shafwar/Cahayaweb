@@ -11,7 +11,8 @@ use Illuminate\Support\Str;
  * Deletes every row in `users` except privileged admin accounts (same rules as IsAdmin / B2bApplicantPurgeService).
  * Uses B2bApplicantPurgeService per user so R2, sessions, tokens, and cascades stay consistent.
  *
- * Production: railway ssh → php artisan users:purge-except-admins --dry-run → … --force
+ * Production: railway ssh (Laravel service) → `php artisan …` or `sh scripts/railway-artisan.sh …`
+ * If `php: command not found`, use `/usr/local/bin/php artisan …` or the helper script above.
  */
 class PurgeNonAdminUsersCommand extends Command
 {

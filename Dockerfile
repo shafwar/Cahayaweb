@@ -61,7 +61,7 @@ RUN composer install \
         --optimize-autoloader \
     && mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache \
     && chmod -R ug+rwx storage bootstrap/cache \
-    && chmod +x scripts/railway-start.sh
+    && chmod +x scripts/railway-start.sh scripts/railway-artisan.sh
 
 ENV PORT=8000
 EXPOSE 8000
