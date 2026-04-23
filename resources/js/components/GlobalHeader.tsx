@@ -32,6 +32,8 @@ interface GlobalHeaderProps {
     variant?: 'b2c' | 'b2b';
     forceLightTheme?: boolean;
     className?: string;
+    /** When true, hides CMS edit / save controls (e.g. B2C package registration). Admin shield stays. */
+    hideEditControls?: boolean;
 }
 
 interface NavigationItem {
@@ -71,6 +73,7 @@ const MobileMenuPortal: React.FC<{
     setSearchQuery: (q: string) => void;
     handleSearchSubmit: (e: React.FormEvent) => void;
     handleModeSwitch: () => void;
+    hideEditControls?: boolean;
 }> = ({
     isOpen,
     onClose,
@@ -84,6 +87,7 @@ const MobileMenuPortal: React.FC<{
     setSearchQuery,
     handleSearchSubmit,
     handleModeSwitch,
+    hideEditControls = false,
 }) => {
     useEffect(() => {
         if (isOpen) {
@@ -307,45 +311,46 @@ const MobileMenuPortal: React.FC<{
                                     <Building2 className="h-5 w-5" />
                                     <span>Agent Verifications</span>
                                 </button>
-                                {editCtx.dirty ? (
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            const confirmed = window.confirm('💾 Save all changes?');
-                                            if (!confirmed) return;
-                                            window.dispatchEvent(new CustomEvent('cms:flush-save'));
-                                            editCtx.clearDirty?.();
-                                            router.reload({ only: ['sections'] });
-                                            onClose();
-                                        }}
-                                        className="flex w-full animate-pulse items-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-bold text-white"
-                                    >
-                                        <Save className="h-5 w-5" />
-                                        <span>Save Changes</span>
-                                    </button>
-                                ) : editCtx.editMode ? (
-                                    <button
-                                        onClick={() => {
-                                            editCtx.setEditMode(false);
-                                            onClose();
-                                        }}
-                                        className="flex w-full items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm font-medium text-blue-300"
-                                    >
-                                        <Minus className="h-5 w-5" />
-                                        <span>Exit Editing</span>
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={() => {
-                                            editCtx.setEditMode(true);
-                                            onClose();
-                                        }}
-                                        className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white"
-                                    >
-                                        <Plus className="h-5 w-5" />
-                                        <span>Start Editing</span>
-                                    </button>
-                                )}
+                                {!hideEditControls &&
+                                    (editCtx.dirty ? (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const confirmed = window.confirm('💾 Save all changes?');
+                                                if (!confirmed) return;
+                                                window.dispatchEvent(new CustomEvent('cms:flush-save'));
+                                                editCtx.clearDirty?.();
+                                                router.reload({ only: ['sections'] });
+                                                onClose();
+                                            }}
+                                            className="flex w-full animate-pulse items-center gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-bold text-white"
+                                        >
+                                            <Save className="h-5 w-5" />
+                                            <span>Save Changes</span>
+                                        </button>
+                                    ) : editCtx.editMode ? (
+                                        <button
+                                            onClick={() => {
+                                                editCtx.setEditMode(false);
+                                                onClose();
+                                            }}
+                                            className="flex w-full items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm font-medium text-blue-300"
+                                        >
+                                            <Minus className="h-5 w-5" />
+                                            <span>Exit Editing</span>
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => {
+                                                editCtx.setEditMode(true);
+                                                onClose();
+                                            }}
+                                            className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white"
+                                        >
+                                            <Plus className="h-5 w-5" />
+                                            <span>Start Editing</span>
+                                        </button>
+                                    ))}
                             </div>
                         </div>
                     )}
@@ -410,7 +415,7 @@ const MobileMenuPortal: React.FC<{
     );
 };
 
-const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className = '' }) => {
+const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className = '', hideEditControls = false }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -618,6 +623,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                     >
                                         <Shield className="h-4 w-4" />
                                     </motion.button>
+                                    {!hideEditControls && (
                                     <AnimatePresence mode="wait">
                                         {editCtx.dirty ? (
                                             <motion.button
@@ -670,6 +676,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                             </motion.button>
                                         )}
                                     </AnimatePresence>
+                                    )}
                                 </>
                             )}
 
@@ -740,6 +747,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                         setSearchQuery={setSearchQuery}
                         handleSearchSubmit={handleSearchSubmit}
                         handleModeSwitch={handleModeSwitch}
+                        hideEditControls={hideEditControls}
                     />
                 )}
             </AnimatePresence>
