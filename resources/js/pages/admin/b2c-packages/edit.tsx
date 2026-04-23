@@ -8,7 +8,7 @@ import { adminGhostBtn, adminMuted, adminPrimaryBtn } from '@/lib/admin-portal-t
 import { useLogout } from '@/hooks/useLogout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { LogOut, Users } from 'lucide-react';
-import { B2C_QUICK_FIX_DEADLINE_AND_OPEN, B2C_UMRAH_APRIL_2026_FULL } from '@/lib/b2cPackageFillTemplates';
+import { B2C_UMRAH_APRIL_2026_FULL, getB2cQuickFixDeadlineAndOpen } from '@/lib/b2cPackageFillTemplates';
 import { FormEventHandler, useState } from 'react';
 
 type Pkg = {
@@ -142,17 +142,19 @@ export default function B2cPackagesEdit({ package: pkg }: { package: Pkg }) {
                                 type="button"
                                 className={`${adminPrimaryBtn} border border-amber-400/80 bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-sm hover:from-amber-700 hover:to-orange-700`}
                                 onClick={() => {
-                                    setData('registration_deadline', B2C_QUICK_FIX_DEADLINE_AND_OPEN.registration_deadline);
-                                    setData('status', B2C_QUICK_FIX_DEADLINE_AND_OPEN.status);
+                                    const q = getB2cQuickFixDeadlineAndOpen(45);
+                                    setData('registration_deadline', q.registration_deadline);
+                                    setData('status', q.status);
                                 }}
                             >
-                                Aktifkan Register Online (deadline 30 Apr 2026 23:59 + Open)
+                                Aktifkan Register Online (deadline +45 hari 23:59 + Open)
                             </button>
                             <button
                                 type="button"
                                 className={`${adminGhostBtn} border-amber-300/80 text-amber-950 hover:bg-white/90`}
                                 onClick={() => {
                                     const T = B2C_UMRAH_APRIL_2026_FULL;
+                                    const q = getB2cQuickFixDeadlineAndOpen(45);
                                     setData('departure_period', T.departure_period);
                                     setData('description', T.description);
                                     setData('location', T.location);
@@ -160,7 +162,7 @@ export default function B2cPackagesEdit({ package: pkg }: { package: Pkg }) {
                                     setData('package_type', T.package_type);
                                     setData('price_display', T.price_display);
                                     setData('pax_capacity', T.pax_capacity);
-                                    setData('registration_deadline', T.registration_deadline);
+                                    setData('registration_deadline', q.registration_deadline);
                                     setData('terms_and_conditions', T.terms_and_conditions);
                                     setData('highlights_text', T.highlights_text);
                                     setData('features_text', T.features_text);

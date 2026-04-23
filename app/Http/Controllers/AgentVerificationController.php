@@ -9,6 +9,7 @@ use App\Services\B2bApplicantPurgeService;
 use App\Support\R2Helper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -236,8 +237,9 @@ class AgentVerificationController extends Controller
 
         Log::info('B2B store (logged-in) start', ['user_id' => $user->id]);
 
-        // Check if user already has a verification
-        if ($user->agentVerification) {
+        // Block duplicate in-flight or approved applications; allow resubmit after rejection (same row).
+        $currentVerification = $user->agentVerification;
+        if ($currentVerification && ($currentVerification->isPending() || $currentVerification->isApproved())) {
             return back()->withErrors([
                 'message' => 'You already have a verification application. Please wait for admin approval.',
             ]);
@@ -322,22 +324,28 @@ class AgentVerificationController extends Controller
         $validatedScalar = collect($validated)->except($fileFields)->all();
         $validatedScalar['status'] = 'pending';
         $validatedScalar['company_country'] = $validated['company_country'] ?? 'Indonesia';
-        foreach ($fileFields as $field) {
-            $validatedScalar[$field] = null;
-        }
 
         try {
             // 1. Save to DB first so application always appears in admin (R2/storage must not block this)
             $existingVerification = $user->agentVerification;
+            $wasRejected = $existingVerification?->isRejected() === true;
 
             if ($existingVerification) {
-                $existingVerification->update(array_merge($validatedScalar, [
+                $updatePayload = array_merge($validatedScalar, [
                     'admin_notes' => null,
                     'reviewed_by' => null,
                     'reviewed_at' => null,
-                ]));
-                $verification = $existingVerification;
+                ]);
+                if ($wasRejected) {
+                    $updatePayload['resubmission_count'] = (int) $existingVerification->resubmission_count + 1;
+                    $updatePayload['last_resubmitted_at'] = now();
+                }
+                $existingVerification->update($updatePayload);
+                $verification = $existingVerification->fresh();
             } else {
+                foreach ($fileFields as $field) {
+                    $validatedScalar[$field] = null;
+                }
                 $verification = $user->agentVerification()->create($validatedScalar);
             }
 
@@ -374,7 +382,11 @@ class AgentVerificationController extends Controller
             // Regenerate session token after successful submission to prevent 419 errors on next request
             $request->session()->regenerateToken();
 
-            return redirect()->route('b2b.pending')->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
+            $successMessage = $wasRejected
+                ? 'Registration has been renewed. Please wait for admin approval.'
+                : 'Your application has been submitted successfully. Please wait for admin approval.';
+
+            return redirect()->route('b2b.pending')->with('success', $successMessage);
         } catch (\Throwable $e) {
             Log::error('B2B store (logged-in) failed', [
                 'user_id' => $user->id,
@@ -482,8 +494,9 @@ class AgentVerificationController extends Controller
             return redirect($registerUrl);
         }
 
-        // Already submitted — must run before draft/session so we do not create duplicates or skip files
-        if ($user->agentVerification) {
+        // Pending / approved: do not run draft/session (avoid duplicates). Rejected: allow continue to renew same row.
+        $existingV = $user->agentVerification;
+        if ($existingV && ($existingV->isPending() || $existingV->isApproved())) {
             $request->session()->forget(['b2b_registration_data', 'b2b_registration_files']);
             $pendingUrl = route('b2b.pending', [], true);
             if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
@@ -547,17 +560,41 @@ class AgentVerificationController extends Controller
 
         $validated = $validator->validated();
         $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
-        foreach ($fileFields as $field) {
-            $validated[$field] = null;
-        }
+        $scalarData = collect($validated)->except($fileFields)->all();
+        $scalarData['status'] = 'pending';
+        $scalarData['company_country'] = $validated['company_country'] ?? 'Indonesia';
+
+        $sessionContinueSuccessMessage = 'Your application has been submitted successfully. Please wait for admin approval.';
 
         try {
-            // 1. Create verification first (data in DB only; no file paths yet)
-            $verification = $user->agentVerification()->create([
-                ...$validated,
-                'status' => 'pending',
-                'company_country' => $validated['company_country'] ?? 'Indonesia',
-            ]);
+            $existingVerification = $user->agentVerification;
+            $wasRejectedContinue = $existingVerification?->isRejected() === true;
+
+            if ($existingVerification?->isRejected()) {
+                $updatePayload = array_merge($scalarData, [
+                    'admin_notes' => null,
+                    'reviewed_by' => null,
+                    'reviewed_at' => null,
+                    'resubmission_count' => (int) $existingVerification->resubmission_count + 1,
+                    'last_resubmitted_at' => now(),
+                ]);
+                $existingVerification->update($updatePayload);
+                $verification = $existingVerification->fresh();
+                $sessionContinueSuccessMessage = 'Registration has been renewed. Please wait for admin approval.';
+            } elseif (! $existingVerification) {
+                foreach ($fileFields as $field) {
+                    $scalarData[$field] = null;
+                }
+                $verification = $user->agentVerification()->create($scalarData);
+            } else {
+                Log::warning('B2B storeContinue (session): unexpected verification state', ['user_id' => $user->id]);
+                $pendingUrl = route('b2b.pending', [], true);
+                if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                    $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
+                }
+
+                return redirect($pendingUrl)->with('info', 'You already have a verification application.');
+            }
 
             // 2. Upload files to per-account path: documents/agent-verifications/{user_id}/{verification_id}/
             $uploadDiskName = $this->getAgentVerificationUploadDiskName();
@@ -579,7 +616,11 @@ class AgentVerificationController extends Controller
                 }
             }
 
-            Log::info('B2B verification created (session)', ['user_id' => $user->id, 'verification_id' => $verification->id]);
+            Log::info('B2B verification saved (session continue)', [
+                'user_id' => $user->id,
+                'verification_id' => $verification->id,
+                'renewed' => $wasRejectedContinue,
+            ]);
         } catch (\Throwable $e) {
             Log::error('B2B storeContinue (session) failed', [
                 'user_id' => $user->id,
@@ -604,7 +645,7 @@ class AgentVerificationController extends Controller
             $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
         }
 
-        return redirect($pendingUrl)->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
+        return redirect($pendingUrl)->with('success', $sessionContinueSuccessMessage);
     }
 
     /**
@@ -664,17 +705,41 @@ class AgentVerificationController extends Controller
 
         $validated = $validator->validated();
         $fileFields = ['business_license_file', 'tax_certificate_file', 'company_profile_file'];
-        foreach ($fileFields as $field) {
-            $validated[$field] = null;
-        }
+        $scalarData = collect($validated)->except($fileFields)->all();
+        $scalarData['status'] = 'pending';
+        $scalarData['company_country'] = $validated['company_country'] ?? 'Indonesia';
+
+        $draftContinueSuccessMessage = 'Your application has been submitted successfully. Please wait for admin approval.';
 
         try {
-            // 1. Create verification first (data in DB only; no file paths yet)
-            $verification = $user->agentVerification()->create([
-                ...$validated,
-                'status' => 'pending',
-                'company_country' => $validated['company_country'] ?? 'Indonesia',
-            ]);
+            $existingVerification = $user->agentVerification;
+            $wasRejectedDraft = $existingVerification?->isRejected() === true;
+
+            if ($existingVerification?->isRejected()) {
+                $updatePayload = array_merge($scalarData, [
+                    'admin_notes' => null,
+                    'reviewed_by' => null,
+                    'reviewed_at' => null,
+                    'resubmission_count' => (int) $existingVerification->resubmission_count + 1,
+                    'last_resubmitted_at' => now(),
+                ]);
+                $existingVerification->update($updatePayload);
+                $verification = $existingVerification->fresh();
+                $draftContinueSuccessMessage = 'Registration has been renewed. Please wait for admin approval.';
+            } elseif (! $existingVerification) {
+                foreach ($fileFields as $field) {
+                    $scalarData[$field] = null;
+                }
+                $verification = $user->agentVerification()->create($scalarData);
+            } else {
+                Log::warning('B2B storeContinueFromDraft: unexpected verification state', ['user_id' => $user->id]);
+                $pendingUrl = route('b2b.pending', [], true);
+                if ($request->secure() || $request->header('X-Forwarded-Proto') === 'https' || app()->environment('production')) {
+                    $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
+                }
+
+                return redirect($pendingUrl)->with('info', 'You already have a verification application.');
+            }
 
             // 2. Copy draft files to per-account path: documents/agent-verifications/{user_id}/{verification_id}/
             $uploadDiskName = $this->getAgentVerificationUploadDiskName();
@@ -712,7 +777,11 @@ class AgentVerificationController extends Controller
                 // ignore cleanup errors
             }
 
-            Log::info('B2B verification created (draft)', ['user_id' => $user->id, 'verification_id' => $verification->id]);
+            Log::info('B2B verification saved (draft continue)', [
+                'user_id' => $user->id,
+                'verification_id' => $verification->id,
+                'renewed' => $wasRejectedDraft,
+            ]);
         } catch (\Throwable $e) {
             Log::error('B2B storeContinueFromDraft create failed', ['user_id' => $user->id, 'message' => $e->getMessage()]);
             $draft->delete();
@@ -732,7 +801,7 @@ class AgentVerificationController extends Controller
             $pendingUrl = str_replace('http://', 'https://', $pendingUrl);
         }
 
-        return redirect($pendingUrl)->with('success', 'Your application has been submitted successfully. Please wait for admin approval.');
+        return redirect($pendingUrl)->with('success', $draftContinueSuccessMessage);
     }
 
     /**
@@ -757,6 +826,11 @@ class AgentVerificationController extends Controller
         }
 
         return Inertia::render('b2b/pending-verification', [
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+                'info' => $request->session()->get('info'),
+            ],
             'verification' => [
                 'id' => $verification->id,
                 'company_name' => $verification->company_name,
@@ -764,6 +838,9 @@ class AgentVerificationController extends Controller
                 'admin_notes' => $verification->admin_notes,
                 'created_at' => $verification->created_at->format('Y-m-d H:i:s'),
                 'created_at_human' => $verification->created_at->diffForHumans(),
+                'resubmission_count' => (int) $verification->resubmission_count,
+                'last_resubmitted_at' => $verification->last_resubmitted_at?->format('Y-m-d H:i:s'),
+                'last_resubmitted_at_human' => $verification->last_resubmitted_at?->diffForHumans(),
             ],
         ]);
     }
@@ -774,7 +851,7 @@ class AgentVerificationController extends Controller
     public function index(Request $request)
     {
         $verifications = AgentVerification::with(['user', 'reviewer'])
-            ->orderBy('created_at', 'desc')
+            ->orderByDesc(DB::raw('COALESCE(agent_verifications.last_resubmitted_at, agent_verifications.updated_at)'))
             ->paginate(20);
 
         return Inertia::render('admin/agent-verifications', [
@@ -796,6 +873,9 @@ class AgentVerificationController extends Controller
                         'reviewed_at' => $verification->reviewed_at?->format('Y-m-d H:i:s'),
                         'created_at' => $verification->created_at->format('Y-m-d H:i:s'),
                         'created_at_human' => $verification->created_at->diffForHumans(),
+                        'resubmission_count' => (int) $verification->resubmission_count,
+                        'last_resubmitted_at' => $verification->last_resubmitted_at?->format('Y-m-d H:i:s'),
+                        'last_resubmitted_at_human' => $verification->last_resubmitted_at?->diffForHumans(),
                     ];
                 })->items(),
                 'current_page' => $verifications->currentPage(),
@@ -862,6 +942,9 @@ class AgentVerificationController extends Controller
                 'reviewed_at' => $verification->reviewed_at?->format('Y-m-d H:i:s'),
                 'created_at' => $verification->created_at->format('Y-m-d H:i:s'),
                 'created_at_human' => $verification->created_at->diffForHumans(),
+                'resubmission_count' => (int) $verification->resubmission_count,
+                'last_resubmitted_at' => $verification->last_resubmitted_at?->format('Y-m-d H:i:s'),
+                'last_resubmitted_at_human' => $verification->last_resubmitted_at?->diffForHumans(),
             ],
         ]);
     }

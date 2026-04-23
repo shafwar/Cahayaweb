@@ -10,13 +10,21 @@ interface Verification {
     admin_notes?: string;
     created_at: string;
     created_at_human: string;
+    resubmission_count?: number;
+    last_resubmitted_at?: string | null;
+    last_resubmitted_at_human?: string | null;
 }
 
 interface Props {
     verification: Verification;
+    flash?: {
+        success?: string | null;
+        error?: string | null;
+        info?: string | null;
+    };
 }
 
-export default function PendingVerification({ verification }: Props) {
+export default function PendingVerification({ verification, flash }: Props) {
     const isRejected = verification.status === 'rejected';
 
     return (
@@ -50,6 +58,24 @@ export default function PendingVerification({ verification }: Props) {
                             )}
                         </CardHeader>
                         <CardContent className="space-y-6">
+                            {flash?.success && (
+                                <div
+                                    className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center text-sm text-emerald-900"
+                                    role="status"
+                                >
+                                    {flash.success}
+                                </div>
+                            )}
+                            {flash?.info && !flash?.success && (
+                                <div className="rounded-lg border border-[#c7ddff] bg-[#eef6ff] p-4 text-center text-sm text-[#1e3a5f]" role="status">
+                                    {flash.info}
+                                </div>
+                            )}
+                            {flash?.error && (
+                                <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center text-sm text-red-900" role="alert">
+                                    {flash.error}
+                                </div>
+                            )}
                             {/* Status Info - Only show if not rejected */}
                             {!isRejected && (
                                 <>
@@ -62,6 +88,14 @@ export default function PendingVerification({ verification }: Props) {
                                                     Company: <span className="font-medium text-[#1e3a5f]">{verification.company_name}</span>
                                                 </p>
                                                 <p className="mt-1 text-sm text-[#64748b]">Submitted: {verification.created_at_human}</p>
+                                                {(verification.resubmission_count ?? 0) > 0 && verification.last_resubmitted_at_human && (
+                                                    <p className="mt-1 text-sm font-medium text-[#1e3a5f]">
+                                                        Renewed: {verification.last_resubmitted_at_human}
+                                                        {(verification.resubmission_count ?? 0) > 1
+                                                            ? ` · Resubmission #${verification.resubmission_count}`
+                                                            : null}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

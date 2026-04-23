@@ -31,6 +31,8 @@ class AgentVerification extends Model
         'tax_certificate_file',
         'company_profile_file',
         'status',
+        'resubmission_count',
+        'last_resubmitted_at',
         'admin_notes',
         'reviewed_by',
         'reviewed_at',
@@ -38,7 +40,9 @@ class AgentVerification extends Model
 
     protected $casts = [
         'reviewed_at' => 'datetime',
+        'last_resubmitted_at' => 'datetime',
         'years_in_business' => 'integer',
+        'resubmission_count' => 'integer',
     ];
 
     /**

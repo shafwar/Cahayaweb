@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Building2, Clock, CheckCircle2, XCircle, Eye, ArrowLeft, LogOut, Trash2, CheckSquare, Square } from 'lucide-react';
+import { Building2, Clock, CheckCircle2, XCircle, Eye, ArrowLeft, LogOut, Trash2, CheckSquare, Square, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { useLogout } from '@/hooks/useLogout';
 
@@ -25,6 +25,9 @@ interface Verification {
     reviewed_at?: string;
     created_at: string;
     created_at_human: string;
+    resubmission_count?: number;
+    last_resubmitted_at?: string | null;
+    last_resubmitted_at_human?: string | null;
 }
 
 interface Props {
@@ -268,6 +271,15 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                                                 <div className="mb-3 flex flex-wrap items-center gap-3">
                                                     <h3 className="text-xl font-semibold text-[#1e3a5f]">{verification.company_name}</h3>
                                                     {getStatusBadge(verification.status)}
+                                                    {(verification.resubmission_count ?? 0) > 0 && verification.status === 'pending' && (
+                                                        <Badge className="border border-violet-200 bg-violet-50 text-violet-900" title={verification.last_resubmitted_at ?? undefined}>
+                                                            <RefreshCw className="mr-1 h-3 w-3" />
+                                                            Renewed
+                                                            {(verification.resubmission_count ?? 0) > 1
+                                                                ? ` (${verification.resubmission_count}×)`
+                                                                : ''}
+                                                        </Badge>
+                                                    )}
                                                 </div>
 
                                                 <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -292,6 +304,11 @@ export default function AgentVerifications({ verifications, pagination }: Props)
                                                     <div>
                                                         <p className="text-sm text-slate-500">Submitted</p>
                                                         <p className="text-slate-900">{verification.created_at_human}</p>
+                                                        {(verification.resubmission_count ?? 0) > 0 && verification.last_resubmitted_at_human && (
+                                                            <p className="mt-1 text-xs text-violet-700">
+                                                                Last resubmitted {verification.last_resubmitted_at_human}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                     {verification.reviewed_at && (
                                                         <div>

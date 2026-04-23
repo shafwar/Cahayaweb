@@ -9,7 +9,7 @@ import { useLogout } from '@/hooks/useLogout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { LogOut } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
-import { B2C_UMRAH_APRIL_2026_FULL } from '@/lib/b2cPackageFillTemplates';
+import { getB2cCreateFormTestFill } from '@/lib/b2cPackageFillTemplates';
 
 const CREATE_INTRO =
     'A B2C package is what visitors see on the public Packages page: name, travel period, displayed price, capacity, registration deadline, and optional details (description, terms, highlights, hotels, etc.). Nothing is saved until you click Create package at the bottom. On wide screens, use the list on the right to jump between sections.';
@@ -98,7 +98,8 @@ export default function B2cPackagesCreate() {
                             Template contoh pengisian (klik untuk buka & salin)
                         </summary>
                         <p className={`mt-2 text-xs sm:text-sm ${adminMuted}`}>
-                            Gunakan sebagai acuan; ganti kode paket, tanggal, dan teks agar unik. Bagian Media: unggah gambar — path terisi otomatis. File panduan lengkap:{' '}
+                            Tombol di bawah mengisi seluruh form dengan <strong>kode unik</strong>, <strong>deadline pendaftaran ±45 hari ke depan</strong> (23:59 waktu browser), dan{' '}
+                            <strong>Status Open</strong> — langsung bisa uji registrasi B2C. Media: unggah gambar bila perlu (opsional). Panduan:{' '}
                             <code className="rounded bg-white/80 px-1 py-0.5 text-[11px]">docs/B2C_PACKAGE_FORM_TEMPLATE.md</code>
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2">
@@ -106,23 +107,10 @@ export default function B2cPackagesCreate() {
                                 type="button"
                                 className={`${adminGhostBtn} border-amber-300/80 text-amber-950 hover:bg-white/90`}
                                 onClick={() => {
-                                    const T = B2C_UMRAH_APRIL_2026_FULL;
-                                    setData('package_code', T.package_code);
-                                    setData('name', T.name);
-                                    setData('departure_period', T.departure_period);
-                                    setData('description', T.description);
-                                    setData('location', T.location);
-                                    setData('duration_label', T.duration_label);
-                                    setData('package_type', T.package_type);
-                                    setData('price_display', T.price_display);
-                                    setData('pax_capacity', T.pax_capacity);
-                                    setData('registration_deadline', T.registration_deadline);
-                                    setData('terms_and_conditions', T.terms_and_conditions);
-                                    setData('highlights_text', T.highlights_text);
-                                    setData('features_text', T.features_text);
-                                    setData('dates_text', T.dates_text);
-                                    setData('hotels_text', T.hotels_text);
-                                    setData('sort_order', T.sort_order);
+                                    const T = getB2cCreateFormTestFill();
+                                    (Object.keys(T) as (keyof typeof T)[]).forEach((key) => {
+                                        setData(key, T[key] as never);
+                                    });
                                 }}
                             >
                                 Isi form dari template

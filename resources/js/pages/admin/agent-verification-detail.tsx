@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLogout } from '@/hooks/useLogout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, Building2, CheckCircle2, Clock, Download, Edit2, FileText, LogOut, Save, X, XCircle } from 'lucide-react';
+import { ArrowLeft, Building2, CheckCircle2, Clock, Download, Edit2, FileText, LogOut, RefreshCw, Save, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface Verification {
@@ -43,6 +43,9 @@ interface Verification {
     reviewed_at?: string;
     created_at: string;
     created_at_human: string;
+    resubmission_count?: number;
+    last_resubmitted_at?: string | null;
+    last_resubmitted_at_human?: string | null;
 }
 
 interface Props {
@@ -169,9 +172,29 @@ export default function AgentVerificationDetail({ verification, flash }: Props) 
                                 <p className={adminMuted}>Agent Verification Details</p>
                             </div>
                         </div>
-                        {getStatusBadge()}
+                        <div className="flex flex-wrap items-center gap-2">
+                            {getStatusBadge()}
+                            {(verification.resubmission_count ?? 0) > 0 && verification.status === 'pending' && (
+                                <Badge className="border border-violet-200 bg-violet-50 text-violet-900">
+                                    <RefreshCw className="mr-1 h-3 w-3" />
+                                    Renewed
+                                    {(verification.resubmission_count ?? 0) > 1 ? ` · ${verification.resubmission_count} resubmissions` : ''}
+                                </Badge>
+                            )}
+                        </div>
                     </div>
                 </div>
+
+                {(verification.resubmission_count ?? 0) > 0 && verification.last_resubmitted_at_human && (
+                    <div className="mb-6 rounded-xl border border-violet-200 bg-violet-50/80 px-4 py-3 text-sm text-violet-950">
+                        This application was resubmitted after a previous rejection. Last resubmitted{' '}
+                        <span className="font-semibold">{verification.last_resubmitted_at_human}</span>
+                        {verification.last_resubmitted_at ? (
+                            <span className="text-violet-800"> ({verification.last_resubmitted_at})</span>
+                        ) : null}
+                        .
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     {/* Main Content */}
