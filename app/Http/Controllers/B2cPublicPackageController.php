@@ -14,7 +14,9 @@ class B2cPublicPackageController extends Controller
         $rows = B2cTravelPackage::query()
             ->orderBy('sort_order')
             ->orderByDesc('id')
-            ->get();
+            ->get()
+            ->filter(fn (B2cTravelPackage $p) => $p->isOpenForRegistration())
+            ->values();
 
         $travelPackages = $rows->isNotEmpty()
             ? $rows->map(fn (B2cTravelPackage $p) => $p->toCardProps())->values()->all()

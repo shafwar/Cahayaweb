@@ -408,16 +408,16 @@ export default function Packages() {
         if (selectedDuration && selectedDuration !== 'All') {
             const days = parseInt(String(pkg.duration).match(/\d+/)?.[0] || '0');
             if (days > 0) {
-                switch (selectedDuration) {
-                    case '4-6 Days':
-                        if (days < 4 || days > 6) return false;
-                        break;
-                    case '7-9 Days':
-                        if (days < 7 || days > 9) return false;
-                        break;
-                    case '10+ Days':
-                        if (days < 10) return false;
-                        break;
+            switch (selectedDuration) {
+                case '4-6 Days':
+                    if (days < 4 || days > 6) return false;
+                    break;
+                case '7-9 Days':
+                    if (days < 7 || days > 9) return false;
+                    break;
+                case '10+ Days':
+                    if (days < 10) return false;
+                    break;
                 }
             }
         }
@@ -881,14 +881,14 @@ export default function Packages() {
                                                     </span>
                                                 )
                                             ) : (
-                                                <a
-                                                    href="https://wa.me/6285285522122"
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-primary/90 hover:to-accent/90"
-                                                >
-                                                    Register Now
-                                                </a>
+                                            <a
+                                                href="https://wa.me/6285285522122"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-primary/90 hover:to-accent/90"
+                                            >
+                                                Register Now
+                                            </a>
                                             )}
                                             <a
                                                 href="https://wa.me/6285285522121"
@@ -916,12 +916,12 @@ export default function Packages() {
                                 <div className="mb-6 text-6xl">{hasDbPackages && packages.length === 0 ? '📦' : '🔍'}</div>
                                 <h3 className="mb-3 text-2xl font-bold text-[#1e3a5f]">
                                     {hasDbPackages && packages.length === 0
-                                        ? 'Belum ada paket wisata'
+                                        ? 'Tidak ada paket buka pendaftaran'
                                         : 'Tidak ada paket yang cocok'}
                                 </h3>
                                 <p className="text-base text-[#475569]">
                                     {hasDbPackages && packages.length === 0
-                                        ? 'Buat paket di Admin → B2C registration → Create package; setelah disimpan, paket akan tampil di halaman ini.'
+                                        ? 'Hanya paket dengan status Open (di Admin → Packages) yang tampil di sini. Set status ke Open untuk mengaktifkan tombol Register Online, atau longgarkan filter di atas.'
                                         : 'Coba ubah filter tipe, harga, durasi, atau ukuran grup.'}
                                 </p>
                             </div>

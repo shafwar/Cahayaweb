@@ -7,6 +7,7 @@ use App\Http\Controllers\AgentVerificationController;
 use App\Http\Controllers\B2b\B2bPortalController;
 use App\Http\Controllers\B2cPageController;
 use App\Http\Controllers\B2cPublicPackageController;
+use App\Http\Controllers\B2cRegistrationApiController;
 use App\Http\Controllers\B2cRegistrationController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\SystemDiagnosticsController;
@@ -71,6 +72,9 @@ Route::get('/about', [B2cPageController::class, 'about'])->name('b2c.about');
 Route::get('/destinations', [B2cPageController::class, 'destinations'])->name('b2c.destinations');
 Route::get('/packages/register/{b2cTravelPackage}', [B2cRegistrationController::class, 'create'])->name('b2c.packages.register');
 Route::post('/packages/register/{b2cTravelPackage}', [B2cRegistrationController::class, 'store'])->name('b2c.packages.register.store');
+Route::post('/api/registrations', [B2cRegistrationApiController::class, 'store'])
+    ->middleware('throttle:30,1')
+    ->name('api.b2c.registrations.store');
 Route::get('/packages', [B2cPublicPackageController::class, 'index'])->name('b2c.packages');
 Route::get('/packages/{slug}', [B2cPageController::class, 'packageShow'])->name('b2c.packages.show');
 Route::get('/highlights', [B2cPageController::class, 'highlights'])->name('b2c.highlights');

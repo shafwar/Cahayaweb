@@ -17,10 +17,12 @@ type PackageInfo = {
 };
 
 export default function PackageRegister({ package: pkg }: { package: PackageInfo }) {
-    const deadlineLabel = new Date(pkg.registration_deadline).toLocaleString(undefined, {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-    });
+    const deadlineLabel = pkg.registration_deadline
+        ? new Date(pkg.registration_deadline).toLocaleString(undefined, {
+              dateStyle: 'medium',
+              timeStyle: 'short',
+          })
+        : '—';
 
     const { data, setData, post, processing, errors } = useForm({
         full_name: '',
@@ -70,7 +72,10 @@ export default function PackageRegister({ package: pkg }: { package: PackageInfo
                             <span className="font-semibold text-[#1e3a5f]">Seats available:</span> {pkg.available_pax} / {pkg.pax_capacity}
                         </p>
                         <p>
-                            <span className="font-semibold text-[#1e3a5f]">Registration deadline:</span> {deadlineLabel}
+                            <span className="font-semibold text-[#1e3a5f]">Registration deadline (reference):</span> {deadlineLabel}
+                        </p>
+                        <p className="text-xs text-[#64748b]">
+                            Online registration is controlled by the agency (Open/Closed in admin). The date above is for your reference only.
                         </p>
                     </div>
 

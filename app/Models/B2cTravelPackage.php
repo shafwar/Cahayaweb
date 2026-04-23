@@ -56,24 +56,14 @@ class B2cTravelPackage extends Model
     }
 
     /**
-     * When online registration is blocked despite the admin "Status" dropdown.
+     * Whether visitors may open the registration form. Controlled only by admin
+     * Status (open / closed). Registration deadline is informational, not a gate.
      *
-     * @return 'manual'|'full'|'deadline'|null null means accepting registrations now.
+     * @return 'manual'|null null means the form may be opened (status is open).
      */
     public function registrationBlockReason(): ?string
     {
-        if ($this->status !== 'open') {
-            return 'manual';
-        }
-        if ($this->pax_booked >= $this->pax_capacity) {
-            return 'full';
-        }
-        $deadline = $this->registration_deadline;
-        if ($deadline === null) {
-            return null;
-        }
-
-        return $deadline->isFuture() ? null : 'deadline';
+        return strtolower(trim((string) $this->status)) === 'open' ? null : 'manual';
     }
 
     public function isOpenForRegistration(): bool
@@ -134,7 +124,9 @@ class B2cTravelPackage extends Model
             'dates' => is_array($dates) ? $dates : [],
             'hotels' => is_array($hotels) ? $hotels : [],
             'registration_open' => $this->isOpenForRegistration(),
-            'registration_deadline' => $this->registration_deadline->toIso8601String(),
+            'registration_deadline' => $this->registration_deadline !== null
+                ? $this->registration_deadline->copy()->timezone(config('app.timezone'))->toIso8601String()
+                : '',
             'departure_period' => $this->departure_period,
             'terms_and_conditions' => $this->terms_and_conditions,
             'from_database' => true,
