@@ -23,9 +23,7 @@ class B2cPageController extends Controller
 
     public function home(): Response
     {
-        return Inertia::render('b2c/home', [
-            'travelPackages' => B2cTravelPackage::publicCatalogCards(),
-        ]);
+        return Inertia::render('b2c/home');
     }
 
     public function about(): Response

@@ -4,11 +4,11 @@ import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
 import { compressImageForUpload } from '@/utils/cmsImageUpload';
 import { getImageUrl, getOptimizedImageUrl, getR2Url } from '@/utils/imageHelper';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, ChevronDown, Edit3, Sparkles } from 'lucide-react';
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 const LazyImageCropModal = lazy(() => import('@/components/cms/ImageCropModal'));
 
@@ -100,40 +100,6 @@ function shuffleAndTake<T>(array: T[], n: number): T[] {
     }
     return copy.slice(0, n);
 }
-
-type HomeTravelPackageCard = {
-    id: number;
-    slug: string;
-    title: string;
-    location?: string;
-    duration?: string;
-    price?: string;
-    image?: string;
-    registration_open?: boolean;
-};
-
-type HomeBestSellerDestination = {
-    source: 'destination';
-    id: number;
-    title: string;
-    subtitle: string;
-    image: string;
-    tag: string;
-};
-
-type HomeBestSellerPackage = {
-    source: 'package';
-    id: number;
-    title: string;
-    subtitle: string;
-    priceLine: string;
-    image: string;
-    tag: string;
-    slug: string;
-    registration_open: boolean;
-};
-
-type HomeBestSellerItem = HomeBestSellerDestination | HomeBestSellerPackage;
 
 // New Destinations
 const newDestinations = [
@@ -433,7 +399,6 @@ export default function Home() {
     const { props } = usePage<{
         sections?: Record<string, { content?: string; image?: string; video?: string }>;
         cmsMediaGuide?: { images?: { short?: string } };
-        travelPackages?: HomeTravelPackageCard[];
     }>();
     const imageGuide = props.cmsMediaGuide?.images?.short ?? '1920×1080px recommended · Max 5MB · Auto-compressed';
 
@@ -446,41 +411,8 @@ export default function Home() {
         return getOptimizedImageUrl(url, { width: 960, quality: 78 });
     };
 
-    const destinationBestSellersFallback = useMemo(
-        () => shuffleAndTake(destinationCahayaPool, 4).map((d) => ({ ...d, source: 'destination' as const })),
-        [],
-    );
-
-    // Best Sellers: first catalog packages from DB when available (click → register flow); else stable random destination photos.
-    const bestSellersToShow = useMemo((): HomeBestSellerItem[] => {
-        const catalog = props.travelPackages;
-        if (Array.isArray(catalog) && catalog.length > 0) {
-            return catalog.slice(0, 4).map((p) => {
-                const loc = (p.location ?? '').trim();
-                const dur = (p.duration ?? '').trim();
-                const subtitle = [loc, dur].filter(Boolean).join(' · ');
-                const raw = p.image ?? '/images/packages/packages1.png';
-                const image =
-                    raw.startsWith('http://') || raw.startsWith('https://')
-                        ? raw
-                        : raw.startsWith('/')
-                          ? raw
-                          : `/${raw}`;
-                return {
-                    source: 'package',
-                    id: p.id,
-                    title: p.title,
-                    subtitle: subtitle || 'Travel package',
-                    priceLine: p.price ?? '',
-                    image,
-                    tag: p.registration_open ? 'Register online' : 'Lihat paket',
-                    slug: p.slug,
-                    registration_open: Boolean(p.registration_open),
-                };
-            });
-        }
-        return destinationBestSellersFallback;
-    }, [props.travelPackages, destinationBestSellersFallback]);
+    // Best Sellers: 4 random from all Destination Cahaya photos (stable per page load)
+    const [bestSellersToShow] = useState(() => shuffleAndTake(destinationCahayaPool, 4));
 
     // Removed heroSlides state since we're using a single video now
 
@@ -648,128 +580,101 @@ export default function Home() {
                                 viewport={{ once: true, margin: '-50px' }}
                             >
                                 {bestSellersToShow.map((item) => {
-                                    const imageSrc =
-                                        item.source === 'package'
-                                            ? getImageUrl(undefined, '_', item.image.replace(/^\/+/, ''))
-                                            : getImageSrc(`home.bestsellers.${item.id}.image`, item.image);
-                                    const sectionImageUrl =
-                                        item.source === 'destination'
-                                            ? (props.sections?.[`home.bestsellers.${item.id}.image`]?.image ?? '')
-                                            : '';
-                                    const rowKey =
-                                        item.source === 'package'
-                                            ? `bestseller-pkg-${item.id}-${item.slug}`
-                                            : `bestseller-${item.id}-${item.image}`;
-
-                                    const cardSurface = (
-                                        <motion.div
-                                            className="relative overflow-hidden rounded-2xl border border-[#d4af37]/25 bg-white shadow-xl"
-                                            whileHover={{ y: -6 }}
-                                            transition={{ duration: 0.4, ease }}
-                                        >
-                                            <div className="relative aspect-[16/10] overflow-hidden">
-                                                <motion.img
-                                                    key={`bestseller-img-${rowKey}-${sectionImageUrl || imageSrc}`}
-                                                    src={imageSrc}
-                                                    alt={item.title}
-                                                    className="h-full w-full object-cover"
-                                                    loading="lazy"
-                                                    decoding="async"
-                                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                                    whileHover={{ scale: 1.1 }}
-                                                    transition={{ duration: 0.8, ease }}
-                                                    style={{ willChange: 'transform' }}
-                                                    onError={(e) => {
-                                                        const target = e.currentTarget;
-                                                        if (target.src.includes('assets.cahayaanbiya.com')) {
-                                                            const currentUrl = target.src;
-                                                            let altPath = currentUrl;
-
-                                                            if (currentUrl.includes('/public/images/')) {
-                                                                altPath = currentUrl.replace('/public/images/', '/images/');
-                                                            } else if (currentUrl.includes('/public/')) {
-                                                                altPath = currentUrl.replace('/public/', '/');
-                                                            } else if (currentUrl.includes('/images/')) {
-                                                                altPath = currentUrl.replace('/images/', '/public/images/');
-                                                            } else {
-                                                                const fileName = currentUrl.split('/').pop() || item.image;
-                                                                altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
-                                                            }
-
-                                                            console.log('[Image] Trying alternative R2 path:', altPath);
-                                                            target.src = altPath;
-                                                        }
-                                                    }}
-                                                />
-
-                                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-
-                                                <div className="absolute top-4 right-4">
-                                                    <motion.div
-                                                        className="flex items-center gap-2 rounded-full border border-white/20 bg-gradient-to-r from-[#2d4a6f] via-[#3d5a80] to-[#ff5200] px-4 py-2 shadow-xl"
-                                                        whileHover={{ scale: 1.05 }}
-                                                    >
-                                                        <Sparkles className="h-3.5 w-3.5 text-white" />
-                                                        <span className="text-xs font-bold text-white">{item.tag}</span>
-                                                    </motion.div>
-                                                </div>
-
-                                                {editMode && item.source === 'destination' && (
-                                                    <div className="absolute top-4 left-4 z-10">
-                                                        <button
-                                                            type="button"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setEditorOpen({
-                                                                    section: 'bestsellers',
-                                                                    id: item.id,
-                                                                    title: getContent(`home.bestsellers.${item.id}.title`, item.title),
-                                                                    subtitle: getContent(`home.bestsellers.${item.id}.subtitle`, item.subtitle),
-                                                                });
-                                                            }}
-                                                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
-                                                            title="Edit content & image"
-                                                        >
-                                                            <Edit3 className="h-5 w-5" strokeWidth={2.5} />
-                                                        </button>
-                                                    </div>
-                                                )}
-
-                                                <div className="absolute right-0 bottom-0 left-0 p-6">
-                                                    <h3 className="mb-2 text-2xl font-bold text-white">
-                                                        {item.source === 'destination'
-                                                            ? getContent(`home.bestsellers.${item.id}.title`, item.title)
-                                                            : item.title}
-                                                    </h3>
-                                                    <p className="text-white/70">
-                                                        {item.source === 'destination'
-                                                            ? getContent(`home.bestsellers.${item.id}.subtitle`, item.subtitle)
-                                                            : item.subtitle}
-                                                    </p>
-                                                    {item.source === 'package' && item.priceLine ? (
-                                                        <p className="mt-2 text-sm font-semibold text-white/90">{item.priceLine}</p>
-                                                    ) : null}
-                                                </div>
-                                            </div>
-
-                                            <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-[#3d5a80] via-[#ff5200] to-[#d4af37] transition-all duration-500 group-hover:w-full" />
-                                        </motion.div>
-                                    );
-
+                                    const sectionKey = `home.bestsellers.${item.id}.image`;
+                                    const imageSrc = getImageSrc(sectionKey, item.image);
+                                    const sectionImageUrl = props.sections?.[sectionKey]?.image ?? '';
                                     return (
-                                        <motion.div key={rowKey} variants={fadeInUp} transition={{ duration: 0.7, ease }} className="group">
-                                            {item.source === 'package' ? (
-                                                <Link
-                                                    href={
-                                                        item.registration_open ? `/packages/register/${item.slug}` : '/packages'
-                                                    }
-                                                    className="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37] focus-visible:ring-offset-2"
-                                                >
-                                                    {cardSurface}
-                                                </Link>
-                                            ) : (
-                                                cardSurface
-                                            )}
+                                        <motion.div
+                                            key={`bestseller-${item.id}-${item.image}`}
+                                            variants={fadeInUp}
+                                            transition={{ duration: 0.7, ease }}
+                                            className="group"
+                                        >
+                                            <motion.div
+                                                className="relative overflow-hidden rounded-2xl border border-[#d4af37]/25 bg-white shadow-xl"
+                                                whileHover={{ y: -6 }}
+                                                transition={{ duration: 0.4, ease }}
+                                            >
+                                                <div className="relative aspect-[16/10] overflow-hidden">
+                                                    <motion.img
+                                                        key={`bestseller-img-${item.id}-${sectionImageUrl || imageSrc}`}
+                                                        src={imageSrc}
+                                                        alt={item.title}
+                                                        className="h-full w-full object-cover"
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                                        whileHover={{ scale: 1.1 }}
+                                                        transition={{ duration: 0.8, ease }}
+                                                        style={{ willChange: 'transform' }}
+                                                        onError={(e) => {
+                                                            const target = e.currentTarget;
+                                                            if (target.src.includes('assets.cahayaanbiya.com')) {
+                                                                const currentUrl = target.src;
+                                                                let altPath = currentUrl;
+
+                                                                if (currentUrl.includes('/public/images/')) {
+                                                                    altPath = currentUrl.replace('/public/images/', '/images/');
+                                                                } else if (currentUrl.includes('/public/')) {
+                                                                    altPath = currentUrl.replace('/public/', '/');
+                                                                } else if (currentUrl.includes('/images/')) {
+                                                                    altPath = currentUrl.replace('/images/', '/public/images/');
+                                                                } else {
+                                                                    const fileName = currentUrl.split('/').pop() || item.image;
+                                                                    altPath = `https://assets.cahayaanbiya.com/public/images/${fileName}`;
+                                                                }
+
+                                                                console.log('[Image] Trying alternative R2 path:', altPath);
+                                                                target.src = altPath;
+                                                            }
+                                                        }}
+                                                    />
+
+                                                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+
+                                                    <div className="absolute top-4 right-4">
+                                                        <motion.div
+                                                            className="flex items-center gap-2 rounded-full border border-white/20 bg-gradient-to-r from-[#2d4a6f] via-[#3d5a80] to-[#ff5200] px-4 py-2 shadow-xl"
+                                                            whileHover={{ scale: 1.05 }}
+                                                        >
+                                                            <Sparkles className="h-3.5 w-3.5 text-white" />
+                                                            <span className="text-xs font-bold text-white">{item.tag}</span>
+                                                        </motion.div>
+                                                    </div>
+
+                                                    {editMode && (
+                                                        <div className="absolute top-4 left-4 z-10">
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setEditorOpen({
+                                                                        section: 'bestsellers',
+                                                                        id: item.id,
+                                                                        title: getContent(`home.bestsellers.${item.id}.title`, item.title),
+                                                                        subtitle: getContent(`home.bestsellers.${item.id}.subtitle`, item.subtitle),
+                                                                    });
+                                                                }}
+                                                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl ring-2 ring-blue-400/50 transition-all hover:scale-110"
+                                                                title="Edit content & image"
+                                                            >
+                                                                <Edit3 className="h-5 w-5" strokeWidth={2.5} />
+                                                            </button>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="absolute right-0 bottom-0 left-0 p-6">
+                                                        <h3 className="mb-2 text-2xl font-bold text-white">
+                                                            {getContent(`home.bestsellers.${item.id}.title`, item.title)}
+                                                        </h3>
+                                                        <p className="text-white/70">
+                                                            {getContent(`home.bestsellers.${item.id}.subtitle`, item.subtitle)}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-[#3d5a80] via-[#ff5200] to-[#d4af37] transition-all duration-500 group-hover:w-full" />
+                                            </motion.div>
                                         </motion.div>
                                     );
                                 })}
