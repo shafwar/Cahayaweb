@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
+import { getB2cRegistrationFormDummyFill } from '@/lib/b2cRegistrationFillDummy';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ChevronRight, Package, UserRound } from 'lucide-react';
 import { FormEventHandler } from 'react';
@@ -23,6 +24,11 @@ type PackageInfo = {
     available_pax: number;
 };
 
+type PackageRegisterProps = {
+    package: PackageInfo;
+    show_registration_dummy_fill?: boolean;
+};
+
 /** Match B2B register-agent field styling */
 const inputClassName =
     'h-12 border border-[#c7ddff] bg-white text-base text-[#1e3a5f] placeholder:text-[#94a3b8] focus:border-[#ff5200] focus:ring-1 focus:ring-[#ff5200]/20';
@@ -35,7 +41,19 @@ const cardShellClass = 'overflow-hidden border border-[#d4af37]/25 bg-white py-0
 const cardHeaderClass =
     'relative border-b border-[#ff5200]/15 bg-gradient-to-r from-[#ff5200]/5 via-[#ff5200]/8 to-[#ff5200]/3 px-6 py-5 sm:px-8 sm:py-6';
 
-export default function PackageRegister({ package: pkg }: { package: PackageInfo }) {
+const emptyRegistrationForm = {
+    full_name: '',
+    email: '',
+    phone: '',
+    passport_number: '',
+    address: '',
+    date_of_birth: '',
+    gender: 'male' as const,
+    pax: 1,
+    terms_accepted: false as boolean,
+};
+
+export default function PackageRegister({ package: pkg, show_registration_dummy_fill = false }: PackageRegisterProps) {
     const deadlineLabel = pkg.registration_deadline
         ? new Date(pkg.registration_deadline).toLocaleString('id-ID', {
               dateStyle: 'long',
@@ -43,24 +61,17 @@ export default function PackageRegister({ package: pkg }: { package: PackageInfo
           })
         : '—';
 
+    const maxPax = Math.max(1, Math.min(50, pkg.available_pax));
+
     const { data, setData, post, processing, errors } = useForm({
-        full_name: '',
-        email: '',
-        phone: '',
-        passport_number: '',
-        address: '',
-        date_of_birth: '',
+        ...emptyRegistrationForm,
         gender: 'male' as 'male' | 'female' | 'other',
-        pax: 1,
-        terms_accepted: false as boolean,
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(`/packages/register/${pkg.slug}`, { preserveScroll: true });
     };
-
-    const maxPax = Math.max(1, Math.min(50, pkg.available_pax));
 
     return (
         <PublicLayout hideCmsChrome>
@@ -147,6 +158,32 @@ export default function PackageRegister({ package: pkg }: { package: PackageInfo
                                 </CardHeader>
 
                                 <CardContent className="space-y-6 p-6 sm:p-8">
+                                    {show_registration_dummy_fill ? (
+                                        <div className="flex flex-col gap-3 rounded-xl border border-dashed border-[#ff5200]/35 bg-[#fff7ed] p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                                            <p className="text-sm text-[#92400e]">
+                                                <span className="font-semibold text-[#1e3a5f]">Mode uji:</span> isi form dengan data contoh (bukan produksi).
+                                            </p>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    className="h-10 border-[#ff5200]/40 bg-white text-sm font-semibold text-[#c2410c] hover:bg-[#ffedd5]"
+                                                    onClick={() => setData(getB2cRegistrationFormDummyFill({ maxPax }))}
+                                                >
+                                                    Isi data contoh
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    className="h-10 text-sm font-semibold text-[#64748b] hover:text-[#1e3a5f]"
+                                                    onClick={() => setData({ ...emptyRegistrationForm, gender: 'male' })}
+                                                >
+                                                    Kosongkan
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : null}
+
                                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                         <div className="space-y-3 lg:col-span-2">
                                             <Label htmlFor="reg-full-name" className="text-base font-semibold text-[#1e3a5f]">

@@ -23,6 +23,8 @@ class B2cRegistrationController extends Controller
                 ]);
         }
 
+        $dummyFill = (bool) config('b2c.registration_dummy_fill', false) || (bool) config('app.debug', false);
+
         return Inertia::render('b2c/packages/register', [
             'package' => [
                 'id' => $b2cTravelPackage->id,
@@ -36,6 +38,7 @@ class B2cRegistrationController extends Controller
                 'pax_booked' => $b2cTravelPackage->pax_booked,
                 'available_pax' => $b2cTravelPackage->availablePaxSlots(),
             ],
+            'show_registration_dummy_fill' => $dummyFill,
         ]);
     }
 
