@@ -315,7 +315,7 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
         return () => clearTimeout(id);
     }, [prev]);
 
-    const transitionDuration = 2.2;
+    const transitionDuration = prev === null ? 0 : 2.2;
     const transitionEase = [0.33, 1, 0.68, 1] as const;
 
     return (
@@ -333,7 +333,7 @@ function HeroSlideshow({ parallaxY }: { parallaxY: any }) {
                         key={`slide-${i}-${isActive ? 'in' : 'out'}`}
                         className="absolute inset-0"
                         style={{ zIndex: isActive ? 2 : 1 }}
-                        initial={isActive ? { opacity: 0 } : false}
+                        initial={false}
                         animate={{ opacity: isActive ? 1 : 0 }}
                         transition={{
                             duration: transitionDuration,
@@ -485,7 +485,14 @@ export default function Home() {
                     keywords="cahaya anbiya, umrah, haji, halal travel, aqsa, 3tan, jakarta travel agency, umrah jakarta, haji jakarta, umrah packages, hajj packages"
                 />
                 <Head>
-                    <link rel="preload" as="image" href={heroSlidePreloadHref(heroSlides[0].image)} />
+                    <link
+                        rel="preload"
+                        as="image"
+                        href={heroSlidePreloadHref(heroSlides[0].image)}
+                        imageSrcSet={heroSlideSrcSet(heroSlides[0].image)}
+                        imageSizes="100vw"
+                        fetchPriority="high"
+                    />
                 </Head>
 
                 <div ref={containerRef}>

@@ -1,9 +1,9 @@
 import SeoHead from '@/components/SeoHead';
 import { RippleButton } from '@/components/ui/ripple-button';
 import { getOptimizedImageUrl, getR2Url } from '@/utils/imageHelper';
-import { Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useEffect, useState, startTransition } from 'react';
+import React, { useEffect, useState } from 'react';
 
 /** Align with B2C home hero default CDN tier so splash does not compete with LCP for a 1920px fetch. */
 const HOME_HERO_WARM_WIDTH = 1280;
@@ -57,11 +57,14 @@ export default function SelectMode() {
         }
     }, [autoRedirectToB2c]);
 
-    // Root "/": after splash, redirect directly to B2C home (transition keeps main thread freer for INP)
+    // Root "/": after splash, redirect directly to B2C home.
     useEffect(() => {
         if (!autoRedirectToB2c || showSplash) return;
-        startTransition(() => {
-            router.visit('/home');
+        router.visit('/home', {
+            method: 'get',
+            replace: true,
+            preserveScroll: true,
+            preserveState: false,
         });
     }, [autoRedirectToB2c, showSplash]);
 
@@ -74,7 +77,7 @@ export default function SelectMode() {
         });
         const img = new Image();
         img.decoding = 'async';
-        img.fetchPriority = 'low';
+        img.fetchPriority = 'high';
         img.src = href;
     }, [autoRedirectToB2c]);
 
@@ -96,7 +99,7 @@ export default function SelectMode() {
             opacity: 0,
             scale: 0.98,
             transition: {
-                duration: 0.5,
+                duration: 0.25,
                 ease: smoothEase,
             },
         },
@@ -228,6 +231,19 @@ export default function SelectMode() {
                 description="PT. Cahaya Anbiya Wisata Indonesia - B2B & B2C premium Hajj, Umrah, and travel services with trusted guidance. Travel Halal Spesialis Aqsa & 3TAN. Melayani Konsorsium Aqsa/B2B Umrah, Ticket, Visa, 3TAN & Aqsa HALAL TRAVEL."
                 keywords="cahaya anbiya, umrah, haji, travel halal, aqsa, 3tan, biro wisata jakarta, travel agency jakarta, umrah jakarta, haji jakarta"
             />
+            {autoRedirectToB2c ? (
+                <Head>
+                    <link
+                        rel="preload"
+                        as="image"
+                        href={getOptimizedImageUrl(getR2Url('/Destination Cahaya.jpeg'), {
+                            width: HOME_HERO_WARM_WIDTH,
+                            quality: HOME_HERO_WARM_QUALITY,
+                        })}
+                        fetchPriority="high"
+                    />
+                </Head>
+            ) : null}
 
             {/* Cinematic Splash Screen with Enhanced Animations - ENLARGED MOBILE */}
             <AnimatePresence mode="wait">
