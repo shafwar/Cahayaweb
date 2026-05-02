@@ -2,10 +2,17 @@ import AdminPortalShell from '@/components/admin/AdminPortalShell';
 import B2cAdminRegistrationBell from '@/components/admin/B2cAdminRegistrationBell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { adminBackLink, adminGhostBtn, adminGlassPanel, adminMuted, adminPageTitle, adminSectionDesc, adminSectionHeader, adminSectionTitle } from '@/lib/admin-portal-theme';
 import { cn } from '@/lib/utils';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, CalendarClock, CheckCircle2, ClipboardList, Trash2, Users, XCircle } from 'lucide-react';
+import { ArrowLeft, CalendarClock, CheckCircle2, ClipboardList, Info, MoreHorizontal, Trash2, Users, XCircle } from 'lucide-react';
 
 type Reg = {
     id: number;
@@ -53,18 +60,14 @@ function paymentBadgeClass(status: Reg['payment_status']) {
     return 'border-slate-300 bg-white text-slate-700';
 }
 
-/** Tombol aksi terang & kontras — hindari outline gelap dari tema default. */
-const btnApprove =
-    'h-9 shrink-0 rounded-lg border-2 border-emerald-500 bg-emerald-500 px-3 text-xs font-semibold text-white shadow-sm transition hover:border-emerald-600 hover:bg-emerald-600 disabled:pointer-events-none disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500 disabled:opacity-100 disabled:shadow-none';
-
-const btnReject =
-    'h-9 shrink-0 rounded-lg border-2 border-red-400 bg-white px-3 text-xs font-semibold text-red-700 shadow-sm transition hover:border-red-500 hover:bg-red-50 disabled:pointer-events-none disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400 disabled:opacity-100';
-
-const btnDetail =
-    'h-9 shrink-0 rounded-lg border-2 border-sky-400 bg-sky-50 px-3 text-xs font-semibold text-sky-950 shadow-sm transition hover:border-sky-500 hover:bg-sky-100';
-
-const btnDeleteRow =
-    'inline-flex h-9 shrink-0 gap-1 rounded-lg border-2 border-rose-400 bg-rose-50 px-3 text-xs font-semibold text-rose-900 shadow-sm transition hover:border-rose-500 hover:bg-rose-100';
+function formatRegisteredAt(iso: string | null): string {
+    if (!iso) return '—';
+    try {
+        return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    } catch {
+        return iso;
+    }
+}
 
 export default function B2cPackageRegistrations({ package: pkg, registrations }: { package: PkgSummary; registrations: Reg[] }) {
     const pendingCount = registrations.filter((r) => r.registration_status === 'pending').length;
@@ -191,99 +194,116 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
                             </div>
 
                             <div className="-mx-1 overflow-x-auto rounded-xl border border-slate-200/90 bg-white shadow-inner shadow-slate-100">
-                                <table className="w-full min-w-[88rem] text-left text-sm">
+                                <table className="w-full min-w-[56rem] table-fixed border-collapse text-left text-sm">
+                                    <colgroup>
+                                        <col className="w-[13%]" />
+                                        <col className="w-[17%]" />
+                                        <col className="w-[9%]" />
+                                        <col className="w-[18%]" />
+                                        <col className="w-[5%]" />
+                                        <col className="w-[9%]" />
+                                        <col className="w-[11%]" />
+                                        <col className="w-[13%]" />
+                                        <col className="w-[5rem]" />
+                                    </colgroup>
                                     <thead>
                                         <tr className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-50/80 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
-                                            <th className="whitespace-nowrap px-4 py-3.5">Participant</th>
-                                            <th className="whitespace-nowrap px-4 py-3.5">Contact</th>
-                                            <th className="whitespace-nowrap px-4 py-3.5">Passport</th>
-                                            <th className="whitespace-nowrap px-4 py-3.5">Address</th>
-                                            <th className="whitespace-nowrap px-4 py-3.5">Pax</th>
-                                            <th className="whitespace-nowrap px-4 py-3.5">Status</th>
-                                            <th className="whitespace-nowrap px-4 py-3.5">Payment</th>
-                                            <th className="whitespace-nowrap px-4 py-3.5">Registered</th>
-                                            <th className="sticky right-0 z-[1] whitespace-nowrap border-l border-slate-200 bg-slate-50 px-4 py-3.5 text-right shadow-[-8px_0_12px_-8px_rgba(15,23,42,0.12)]">
-                                                Action
-                                            </th>
+                                            <th className="px-3 py-3.5 pr-2">Participant</th>
+                                            <th className="px-3 py-3.5">Contact</th>
+                                            <th className="px-3 py-3.5">Passport</th>
+                                            <th className="px-3 py-3.5">Address</th>
+                                            <th className="px-3 py-3.5 text-center">Pax</th>
+                                            <th className="px-3 py-3.5">Status</th>
+                                            <th className="px-3 py-3.5">Payment</th>
+                                            <th className="px-3 py-3.5">Registered</th>
+                                            <th className="px-2 py-3.5 text-center">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white">
+                                    <tbody className="divide-y divide-slate-100 bg-white">
                                         {registrations.map((r) => (
-                                            <tr key={r.id} className="group border-b border-slate-100 bg-white transition-colors hover:bg-orange-50/40">
-                                                <td className="max-w-[14rem] px-4 py-3 align-top">
-                                                    <div className="font-semibold text-[#1e3a5f]">{r.full_name}</div>
+                                            <tr key={r.id} className="transition-colors hover:bg-orange-50/40">
+                                                <td className="px-3 py-3 align-top">
+                                                    <div className="break-words font-semibold leading-snug text-[#1e3a5f]">{r.full_name}</div>
                                                     <div className="mt-0.5 text-xs capitalize text-slate-500">{r.gender}</div>
                                                 </td>
-                                                <td className="max-w-[12rem] px-4 py-3 align-top text-xs leading-relaxed">
+                                                <td className="px-3 py-3 align-top text-xs leading-relaxed">
                                                     <div className="break-all font-medium text-slate-800">{r.email}</div>
-                                                    <div className="mt-1 text-slate-600">{r.phone}</div>
+                                                    <div className="mt-1 break-words text-slate-600">{r.phone}</div>
                                                 </td>
-                                                <td className="whitespace-nowrap px-4 py-3 align-top font-mono text-xs text-slate-700">{r.passport_number}</td>
-                                                <td className="max-w-[14rem] px-4 py-3 align-top">
-                                                    <span className="line-clamp-2 text-xs leading-relaxed text-slate-600" title={r.address}>
+                                                <td className="px-3 py-3 align-top font-mono text-xs text-slate-700">{r.passport_number}</td>
+                                                <td className="px-3 py-3 align-top">
+                                                    <span className="line-clamp-3 text-xs leading-relaxed text-slate-600" title={r.address}>
                                                         {r.address}
                                                     </span>
                                                 </td>
-                                                <td className="whitespace-nowrap px-4 py-3 align-top tabular-nums font-medium text-slate-800">{r.pax}</td>
-                                                <td className="whitespace-nowrap px-4 py-3 align-top">
+                                                <td className="px-3 py-3 align-top text-center tabular-nums font-medium text-slate-800">{r.pax}</td>
+                                                <td className="px-3 py-3 align-top">
                                                     <Badge className={cn('text-[10px] font-bold uppercase tracking-wide', registrationStatusBadge(r.registration_status))}>
                                                         {r.registration_status}
                                                     </Badge>
                                                 </td>
-                                                <td className="whitespace-nowrap px-4 py-3 align-top">
+                                                <td className="px-3 py-3 align-top">
                                                     <Badge variant="outline" className={cn('border font-medium capitalize', paymentBadgeClass(r.payment_status))}>
                                                         {r.payment_status.replace(/_/g, ' ')}
                                                     </Badge>
                                                 </td>
-                                                <td className="whitespace-nowrap px-4 py-3 align-top text-xs text-slate-600">{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
-                                                <td className="sticky right-0 z-[1] border-l border-slate-100 bg-white px-4 py-3 align-top shadow-[-10px_0_14px_-10px_rgba(15,23,42,0.08)] group-hover:bg-orange-50/40">
-                                                    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
-                                                        <Button
-                                                            type="button"
-                                                            size="sm"
-                                                            variant="outline"
-                                                            disabled={r.registration_status === 'approved'}
-                                                            className={btnApprove}
-                                                            onClick={() =>
-                                                                router.post(`/admin/b2c-packages/registrations/${r.id}/approve`, {}, { preserveScroll: true })
-                                                            }
-                                                        >
-                                                            <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
-                                                            Approve
-                                                        </Button>
-                                                        <Button
-                                                            type="button"
-                                                            size="sm"
-                                                            variant="outline"
-                                                            disabled={r.registration_status === 'rejected'}
-                                                            className={btnReject}
-                                                            onClick={() => {
-                                                                const notes = window.prompt('Catatan admin (opsional):', r.notes ?? '');
-                                                                if (notes === null) return;
-                                                                router.post(
-                                                                    `/admin/b2c-packages/registrations/${r.id}/reject`,
-                                                                    { notes },
-                                                                    { preserveScroll: true },
-                                                                );
-                                                            }}
-                                                        >
-                                                            <XCircle className="h-3.5 w-3.5" aria-hidden />
-                                                            Reject
-                                                        </Button>
-                                                        <Button type="button" size="sm" variant="outline" className={btnDetail} asChild>
-                                                            <Link href={`/admin/participants/${r.id}`}>Detail</Link>
-                                                        </Button>
-                                                        <Button
-                                                            type="button"
-                                                            size="sm"
-                                                            variant="outline"
-                                                            className={btnDeleteRow}
-                                                            onClick={() => confirmDeleteRegistration(r)}
-                                                        >
-                                                            <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                                                            Hapus
-                                                        </Button>
-                                                    </div>
+                                                <td className="px-3 py-3 align-top text-xs tabular-nums text-slate-600">{formatRegisteredAt(r.created_at)}</td>
+                                                <td className="px-2 py-3 align-middle text-center">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="h-9 w-9 shrink-0 border-slate-300 p-0 text-slate-700 hover:bg-slate-50"
+                                                                aria-label={`Actions for ${r.full_name}`}
+                                                            >
+                                                                <MoreHorizontal className="h-4 w-4" aria-hidden />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end" className="w-52">
+                                                            <DropdownMenuItem
+                                                                disabled={r.registration_status === 'approved'}
+                                                                className="gap-2"
+                                                                onClick={() =>
+                                                                    router.post(`/admin/b2c-packages/registrations/${r.id}/approve`, {}, { preserveScroll: true })
+                                                                }
+                                                            >
+                                                                <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-hidden />
+                                                                Approve
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                disabled={r.registration_status === 'rejected'}
+                                                                className="gap-2"
+                                                                onClick={() => {
+                                                                    const notes = window.prompt('Catatan admin (opsional):', r.notes ?? '');
+                                                                    if (notes === null) return;
+                                                                    router.post(
+                                                                        `/admin/b2c-packages/registrations/${r.id}/reject`,
+                                                                        { notes },
+                                                                        { preserveScroll: true },
+                                                                    );
+                                                                }}
+                                                            >
+                                                                <XCircle className="h-4 w-4 text-red-600" aria-hidden />
+                                                                Reject
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem asChild className="gap-2">
+                                                                <Link href={`/admin/participants/${r.id}`}>
+                                                                    <Info className="h-4 w-4 text-sky-600" aria-hidden />
+                                                                    Detail
+                                                                </Link>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem
+                                                                className="gap-2 text-rose-700 focus:bg-rose-50 focus:text-rose-900"
+                                                                onClick={() => confirmDeleteRegistration(r)}
+                                                            >
+                                                                <Trash2 className="h-4 w-4" aria-hidden />
+                                                                Hapus baris
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
                                                 </td>
                                             </tr>
                                         ))}

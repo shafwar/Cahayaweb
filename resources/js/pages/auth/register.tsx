@@ -194,15 +194,6 @@ export default function Register() {
                 </div>
             )}
 
-            {/* B2B flow: set expectation for redirect to verification */}
-            {mode === 'b2b' && (
-                <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50/90 p-3">
-                    <p className="text-sm text-amber-950">
-                        After creating your account you will be redirected to the verification page to complete your B2B application.
-                    </p>
-                </div>
-            )}
-
             {googleOAuthConfigured ? (
                 <div className="mb-6 flex flex-col gap-3">
                     <AuthGoogleLink
@@ -212,9 +203,6 @@ export default function Register() {
                     >
                         Sign up with Google
                     </AuthGoogleLink>
-                    <p className="text-center text-xs text-slate-500">
-                        Email Google harus sama dengan yang dipakai di formulir (khusus alur paket B2C). Anda tetap bisa memakai password nanti lewat reset password.
-                    </p>
                     <div className="relative py-2 text-center text-xs font-medium uppercase tracking-wide text-slate-400">
                         <span className="relative z-10 bg-white px-2">atau daftar dengan email</span>
                         <span className="absolute inset-x-0 top-1/2 z-0 h-px bg-slate-200" aria-hidden />
