@@ -86,4 +86,77 @@ class B2cPackageRegistrationRegistrar
             $locked->increment('pax_booked', $pax);
         });
     }
+
+    /**
+     * Complete a B2C package registration for an already authenticated user (same User table as B2B).
+     * Participant email must match the signed-in account.
+     *
+     * @param  array<string, mixed>  $participant  Validated participant fields from step 1 (no account_* keys).
+     */
+    public function registerAuthenticated(B2cTravelPackage $package, User $user, array $participant): B2cPackageRegistration
+    {
+        $pax = (int) $participant['pax'];
+
+        return DB::transaction(function () use ($participant, $pax, $package, $user) {
+            /** @var B2cTravelPackage $locked */
+            $locked = B2cTravelPackage::query()->whereKey($package->id)->lockForUpdate()->firstOrFail();
+
+            if (! $locked->isOpenForRegistration()) {
+                throw ValidationException::withMessages([
+                    'package' => ['This package is not open for registration.'],
+                ]);
+            }
+
+            if ($pax > $locked->availablePaxSlots()) {
+                throw ValidationException::withMessages([
+                    'pax' => ['Not enough seats available for the selected number of travelers.'],
+                ]);
+            }
+
+            $participantEmail = strtolower((string) $participant['email']);
+            if (strtolower($user->email) !== $participantEmail) {
+                throw ValidationException::withMessages([
+                    'email' => ['Email akun Anda harus sama dengan email pada formulir paket. Silakan masuk dengan akun yang benar.'],
+                ]);
+            }
+
+            $blocked = B2cPackageRegistration::query()
+                ->where('user_id', $user->id)
+                ->where('b2c_travel_package_id', $locked->id)
+                ->whereIn('registration_status', ['pending', 'approved'])
+                ->exists();
+
+            if ($blocked) {
+                throw ValidationException::withMessages([
+                    'package' => ['Anda sudah memiliki pendaftaran aktif untuk paket ini.'],
+                ]);
+            }
+
+            $user->forceFill(['name' => $participant['full_name']])->save();
+
+            $record = B2cPackageRegistration::query()->create([
+                'b2c_travel_package_id' => $locked->id,
+                'user_id' => $user->id,
+                'full_name' => $participant['full_name'],
+                'email' => $participant['email'],
+                'phone' => $participant['phone'],
+                'passport_number' => $participant['passport_number'],
+                'address' => $participant['address'],
+                'date_of_birth' => $participant['date_of_birth'],
+                'gender' => $participant['gender'],
+                'departure_period_snapshot' => $locked->departure_period,
+                'pax' => $pax,
+                'registration_status' => 'pending',
+                'payment_status' => 'unpaid',
+                'visa_status' => 'not_processed',
+                'ticket_status' => 'not_booked',
+                'hotel_status' => 'not_assigned',
+                'terms_accepted_at' => now(),
+            ]);
+
+            $locked->increment('pax_booked', $pax);
+
+            return $record;
+        });
+    }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\B2cRegistrationController;
 use App\Http\Controllers\Controller;
+use App\Models\B2cTravelPackage;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -13,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
@@ -28,7 +31,30 @@ class RegisteredUserController extends Controller
             return redirect()->route('b2b.register');
         }
 
-        return Inertia::render('auth/register');
+        $redirectQuery = $request->query('redirect');
+        if ($request->user() && $request->query('mode') === 'b2c' && is_string($redirectQuery) && self::pathIsB2cFinalizeRedirect($redirectQuery)) {
+            return redirect()->to($redirectQuery);
+        }
+
+        $b2cPackagePrefill = null;
+        if ($request->query('mode') === 'b2c') {
+            $pending = $request->session()->get(B2cRegistrationController::SESSION_PENDING_REGISTRATION);
+            if (
+                is_array($pending)
+                && isset($pending['participant'])
+                && is_string($redirectQuery)
+                && self::finalizeSlugMatchesPendingPackage($pending, $redirectQuery)
+            ) {
+                $b2cPackagePrefill = [
+                    'full_name' => $pending['participant']['full_name'],
+                    'email' => $pending['participant']['email'],
+                ];
+            }
+        }
+
+        return Inertia::render('auth/register', [
+            'b2cPackagePrefill' => $b2cPackagePrefill,
+        ]);
     }
 
     /**
@@ -52,6 +78,17 @@ class RegisteredUserController extends Controller
         ]);
 
         try {
+            $mode = $request->input('mode') ?: $request->query('mode');
+            $b2cPending = null;
+            if ($mode === 'b2c') {
+                $b2cPending = $request->session()->get(B2cRegistrationController::SESSION_PENDING_REGISTRATION);
+                if (! is_array($b2cPending) || ! isset($b2cPending['participant']['email'])) {
+                    return back()->withErrors([
+                        'email' => 'Your package registration session expired or was not found. Please submit the package form again.',
+                    ])->withInput($request->only('name'));
+                }
+            }
+
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
@@ -64,6 +101,14 @@ class RegisteredUserController extends Controller
                 'password.required' => 'Password is required.',
                 'password.confirmed' => 'Password confirmation does not match.',
             ]);
+
+            if ($mode === 'b2c' && is_array($b2cPending)) {
+                if (strtolower($validated['email']) !== strtolower((string) $b2cPending['participant']['email'])) {
+                    throw ValidationException::withMessages([
+                        'email' => 'Your email must match the one you used on the package registration form.',
+                    ]);
+                }
+            }
 
             // Only persist user in transaction. Do NOT fire Registered event inside transaction:
             // if a listener throws (e.g. email), the whole transaction would roll back and the user would not be saved.
@@ -131,6 +176,16 @@ class RegisteredUserController extends Controller
                 return $this->inertiaAwareRedirect($request, $continueUrl);
             }
 
+            // B2C package flow → finalize after account creation (same URL pattern as login redirect)
+            if (($mode ?? '') === 'b2c' && is_string($redirect ?? null)) {
+                $pathOnly = self::redirectPathWithoutQuery($redirect);
+                if ($pathOnly !== null && preg_match('#^/packages/register/[^/]+/finalize$#', $pathOnly)) {
+                    $target = $this->normalizeContinueUrlForRequest($request, $redirect);
+
+                    return $this->inertiaAwareRedirect($request, $target);
+                }
+            }
+
             // Regenerate session token after successful registration (only if not B2B)
             $request->session()->regenerateToken();
 
@@ -145,8 +200,17 @@ class RegisteredUserController extends Controller
                         $path = $parsedUrl['path'].(isset($parsedUrl['query']) ? '?'.$parsedUrl['query'] : '');
                     }
                 }
-                // Only allow same-origin paths: /b2b/*, /login, / (prevent open redirect)
-                if ($path && (str_starts_with($path, '/b2b') || str_starts_with($path, '/login') || $path === '/')) {
+                $pathOnly = $path !== null ? explode('?', $path, 2)[0] : '';
+                // Only allow same-origin paths (prevent open redirect)
+                if (
+                    $path
+                    && (
+                        str_starts_with($pathOnly, '/b2b')
+                        || str_starts_with($pathOnly, '/login')
+                        || preg_match('#^/packages/register/[^/]+/finalize$#', $pathOnly)
+                        || $pathOnly === '/'
+                    )
+                ) {
                     $path = $this->normalizeContinueUrlForRequest($request, $path);
 
                     return $this->inertiaAwareRedirect($request, $path);
@@ -225,5 +289,52 @@ class RegisteredUserController extends Controller
         }
 
         return $url;
+    }
+
+    private static function redirectPathWithoutQuery(string $redirect): ?string
+    {
+        if (str_starts_with($redirect, '/')) {
+            return explode('?', $redirect, 2)[0];
+        }
+        if (str_starts_with($redirect, 'http://') || str_starts_with($redirect, 'https://')) {
+            return parse_url($redirect, PHP_URL_PATH) ?: null;
+        }
+
+        return null;
+    }
+
+    private static function pathIsB2cFinalizeRedirect(string $redirect): bool
+    {
+        $path = self::redirectPathWithoutQuery($redirect);
+
+        return $path !== null && preg_match('#^/packages/register/[^/]+/finalize$#', $path) === 1;
+    }
+
+    /**
+     * @param  array<string, mixed>  $pending
+     */
+    private static function finalizeSlugMatchesPendingPackage(array $pending, string $redirect): bool
+    {
+        $slug = self::slugFromFinalizeRedirect($redirect);
+        if ($slug === null || ! isset($pending['package_id'])) {
+            return false;
+        }
+
+        $pkg = B2cTravelPackage::query()->find((int) $pending['package_id']);
+
+        return $pkg !== null && $pkg->slug === $slug;
+    }
+
+    private static function slugFromFinalizeRedirect(string $redirect): ?string
+    {
+        $path = self::redirectPathWithoutQuery($redirect);
+        if ($path === null) {
+            return null;
+        }
+        if (preg_match('#^/packages/register/([^/]+)/finalize$#', $path, $m)) {
+            return $m[1];
+        }
+
+        return null;
     }
 }

@@ -25,9 +25,15 @@ type RegisterForm = {
     redirect?: string;
 };
 
+type RegisterPageProps = {
+    status?: string;
+    b2cPackagePrefill?: { full_name: string; email: string } | null;
+};
+
 export default function Register() {
-    const { url, props } = usePage();
-    const status = (props as any)?.status;
+    const { url, props } = usePage<RegisterPageProps>();
+    const status = props.status;
+    const b2cPackagePrefill = props.b2cPackagePrefill ?? null;
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
@@ -54,6 +60,15 @@ export default function Register() {
             }));
         }
     }, [url]);
+
+    useEffect(() => {
+        if (!b2cPackagePrefill) return;
+        setData((prev) => ({
+            ...prev,
+            name: b2cPackagePrefill.full_name || prev.name,
+            email: b2cPackagePrefill.email || prev.email,
+        }));
+    }, [b2cPackagePrefill]);
 
     const mode = new URLSearchParams(url.split('?')[1] || '').get('mode');
     const redirect = new URLSearchParams(url.split('?')[1] || '').get('redirect');
@@ -155,9 +170,19 @@ export default function Register() {
 
     const showLoading = isSubmitting || processing;
 
+    const loginParams =
+        mode === 'b2b' ? { mode: 'b2b' as const, ...(redirect ? { redirect } : {}) } : mode === 'b2c' ? { mode: 'b2c' as const, ...(redirect ? { redirect } : {}) } : {};
+
     return (
-        <AuthLayout title="Create an account" description="Enter your details below to create your account">
-            <Head title="Register" />
+        <AuthLayout
+            title={mode === 'b2c' ? 'Buat akun' : 'Create an account'}
+            description={
+                mode === 'b2c'
+                    ? 'Gunakan detail berikut untuk akun Anda (satu akun untuk B2C dan B2B). Email harus sama dengan formulir paket.'
+                    : 'Enter your details below to create your account'
+            }
+        >
+            <Head title={mode === 'b2c' ? 'Buat akun' : 'Register'} />
 
             {/* Display status messages */}
             {status && (
@@ -171,6 +196,14 @@ export default function Register() {
                 <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50/90 p-3">
                     <p className="text-sm text-amber-950">
                         After creating your account you will be redirected to the verification page to complete your B2B application.
+                    </p>
+                </div>
+            )}
+
+            {mode === 'b2c' && (
+                <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50/90 p-3">
+                    <p className="text-sm text-amber-950">
+                        Setelah akun dibuat dan Anda masuk, pengajuan paket B2C Anda akan dikirim dengan status <strong>Pending</strong>. Anda dapat memantau persetujuan di halaman akun B2C; akun ini sama dengan jalur B2B jika Anda juga mendaftar sebagai agen.
                     </p>
                 </div>
             )}
@@ -205,12 +238,10 @@ export default function Register() {
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             disabled={showLoading}
+                            readOnly={Boolean(mode === 'b2c' && b2cPackagePrefill?.email)}
                             placeholder="email@example.com"
-                            className={
-                                errors.email && errors.email.includes('already registered')
-                                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                                    : ''
-                            }
+                            className={`${errors.email && errors.email.includes('already registered') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''} ${mode === 'b2c' && b2cPackagePrefill?.email ? 'cursor-not-allowed bg-slate-50' : ''}`}
+                            title={mode === 'b2c' && b2cPackagePrefill?.email ? 'Email mengikuti formulir paket — tidak dapat diubah di langkah ini.' : undefined}
                         />
                         <InputError message={errors.email} />
                         {errors.email &&
@@ -237,7 +268,7 @@ export default function Register() {
                                             <p className="mt-2 text-sm text-amber-950/90">
                                                 If this is your account, please{' '}
                                                 <TextLink
-                                                    href={route('login', mode === 'b2b' ? { mode: 'b2b', redirect } : {})}
+                                                    href={route('login', Object.keys(loginParams).length ? loginParams : {})}
                                                     className="font-semibold text-[#c2410c] underline decoration-orange-300 hover:text-[#ea580c]"
                                                 >
                                                     log in here
@@ -340,7 +371,7 @@ export default function Register() {
                                 Creating account...
                             </>
                         ) : (
-                            'Create account'
+                            mode === 'b2c' ? 'Buat akun' : 'Create account'
                         )}
                     </Button>
                 </div>
@@ -355,7 +386,7 @@ export default function Register() {
                 <div className="text-center text-sm text-slate-600">
                     Already have an account?{' '}
                     <TextLink
-                        href={route('login', mode === 'b2b' ? { mode: 'b2b', redirect } : {})}
+                        href={route('login', Object.keys(loginParams).length ? loginParams : {})}
                         tabIndex={6}
                         className="font-medium text-[#c2410c] underline decoration-orange-300 underline-offset-4 hover:text-[#ea580c]"
                     >

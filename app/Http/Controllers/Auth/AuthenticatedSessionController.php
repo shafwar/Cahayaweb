@@ -98,6 +98,16 @@ class AuthenticatedSessionController extends Controller
             }
 
             if ($user && $mode === 'b2c') {
+                $redirect = $request->query('redirect');
+                if (is_string($redirect)) {
+                    $path = str_starts_with($redirect, '/')
+                        ? explode('?', $redirect, 2)[0]
+                        : (parse_url($redirect, PHP_URL_PATH) ?: '');
+                    if ($path !== '' && preg_match('#^/packages/register/[^/]+/finalize$#', $path)) {
+                        return redirect()->to($redirect);
+                    }
+                }
+
                 return redirect()->route('b2c.account');
             }
         } catch (\Throwable $e) {
@@ -559,10 +569,18 @@ class AuthenticatedSessionController extends Controller
             return '/admin';
         }
 
-        // For non-admin users, check redirect parameter
+        // For non-admin users, check redirect parameter (relative or absolute URL → same-origin path)
         $redirect = $request->input('redirect');
-        if (is_string($redirect) && str_starts_with($redirect, '/')) {
-            return $redirect;
+        if (is_string($redirect)) {
+            if (str_starts_with($redirect, '/')) {
+                return $redirect;
+            }
+            if (str_starts_with($redirect, 'http://') || str_starts_with($redirect, 'https://')) {
+                $path = parse_url($redirect, PHP_URL_PATH) ?: '';
+                $query = parse_url($redirect, PHP_URL_QUERY);
+
+                return $query ? $path.'?'.$query : $path;
+            }
         }
 
         if ($mode === 'b2c') {

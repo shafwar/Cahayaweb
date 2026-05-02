@@ -304,6 +304,15 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                 </div>
             )}
 
+            {mode === 'b2c' && redirect ? (
+                <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50/90 p-3">
+                    <p className="text-sm text-amber-950">
+                        Masuk dengan <strong>email dan password</strong> akun Anda (yang sama untuk B2C dan B2B). Setelah berhasil, pengajuan paket Anda akan diselesaikan dan status awal biasanya{' '}
+                        <strong>Pending</strong>.
+                    </p>
+                </div>
+            ) : null}
+
             <form method="POST" className="flex flex-col gap-6 relative" onSubmit={submit}>
                 {/* Loading overlay - shows when form is submitting */}
                 {/* Use both processing and isSubmitting for maximum reliability */}
@@ -459,7 +468,13 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                     <div className="text-center text-sm text-slate-600">
                         Don&apos;t have an account?{' '}
                         <TextLink
-                            href={route('register')}
+                            href={
+                                mode === 'b2b'
+                                    ? route('register', { mode: 'b2b', ...(redirect ? { redirect } : {}) })
+                                    : mode === 'b2c'
+                                      ? route('register', { mode: 'b2c', ...(redirect ? { redirect } : {}) })
+                                      : route('register')
+                            }
                             tabIndex={5}
                             className="font-medium text-[#c2410c] underline decoration-orange-300 underline-offset-4 hover:text-[#ea580c]"
                         >

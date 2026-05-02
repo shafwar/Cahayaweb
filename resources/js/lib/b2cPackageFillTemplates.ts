@@ -163,13 +163,6 @@ export type B2cRegistrationParticipantTemplateFill = {
     terms_accepted: boolean;
 };
 
-/** Dummy untuk langkah 2 akun (`b2c/packages/register-account`). */
-export type B2cRegistrationAccountStepFill = {
-    account_mode: 'create' | 'login';
-    account_password: string;
-    account_password_confirmation: string;
-};
-
 /**
  * Data dummy satu klik untuk uji alur kirim pendaftaran B2C.
  * `date_of_birth` di masa lalu (validasi `before:today`); `pax` tidak melebihi kuota.
@@ -199,10 +192,3 @@ export function getB2cRegistrationFormTestFill(input: { maxPax: number }): B2cRe
     };
 }
 
-export function getB2cRegistrationAccountTestFill(): B2cRegistrationAccountStepFill {
-    return {
-        account_mode: 'create',
-        account_password: 'Test12345!',
-        account_password_confirmation: 'Test12345!',
-    };
-}

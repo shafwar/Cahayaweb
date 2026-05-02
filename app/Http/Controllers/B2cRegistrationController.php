@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CompleteB2cPackageRegistrationRequest;
 use App\Http\Requests\StoreB2cPackageRegistrationRequest;
+use App\Models\AgentVerification;
 use App\Models\B2cPackageRegistration;
 use App\Models\B2cTravelPackage;
 use App\Services\B2cPackageRegistrationRegistrar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class B2cRegistrationController extends Controller
 {
-    private const SESSION_PENDING_REGISTRATION = 'b2c_package_registration_pending';
+    public const SESSION_PENDING_REGISTRATION = 'b2c_package_registration_pending';
 
     private const SESSION_PENDING_TTL_SECONDS = 2700;
 
@@ -59,7 +60,7 @@ class B2cRegistrationController extends Controller
     }
 
     /**
-     * Step 1: validate participant fields only; stash in session for account step (B2B-style flow).
+     * Step 1: participant only → redirect ke halaman register/login situs (mirip B2B).
      */
     public function store(StoreB2cPackageRegistrationRequest $request, B2cTravelPackage $b2cTravelPackage): RedirectResponse
     {
@@ -71,15 +72,35 @@ class B2cRegistrationController extends Controller
             'created_at' => time(),
         ]);
 
-        return redirect()
-            ->route('b2c.packages.register.account', ['b2cTravelPackage' => $b2cTravelPackage->slug])
-            ->with('flash', [
-                'type' => 'success',
-                'message' => 'Data peserta tersimpan. Lanjutkan dengan membuat akun atau masuk.',
-            ]);
+        $finalizePath = route('b2c.packages.register.finalize', ['b2cTravelPackage' => $b2cTravelPackage->slug], false);
+
+        $user = $request->user();
+        if ($user !== null) {
+            if (strtolower((string) $user->email) !== strtolower((string) $validated['email'])) {
+                return redirect()->route('login', ['mode' => 'b2c', 'redirect' => $finalizePath])
+                    ->with('error', 'Anda sedang masuk dengan email lain. Keluar atau masuk dengan email yang sama seperti di formulir paket ('.$validated['email'].').');
+            }
+
+            return redirect()->to($finalizePath)
+                ->with('flash', [
+                    'type' => 'success',
+                    'message' => 'Lanjutkan untuk menyelesaikan pengiriman pendaftaran.',
+                ]);
+        }
+
+        return redirect()->route('register', [
+            'mode' => 'b2c',
+            'redirect' => $finalizePath,
+        ])->with('flash', [
+            'type' => 'success',
+            'message' => 'Buat akun atau masuk untuk menyelesaikan pendaftaran paket.',
+        ]);
     }
 
-    public function complete(Request $request, B2cTravelPackage $b2cTravelPackage): Response|RedirectResponse
+    /**
+     * Legacy URL: /packages/register/{pkg}/account → arahkan ke /register?mode=b2c&redirect=.../finalize
+     */
+    public function legacyAccountStep(Request $request, B2cTravelPackage $b2cTravelPackage): RedirectResponse
     {
         if (! $b2cTravelPackage->isOpenForRegistration()) {
             $request->session()->forget(self::SESSION_PENDING_REGISTRATION);
@@ -118,32 +139,40 @@ class B2cRegistrationController extends Controller
         }
 
         $participant = $pending['participant'];
+        $finalizePath = route('b2c.packages.register.finalize', ['b2cTravelPackage' => $b2cTravelPackage->slug], false);
 
-        return Inertia::render('b2c/packages/register-account', [
-            'package' => [
-                'id' => $b2cTravelPackage->id,
-                'slug' => $b2cTravelPackage->slug,
-                'name' => $b2cTravelPackage->name,
-                'price_display' => $b2cTravelPackage->price_display,
-                'departure_period' => $b2cTravelPackage->departure_period,
-            ],
-            'participant' => [
-                'full_name' => $participant['full_name'],
-                'email' => $participant['email'],
-                'phone' => $participant['phone'],
-                'pax' => (int) $participant['pax'],
-            ],
-            'login_url' => route('login', ['mode' => 'b2c']),
-            'register_form_url' => route('b2c.packages.register', ['b2cTravelPackage' => $b2cTravelPackage->slug]),
+        $user = $request->user();
+        if ($user !== null) {
+            if (strtolower((string) $user->email) !== strtolower((string) $participant['email'])) {
+                return redirect()->route('login', ['mode' => 'b2c', 'redirect' => $finalizePath])
+                    ->with('error', 'Anda sedang masuk dengan email lain. Masuk dengan '.$participant['email'].' untuk melanjutkan.');
+            }
+
+            return redirect()->to($finalizePath);
+        }
+
+        return redirect()->route('register', [
+            'mode' => 'b2c',
+            'redirect' => $finalizePath,
         ]);
     }
 
-    public function completeStore(
-        Request $request,
-        CompleteB2cPackageRegistrationRequest $accountRequest,
-        B2cTravelPackage $b2cTravelPackage,
-        B2cPackageRegistrationRegistrar $registrar,
-    ): RedirectResponse {
+    public function finalize(Request $request, B2cTravelPackage $b2cTravelPackage, B2cPackageRegistrationRegistrar $registrar): RedirectResponse
+    {
+        $user = $request->user();
+        abort_unless($user, 403);
+
+        if (! $b2cTravelPackage->isOpenForRegistration()) {
+            $request->session()->forget(self::SESSION_PENDING_REGISTRATION);
+
+            return redirect()
+                ->route('b2c.packages')
+                ->with('flash', [
+                    'type' => 'error',
+                    'message' => 'Registration is closed: the package status is set to Closed in admin.',
+                ]);
+        }
+
         $pending = $request->session()->get(self::SESSION_PENDING_REGISTRATION);
         if (
             ! is_array($pending)
@@ -169,38 +198,67 @@ class B2cRegistrationController extends Controller
                 ]);
         }
 
-        if (! $b2cTravelPackage->isOpenForRegistration()) {
+        $participant = $pending['participant'];
+
+        try {
+            $record = $registrar->registerAuthenticated($b2cTravelPackage, $user, $participant);
+        } catch (ValidationException $e) {
+            $errs = $e->errors();
+
+            if (isset($errs['email'])) {
+                Auth::logout();
+                $request->session()->regenerateToken();
+
+                return redirect()->route('login', [
+                    'mode' => 'b2c',
+                    'redirect' => route('b2c.packages.register.finalize', ['b2cTravelPackage' => $b2cTravelPackage->slug], false),
+                ])
+                    ->withErrors($errs)
+                    ->with('error', 'Email akun tidak cocok dengan formulir paket. Silakan masuk dengan akun yang benar.');
+            }
+
             $request->session()->forget(self::SESSION_PENDING_REGISTRATION);
 
             return redirect()
-                ->route('b2c.packages')
+                ->route('b2c.account')
+                ->withErrors($errs)
                 ->with('flash', [
                     'type' => 'error',
-                    'message' => 'Registration is closed: the package status is set to Closed in admin.',
+                    'message' => $errs['package'][0] ?? 'Tidak dapat menyelesaikan pendaftaran.',
                 ]);
-        }
-
-        $participant = $pending['participant'];
-        $account = $accountRequest->validated();
-        $merged = array_merge($participant, $account);
-
-        try {
-            $registrar->register($b2cTravelPackage, $merged);
-        } catch (ValidationException $e) {
-            return redirect()
-                ->route('b2c.packages.register.account', ['b2cTravelPackage' => $b2cTravelPackage->slug])
-                ->withErrors($e->errors())
-                ->withInput($account);
         }
 
         $request->session()->forget(self::SESSION_PENDING_REGISTRATION);
 
         return redirect()
-            ->route('b2c.account')
+            ->route('b2c.packages.submitted', ['registration' => $record->id])
             ->with('flash', [
                 'type' => 'success',
-                'message' => 'Registrasi berhasil dikirim dengan status Pending. Admin akan review terlebih dahulu.',
+                'message' => 'Pendaftaran paket berhasil dikirim.',
             ]);
+    }
+
+    public function submissionComplete(Request $request, B2cPackageRegistration $registration): Response
+    {
+        $user = $request->user();
+        abort_unless($user, 403);
+        abort_unless($registration->user_id === $user->id, 404);
+
+        $registration->load('package:id,name,slug,price_display');
+
+        return Inertia::render('b2c/packages/submission-complete', [
+            'registration' => [
+                'id' => $registration->id,
+                'registration_status' => $registration->registration_status,
+                'full_name' => $registration->full_name,
+                'pax' => $registration->pax,
+                'package' => [
+                    'name' => $registration->package?->name ?? '(Paket dihapus)',
+                    'slug' => $registration->package?->slug,
+                    'price_display' => $registration->package?->price_display ?? '—',
+                ],
+            ],
+        ]);
     }
 
     public function account(): Response
@@ -236,8 +294,18 @@ class B2cRegistrationController extends Controller
             ->values()
             ->all();
 
+        $verification = AgentVerification::query()->where('user_id', $user->id)->latest()->first();
+
+        $b2bPortal = [
+            'has_application' => $verification !== null,
+            'status' => $verification?->status ?? 'none',
+            'company_name' => $verification?->company_name,
+            'reviewed_at' => $verification?->reviewed_at?->toIso8601String(),
+        ];
+
         return Inertia::render('b2c/account/index', [
             'registrations' => $items,
+            'b2bPortal' => $b2bPortal,
         ]);
     }
 }

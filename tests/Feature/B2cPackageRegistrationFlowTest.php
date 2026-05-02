@@ -83,6 +83,9 @@ it('does not auto-close package when last seats are booked', function () {
         'date_of_birth' => '1990-06-15',
         'gender' => 'male',
         'pax' => 2,
+        'account_mode' => 'create',
+        'account_password' => 'SecurePass123!',
+        'account_password_confirmation' => 'SecurePass123!',
     ]);
 
     $pkg->refresh();

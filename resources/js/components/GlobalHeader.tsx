@@ -357,6 +357,40 @@ const MobileMenuPortal: React.FC<{
 
                     {/* Footer */}
                     <div className="border-t border-white/5 p-5">
+                        {variant === 'b2c' && !isAdmin && (
+                            <div className="mb-4 space-y-2">
+                                <Link
+                                    href="/b2c/account"
+                                    onClick={onClose}
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#ff5200]/40 bg-[#ff5200]/15 px-4 py-3 text-sm font-semibold text-[#ffb088] transition hover:bg-[#ff5200]/25"
+                                >
+                                    Akun B2C
+                                </Link>
+                                {user ? (
+                                    <button
+                                        onClick={() => {
+                                            logout();
+                                            onClose();
+                                        }}
+                                        disabled={isLoggingOut}
+                                        className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm font-semibold text-white/90 hover:bg-white/10 disabled:opacity-50"
+                                    >
+                                        <LogOut className="h-4 w-4" />
+                                        {isLoggingOut ? 'Keluar…' : 'Keluar'}
+                                    </button>
+                                ) : (
+                                    <a
+                                        href="/login?mode=b2c"
+                                        onClick={onClose}
+                                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white"
+                                    >
+                                        <LogIn className="h-4 w-4" />
+                                        Login B2C
+                                    </a>
+                                )}
+                            </div>
+                        )}
+
                         {/* B2B variant: Show Back to Select Mode and Logout buttons */}
                         {variant === 'b2b' && !isAdmin && (
                             <>
@@ -692,6 +726,41 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
                                     <span className="hidden lg:inline">{variant === 'b2b' ? 'B2C' : 'B2B'}</span>
                                 </span>
                             </motion.button>
+
+                            {variant === 'b2c' && !isAdmin && (
+                                <>
+                                    {user ? (
+                                        <>
+                                            <Link
+                                                href="/b2c/account"
+                                                className="hidden items-center gap-2 rounded-xl border border-[#ff5200]/40 bg-[#ff5200]/15 px-3 py-2 text-sm font-semibold text-[#ffb088] transition hover:bg-[#ff5200]/25 md:flex"
+                                            >
+                                                Akun
+                                            </Link>
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => logout()}
+                                                disabled={isLoggingOut}
+                                                className="hidden rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-sm font-semibold text-white/90 hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-50 md:flex"
+                                            >
+                                                <span className="flex items-center gap-2">
+                                                    <LogOut className="h-4 w-4" />
+                                                    <span className="hidden lg:inline">{isLoggingOut ? '…' : 'Keluar'}</span>
+                                                </span>
+                                            </motion.button>
+                                        </>
+                                    ) : (
+                                        <a
+                                            href="/login?mode=b2c"
+                                            className="hidden items-center gap-2 rounded-xl bg-[#ff5200] px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#ff6b35] md:flex"
+                                        >
+                                            <LogIn className="h-4 w-4" />
+                                            <span>Login</span>
+                                        </a>
+                                    )}
+                                </>
+                            )}
 
                             {/* Only show login button for B2B variant, not for admin */}
                             {variant === 'b2b' &&
