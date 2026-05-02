@@ -51,6 +51,33 @@ it('redirects guests away from registration when package status is closed', func
         ->assertRedirect(route('b2c.packages'));
 });
 
+it('redirects guest to login with finalize redirect after participant submit', function () {
+    $pkg = createOpenB2cPackage([
+        'slug' => 'guest-login-flow-slug',
+        'package_code' => 'TEST-GUEST-LOGIN',
+        'status' => 'open',
+        'pax_capacity' => 10,
+        'pax_booked' => 0,
+    ]);
+
+    $finalizePath = route('b2c.packages.register.finalize', ['b2cTravelPackage' => $pkg->slug], false);
+
+    $this->post(route('b2c.packages.register.store', ['b2cTravelPackage' => $pkg->slug]), [
+        'full_name' => 'Guest Flow User',
+        'email' => 'guest-flow@example.com',
+        'phone' => '081234567890',
+        'passport_number' => 'B9876543',
+        'address' => 'Jl. Test 99',
+        'date_of_birth' => '1992-03-15',
+        'gender' => 'male',
+        'pax' => 1,
+        'terms_accepted' => true,
+    ])
+        ->assertRedirect(route('login', ['mode' => 'b2c', 'redirect' => $finalizePath]));
+
+    expect(session()->has('b2c_package_registration_pending'))->toBeTrue();
+});
+
 it('shows registration page for open package even when deadline is past', function () {
     $pkg = createOpenB2cPackage([
         'slug' => 'open-reg-slug',

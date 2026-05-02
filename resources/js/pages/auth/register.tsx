@@ -203,14 +203,6 @@ export default function Register() {
                 </div>
             )}
 
-            {mode === 'b2c' && (
-                <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50/90 p-3">
-                    <p className="text-sm text-amber-950">
-                        Setelah akun dibuat dan Anda masuk, pengajuan paket B2C Anda akan dikirim dengan status <strong>Pending</strong>. Anda dapat memantau persetujuan di halaman akun B2C; akun ini sama dengan jalur B2B jika Anda juga mendaftar sebagai agen.
-                    </p>
-                </div>
-            )}
-
             {googleOAuthConfigured ? (
                 <div className="mb-6 flex flex-col gap-3">
                     <AuthGoogleLink
@@ -260,10 +252,12 @@ export default function Register() {
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             disabled={showLoading}
-                            readOnly={Boolean(mode === 'b2c' && b2cPackagePrefill?.email)}
                             placeholder="email@example.com"
-                            className={`${errors.email && errors.email.includes('already registered') ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''} ${mode === 'b2c' && b2cPackagePrefill?.email ? 'cursor-not-allowed bg-slate-50' : ''}`}
-                            title={mode === 'b2c' && b2cPackagePrefill?.email ? 'Email mengikuti formulir paket — tidak dapat diubah di langkah ini.' : undefined}
+                            className={
+                                errors.email && errors.email.includes('already registered')
+                                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                    : ''
+                            }
                         />
                         <InputError message={errors.email} />
                         {errors.email &&

@@ -88,17 +88,14 @@ class B2cRegistrationController extends Controller
                 ]);
         }
 
-        return redirect()->route('register', [
+        return redirect()->route('login', [
             'mode' => 'b2c',
             'redirect' => $finalizePath,
-        ])->with('flash', [
-            'type' => 'success',
-            'message' => 'Buat akun atau masuk untuk menyelesaikan pendaftaran paket.',
-        ]);
+        ])->with('status', 'Masuk atau daftar untuk menyelesaikan pengajuan paket Anda.');
     }
 
     /**
-     * Legacy URL: /packages/register/{pkg}/account → arahkan ke /register?mode=b2c&redirect=.../finalize
+     * Legacy URL: /packages/register/{pkg}/account → arahkan ke /login?mode=b2c&redirect=.../finalize
      */
     public function legacyAccountStep(Request $request, B2cTravelPackage $b2cTravelPackage): RedirectResponse
     {
@@ -151,10 +148,10 @@ class B2cRegistrationController extends Controller
             return redirect()->to($finalizePath);
         }
 
-        return redirect()->route('register', [
+        return redirect()->route('login', [
             'mode' => 'b2c',
             'redirect' => $finalizePath,
-        ]);
+        ])->with('status', 'Masuk atau daftar untuk menyelesaikan pengajuan paket Anda.');
     }
 
     public function finalize(Request $request, B2cTravelPackage $b2cTravelPackage, B2cPackageRegistrationRegistrar $registrar): RedirectResponse

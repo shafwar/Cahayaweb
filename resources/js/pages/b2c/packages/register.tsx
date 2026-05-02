@@ -167,8 +167,8 @@ export default function PackageRegister({
                                         <div className="flex-1">
                                             <CardTitle className="text-xl font-bold text-[#1e3a5f] sm:text-2xl">Data peserta</CardTitle>
                                             <CardDescription className="mt-0.5 text-sm text-[#475569] sm:text-base">
-                                                Lengkapi data berikut dengan benar. Setelah Anda mengirim, langkah berikutnya hanya pembuatan akun atau login —
-                                                sama seperti alur B2B.
+                                                Lengkapi data berikut dengan benar. Setelah Anda mengirim, Anda akan diarahkan ke halaman masuk untuk login atau
+                                                membuat akun, lalu menyelesaikan pengajuan paket.
                                             </CardDescription>
                                         </div>
                                     </div>
