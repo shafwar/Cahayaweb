@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Auth\Concerns\DeterminesLoginRedirectTarget;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\StartSessionWithAdminConfig;
 use App\Http\Requests\Auth\LoginRequest;
@@ -15,6 +16,8 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class AuthenticatedSessionController extends Controller
 {
+    use DeterminesLoginRedirectTarget;
+
     /**
      * Show the login page.
      */
@@ -137,6 +140,7 @@ class AuthenticatedSessionController extends Controller
                 'mode' => $request->query('mode'),
                 'redirect' => $request->query('redirect'),
                 'error' => $request->session()->get('error'),
+                'googleOAuthConfigured' => filled(config('services.google.client_id')) && filled(config('services.google.client_secret')),
             ]);
 
             // Add cache-control headers to prevent caching
@@ -182,6 +186,7 @@ class AuthenticatedSessionController extends Controller
                     'mode' => $request->query('mode'),
                     'redirect' => $request->query('redirect'),
                     'error' => 'An error occurred. Please try again.',
+                    'googleOAuthConfigured' => filled(config('services.google.client_id')) && filled(config('services.google.client_secret')),
                 ]);
             } catch (\Throwable $fallbackError) {
                 // Absolute last resort: return error response
@@ -464,130 +469,5 @@ class AuthenticatedSessionController extends Controller
         // Always redirect to home - this ensures logout always succeeds
         // even if there were minor errors during session cleanup
         return redirect('/');
-    }
-
-    protected function determineRedirectTarget(Request $request): string
-    {
-        $user = $request->user();
-
-        // Check if user is admin - use same logic as IsAdmin middleware
-        $isAdmin = false;
-        try {
-            if ($user) {
-                if (method_exists($user, 'getAttribute') && $user->getAttribute('role') === 'admin') {
-                    $isAdmin = true;
-                }
-                if (! $isAdmin && in_array($user->email, config('app.admin_emails', []), true)) {
-                    $isAdmin = true;
-                }
-            }
-        } catch (\Throwable $e) {
-            \Log::debug('Error checking admin status in determineRedirectTarget', [
-                'error' => $e->getMessage(),
-            ]);
-            // Continue with $isAdmin = false
-        }
-
-        // Check mode parameter first
-        $mode = $request->input('mode');
-
-        // If admin mode, redirect to admin dashboard
-        if ($mode === 'admin') {
-            // Should have been verified in store() method, but double check
-            if ($isAdmin) {
-                return '/admin';
-            }
-
-            // If somehow non-admin got through, redirect to home
-            return route('home', absolute: false);
-        }
-
-        // If B2B mode, ensure admin is not redirected (should have been blocked already)
-        if ($mode === 'b2b') {
-            // Double check - if somehow admin got through, redirect to admin dashboard
-            if ($isAdmin) {
-                \Log::warning('Admin user detected in B2B mode redirect', [
-                    'user_id' => $user?->id,
-                ]);
-
-                return '/admin';
-            }
-
-            // If redirect param points to B2B continue URL (e.g. "email already registered" → log in → complete flow), use it
-            $redirect = $request->input('redirect');
-            if (is_string($redirect)) {
-                $path = str_starts_with($redirect, '/') ? $redirect : (parse_url($redirect, PHP_URL_PATH) ?: '');
-                if ($path && str_starts_with($path, '/b2b/register/continue')) {
-                    return $path;
-                }
-            }
-
-            // If user doesn't have B2B access, redirect to registration form
-            // Wrap in try-catch to handle any errors from hasB2BAccess()
-            try {
-                $hasB2BAccess = $user && $user->hasB2BAccess();
-
-                \Log::info('B2B access check', [
-                    'user_id' => $user?->id,
-                    'has_b2b_access' => $hasB2BAccess,
-                ]);
-
-                if (! $user || ! $hasB2BAccess) {
-                    \Log::info('User does not have B2B access - redirecting to registration', [
-                        'user_id' => $user?->id,
-                    ]);
-
-                    return route('b2b.register', absolute: false);
-                }
-
-                \Log::info('User has B2B access - redirecting to B2B index', [
-                    'user_id' => $user?->id,
-                ]);
-
-                return route('b2b.index', absolute: false);
-            } catch (\Throwable $e) {
-                \Log::error('Error checking B2B access in determineRedirectTarget', [
-                    'user_id' => $user?->id,
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                ]);
-
-                // If error occurs, redirect to registration form as safe fallback
-                return route('b2b.register', absolute: false);
-            }
-        }
-
-        // For admin users (not in B2B or admin mode), redirect to /admin
-        if ($isAdmin) {
-            // Check if there's a specific redirect for admin
-            $redirect = $request->input('redirect');
-            if (is_string($redirect) && str_starts_with($redirect, '/admin')) {
-                return $redirect;
-            }
-
-            // Default admin redirect
-            return '/admin';
-        }
-
-        // For non-admin users, check redirect parameter (relative or absolute URL → same-origin path)
-        $redirect = $request->input('redirect');
-        if (is_string($redirect)) {
-            if (str_starts_with($redirect, '/')) {
-                return $redirect;
-            }
-            if (str_starts_with($redirect, 'http://') || str_starts_with($redirect, 'https://')) {
-                $path = parse_url($redirect, PHP_URL_PATH) ?: '';
-                $query = parse_url($redirect, PHP_URL_QUERY);
-
-                return $query ? $path.'?'.$query : $path;
-            }
-        }
-
-        if ($mode === 'b2c') {
-            return route('b2c.account', absolute: false);
-        }
-
-        // Default redirect for regular users - go to home instead of dashboard
-        return route('home', absolute: false);
     }
 }

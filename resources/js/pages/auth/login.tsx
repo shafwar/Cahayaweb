@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import AuthGoogleLink from '@/components/auth/AuthGoogleLink';
 import AuthLayout from '@/layouts/auth-layout';
 
 type LoginForm = {
@@ -26,9 +27,10 @@ interface LoginProps {
     mode?: 'b2b' | 'b2c' | 'admin';
     redirect?: string;
     error?: string;
+    googleOAuthConfigured?: boolean;
 }
 
-export default function Login({ status, canResetPassword, mode, redirect, error }: LoginProps) {
+export default function Login({ status, canResetPassword, mode, redirect, error, googleOAuthConfigured }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false);
     const [csrfTokenRefreshed, setCsrfTokenRefreshed] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false); // Local loading state for better control
@@ -310,6 +312,21 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
                         Masuk dengan <strong>email dan password</strong> akun Anda (yang sama untuk B2C dan B2B). Setelah berhasil, pengajuan paket Anda akan diselesaikan dan status awal biasanya{' '}
                         <strong>Pending</strong>.
                     </p>
+                </div>
+            ) : null}
+
+            {googleOAuthConfigured ? (
+                <div className="mb-6 flex flex-col gap-3">
+                    <AuthGoogleLink entry="login" mode={mode} redirect={redirect}>
+                        Continue with Google
+                    </AuthGoogleLink>
+                    <p className="text-center text-xs text-slate-500">
+                        Satu akun dengan email &amp; password tetap bisa dipakai; Google hanya cara masuk tambahan.
+                    </p>
+                    <div className="relative py-2 text-center text-xs font-medium uppercase tracking-wide text-slate-400">
+                        <span className="relative z-10 bg-white px-2">atau email</span>
+                        <span className="absolute inset-x-0 top-1/2 z-0 h-px bg-slate-200" aria-hidden />
+                    </div>
                 </div>
             ) : null}
 

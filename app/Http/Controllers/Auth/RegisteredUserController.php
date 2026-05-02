@@ -54,6 +54,7 @@ class RegisteredUserController extends Controller
 
         return Inertia::render('auth/register', [
             'b2cPackagePrefill' => $b2cPackagePrefill,
+            'googleOAuthConfigured' => filled(config('services.google.client_id')) && filled(config('services.google.client_secret')),
         ]);
     }
 

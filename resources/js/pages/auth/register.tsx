@@ -9,6 +9,7 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import AuthGoogleLink from '@/components/auth/AuthGoogleLink';
 import AuthLayout from '@/layouts/auth-layout';
 
 /**
@@ -28,12 +29,14 @@ type RegisterForm = {
 type RegisterPageProps = {
     status?: string;
     b2cPackagePrefill?: { full_name: string; email: string } | null;
+    googleOAuthConfigured?: boolean;
 };
 
 export default function Register() {
     const { url, props } = usePage<RegisterPageProps>();
     const status = props.status;
     const b2cPackagePrefill = props.b2cPackagePrefill ?? null;
+    const googleOAuthConfigured = props.googleOAuthConfigured ?? false;
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
@@ -207,6 +210,25 @@ export default function Register() {
                     </p>
                 </div>
             )}
+
+            {googleOAuthConfigured ? (
+                <div className="mb-6 flex flex-col gap-3">
+                    <AuthGoogleLink
+                        entry="register"
+                        mode={mode === 'b2b' || mode === 'b2c' ? mode : undefined}
+                        redirect={redirect}
+                    >
+                        Sign up with Google
+                    </AuthGoogleLink>
+                    <p className="text-center text-xs text-slate-500">
+                        Email Google harus sama dengan yang dipakai di formulir (khusus alur paket B2C). Anda tetap bisa memakai password nanti lewat reset password.
+                    </p>
+                    <div className="relative py-2 text-center text-xs font-medium uppercase tracking-wide text-slate-400">
+                        <span className="relative z-10 bg-white px-2">atau daftar dengan email</span>
+                        <span className="absolute inset-x-0 top-1/2 z-0 h-px bg-slate-200" aria-hidden />
+                    </div>
+                </div>
+            ) : null}
 
             <form method="POST" className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
