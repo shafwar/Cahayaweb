@@ -81,9 +81,11 @@ Route::middleware(['no_cache.b2c.packages'])->group(function () {
     Route::get('/home', [B2cPageController::class, 'home'])->name('b2c.home');
     Route::get('/search', [B2cPageController::class, 'search'])->name('b2c.search');
     Route::get('/packages/register/{b2cTravelPackage}', [B2cRegistrationController::class, 'create'])->name('b2c.packages.register');
+    Route::get('/packages/register/{b2cTravelPackage}/account', [B2cRegistrationController::class, 'complete'])->name('b2c.packages.register.account');
     Route::get('/packages', [B2cPublicPackageController::class, 'index'])->name('b2c.packages');
 });
 Route::post('/packages/register/{b2cTravelPackage}', [B2cRegistrationController::class, 'store'])->name('b2c.packages.register.store');
+Route::post('/packages/register/{b2cTravelPackage}/account', [B2cRegistrationController::class, 'completeStore'])->name('b2c.packages.register.account.store');
 Route::post('/api/registrations', [B2cRegistrationApiController::class, 'store'])
     ->middleware('throttle:30,1')
     ->name('api.b2c.registrations.store');

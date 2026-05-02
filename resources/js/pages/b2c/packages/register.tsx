@@ -36,11 +36,29 @@ const cardShellClass = 'overflow-hidden border border-[#d4af37]/25 bg-white py-0
 const cardHeaderClass =
     'relative border-b border-[#ff5200]/15 bg-gradient-to-r from-[#ff5200]/5 via-[#ff5200]/8 to-[#ff5200]/3 px-6 py-5 sm:px-8 sm:py-6';
 
-type AuthInfo = {
-    login_url: string;
-};
+/** Tombol sekunder terang — hindari navy gelap agar teks mudah dibaca. */
+const secondaryBtnClass =
+    'h-12 rounded-xl border-2 border-[#38bdf8]/50 bg-[#f0f9ff] px-6 text-sm font-semibold text-[#0369a1] shadow-sm transition hover:bg-[#e0f2fe] hover:border-[#0ea5e9]/60';
 
-export default function PackageRegister({ package: pkg, auth }: { package: PackageInfo; auth?: AuthInfo }) {
+type DraftParticipant = {
+    full_name: string;
+    email: string;
+    phone: string;
+    passport_number: string;
+    address: string;
+    date_of_birth: string;
+    gender: 'male' | 'female' | 'other';
+    pax: number;
+    terms_accepted?: boolean;
+} | null;
+
+export default function PackageRegister({
+    package: pkg,
+    draftParticipant,
+}: {
+    package: PackageInfo;
+    draftParticipant?: DraftParticipant;
+}) {
     const deadlineLabel = pkg.registration_deadline
         ? new Date(pkg.registration_deadline).toLocaleString('id-ID', {
               dateStyle: 'long',
@@ -48,19 +66,20 @@ export default function PackageRegister({ package: pkg, auth }: { package: Packa
           })
         : '—';
 
+    const maxPax = Math.max(1, Math.min(50, pkg.available_pax));
+    const draftPax =
+        draftParticipant?.pax != null ? Math.min(maxPax, Math.max(1, Number(draftParticipant.pax))) : 1;
+
     const { data, setData, post, processing, errors } = useForm({
-        full_name: '',
-        email: '',
-        phone: '',
-        passport_number: '',
-        address: '',
-        date_of_birth: '',
-        gender: 'male' as 'male' | 'female' | 'other',
-        pax: 1,
-        terms_accepted: false as boolean,
-        account_mode: 'create' as 'create' | 'login',
-        account_password: '',
-        account_password_confirmation: '',
+        full_name: draftParticipant?.full_name ?? '',
+        email: draftParticipant?.email ?? '',
+        phone: draftParticipant?.phone ?? '',
+        passport_number: draftParticipant?.passport_number ?? '',
+        address: draftParticipant?.address ?? '',
+        date_of_birth: draftParticipant?.date_of_birth ?? '',
+        gender: (draftParticipant?.gender as 'male' | 'female' | 'other') ?? 'male',
+        pax: draftPax,
+        terms_accepted: Boolean(draftParticipant?.terms_accepted),
     });
 
     const submit: FormEventHandler = (e) => {
@@ -68,7 +87,6 @@ export default function PackageRegister({ package: pkg, auth }: { package: Packa
         post(`/packages/register/${pkg.slug}`, { preserveScroll: true });
     };
 
-    const maxPax = Math.max(1, Math.min(50, pkg.available_pax));
     const showDevTestFill = import.meta.env.DEV;
 
     return (
@@ -149,7 +167,8 @@ export default function PackageRegister({ package: pkg, auth }: { package: Packa
                                         <div className="flex-1">
                                             <CardTitle className="text-xl font-bold text-[#1e3a5f] sm:text-2xl">Data peserta</CardTitle>
                                             <CardDescription className="mt-0.5 text-sm text-[#475569] sm:text-base">
-                                                Lengkapi data berikut dengan benar. Tim kami akan menghubungi Anda setelah pengajuan diterima.
+                                                Lengkapi data berikut dengan benar. Setelah Anda mengirim, langkah berikutnya hanya pembuatan akun atau login —
+                                                sama seperti alur B2B.
                                             </CardDescription>
                                         </div>
                                     </div>
@@ -162,8 +181,7 @@ export default function PackageRegister({ package: pkg, auth }: { package: Packa
                                                 Pengujian lokal — isi form dummy
                                             </summary>
                                             <p className="mt-2 text-xs text-amber-950/90 sm:text-sm">
-                                                Hanya tampil di mode development. Mengisi seluruh field (email dan paspor unik per klik, tanggal lahir valid,
-                                                pax ≤ kuota, centang syarat).
+                                                Hanya tampil di mode development. Mengisi data peserta saja (langkah akun ada di halaman berikutnya).
                                             </p>
                                             <div className="mt-3">
                                                 <button
@@ -337,86 +355,6 @@ export default function PackageRegister({ package: pkg, auth }: { package: Packa
                                         </div>
                                     </div>
 
-                                    <div className="rounded-xl border border-[#c7ddff]/80 bg-[#f8fafc] p-5">
-                                        <p className="text-base font-semibold text-[#1e3a5f]">Akun peserta</p>
-                                        <p className="mt-1 text-xs text-[#64748b]">
-                                            Gunakan akun yang sama untuk B2B dan B2C. Status approval B2B/B2C tetap dipisah.
-                                        </p>
-                                        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => setData('account_mode', 'create')}
-                                                className={`rounded-xl border px-4 py-3 text-left text-sm ${
-                                                    data.account_mode === 'create'
-                                                        ? 'border-[#ff5200] bg-[#fff4ee] text-[#b45309]'
-                                                        : 'border-[#c7ddff] bg-white text-[#475569]'
-                                                }`}
-                                            >
-                                                Buat akun baru
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setData('account_mode', 'login')}
-                                                className={`rounded-xl border px-4 py-3 text-left text-sm ${
-                                                    data.account_mode === 'login'
-                                                        ? 'border-[#ff5200] bg-[#fff4ee] text-[#b45309]'
-                                                        : 'border-[#c7ddff] bg-white text-[#475569]'
-                                                }`}
-                                            >
-                                                Saya sudah punya akun
-                                            </button>
-                                        </div>
-
-                                        <div className="mt-4 space-y-3">
-                                            <Label htmlFor="reg-account-password" className="text-base font-semibold text-[#1e3a5f]">
-                                                {data.account_mode === 'create' ? 'Password akun baru' : 'Password akun Anda'}{' '}
-                                                <span className="text-[#ff5200]">*</span>
-                                            </Label>
-                                            <Input
-                                                id="reg-account-password"
-                                                type="password"
-                                                value={data.account_password}
-                                                onChange={(e) => setData('account_password', e.target.value)}
-                                                className={inputClassName}
-                                                autoComplete={data.account_mode === 'create' ? 'new-password' : 'current-password'}
-                                                required
-                                            />
-                                            <InputError message={errors.account_password} />
-                                        </div>
-
-                                        {data.account_mode === 'create' ? (
-                                            <div className="mt-4 space-y-3">
-                                                <Label
-                                                    htmlFor="reg-account-password-confirmation"
-                                                    className="text-base font-semibold text-[#1e3a5f]"
-                                                >
-                                                    Konfirmasi password <span className="text-[#ff5200]">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="reg-account-password-confirmation"
-                                                    type="password"
-                                                    value={data.account_password_confirmation}
-                                                    onChange={(e) => setData('account_password_confirmation', e.target.value)}
-                                                    className={inputClassName}
-                                                    autoComplete="new-password"
-                                                    required
-                                                />
-                                                <InputError message={errors.account_password_confirmation} />
-                                            </div>
-                                        ) : null}
-
-                                        <div className="mt-4">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                className="h-11 border border-[#1e3a5f]/20 text-sm font-semibold text-[#1e3a5f]"
-                                                asChild
-                                            >
-                                                <Link href={auth?.login_url ?? '/login?mode=b2c'}>Sudah punya akun? Login di sini</Link>
-                                            </Button>
-                                        </div>
-                                    </div>
-
                                     <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#c7ddff] bg-[#fffbeb]/70 p-4 transition hover:border-[#ff5200]/30">
                                         <input
                                             type="checkbox"
@@ -434,16 +372,11 @@ export default function PackageRegister({ package: pkg, auth }: { package: Packa
                                         <Button
                                             type="submit"
                                             disabled={processing}
-                                            className="h-12 min-w-[10rem] rounded-xl bg-gradient-to-r from-[#1e3a5f] via-[#2d4a6f] to-[#ff5200] px-8 text-sm font-bold text-white shadow-lg hover:opacity-95"
+                                            className="h-12 min-w-[12rem] rounded-xl bg-gradient-to-r from-[#ff7a33] via-[#ff5200] to-[#ea580c] px-8 text-sm font-bold text-white shadow-lg hover:brightness-[1.03]"
                                         >
-                                            {processing ? 'Mengirim…' : 'Kirim pendaftaran'}
+                                            {processing ? 'Memproses…' : 'Lanjutkan ke akun'}
                                         </Button>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            className="h-12 border-2 border-[#1e3a5f]/20 px-6 text-sm font-semibold text-[#1e3a5f] hover:border-[#d4af37]/50 hover:bg-[#f8fafc]"
-                                            asChild
-                                        >
+                                        <Button type="button" variant="outline" className={secondaryBtnClass} asChild>
                                             <Link href="/packages">Batal & kembali ke paket</Link>
                                         </Button>
                                     </div>

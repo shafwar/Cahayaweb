@@ -150,8 +150,8 @@ export function getB2cCreateFormTestFill(options?: B2cCreateTestFillOptions): B2
     };
 }
 
-/** Selaras field `useForm` halaman registrasi B2C (`b2c/packages/register`). */
-export type B2cRegistrationTemplateFill = {
+/** Selaras field `useForm` langkah 1 halaman registrasi B2C (`b2c/packages/register`) — tanpa akun. */
+export type B2cRegistrationParticipantTemplateFill = {
     full_name: string;
     email: string;
     phone: string;
@@ -161,6 +161,10 @@ export type B2cRegistrationTemplateFill = {
     gender: 'male' | 'female' | 'other';
     pax: number;
     terms_accepted: boolean;
+};
+
+/** Dummy untuk langkah 2 akun (`b2c/packages/register-account`). */
+export type B2cRegistrationAccountStepFill = {
     account_mode: 'create' | 'login';
     account_password: string;
     account_password_confirmation: string;
@@ -170,7 +174,7 @@ export type B2cRegistrationTemplateFill = {
  * Data dummy satu klik untuk uji alur kirim pendaftaran B2C.
  * `date_of_birth` di masa lalu (validasi `before:today`); `pax` tidak melebihi kuota.
  */
-export function getB2cRegistrationFormTestFill(input: { maxPax: number }): B2cRegistrationTemplateFill {
+export function getB2cRegistrationFormTestFill(input: { maxPax: number }): B2cRegistrationParticipantTemplateFill {
     const suffix = randomPackageSuffix(6);
     const suffixLower = suffix.toLowerCase();
     const cap = Math.max(1, Math.min(50, input.maxPax));
@@ -192,6 +196,11 @@ export function getB2cRegistrationFormTestFill(input: { maxPax: number }): B2cRe
         gender: 'male',
         pax,
         terms_accepted: true,
+    };
+}
+
+export function getB2cRegistrationAccountTestFill(): B2cRegistrationAccountStepFill {
+    return {
         account_mode: 'create',
         account_password: 'Test12345!',
         account_password_confirmation: 'Test12345!',
