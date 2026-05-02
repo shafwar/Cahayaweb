@@ -61,6 +61,16 @@ class B2cPageController extends Controller
         return Inertia::render('b2c/contact');
     }
 
+    public function privacyPolicy(): Response
+    {
+        return Inertia::render('b2c/privacy-policy');
+    }
+
+    public function termsOfService(): Response
+    {
+        return Inertia::render('b2c/terms-of-service');
+    }
+
     public function search(): Response
     {
         return Inertia::render('b2c/search', [

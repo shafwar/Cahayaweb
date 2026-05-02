@@ -97,6 +97,8 @@ Route::get('/highlights', [B2cPageController::class, 'highlights'])->name('b2c.h
 Route::get('/blog', [B2cPageController::class, 'blogIndex'])->name('b2c.blog');
 Route::get('/blog/{id}', [B2cPageController::class, 'blogShow'])->name('b2c.blog.show');
 Route::get('/contact', [B2cPageController::class, 'contact'])->name('b2c.contact');
+Route::get('/privacy-policy', [B2cPageController::class, 'privacyPolicy'])->name('b2c.privacy-policy');
+Route::get('/terms-of-service', [B2cPageController::class, 'termsOfService'])->name('b2c.terms-of-service');
 
 Route::get('/b2b/register', [AgentVerificationController::class, 'create'])->name('b2b.register');
 Route::post('/b2b/register', [AgentVerificationController::class, 'store'])->name('b2b.register.store');

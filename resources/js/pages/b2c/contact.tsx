@@ -268,6 +268,14 @@ export default function Contact() {
                             </div>
                         </div>
                         <div className="mt-10 border-t border-white/10 pt-8 text-center">
+                            <div className="mb-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+                                <a href="/privacy-policy" className="font-medium text-white/70 underline-offset-4 hover:text-amber-400 hover:underline">
+                                    Privacy Policy
+                                </a>
+                                <a href="/terms-of-service" className="font-medium text-white/70 underline-offset-4 hover:text-amber-400 hover:underline">
+                                    Terms of Service
+                                </a>
+                            </div>
                             <p className="text-sm text-white/50">© 2024 Cahaya Anbiya Travel. All rights reserved.</p>
                         </div>
                     </div>

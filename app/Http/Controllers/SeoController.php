@@ -50,6 +50,8 @@ class SeoController extends Controller
             ['path' => '/highlights', 'priority' => '0.8', 'changefreq' => 'weekly', 'lastmod' => now()->toAtomString()],
             ['path' => '/blog', 'priority' => '0.8', 'changefreq' => 'weekly', 'lastmod' => now()->toAtomString()],
             ['path' => '/contact', 'priority' => '0.7', 'changefreq' => 'monthly', 'lastmod' => now()->subDays(30)->toAtomString()],
+            ['path' => '/privacy-policy', 'priority' => '0.5', 'changefreq' => 'monthly', 'lastmod' => now()->toAtomString()],
+            ['path' => '/terms-of-service', 'priority' => '0.5', 'changefreq' => 'monthly', 'lastmod' => now()->toAtomString()],
         ];
 
         $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
