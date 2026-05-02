@@ -1412,6 +1412,14 @@ export default function Home() {
                                 </motion.div>
                             </div>
                             <div className="mt-12 border-t border-white/5 pt-8 text-center text-sm text-white/40">
+                                <div className="mb-4 flex flex-wrap justify-center gap-x-6 gap-y-2 font-medium text-white/65">
+                                    <a href="/privacy-policy" className="underline-offset-4 hover:text-amber-400 hover:underline">
+                                        Privacy Policy
+                                    </a>
+                                    <a href="/terms-of-service" className="underline-offset-4 hover:text-amber-400 hover:underline">
+                                        Terms of Service
+                                    </a>
+                                </div>
                                 © 2025 PT Cahaya Anbiya Wisata. All rights reserved.
                             </div>
                         </div>

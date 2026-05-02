@@ -618,6 +618,19 @@ export default function SelectMode() {
                     <p className="text-[9px] text-[#94a3b8] sm:text-xs">© 2025 PT Cahaya Anbiya Wisata</p>
                 </motion.div>
             )}
+
+            {/* Always on "/" — Google OAuth branding checks Application home page for a privacy policy link */}
+            <nav
+                className="fixed bottom-3 left-0 right-0 z-[60] flex flex-wrap justify-center gap-x-5 gap-y-1 px-4 text-center text-[11px] font-semibold text-[#475569] sm:bottom-5 sm:text-xs"
+                aria-label="Legal links"
+            >
+                <a href="/privacy-policy" className="underline decoration-slate-400 underline-offset-2 hover:text-[#c2410c]">
+                    Privacy Policy
+                </a>
+                <a href="/terms-of-service" className="underline decoration-slate-400 underline-offset-2 hover:text-[#c2410c]">
+                    Terms of Service
+                </a>
+            </nav>
         </div>
     );
 }
