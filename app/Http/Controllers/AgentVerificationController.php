@@ -6,6 +6,7 @@ use App\Models\AgentVerification;
 use App\Models\B2BRegistrationDraft;
 use App\Models\User;
 use App\Services\B2bApplicantPurgeService;
+use App\Services\RegistrationReviewNotifier;
 use App\Support\R2Helper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -954,12 +955,24 @@ class AgentVerificationController extends Controller
      */
     public function approve(Request $request, AgentVerification $verification)
     {
+        $previousStatus = $verification->status;
+        $verification->load('user');
+
         $verification->update([
             'status' => 'approved',
             'admin_notes' => null, // Clear admin notes on approval
             'reviewed_by' => $request->user()->id,
             'reviewed_at' => now(),
         ]);
+
+        if ($previousStatus !== 'approved' && $verification->user) {
+            RegistrationReviewNotifier::notifyB2bApplicant(
+                $verification->user,
+                $verification->company_name ?: 'perusahaan Anda',
+                true,
+                null,
+            );
+        }
 
         return back()->with('success', 'Agent verification approved successfully.');
     }
@@ -985,12 +998,35 @@ class AgentVerificationController extends Controller
             $adminNotes = $validated['admin_notes'] ?? null;
         }
 
+        $previousStatus = $verification->status;
+        $verification->load('user');
+
         $verification->update([
             'status' => $validated['status'],
             'admin_notes' => $adminNotes,
             'reviewed_by' => $request->user()->id,
             'reviewed_at' => now(),
         ]);
+
+        $newStatus = $validated['status'];
+        if ($verification->user) {
+            if ($newStatus === 'approved' && $previousStatus !== 'approved') {
+                RegistrationReviewNotifier::notifyB2bApplicant(
+                    $verification->user,
+                    $verification->company_name ?: 'perusahaan Anda',
+                    true,
+                    null,
+                );
+            }
+            if ($newStatus === 'rejected' && $previousStatus !== 'rejected') {
+                RegistrationReviewNotifier::notifyB2bApplicant(
+                    $verification->user,
+                    $verification->company_name ?: 'perusahaan Anda',
+                    false,
+                    $adminNotes,
+                );
+            }
+        }
 
         $statusMessage = match ($validated['status']) {
             'approved' => 'Agent verification approved successfully.',
@@ -1013,12 +1049,24 @@ class AgentVerificationController extends Controller
             'admin_notes.min' => 'Rejection reason must be at least 10 characters.',
         ]);
 
+        $previousStatus = $verification->status;
+        $verification->load('user');
+
         $verification->update([
             'status' => 'rejected',
             'admin_notes' => $validated['admin_notes'],
             'reviewed_by' => $request->user()->id,
             'reviewed_at' => now(),
         ]);
+
+        if ($previousStatus !== 'rejected' && $verification->user) {
+            RegistrationReviewNotifier::notifyB2bApplicant(
+                $verification->user,
+                $verification->company_name ?: 'perusahaan Anda',
+                false,
+                $validated['admin_notes'],
+            );
+        }
 
         return back()->with('success', 'Agent verification rejected.');
     }

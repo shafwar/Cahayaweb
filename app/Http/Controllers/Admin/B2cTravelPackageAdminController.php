@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\B2cPackageRegistration;
 use App\Models\B2cTravelPackage;
+use App\Services\RegistrationReviewNotifier;
 use App\Support\ImageCompressor;
 use App\Support\R2Helper;
 use Carbon\Carbon;
@@ -369,11 +370,17 @@ class B2cTravelPackageAdminController extends Controller
 
     public function approveRegistration(B2cPackageRegistration $registration): RedirectResponse
     {
+        $previousStatus = $registration->registration_status;
+
         $registration->forceFill([
             'registration_status' => 'approved',
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
         ])->save();
+
+        if ($previousStatus !== 'approved') {
+            RegistrationReviewNotifier::notifyB2cParticipant($registration->fresh(['package']), true);
+        }
 
         return back()->with('flash', [
             'type' => 'success',
@@ -387,12 +394,22 @@ class B2cTravelPackageAdminController extends Controller
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
+        $previousStatus = $registration->registration_status;
+
         $registration->forceFill([
             'registration_status' => 'rejected',
             'notes' => $validated['notes'] ?? null,
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
         ])->save();
+
+        if ($previousStatus !== 'rejected') {
+            RegistrationReviewNotifier::notifyB2cParticipant(
+                $registration->fresh(['package']),
+                false,
+                $validated['notes'] ?? null,
+            );
+        }
 
         return back()->with('flash', [
             'type' => 'success',
