@@ -57,6 +57,10 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
         ->name('admin.b2c-packages.registrations.approve');
     Route::post('/admin/b2c-packages/registrations/{registration}/reject', [B2cTravelPackageAdminController::class, 'rejectRegistration'])
         ->name('admin.b2c-packages.registrations.reject');
+    Route::delete('/admin/b2c-packages/registrations/{registration}', [B2cTravelPackageAdminController::class, 'destroyRegistration'])
+        ->name('admin.b2c-packages.registrations.destroy');
+    Route::delete('/admin/b2c-packages/{b2cTravelPackage}/registrations', [B2cTravelPackageAdminController::class, 'destroyAllRegistrations'])
+        ->name('admin.b2c-packages.registrations.destroy-all');
 
     Route::get('/admin/participants', [ParticipantManagementController::class, 'index'])->name('admin.participants.index');
     Route::get('/admin/participants/{participant}', [ParticipantManagementController::class, 'show'])->name('admin.participants.show');

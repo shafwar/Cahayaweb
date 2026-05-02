@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -396,6 +397,64 @@ class B2cTravelPackageAdminController extends Controller
         return back()->with('flash', [
             'type' => 'success',
             'message' => 'Registrasi B2C ditolak.',
+        ]);
+    }
+
+    /**
+     * Hapus satu baris registrasi B2C untuk paket ini saja (tidak menghapus User; data agen/B2B tidak disentuh).
+     */
+    public function destroyRegistration(B2cPackageRegistration $registration): RedirectResponse
+    {
+        DB::transaction(function () use ($registration) {
+            $packageId = $registration->b2c_travel_package_id;
+            $pax = (int) $registration->pax;
+
+            /** @var B2cTravelPackage $pkg */
+            $pkg = B2cTravelPackage::query()->whereKey($packageId)->lockForUpdate()->firstOrFail();
+
+            $registration->delete();
+
+            $pkg->forceFill([
+                'pax_booked' => max(0, $pkg->pax_booked - $pax),
+            ])->save();
+        });
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => 'Registrasi B2C dihapus dari paket ini. Akun pengguna dan pengajuan B2B (jika ada) tetap ada.',
+        ]);
+    }
+
+    /**
+     * Hapus seluruh registrasi B2C untuk satu paket; kuota pax_booked direset ke 0.
+     * Konfirmasi wajib dengan package_code yang tepat.
+     */
+    public function destroyAllRegistrations(Request $request, B2cTravelPackage $b2cTravelPackage): RedirectResponse
+    {
+        $validated = $request->validate([
+            'confirm_package_code' => ['required', 'string', 'max:64'],
+        ]);
+
+        if ($validated['confirm_package_code'] !== $b2cTravelPackage->package_code) {
+            throw ValidationException::withMessages([
+                'confirm_package_code' => ['Kode paket tidak cocok. Tidak ada data yang dihapus.'],
+            ]);
+        }
+
+        $deleted = DB::transaction(function () use ($b2cTravelPackage) {
+            /** @var B2cTravelPackage $locked */
+            $locked = B2cTravelPackage::query()->whereKey($b2cTravelPackage->id)->lockForUpdate()->firstOrFail();
+
+            $count = $locked->registrations()->count();
+            $locked->registrations()->delete();
+            $locked->forceFill(['pax_booked' => 0])->save();
+
+            return $count;
+        });
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => "{$deleted} registrasi B2C untuk paket ini telah dihapus. Akun pengguna tidak dihapus.",
         ]);
     }
 
