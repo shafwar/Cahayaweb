@@ -71,6 +71,21 @@ class User extends Authenticatable
         return $this->hasMany(B2cPackageRegistration::class);
     }
 
+    public function hasApprovedB2CRegistration(): bool
+    {
+        return $this->b2cPackageRegistrations()->where('registration_status', 'approved')->exists();
+    }
+
+    public function hasPendingB2CRegistration(): bool
+    {
+        return $this->b2cPackageRegistrations()->where('registration_status', 'pending')->exists();
+    }
+
+    public function hasRejectedB2CRegistration(): bool
+    {
+        return $this->b2cPackageRegistrations()->where('registration_status', 'rejected')->exists();
+    }
+
     /**
      * Check if user has B2B access (approved verification)
      */

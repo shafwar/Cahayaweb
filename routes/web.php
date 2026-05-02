@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminEntryController;
 use App\Http\Controllers\Admin\B2cTravelPackageAdminController;
+use App\Http\Controllers\Admin\ParticipantManagementController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AgentVerificationController;
 use App\Http\Controllers\B2b\B2bPortalController;
@@ -52,6 +53,14 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     Route::put('/admin/b2c-packages/{b2cTravelPackage}', [B2cTravelPackageAdminController::class, 'update'])->name('admin.b2c-packages.update');
     Route::delete('/admin/b2c-packages/{b2cTravelPackage}', [B2cTravelPackageAdminController::class, 'destroy'])->name('admin.b2c-packages.destroy');
     Route::get('/admin/b2c-packages/{b2cTravelPackage}/registrations', [B2cTravelPackageAdminController::class, 'registrations'])->name('admin.b2c-packages.registrations');
+    Route::post('/admin/b2c-packages/registrations/{registration}/approve', [B2cTravelPackageAdminController::class, 'approveRegistration'])
+        ->name('admin.b2c-packages.registrations.approve');
+    Route::post('/admin/b2c-packages/registrations/{registration}/reject', [B2cTravelPackageAdminController::class, 'rejectRegistration'])
+        ->name('admin.b2c-packages.registrations.reject');
+
+    Route::get('/admin/participants', [ParticipantManagementController::class, 'index'])->name('admin.participants.index');
+    Route::get('/admin/participants/{participant}', [ParticipantManagementController::class, 'show'])->name('admin.participants.show');
+    Route::put('/admin/participants/{participant}', [ParticipantManagementController::class, 'update'])->name('admin.participants.update');
 });
 
 Route::get('/debug', [SystemDiagnosticsController::class, 'debug']);
@@ -90,6 +99,7 @@ Route::get('/b2b/register/continue', [AgentVerificationController::class, 'store
 
 Route::middleware('auth')->group(function () {
     Route::get('/b2b/pending', [AgentVerificationController::class, 'pending'])->name('b2b.pending');
+    Route::get('/b2c/account', [B2cRegistrationController::class, 'account'])->name('b2c.account');
 });
 
 Route::middleware('verify.b2b')->group(function () {

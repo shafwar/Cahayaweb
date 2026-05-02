@@ -19,6 +19,14 @@ class B2cPackageRegistration extends Model
         'gender',
         'departure_period_snapshot',
         'pax',
+        'registration_status',
+        'payment_status',
+        'visa_status',
+        'ticket_status',
+        'hotel_status',
+        'reviewed_by',
+        'reviewed_at',
+        'notes',
         'terms_accepted_at',
     ];
 
@@ -28,6 +36,7 @@ class B2cPackageRegistration extends Model
             'date_of_birth' => 'date',
             'terms_accepted_at' => 'datetime',
             'pax' => 'integer',
+            'reviewed_at' => 'datetime',
         ];
     }
 
@@ -39,5 +48,25 @@ class B2cPackageRegistration extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->registration_status === 'approved';
+    }
+
+    public function isPending(): bool
+    {
+        return $this->registration_status === 'pending';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->registration_status === 'rejected';
     }
 }

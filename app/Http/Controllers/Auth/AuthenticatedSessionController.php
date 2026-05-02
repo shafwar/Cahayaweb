@@ -96,6 +96,10 @@ class AuthenticatedSessionController extends Controller
                     // Fall through to render login page if route doesn't exist
                 }
             }
+
+            if ($user && $mode === 'b2c') {
+                return redirect()->route('b2c.account');
+            }
         } catch (\Throwable $e) {
             // Log error but continue to render login page
             \Log::error('Error in login page user check', [
@@ -562,7 +566,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         if ($mode === 'b2c') {
-            return route('b2c.home', absolute: false);
+            return route('b2c.account', absolute: false);
         }
 
         // Default redirect for regular users - go to home instead of dashboard

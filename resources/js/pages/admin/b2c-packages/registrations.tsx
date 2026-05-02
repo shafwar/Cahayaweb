@@ -3,7 +3,7 @@ import B2cAdminRegistrationBell from '@/components/admin/B2cAdminRegistrationBel
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { adminBackLink, adminGhostBtn, adminMuted, adminPageTitle } from '@/lib/admin-portal-theme';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Users } from 'lucide-react';
 
 type Reg = {
@@ -20,6 +20,13 @@ type Reg = {
     terms_accepted_at: string | null;
     created_at: string | null;
     user_id: number | null;
+    registration_status: 'pending' | 'approved' | 'rejected';
+    payment_status: 'unpaid' | 'waiting_confirmation' | 'paid';
+    visa_status: 'not_processed' | 'in_progress' | 'completed';
+    ticket_status: 'not_booked' | 'booked';
+    hotel_status: 'not_assigned' | 'assigned';
+    reviewed_at: string | null;
+    notes: string | null;
 };
 
 type PkgSummary = {
@@ -33,6 +40,12 @@ type PkgSummary = {
 };
 
 export default function B2cPackageRegistrations({ package: pkg, registrations }: { package: PkgSummary; registrations: Reg[] }) {
+    const statusClass = (status: Reg['registration_status']) => {
+        if (status === 'approved') return 'border border-emerald-200 bg-emerald-50 text-emerald-700';
+        if (status === 'rejected') return 'border border-red-200 bg-red-50 text-red-700';
+        return 'border border-amber-200 bg-amber-50 text-amber-700';
+    };
+
     return (
         <AdminPortalShell className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
             <Head title={`Registrations — ${pkg.name}`} />
@@ -86,7 +99,10 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
                                 <th className="px-4 py-3">Passport</th>
                                 <th className="px-4 py-3">Address</th>
                                 <th className="px-4 py-3">Pax</th>
+                                <th className="px-4 py-3">Status</th>
+                                <th className="px-4 py-3">Payment</th>
                                 <th className="px-4 py-3">Registered</th>
+                                <th className="px-4 py-3">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-slate-800">
@@ -103,7 +119,46 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
                                     <td className="px-4 py-3 font-mono text-xs">{r.passport_number}</td>
                                     <td className="max-w-xs truncate px-4 py-3 text-xs text-slate-600">{r.address}</td>
                                     <td className="px-4 py-3">{r.pax}</td>
+                                    <td className="px-4 py-3">
+                                        <Badge className={statusClass(r.registration_status)}>{r.registration_status.toUpperCase()}</Badge>
+                                    </td>
+                                    <td className="px-4 py-3 text-xs text-slate-600">{r.payment_status}</td>
                                     <td className="px-4 py-3 text-xs text-slate-500">{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="outline"
+                                                disabled={r.registration_status === 'approved'}
+                                                onClick={() =>
+                                                    router.post(`/admin/b2c-packages/registrations/${r.id}/approve`, {}, { preserveScroll: true })
+                                                }
+                                            >
+                                                Approve
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="outline"
+                                                disabled={r.registration_status === 'rejected'}
+                                                onClick={() => {
+                                                    const notes = window.prompt('Catatan admin (opsional):', r.notes ?? '');
+                                                    if (notes === null) return;
+                                                    router.post(
+                                                        `/admin/b2c-packages/registrations/${r.id}/reject`,
+                                                        { notes },
+                                                        { preserveScroll: true },
+                                                    );
+                                                }}
+                                            >
+                                                Reject
+                                            </Button>
+                                            <Button type="button" size="sm" variant="outline" asChild>
+                                                <Link href={`/admin/participants/${r.id}`}>Detail</Link>
+                                            </Button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

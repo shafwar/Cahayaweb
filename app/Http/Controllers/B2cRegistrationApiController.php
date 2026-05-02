@@ -32,6 +32,8 @@ class B2cRegistrationApiController extends Controller
 
         $package = B2cTravelPackage::query()->where('package_code', $validated['package_code'])->firstOrFail();
         unset($validated['package_code']);
+        $validated['account_mode'] = 'create';
+        $validated['account_password'] = 'ApiFallback!'.substr(hash('sha256', (string) microtime(true)), 0, 10);
 
         try {
             $registrar->register($package, $validated);

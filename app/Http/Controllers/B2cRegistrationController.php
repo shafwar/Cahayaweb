@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreB2cPackageRegistrationRequest;
+use App\Models\B2cPackageRegistration;
 use App\Models\B2cTravelPackage;
 use App\Services\B2cPackageRegistrationRegistrar;
 use Illuminate\Http\RedirectResponse;
@@ -23,8 +24,6 @@ class B2cRegistrationController extends Controller
                 ]);
         }
 
-        $dummyFill = (bool) config('b2c.registration_dummy_fill', false) || (bool) config('app.debug', false);
-
         return Inertia::render('b2c/packages/register', [
             'package' => [
                 'id' => $b2cTravelPackage->id,
@@ -38,7 +37,9 @@ class B2cRegistrationController extends Controller
                 'pax_booked' => $b2cTravelPackage->pax_booked,
                 'available_pax' => $b2cTravelPackage->availablePaxSlots(),
             ],
-            'show_registration_dummy_fill' => $dummyFill,
+            'auth' => [
+                'login_url' => route('login', ['mode' => 'b2c']),
+            ],
         ]);
     }
 
@@ -56,7 +57,48 @@ class B2cRegistrationController extends Controller
         }
 
         return redirect()
-            ->route('b2c.packages')
-            ->with('flash', ['type' => 'success', 'message' => 'Registration submitted successfully. We will contact you soon.']);
+            ->route('b2c.account')
+            ->with('flash', [
+                'type' => 'success',
+                'message' => 'Registrasi berhasil dikirim dengan status Pending. Admin akan review terlebih dahulu.',
+            ]);
+    }
+
+    public function account(): Response
+    {
+        $user = auth()->user();
+        abort_unless($user, 403);
+
+        $items = B2cPackageRegistration::query()
+            ->with('package:id,name,slug,price_display')
+            ->where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(static function (B2cPackageRegistration $r) {
+                return [
+                    'id' => $r->id,
+                    'registration_status' => $r->registration_status,
+                    'payment_status' => $r->payment_status,
+                    'visa_status' => $r->visa_status,
+                    'ticket_status' => $r->ticket_status,
+                    'hotel_status' => $r->hotel_status,
+                    'notes' => $r->notes,
+                    'reviewed_at' => $r->reviewed_at?->toIso8601String(),
+                    'created_at' => $r->created_at?->toIso8601String(),
+                    'pax' => $r->pax,
+                    'full_name' => $r->full_name,
+                    'package' => [
+                        'name' => $r->package?->name ?? '(Package removed)',
+                        'slug' => $r->package?->slug,
+                        'price_display' => $r->package?->price_display ?? '—',
+                    ],
+                ];
+            })
+            ->values()
+            ->all();
+
+        return Inertia::render('b2c/account/index', [
+            'registrations' => $items,
+        ]);
     }
 }

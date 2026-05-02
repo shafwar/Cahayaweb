@@ -286,10 +286,16 @@ export default function Login({ status, canResetPassword, mode, redirect, error 
 
     return (
         <AuthLayout
-            title={mode === 'admin' ? "Admin Login" : "Log in to your account"}
-            description={mode === 'admin' ? "Enter your admin credentials to access the admin dashboard" : "Enter your email and password below to log in"}
+            title={mode === 'admin' ? "Admin Login" : mode === 'b2c' ? "Login B2C" : "Log in to your account"}
+            description={
+                mode === 'admin'
+                    ? 'Enter your admin credentials to access the admin dashboard'
+                    : mode === 'b2c'
+                      ? 'Gunakan akun yang sama saat registrasi paket B2C untuk melihat status pengajuan Anda.'
+                      : 'Enter your email and password below to log in'
+            }
         >
-            <Head title={mode === 'admin' ? "Admin Login" : "Log in"} />
+            <Head title={mode === 'admin' ? 'Admin Login' : mode === 'b2c' ? 'Login B2C' : 'Log in'} />
 
             {/* Display error message if provided */}
             {error && (

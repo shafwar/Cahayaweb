@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
-import { getB2cRegistrationFormDummyFill } from '@/lib/b2cRegistrationFillDummy';
+import { getB2cRegistrationFormTestFill } from '@/lib/b2cPackageFillTemplates';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ChevronRight, Package, UserRound } from 'lucide-react';
 import { FormEventHandler } from 'react';
@@ -24,11 +24,6 @@ type PackageInfo = {
     available_pax: number;
 };
 
-type PackageRegisterProps = {
-    package: PackageInfo;
-    show_registration_dummy_fill?: boolean;
-};
-
 /** Match B2B register-agent field styling */
 const inputClassName =
     'h-12 border border-[#c7ddff] bg-white text-base text-[#1e3a5f] placeholder:text-[#94a3b8] focus:border-[#ff5200] focus:ring-1 focus:ring-[#ff5200]/20';
@@ -41,19 +36,11 @@ const cardShellClass = 'overflow-hidden border border-[#d4af37]/25 bg-white py-0
 const cardHeaderClass =
     'relative border-b border-[#ff5200]/15 bg-gradient-to-r from-[#ff5200]/5 via-[#ff5200]/8 to-[#ff5200]/3 px-6 py-5 sm:px-8 sm:py-6';
 
-const emptyRegistrationForm = {
-    full_name: '',
-    email: '',
-    phone: '',
-    passport_number: '',
-    address: '',
-    date_of_birth: '',
-    gender: 'male' as const,
-    pax: 1,
-    terms_accepted: false as boolean,
+type AuthInfo = {
+    login_url: string;
 };
 
-export default function PackageRegister({ package: pkg, show_registration_dummy_fill = false }: PackageRegisterProps) {
+export default function PackageRegister({ package: pkg, auth }: { package: PackageInfo; auth?: AuthInfo }) {
     const deadlineLabel = pkg.registration_deadline
         ? new Date(pkg.registration_deadline).toLocaleString('id-ID', {
               dateStyle: 'long',
@@ -61,17 +48,28 @@ export default function PackageRegister({ package: pkg, show_registration_dummy_
           })
         : '—';
 
-    const maxPax = Math.max(1, Math.min(50, pkg.available_pax));
-
     const { data, setData, post, processing, errors } = useForm({
-        ...emptyRegistrationForm,
+        full_name: '',
+        email: '',
+        phone: '',
+        passport_number: '',
+        address: '',
+        date_of_birth: '',
         gender: 'male' as 'male' | 'female' | 'other',
+        pax: 1,
+        terms_accepted: false as boolean,
+        account_mode: 'create' as 'create' | 'login',
+        account_password: '',
+        account_password_confirmation: '',
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(`/packages/register/${pkg.slug}`, { preserveScroll: true });
     };
+
+    const maxPax = Math.max(1, Math.min(50, pkg.available_pax));
+    const showDevTestFill = import.meta.env.DEV;
 
     return (
         <PublicLayout hideCmsChrome>
@@ -158,30 +156,30 @@ export default function PackageRegister({ package: pkg, show_registration_dummy_
                                 </CardHeader>
 
                                 <CardContent className="space-y-6 p-6 sm:p-8">
-                                    {show_registration_dummy_fill ? (
-                                        <div className="flex flex-col gap-3 rounded-xl border border-dashed border-[#ff5200]/35 bg-[#fff7ed] p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-                                            <p className="text-sm text-[#92400e]">
-                                                <span className="font-semibold text-[#1e3a5f]">Mode uji:</span> isi form dengan data contoh (bukan produksi).
+                                    {showDevTestFill ? (
+                                        <details className="rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/90 to-orange-50/50 px-4 py-3 sm:px-5">
+                                            <summary className="cursor-pointer text-sm font-semibold text-amber-950">
+                                                Pengujian lokal — isi form dummy
+                                            </summary>
+                                            <p className="mt-2 text-xs text-amber-950/90 sm:text-sm">
+                                                Hanya tampil di mode development. Mengisi seluruh field (email dan paspor unik per klik, tanggal lahir valid,
+                                                pax ≤ kuota, centang syarat).
                                             </p>
-                                            <div className="flex flex-wrap gap-2">
-                                                <Button
+                                            <div className="mt-3">
+                                                <button
                                                     type="button"
-                                                    variant="outline"
-                                                    className="h-10 border-[#ff5200]/40 bg-white text-sm font-semibold text-[#c2410c] hover:bg-[#ffedd5]"
-                                                    onClick={() => setData(getB2cRegistrationFormDummyFill({ maxPax }))}
+                                                    className="rounded-xl border border-amber-300/80 bg-white/90 px-4 py-2 text-sm font-semibold text-amber-950 shadow-sm transition hover:bg-white"
+                                                    onClick={() => {
+                                                        const T = getB2cRegistrationFormTestFill({ maxPax });
+                                                        (Object.keys(T) as (keyof typeof T)[]).forEach((key) => {
+                                                            setData(key, T[key] as never);
+                                                        });
+                                                    }}
                                                 >
-                                                    Isi data contoh
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    className="h-10 text-sm font-semibold text-[#64748b] hover:text-[#1e3a5f]"
-                                                    onClick={() => setData({ ...emptyRegistrationForm, gender: 'male' })}
-                                                >
-                                                    Kosongkan
-                                                </Button>
+                                                    Isi form dari template
+                                                </button>
                                             </div>
-                                        </div>
+                                        </details>
                                     ) : null}
 
                                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -336,6 +334,86 @@ export default function PackageRegister({ package: pkg, show_registration_dummy_
                                         <p className="text-base font-semibold text-[#1e3a5f]">Syarat & ketentuan</p>
                                         <div className="mt-3 max-h-44 overflow-y-auto rounded-lg border border-[#c7ddff] bg-white p-4 text-xs leading-relaxed text-[#475569]">
                                             <div className="whitespace-pre-wrap">{pkg.terms_and_conditions}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="rounded-xl border border-[#c7ddff]/80 bg-[#f8fafc] p-5">
+                                        <p className="text-base font-semibold text-[#1e3a5f]">Akun peserta</p>
+                                        <p className="mt-1 text-xs text-[#64748b]">
+                                            Gunakan akun yang sama untuk B2B dan B2C. Status approval B2B/B2C tetap dipisah.
+                                        </p>
+                                        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setData('account_mode', 'create')}
+                                                className={`rounded-xl border px-4 py-3 text-left text-sm ${
+                                                    data.account_mode === 'create'
+                                                        ? 'border-[#ff5200] bg-[#fff4ee] text-[#b45309]'
+                                                        : 'border-[#c7ddff] bg-white text-[#475569]'
+                                                }`}
+                                            >
+                                                Buat akun baru
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setData('account_mode', 'login')}
+                                                className={`rounded-xl border px-4 py-3 text-left text-sm ${
+                                                    data.account_mode === 'login'
+                                                        ? 'border-[#ff5200] bg-[#fff4ee] text-[#b45309]'
+                                                        : 'border-[#c7ddff] bg-white text-[#475569]'
+                                                }`}
+                                            >
+                                                Saya sudah punya akun
+                                            </button>
+                                        </div>
+
+                                        <div className="mt-4 space-y-3">
+                                            <Label htmlFor="reg-account-password" className="text-base font-semibold text-[#1e3a5f]">
+                                                {data.account_mode === 'create' ? 'Password akun baru' : 'Password akun Anda'}{' '}
+                                                <span className="text-[#ff5200]">*</span>
+                                            </Label>
+                                            <Input
+                                                id="reg-account-password"
+                                                type="password"
+                                                value={data.account_password}
+                                                onChange={(e) => setData('account_password', e.target.value)}
+                                                className={inputClassName}
+                                                autoComplete={data.account_mode === 'create' ? 'new-password' : 'current-password'}
+                                                required
+                                            />
+                                            <InputError message={errors.account_password} />
+                                        </div>
+
+                                        {data.account_mode === 'create' ? (
+                                            <div className="mt-4 space-y-3">
+                                                <Label
+                                                    htmlFor="reg-account-password-confirmation"
+                                                    className="text-base font-semibold text-[#1e3a5f]"
+                                                >
+                                                    Konfirmasi password <span className="text-[#ff5200]">*</span>
+                                                </Label>
+                                                <Input
+                                                    id="reg-account-password-confirmation"
+                                                    type="password"
+                                                    value={data.account_password_confirmation}
+                                                    onChange={(e) => setData('account_password_confirmation', e.target.value)}
+                                                    className={inputClassName}
+                                                    autoComplete="new-password"
+                                                    required
+                                                />
+                                                <InputError message={errors.account_password_confirmation} />
+                                            </div>
+                                        ) : null}
+
+                                        <div className="mt-4">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                className="h-11 border border-[#1e3a5f]/20 text-sm font-semibold text-[#1e3a5f]"
+                                                asChild
+                                            >
+                                                <Link href={auth?.login_url ?? '/login?mode=b2c'}>Sudah punya akun? Login di sini</Link>
+                                            </Button>
                                         </div>
                                     </div>
 

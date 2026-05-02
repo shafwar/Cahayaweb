@@ -149,3 +149,51 @@ export function getB2cCreateFormTestFill(options?: B2cCreateTestFillOptions): B2
         sort_order: 0,
     };
 }
+
+/** Selaras field `useForm` halaman registrasi B2C (`b2c/packages/register`). */
+export type B2cRegistrationTemplateFill = {
+    full_name: string;
+    email: string;
+    phone: string;
+    passport_number: string;
+    address: string;
+    date_of_birth: string;
+    gender: 'male' | 'female' | 'other';
+    pax: number;
+    terms_accepted: boolean;
+    account_mode: 'create' | 'login';
+    account_password: string;
+    account_password_confirmation: string;
+};
+
+/**
+ * Data dummy satu klik untuk uji alur kirim pendaftaran B2C.
+ * `date_of_birth` di masa lalu (validasi `before:today`); `pax` tidak melebihi kuota.
+ */
+export function getB2cRegistrationFormTestFill(input: { maxPax: number }): B2cRegistrationTemplateFill {
+    const suffix = randomPackageSuffix(6);
+    const suffixLower = suffix.toLowerCase();
+    const cap = Math.max(1, Math.min(50, input.maxPax));
+    const pax = Math.min(2, cap);
+
+    const dob = new Date();
+    dob.setFullYear(dob.getFullYear() - 28);
+    const z = (n: number) => String(n).padStart(2, '0');
+    const date_of_birth = `${dob.getFullYear()}-${z(dob.getMonth() + 1)}-${z(dob.getDate())}`;
+
+    return {
+        full_name: `Tester B2C ${suffix}`,
+        email: `b2c-reg-${suffixLower}@example.test`,
+        /** 10–13 digit; cukup untuk uji validasi `max:64` */
+        phone: `0812${[...suffix].map((c) => String(c.charCodeAt(0) % 10)).join('').padEnd(8, '0').slice(0, 8)}`,
+        passport_number: `X${suffix}1234567`,
+        address: `Jl. Uji Coba No. ${suffix}\nKelurahan Dummy, Kec. Test\nJakarta Selatan 12345`,
+        date_of_birth,
+        gender: 'male',
+        pax,
+        terms_accepted: true,
+        account_mode: 'create',
+        account_password: 'Test12345!',
+        account_password_confirmation: 'Test12345!',
+    };
+}

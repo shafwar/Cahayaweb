@@ -71,6 +71,8 @@ class B2cTravelPackageAdminController extends Controller
                     'id' => $r->id,
                     'full_name' => $r->full_name,
                     'email' => $r->email,
+                    'registration_status' => $r->registration_status,
+                    'payment_status' => $r->payment_status,
                     'package_name' => $pkg?->name ?? '(Package removed)',
                     'package_slug' => $pkg?->slug,
                     'created_at' => $r->created_at?->toIso8601String(),
@@ -341,6 +343,13 @@ class B2cTravelPackageAdminController extends Controller
                 'terms_accepted_at' => $r->terms_accepted_at?->toIso8601String(),
                 'created_at' => $r->created_at?->toIso8601String(),
                 'user_id' => $r->user_id,
+                'registration_status' => $r->registration_status,
+                'payment_status' => $r->payment_status,
+                'visa_status' => $r->visa_status,
+                'ticket_status' => $r->ticket_status,
+                'hotel_status' => $r->hotel_status,
+                'reviewed_at' => $r->reviewed_at?->toIso8601String(),
+                'notes' => $r->notes,
             ]);
 
         return Inertia::render('admin/b2c-packages/registrations', [
@@ -354,6 +363,39 @@ class B2cTravelPackageAdminController extends Controller
                 'registration_open' => $b2cTravelPackage->isOpenForRegistration(),
             ],
             'registrations' => $regs,
+        ]);
+    }
+
+    public function approveRegistration(B2cPackageRegistration $registration): RedirectResponse
+    {
+        $registration->forceFill([
+            'registration_status' => 'approved',
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ])->save();
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => 'Registrasi B2C disetujui.',
+        ]);
+    }
+
+    public function rejectRegistration(Request $request, B2cPackageRegistration $registration): RedirectResponse
+    {
+        $validated = $request->validate([
+            'notes' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $registration->forceFill([
+            'registration_status' => 'rejected',
+            'notes' => $validated['notes'] ?? null,
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ])->save();
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => 'Registrasi B2C ditolak.',
         ]);
     }
 
