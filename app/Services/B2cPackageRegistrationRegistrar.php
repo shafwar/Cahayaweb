@@ -22,7 +22,7 @@ class B2cPackageRegistrationRegistrar
         $accountMode = (string) ($validated['account_mode'] ?? 'create');
         $accountPassword = (string) ($validated['account_password'] ?? '');
 
-        DB::transaction(function () use ($validated, $pax, $package, $accountMode, $accountPassword) {
+        [$registrationId, $welcomeUserId] = DB::transaction(function () use ($validated, $pax, $package, $accountMode, $accountPassword) {
             /** @var B2cTravelPackage $locked */
             $locked = B2cTravelPackage::query()->whereKey($package->id)->lockForUpdate()->firstOrFail();
 
@@ -40,6 +40,7 @@ class B2cPackageRegistrationRegistrar
 
             $email = (string) $validated['email'];
             $existingUser = User::query()->where('email', $email)->first();
+            $welcomeUserId = null;
 
             if ($accountMode === 'login') {
                 if (! $existingUser || ! Hash::check($accountPassword, $existingUser->password)) {
@@ -61,9 +62,10 @@ class B2cPackageRegistrationRegistrar
                     'email' => $email,
                     'password' => Hash::make($accountPassword ?: Str::password(40)),
                 ]);
+                $welcomeUserId = $user->id;
             }
 
-            B2cPackageRegistration::query()->create([
+            $registration = B2cPackageRegistration::query()->create([
                 'b2c_travel_package_id' => $locked->id,
                 'user_id' => $user->id,
                 'full_name' => $validated['full_name'],
@@ -84,7 +86,21 @@ class B2cPackageRegistrationRegistrar
             ]);
 
             $locked->increment('pax_booked', $pax);
+
+            return [$registration->id, $welcomeUserId];
         });
+
+        $registrationModel = B2cPackageRegistration::query()->with('package')->find($registrationId);
+        if ($registrationModel instanceof B2cPackageRegistration) {
+            InboundLeadNotifier::notifyAdminsB2cRegistration($registrationModel);
+        }
+
+        if ($welcomeUserId !== null) {
+            $newUser = User::query()->find($welcomeUserId);
+            if ($newUser instanceof User) {
+                InboundLeadNotifier::notifyUserWelcome($newUser);
+            }
+        }
     }
 
     /**
@@ -97,7 +113,7 @@ class B2cPackageRegistrationRegistrar
     {
         $pax = (int) $participant['pax'];
 
-        return DB::transaction(function () use ($participant, $pax, $package, $user) {
+        $record = DB::transaction(function () use ($participant, $pax, $package, $user) {
             /** @var B2cTravelPackage $locked */
             $locked = B2cTravelPackage::query()->whereKey($package->id)->lockForUpdate()->firstOrFail();
 
@@ -158,5 +174,9 @@ class B2cPackageRegistrationRegistrar
 
             return $record;
         });
+
+        InboundLeadNotifier::notifyAdminsB2cRegistration($record->fresh(['package']));
+
+        return $record;
     }
 }

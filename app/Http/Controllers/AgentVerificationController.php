@@ -6,6 +6,7 @@ use App\Models\AgentVerification;
 use App\Models\B2BRegistrationDraft;
 use App\Models\User;
 use App\Services\B2bApplicantPurgeService;
+use App\Services\InboundLeadNotifier;
 use App\Services\RegistrationReviewNotifier;
 use App\Support\R2Helper;
 use Illuminate\Http\RedirectResponse;
@@ -387,6 +388,8 @@ class AgentVerificationController extends Controller
                 ? 'Registration has been renewed. Please wait for admin approval.'
                 : 'Your application has been submitted successfully. Please wait for admin approval.';
 
+            $this->notifyAdminsNewB2bSubmission($verification, $user, $wasRejected);
+
             return redirect()->route('b2b.pending')->with('success', $successMessage);
         } catch (\Throwable $e) {
             Log::error('B2B store (logged-in) failed', [
@@ -622,6 +625,8 @@ class AgentVerificationController extends Controller
                 'verification_id' => $verification->id,
                 'renewed' => $wasRejectedContinue,
             ]);
+
+            $this->notifyAdminsNewB2bSubmission($verification, $user, $wasRejectedContinue);
         } catch (\Throwable $e) {
             Log::error('B2B storeContinue (session) failed', [
                 'user_id' => $user->id,
@@ -783,6 +788,8 @@ class AgentVerificationController extends Controller
                 'verification_id' => $verification->id,
                 'renewed' => $wasRejectedDraft,
             ]);
+
+            $this->notifyAdminsNewB2bSubmission($verification, $user, $wasRejectedDraft);
         } catch (\Throwable $e) {
             Log::error('B2B storeContinueFromDraft create failed', ['user_id' => $user->id, 'message' => $e->getMessage()]);
             $draft->delete();
@@ -1414,5 +1421,10 @@ class AgentVerificationController extends Controller
         ];
 
         return $mimeTypes[$extension] ?? 'application/octet-stream';
+    }
+
+    private function notifyAdminsNewB2bSubmission(AgentVerification $verification, User $user, bool $isResubmission): void
+    {
+        InboundLeadNotifier::notifyAdminsB2bApplication($verification->fresh(), $user, $isResubmission);
     }
 }

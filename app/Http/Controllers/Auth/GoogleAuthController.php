@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\Concerns\DeterminesLoginRedirectTarget;
 use App\Http\Controllers\B2cRegistrationController;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\InboundLeadNotifier;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -136,6 +137,7 @@ class GoogleAuthController extends Controller
                     'message' => $e->getMessage(),
                 ]);
             }
+            InboundLeadNotifier::notifyUserWelcome($user);
         }
 
         Auth::login($user, true);

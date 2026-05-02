@@ -97,6 +97,9 @@ Route::get('/highlights', [B2cPageController::class, 'highlights'])->name('b2c.h
 Route::get('/blog', [B2cPageController::class, 'blogIndex'])->name('b2c.blog');
 Route::get('/blog/{id}', [B2cPageController::class, 'blogShow'])->name('b2c.blog.show');
 Route::get('/contact', [B2cPageController::class, 'contact'])->name('b2c.contact');
+Route::post('/contact', [B2cPageController::class, 'contactSubmit'])
+    ->middleware('throttle:12,1')
+    ->name('b2c.contact.submit');
 Route::get('/privacy-policy', [B2cPageController::class, 'privacyPolicy'])->name('b2c.privacy-policy');
 Route::get('/terms-of-service', [B2cPageController::class, 'termsOfService'])->name('b2c.terms-of-service');
 

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\B2cTravelPackage;
+use App\Services\InboundLeadNotifier;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -56,9 +59,39 @@ class B2cPageController extends Controller
         return Inertia::render('b2c/blog/[id]', ['id' => $id]);
     }
 
-    public function contact(): Response
+    public function contact(Request $request): Response
     {
-        return Inertia::render('b2c/contact');
+        return Inertia::render('b2c/contact', [
+            'flash' => $request->session()->pull('contact_flash'),
+        ]);
+    }
+
+    public function contactSubmit(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255'],
+            'phone' => ['required', 'string', 'max:50'],
+            'message' => ['required', 'string', 'max:5000'],
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'phone.required' => 'Telepon wajib diisi.',
+            'message.required' => 'Pesan wajib diisi.',
+        ]);
+
+        InboundLeadNotifier::notifyAdminsContact(
+            $validated['name'],
+            $validated['email'],
+            $validated['phone'],
+            $validated['message'],
+        );
+
+        return redirect()->route('b2c.contact')->with('contact_flash', [
+            'type' => 'success',
+            'message' => 'Terima kasih. Pesan Anda telah terkirim ke tim kami. Kami akan menghubungi Anda segera.',
+        ]);
     }
 
     public function privacyPolicy(): Response

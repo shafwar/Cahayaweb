@@ -6,6 +6,7 @@ use App\Http\Controllers\B2cRegistrationController;
 use App\Http\Controllers\Controller;
 use App\Models\B2cTravelPackage;
 use App\Models\User;
+use App\Services\InboundLeadNotifier;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -142,6 +143,8 @@ class RegisteredUserController extends Controller
                     'message' => $e->getMessage(),
                 ]);
             }
+
+            InboundLeadNotifier::notifyUserWelcome($user);
 
             Auth::login($user);
             $request->session()->regenerate();

@@ -1,21 +1,13 @@
 import { EditableText } from '@/components/cms';
 import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
-import { getR2Url } from '@/utils/imageHelper';
-import { Mail, MapPin, MessageSquare, Phone, Send } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useForm } from '@inertiajs/react';
+import { LoaderCircle, Mail, MapPin, MessageSquare, Phone, Send } from 'lucide-react';
 
-export default function Contact() {
-    const [editMode, setEditModeUI] = useState<boolean>(false);
-    useEffect(() => {
-        const check = () => setEditModeUI(document.documentElement.classList.contains('cms-edit'));
-        check();
-        const handler = () => check();
-        window.addEventListener('cms:mode', handler as EventListener);
-        return () => window.removeEventListener('cms:mode', handler as EventListener);
-    }, []);
+type ContactFlash = { type: string; message: string } | null;
 
-    const [formData, setFormData] = useState({
+export default function Contact({ flash }: { flash?: ContactFlash }) {
+    const form = useForm({
         name: '',
         email: '',
         phone: '',
@@ -24,9 +16,15 @@ export default function Contact() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const whatsappMessage = `Halo! Saya ${formData.name}%0A%0AEmail: ${formData.email}%0APhone: ${formData.phone}%0A%0AMessage:%0A${formData.message}`;
-        window.open(`https://wa.me/6281234567890?text=${whatsappMessage}`, '_blank');
+        form.post(route('b2c.contact.submit'), { preserveScroll: true });
     };
+
+    const whatsappHref =
+        typeof window !== 'undefined'
+            ? `https://wa.me/6281234567890?text=${encodeURIComponent(
+                  `Halo! Saya ${form.data.name}\n\nEmail: ${form.data.email}\nTelepon: ${form.data.phone}\n\nPesan:\n${form.data.message}`,
+              )}`
+            : '#';
 
     const contactInfo = [
         {
@@ -150,17 +148,33 @@ export default function Contact() {
                                         </p>
                                     </div>
 
+                                    {flash?.message ? (
+                                        <div
+                                            className={`mb-5 rounded-xl border px-4 py-3 text-sm font-medium ${
+                                                flash.type === 'success'
+                                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+                                                    : 'border-slate-200 bg-slate-50 text-slate-800'
+                                            }`}
+                                            role="status"
+                                        >
+                                            {flash.message}
+                                        </div>
+                                    ) : null}
+
                                     <form onSubmit={handleSubmit} className="space-y-5">
                                         <div>
                                             <label className="mb-2 block text-sm font-semibold text-[#1e3a5f]">Full Name *</label>
                                             <input
                                                 type="text"
                                                 required
-                                                value={formData.name}
-                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                value={form.data.name}
+                                                onChange={(e) => form.setData('name', e.target.value)}
                                                 className="w-full rounded-lg border border-[#d4af37]/30 bg-white px-4 py-3 text-[#1e3a5f] transition-all outline-none focus:border-[#ff5200] focus:ring-2 focus:ring-[#ff5200]/20"
                                                 placeholder="Enter your name"
                                             />
+                                            {form.errors.name ? (
+                                                <p className="mt-1 text-xs font-medium text-red-600">{form.errors.name}</p>
+                                            ) : null}
                                         </div>
 
                                         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -169,11 +183,14 @@ export default function Contact() {
                                                 <input
                                                     type="email"
                                                     required
-                                                    value={formData.email}
-                                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                    value={form.data.email}
+                                                    onChange={(e) => form.setData('email', e.target.value)}
                                                     className="w-full rounded-lg border border-[#d4af37]/30 bg-white px-4 py-3 text-[#1e3a5f] transition-all outline-none focus:border-[#ff5200] focus:ring-2 focus:ring-[#ff5200]/20"
                                                     placeholder="your@email.com"
                                                 />
+                                                {form.errors.email ? (
+                                                    <p className="mt-1 text-xs font-medium text-red-600">{form.errors.email}</p>
+                                                ) : null}
                                             </div>
 
                                             <div>
@@ -181,11 +198,14 @@ export default function Contact() {
                                                 <input
                                                     type="tel"
                                                     required
-                                                    value={formData.phone}
-                                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                    value={form.data.phone}
+                                                    onChange={(e) => form.setData('phone', e.target.value)}
                                                     className="w-full rounded-lg border border-[#d4af37]/30 bg-white px-4 py-3 text-[#1e3a5f] transition-all outline-none focus:border-[#ff5200] focus:ring-2 focus:ring-[#ff5200]/20"
                                                     placeholder="+62 812-xxxx-xxxx"
                                                 />
+                                                {form.errors.phone ? (
+                                                    <p className="mt-1 text-xs font-medium text-red-600">{form.errors.phone}</p>
+                                                ) : null}
                                             </div>
                                         </div>
 
@@ -194,24 +214,48 @@ export default function Contact() {
                                             <textarea
                                                 required
                                                 rows={5}
-                                                value={formData.message}
-                                                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                                value={form.data.message}
+                                                onChange={(e) => form.setData('message', e.target.value)}
                                                 className="w-full resize-none rounded-lg border border-[#d4af37]/30 bg-white px-4 py-3 text-[#1e3a5f] transition-all outline-none focus:border-[#ff5200] focus:ring-2 focus:ring-[#ff5200]/20"
                                                 placeholder="Tell us about your travel plans..."
                                             />
+                                            {form.errors.message ? (
+                                                <p className="mt-1 text-xs font-medium text-red-600">{form.errors.message}</p>
+                                            ) : null}
                                         </div>
 
-                                        <button
-                                            type="submit"
-                                            className="group flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#ff5200] to-[#ff6b35] px-6 py-4 text-base font-bold text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
-                                        >
-                                            <span>Send Message via WhatsApp</span>
-                                            <Send className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                                        </button>
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
+                                            <button
+                                                type="submit"
+                                                disabled={form.processing}
+                                                className="group inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#ff5200] to-[#ff6b35] px-6 py-4 text-base font-bold text-white shadow-xl transition-all hover:scale-[1.02] hover:shadow-2xl disabled:pointer-events-none disabled:opacity-70"
+                                            >
+                                                {form.processing ? (
+                                                    <>
+                                                        <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden />
+                                                        Mengirim…
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Send className="h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden />
+                                                        Kirim ke tim kami (email)
+                                                    </>
+                                                )}
+                                            </button>
+                                            <a
+                                                href={whatsappHref}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-[#25D366] bg-[#25D366]/10 px-6 py-4 text-base font-bold text-[#128C7E] shadow-md transition-all hover:bg-[#25D366]/20"
+                                            >
+                                                Chat WhatsApp
+                                            </a>
+                                        </div>
                                     </form>
 
-                                    <p className="mt-5 text-center text-xs text-[#64748b]">
-                                        By submitting this form, you'll be redirected to WhatsApp to send your message
+                                    <p className="mt-5 text-center text-xs leading-relaxed text-[#64748b]">
+                                        Setelah Anda mengirim formulir, tim kami menerima pesan melalui email resmi dan dapat membalas dari situ.
+                                        Alternatif cepat: tombol WhatsApp membuka chat dengan nomor layanan pelanggan di atas.
                                     </p>
                                 </div>
                             </div>
