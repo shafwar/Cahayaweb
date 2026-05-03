@@ -1,3 +1,4 @@
+import AdminFloatingToast, { type AdminToastPayload } from '@/components/admin/AdminFloatingToast';
 import AdminPortalShell from '@/components/admin/AdminPortalShell';
 import B2cAdminRegistrationBell from '@/components/admin/B2cAdminRegistrationBell';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,8 @@ import {
 import { adminBackLink, adminGhostBtn, adminGlassPanel, adminMuted, adminPageTitle, adminSectionDesc, adminSectionHeader, adminSectionTitle } from '@/lib/admin-portal-theme';
 import { cn } from '@/lib/utils';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, CalendarClock, CheckCircle2, ClipboardList, Info, MoreHorizontal, Trash2, Users, XCircle } from 'lucide-react';
+import { ArrowLeft, CalendarClock, CheckCircle2, ClipboardList, ExternalLink, Info, MoreHorizontal, Trash2, Users, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 type Reg = {
     id: number;
@@ -60,6 +62,21 @@ function paymentBadgeClass(status: Reg['payment_status']) {
     return 'border-slate-300 bg-white text-slate-700';
 }
 
+function shortLabel(s: string): string {
+    return s.replace(/_/g, ' ');
+}
+
+/** Compact operational chips: visa / ticket / hotel — full editing on participant detail page. */
+function OpsChips({ r }: { r: Reg }) {
+    return (
+        <div className="mt-2 flex flex-wrap gap-1">
+            <span className="rounded-md border border-violet-200/90 bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-900">Visa {shortLabel(r.visa_status)}</span>
+            <span className="rounded-md border border-indigo-200/90 bg-indigo-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-indigo-900">Tix {shortLabel(r.ticket_status)}</span>
+            <span className="rounded-md border border-amber-200/90 bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-900">Hotel {shortLabel(r.hotel_status)}</span>
+        </div>
+    );
+}
+
 function formatRegisteredAt(iso: string | null): string {
     if (!iso) return '—';
     try {
@@ -69,7 +86,26 @@ function formatRegisteredAt(iso: string | null): string {
     }
 }
 
-export default function B2cPackageRegistrations({ package: pkg, registrations }: { package: PkgSummary; registrations: Reg[] }) {
+export default function B2cPackageRegistrations({
+    package: pkg,
+    registrations,
+    flash,
+}: {
+    package: PkgSummary;
+    registrations: Reg[];
+    flash?: { type: string; message: string } | null;
+}) {
+    const [toast, setToast] = useState<AdminToastPayload | null>(null);
+
+    useEffect(() => {
+        if (flash?.message) {
+            setToast({
+                type: flash.type === 'error' ? 'error' : 'success',
+                message: flash.message,
+            });
+        }
+    }, [flash?.message, flash?.type]);
+
     const pendingCount = registrations.filter((r) => r.registration_status === 'pending').length;
     const approvedCount = registrations.filter((r) => r.registration_status === 'approved').length;
 
@@ -105,6 +141,7 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
     return (
         <AdminPortalShell className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             <Head title={`Registrations — ${pkg.name}`} />
+            <AdminFloatingToast toast={toast} onDismiss={() => setToast(null)} />
 
             <Link href="/admin/b2c-packages" className={`${adminBackLink} mb-6`}>
                 <ArrowLeft className="h-4 w-4" />
@@ -187,24 +224,25 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
                                 <div>
                                     <h2 className={adminSectionTitle}>Daftar peserta</h2>
                                     <p className={adminSectionDesc}>
-                                        Approve / Reject untuk review. Hapus baris hanya menghapus data registrasi paket B2C ini (kuota pax dikembalikan); akun pengguna
-                                        dan jalur B2B tidak dihapus.
+                                        Gunakan <strong>View detail</strong> untuk mengubah payment, visa, tiket, hotel, dan catatan internal. Quick action di menu tetap bisa{' '}
+                                        <strong>Approve</strong> / <strong>Reject</strong>. Hapus baris hanya menghapus registrasi paket ini (pax dikembalikan); akun login dan B2B tidak dihapus.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="-mx-1 overflow-x-auto rounded-xl border border-slate-200/90 bg-white shadow-inner shadow-slate-100">
-                                <table className="w-full min-w-[56rem] table-fixed border-collapse text-left text-sm">
+                                <table className="w-full min-w-[64rem] table-fixed border-collapse text-left text-sm">
                                     <colgroup>
-                                        <col className="w-[13%]" />
-                                        <col className="w-[17%]" />
-                                        <col className="w-[9%]" />
-                                        <col className="w-[18%]" />
-                                        <col className="w-[5%]" />
-                                        <col className="w-[9%]" />
-                                        <col className="w-[11%]" />
-                                        <col className="w-[13%]" />
-                                        <col className="w-[5rem]" />
+                                        <col className="w-[12%]" />
+                                        <col className="w-[15%]" />
+                                        <col className="w-[8%]" />
+                                        <col className="w-[16%]" />
+                                        <col className="w-[4%]" />
+                                        <col className="w-[8%]" />
+                                        <col className="w-[14%]" />
+                                        <col className="w-[10%]" />
+                                        <col className="w-[7.5rem]" />
+                                        <col className="w-[4.5rem]" />
                                     </colgroup>
                                     <thead>
                                         <tr className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-50/80 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
@@ -214,8 +252,9 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
                                             <th className="px-3 py-3.5">Address</th>
                                             <th className="px-3 py-3.5 text-center">Pax</th>
                                             <th className="px-3 py-3.5">Status</th>
-                                            <th className="px-3 py-3.5">Payment</th>
+                                            <th className="px-3 py-3.5">Payment &amp; ops</th>
                                             <th className="px-3 py-3.5">Registered</th>
+                                            <th className="px-2 py-3.5 text-center">Detail</th>
                                             <th className="px-2 py-3.5 text-center">Actions</th>
                                         </tr>
                                     </thead>
@@ -246,8 +285,23 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
                                                     <Badge variant="outline" className={cn('border font-medium capitalize', paymentBadgeClass(r.payment_status))}>
                                                         {r.payment_status.replace(/_/g, ' ')}
                                                     </Badge>
+                                                    <OpsChips r={r} />
                                                 </td>
                                                 <td className="px-3 py-3 align-top text-xs tabular-nums text-slate-600">{formatRegisteredAt(r.created_at)}</td>
+                                                <td className="px-2 py-3 align-middle text-center">
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-1 rounded-lg border-slate-200 px-2.5 text-[11px] font-semibold text-[#1e3a5f] shadow-sm hover:border-orange-300 hover:bg-orange-50"
+                                                        asChild
+                                                    >
+                                                        <Link href={`/admin/participants/${r.id}`}>
+                                                            View detail
+                                                            <ExternalLink className="h-3 w-3 opacity-70" aria-hidden />
+                                                        </Link>
+                                                    </Button>
+                                                </td>
                                                 <td className="px-2 py-3 align-middle text-center">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
@@ -291,7 +345,7 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
                                                             <DropdownMenuItem asChild className="gap-2">
                                                                 <Link href={`/admin/participants/${r.id}`}>
                                                                     <Info className="h-4 w-4 text-sky-600" aria-hidden />
-                                                                    Detail
+                                                                    View detail — edit statuses
                                                                 </Link>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator />

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\B2cPackageRegistration;
 use App\Models\B2cTravelPackage;
+use App\Services\RegistrationReviewNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -53,7 +54,11 @@ class ParticipantManagementController extends Controller
                 'package_id' => $r->b2c_travel_package_id,
                 'registration_status' => $r->registration_status,
                 'payment_status' => $r->payment_status,
+                'visa_status' => $r->visa_status,
+                'ticket_status' => $r->ticket_status,
+                'hotel_status' => $r->hotel_status,
                 'created_at' => $r->created_at?->toIso8601String(),
+                'updated_at' => $r->updated_at?->toIso8601String(),
             ];
         });
 
@@ -71,9 +76,14 @@ class ParticipantManagementController extends Controller
         ]);
     }
 
-    public function show(B2cPackageRegistration $participant): Response
+    public function show(Request $request, B2cPackageRegistration $participant): Response
     {
         $participant->load(['package:id,name,slug,package_code,price_display,departure_period', 'user:id,name,email,created_at']);
+
+        $slug = $participant->package?->slug;
+        $packageRegistrationsUrl = is_string($slug) && $slug !== ''
+            ? route('admin.b2c-packages.registrations', ['b2cTravelPackage' => $slug], false)
+            : null;
 
         return Inertia::render('admin/participants/show', [
             'participant' => [
@@ -85,6 +95,7 @@ class ParticipantManagementController extends Controller
                 'address' => $participant->address,
                 'date_of_birth' => $participant->date_of_birth?->format('Y-m-d'),
                 'gender' => $participant->gender,
+                'departure_period_snapshot' => (string) ($participant->departure_period_snapshot ?? ''),
                 'pax' => $participant->pax,
                 'registration_status' => $participant->registration_status,
                 'payment_status' => $participant->payment_status,
@@ -94,6 +105,7 @@ class ParticipantManagementController extends Controller
                 'notes' => $participant->notes,
                 'reviewed_at' => $participant->reviewed_at?->toIso8601String(),
                 'created_at' => $participant->created_at?->toIso8601String(),
+                'updated_at' => $participant->updated_at?->toIso8601String(),
                 'user' => [
                     'id' => $participant->user?->id,
                     'name' => $participant->user?->name,
@@ -108,6 +120,8 @@ class ParticipantManagementController extends Controller
                     'departure_period' => $participant->package?->departure_period,
                 ],
             ],
+            'package_registrations_url' => $packageRegistrationsUrl,
+            'flash' => $request->session()->pull('flash'),
         ]);
     }
 
@@ -122,16 +136,36 @@ class ParticipantManagementController extends Controller
             'notes' => ['nullable', 'string', 'max:4000'],
         ]);
 
+        $oldRegistrationStatus = $participant->registration_status;
+
         $participant->forceFill([
-            ...$validated,
-            'reviewed_by' => auth()->id(),
-            'reviewed_at' => now(),
-        ])->save();
+            'registration_status' => $validated['registration_status'],
+            'payment_status' => $validated['payment_status'],
+            'visa_status' => $validated['visa_status'],
+            'ticket_status' => $validated['ticket_status'],
+            'hotel_status' => $validated['hotel_status'],
+            'notes' => $validated['notes'],
+        ]);
+
+        if ($validated['registration_status'] !== $oldRegistrationStatus) {
+            $participant->reviewed_by = auth()->id();
+            $participant->reviewed_at = now();
+        }
+
+        $participant->save();
+
+        $fresh = $participant->fresh(['package']);
+
+        if ($oldRegistrationStatus !== 'approved' && $fresh->registration_status === 'approved') {
+            RegistrationReviewNotifier::notifyB2cParticipant($fresh, true);
+        }
+        if ($oldRegistrationStatus !== 'rejected' && $fresh->registration_status === 'rejected') {
+            RegistrationReviewNotifier::notifyB2cParticipant($fresh, false, $validated['notes'] ?? null);
+        }
 
         return back()->with('flash', [
             'type' => 'success',
-            'message' => 'Participant updated successfully.',
+            'message' => 'Data peserta berhasil diperbarui.',
         ]);
     }
 }
-

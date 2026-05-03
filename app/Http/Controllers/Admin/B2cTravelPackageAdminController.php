@@ -326,7 +326,7 @@ class B2cTravelPackageAdminController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Paket berhasil dihapus dari daftar.']);
     }
 
-    public function registrations(B2cTravelPackage $b2cTravelPackage): Response
+    public function registrations(Request $request, B2cTravelPackage $b2cTravelPackage): Response
     {
         $regs = $b2cTravelPackage->registrations()
             ->orderByDesc('created_at')
@@ -365,6 +365,7 @@ class B2cTravelPackageAdminController extends Controller
                 'registration_open' => $b2cTravelPackage->isOpenForRegistration(),
             ],
             'registrations' => $regs,
+            'flash' => $request->session()->pull('flash'),
         ]);
     }
 
