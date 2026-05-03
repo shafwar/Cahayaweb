@@ -62,10 +62,10 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     Route::delete('/admin/b2c-packages/{b2cTravelPackage}/registrations', [B2cTravelPackageAdminController::class, 'destroyAllRegistrations'])
         ->name('admin.b2c-packages.registrations.destroy-all');
 
+    Route::delete('/admin/participants', [ParticipantManagementController::class, 'destroyMultiple'])->name('admin.participants.destroy-multiple');
     Route::get('/admin/participants', [ParticipantManagementController::class, 'index'])->name('admin.participants.index');
     Route::get('/admin/participants/{participant}', [ParticipantManagementController::class, 'show'])->name('admin.participants.show');
     Route::put('/admin/participants/{participant}', [ParticipantManagementController::class, 'update'])->name('admin.participants.update');
-    Route::delete('/admin/participants/{participant}', [ParticipantManagementController::class, 'destroy'])->name('admin.participants.destroy');
 });
 
 Route::get('/debug', [SystemDiagnosticsController::class, 'debug']);

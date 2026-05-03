@@ -7,9 +7,10 @@ use App\Models\B2cPackageRegistration;
 use App\Models\B2cTravelPackage;
 use App\Services\RegistrationReviewNotifier;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -74,6 +75,60 @@ class ParticipantManagementController extends Controller
             'participants' => $items,
             'packages' => $packages,
             'filters' => $filters,
+            'flash' => $request->session()->pull('flash'),
+        ]);
+    }
+
+    /**
+     * Hapus banyak baris registrasi B2C sekaligus (boleh lintas paket). Kuota pax_booked per paket dikurangi;
+     * akun user tidak dihapus (sama seperti hapus satu di halaman paket).
+     */
+    public function destroyMultiple(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1', 'max:200'],
+            'ids.*' => ['integer', 'distinct', 'exists:b2c_package_registrations,id'],
+        ]);
+
+        $ids = array_values(array_unique(array_map(intval(...), $validated['ids'])));
+
+        $deleted = DB::transaction(function () use ($ids) {
+            $regs = B2cPackageRegistration::query()
+                ->whereIn('id', $ids)
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            if ($regs->count() !== count($ids)) {
+                throw ValidationException::withMessages([
+                    'ids' => ['Beberapa registrasi tidak ditemukan atau sudah dihapus.'],
+                ]);
+            }
+
+            $deltas = [];
+            foreach ($regs as $r) {
+                $pid = $r->b2c_travel_package_id;
+                $deltas[$pid] = ($deltas[$pid] ?? 0) + (int) $r->pax;
+            }
+
+            B2cPackageRegistration::query()->whereIn('id', $ids)->delete();
+
+            ksort($deltas);
+
+            foreach ($deltas as $packageId => $totalPax) {
+                /** @var B2cTravelPackage $pkg */
+                $pkg = B2cTravelPackage::query()->whereKey($packageId)->lockForUpdate()->firstOrFail();
+                $pkg->forceFill([
+                    'pax_booked' => max(0, $pkg->pax_booked - $totalPax),
+                ])->save();
+            }
+
+            return $regs->count();
+        });
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => "{$deleted} registrasi B2C dihapus. Akun pengguna tetap ada; kuota paket sudah diperbarui.",
         ]);
     }
 
@@ -167,31 +222,6 @@ class ParticipantManagementController extends Controller
         return back()->with('flash', [
             'type' => 'success',
             'message' => 'Data peserta berhasil diperbarui.',
-        ]);
-    }
-
-    /**
-     * Hapus satu baris registrasi B2C (sama seperti destroyRegistration di paket): tidak menghapus akun User.
-     */
-    public function destroy(B2cPackageRegistration $participant): RedirectResponse
-    {
-        DB::transaction(function () use ($participant) {
-            $packageId = $participant->b2c_travel_package_id;
-            $pax = (int) $participant->pax;
-
-            /** @var B2cTravelPackage $pkg */
-            $pkg = B2cTravelPackage::query()->whereKey($packageId)->lockForUpdate()->firstOrFail();
-
-            $participant->delete();
-
-            $pkg->forceFill([
-                'pax_booked' => max(0, $pkg->pax_booked - $pax),
-            ])->save();
-        });
-
-        return redirect()->route('admin.participants.index')->with('flash', [
-            'type' => 'success',
-            'message' => 'Registrasi B2C dihapus. Kuota pax dikembalikan; akun pengguna tidak dihapus.',
         ]);
     }
 }

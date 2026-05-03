@@ -63,6 +63,10 @@ export const adminPrimaryBtn =
 export const adminGhostBtn =
     'rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-200 dark:bg-white dark:text-slate-700 dark:hover:bg-slate-50';
 
+/** Checkbox admin — hindari primary gelap di mode dark global */
+export const adminCheckboxLight =
+    'border-slate-300 bg-white shadow-xs dark:bg-white dark:border-slate-300 data-[state=checked]:border-orange-500 data-[state=checked]:bg-[#ff5200] data-[state=checked]:text-white';
+
 export const adminBackLink =
     'inline-flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-orange-200 hover:text-[#1e3a5f] dark:border-slate-200 dark:bg-white dark:text-slate-600 dark:hover:bg-orange-50/60';
 
