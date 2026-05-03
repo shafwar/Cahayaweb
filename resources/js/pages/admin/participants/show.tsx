@@ -22,8 +22,8 @@ import {
     adminTextarea,
 } from '@/lib/admin-portal-theme';
 import { cn } from '@/lib/utils';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, Building2, ClipboardList, CreditCard, ExternalLink, FileText, Globe, Loader2, Plane, Save, UserCircle } from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { ArrowLeft, Building2, ClipboardList, CreditCard, ExternalLink, FileText, Globe, Loader2, Plane, Save, Trash2, UserCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type Participant = {
@@ -131,6 +131,15 @@ export default function ParticipantShow({
                 : 'border-slate-200 bg-white text-slate-700 hover:border-orange-200 hover:bg-orange-50/50',
         );
 
+    const confirmDeleteRegistration = () => {
+        const ok = window.confirm(
+            `Hapus registrasi B2C untuk "${participant.full_name}" dari paket ini?\n\n` +
+                `Baris pendaftaran dihapus dan kuota pax dikembalikan. Akun login pengguna tidak dihapus.`,
+        );
+        if (!ok) return;
+        router.delete(`/admin/participants/${participant.id}`);
+    };
+
     return (
         <AdminPortalShell className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
             <Head title={`${participant.full_name} — Participant`} />
@@ -176,7 +185,9 @@ export default function ParticipantShow({
                                     Hotel: {data.hotel_status.replace(/_/g, ' ')}
                                 </Badge>
                             </div>
-                            <p className={`mt-2 text-xs ${adminMuted}`}>Badges reflect the form below until you save — then they match the database.</p>
+                            <p className={`mt-2 text-xs ${adminMuted}`}>
+                                Badges reflect the form below until you save — then they match the database. Scroll ke bawah untuk status, catatan internal, atau menghapus baris registrasi (ikon sampah / zona hapus).
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -381,6 +392,22 @@ export default function ParticipantShow({
                             </Button>
                         </div>
                     </form>
+
+                    <div className="mx-5 mb-8 mt-2 rounded-2xl border border-rose-200/90 bg-rose-50/40 p-5 sm:mx-6 sm:p-6">
+                        <h3 className="text-sm font-semibold text-rose-950">Hapus data registrasi</h3>
+                        <p className={`mt-1 text-sm ${adminMuted}`}>
+                            Hanya menghapus baris pendaftaran paket B2C ini (sama seperti menu di halaman registrasi per paket). Akun pengguna dan data agen B2B tidak dihapus.
+                        </p>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="mt-4 inline-flex gap-2 rounded-xl border-2 border-rose-400 bg-white px-4 py-2.5 text-sm font-semibold text-rose-900 shadow-sm hover:bg-rose-50"
+                            onClick={confirmDeleteRegistration}
+                        >
+                            <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
+                            Hapus registrasi ini
+                        </Button>
+                    </div>
                 </div>
             </div>
         </AdminPortalShell>

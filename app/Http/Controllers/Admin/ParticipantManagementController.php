@@ -7,6 +7,7 @@ use App\Models\B2cPackageRegistration;
 use App\Models\B2cTravelPackage;
 use App\Services\RegistrationReviewNotifier;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -166,6 +167,31 @@ class ParticipantManagementController extends Controller
         return back()->with('flash', [
             'type' => 'success',
             'message' => 'Data peserta berhasil diperbarui.',
+        ]);
+    }
+
+    /**
+     * Hapus satu baris registrasi B2C (sama seperti destroyRegistration di paket): tidak menghapus akun User.
+     */
+    public function destroy(B2cPackageRegistration $participant): RedirectResponse
+    {
+        DB::transaction(function () use ($participant) {
+            $packageId = $participant->b2c_travel_package_id;
+            $pax = (int) $participant->pax;
+
+            /** @var B2cTravelPackage $pkg */
+            $pkg = B2cTravelPackage::query()->whereKey($packageId)->lockForUpdate()->firstOrFail();
+
+            $participant->delete();
+
+            $pkg->forceFill([
+                'pax_booked' => max(0, $pkg->pax_booked - $pax),
+            ])->save();
+        });
+
+        return redirect()->route('admin.participants.index')->with('flash', [
+            'type' => 'success',
+            'message' => 'Registrasi B2C dihapus. Kuota pax dikembalikan; akun pengguna tidak dihapus.',
         ]);
     }
 }

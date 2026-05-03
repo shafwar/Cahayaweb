@@ -1,3 +1,4 @@
+import AdminFloatingToast, { type AdminToastPayload } from '@/components/admin/AdminFloatingToast';
 import AdminPortalShell from '@/components/admin/AdminPortalShell';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,8 +16,8 @@ import {
 } from '@/lib/admin-portal-theme';
 import { cn } from '@/lib/utils';
 import { Head, Link, router } from '@inertiajs/react';
-import { ExternalLink } from 'lucide-react';
-import { FormEvent, useMemo, useState } from 'react';
+import { ExternalLink, Trash2 } from 'lucide-react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 
 type Participant = {
     id: number;
@@ -83,11 +84,24 @@ export default function ParticipantIndex({
     participants,
     packages,
     filters,
+    flash,
 }: {
     participants: Paginated<Participant>;
     packages: PackageOption[];
     filters: Filters;
+    flash?: { type: string; message: string } | null;
 }) {
+    const [toast, setToast] = useState<AdminToastPayload | null>(null);
+
+    useEffect(() => {
+        if (flash?.message) {
+            setToast({
+                type: flash.type === 'error' ? 'error' : 'success',
+                message: flash.message,
+            });
+        }
+    }, [flash?.message, flash?.type]);
+
     const [local, setLocal] = useState<Filters>({
         package_id: filters.package_id,
         registration_status: filters.registration_status,
@@ -110,12 +124,22 @@ export default function ParticipantIndex({
         router.get('/admin/participants', query, { preserveState: true, preserveScroll: true });
     };
 
+    const confirmDeleteRegistration = (p: Participant) => {
+        const ok = window.confirm(
+            `Hapus registrasi B2C untuk "${p.full_name}"?\n\n` +
+                `Baris pendaftaran paket dihapus dan kuota pax dikembalikan. Akun login pengguna tidak dihapus.`,
+        );
+        if (!ok) return;
+        router.delete(`/admin/participants/${p.id}`);
+    };
+
     return (
         <AdminPortalShell className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             <Head title="Participant Management" />
+            <AdminFloatingToast toast={toast} onDismiss={() => setToast(null)} />
             <h1 className={adminPageTitle}>Participant Management</h1>
             <p className={`mt-1 max-w-3xl ${adminMuted}`}>
-                Satu daftar untuk semua pendaftaran B2C. Klik <strong>View detail</strong> untuk mengelola siklus penuh: registrasi, pembayaran, visa, tiket, hotel, dan catatan internal — konsisten dengan halaman registrasi per paket.
+                Satu daftar untuk semua pendaftaran B2C. Klik <strong>View detail</strong> untuk mengelola siklus penuh atau gunakan ikon sampah untuk menghapus baris registrasi (bukan menghapus akun pengguna). Mengubah status juga tersedia di halaman registrasi per paket.
             </p>
 
             <form
@@ -243,17 +267,29 @@ export default function ParticipantIndex({
                                     <OpsChips p={p} />
                                 </td>
                                 <td className="px-4 py-3 text-right">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className={cn(adminOutlineButtonLight, 'h-8 gap-1 rounded-lg px-3 text-[11px]')}
-                                        asChild
-                                    >
-                                        <Link href={`/admin/participants/${p.id}`}>
-                                            View detail
-                                            <ExternalLink className="h-3.5 w-3.5 opacity-70" aria-hidden />
-                                        </Link>
-                                    </Button>
+                                    <div className="flex flex-wrap items-center justify-end gap-2">
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className={cn(adminOutlineButtonLight, 'h-8 gap-1 rounded-lg px-3 text-[11px]')}
+                                            asChild
+                                        >
+                                            <Link href={`/admin/participants/${p.id}`}>
+                                                View detail
+                                                <ExternalLink className="h-3.5 w-3.5 opacity-70" aria-hidden />
+                                            </Link>
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-8 w-8 shrink-0 rounded-lg border-rose-200 bg-white p-0 text-rose-700 shadow-sm hover:border-rose-300 hover:bg-rose-50 dark:border-rose-200 dark:bg-white"
+                                            aria-label={`Hapus registrasi ${p.full_name}`}
+                                            onClick={() => confirmDeleteRegistration(p)}
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                                        </Button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

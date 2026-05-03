@@ -65,6 +65,7 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     Route::get('/admin/participants', [ParticipantManagementController::class, 'index'])->name('admin.participants.index');
     Route::get('/admin/participants/{participant}', [ParticipantManagementController::class, 'show'])->name('admin.participants.show');
     Route::put('/admin/participants/{participant}', [ParticipantManagementController::class, 'update'])->name('admin.participants.update');
+    Route::delete('/admin/participants/{participant}', [ParticipantManagementController::class, 'destroy'])->name('admin.participants.destroy');
 });
 
 Route::get('/debug', [SystemDiagnosticsController::class, 'debug']);
