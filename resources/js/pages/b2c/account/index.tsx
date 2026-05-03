@@ -71,58 +71,80 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                 ) : null}
                                 <div className="mt-3 flex flex-wrap gap-2">
                                     <Button type="button" variant="outline" size="sm" className="border-[#38bdf8]/50 bg-[#f0f9ff] text-[#0369a1]" asChild>
-                                        <Link href="/b2b/register">Form / pengajuan agen</Link>
+                                        <Link href="/b2b/register" aria-label="B2B — buat pengajuan agen">
+                                            B2B — Form pengajuan agen
+                                        </Link>
                                     </Button>
                                     <Button type="button" variant="outline" size="sm" className="border-[#38bdf8]/50 bg-[#f0f9ff] text-[#0369a1]" asChild>
-                                        <Link href="/login?mode=b2b&redirect=/b2b">Login portal B2B</Link>
+                                        <Link
+                                            href="/login?mode=b2b&redirect=/b2b"
+                                            aria-label="B2B — masuk ke portal agen setelah akun disetujui"
+                                        >
+                                            B2B — Masuk portal agen
+                                        </Link>
                                     </Button>
                                 </div>
+                                <p className="mt-2 text-xs text-slate-500">
+                                    Tombol pertama untuk <strong className="font-medium text-slate-700">pendaftaran agen baru</strong>. Tombol kedua untuk{' '}
+                                    <strong className="font-medium text-slate-700">agen yang sudah disetujui</strong> dan punya akses portal.
+                                </p>
                             </div>
 
-                            <p className="text-sm font-semibold text-[#1e3a5f]">Paket wisata (B2C)</p>
-                            {registrations.length === 0 ? (
-                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                                    Belum ada registrasi paket B2C.
-                                </div>
-                            ) : (
-                                registrations.map((item) => (
-                                    <div key={item.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                                        <div className="flex flex-wrap items-center justify-between gap-3">
-                                            <div>
-                                                <p className="font-semibold text-[#1e3a5f]">{item.package.name}</p>
-                                                <p className="text-xs text-slate-500">
-                                                    {item.full_name} · {item.pax} pax · {item.package.price_display}
+                            <div className="rounded-xl border border-emerald-200/90 bg-emerald-50/40 p-4">
+                                <p className="text-sm font-semibold text-[#1e3a5f]">Paket wisata (B2C)</p>
+                                <p className="mt-1 text-xs text-slate-600">Jalur wisatawan — daftar paket umroh/wisata dari katalog.</p>
+                                {registrations.length === 0 ? (
+                                    <div className="mt-3 rounded-lg border border-emerald-100 bg-white/80 p-4 text-sm text-slate-600">
+                                        Belum ada registrasi paket B2C.
+                                    </div>
+                                ) : (
+                                    <div className="mt-3 space-y-3">
+                                        {registrations.map((item) => (
+                                            <div key={item.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                                    <div>
+                                                        <p className="font-semibold text-[#1e3a5f]">{item.package.name}</p>
+                                                        <p className="text-xs text-slate-500">
+                                                            {item.full_name} · {item.pax} pax · {item.package.price_display}
+                                                        </p>
+                                                    </div>
+                                                    <Badge className={statusBadgeClass(item.registration_status)}>
+                                                        {item.registration_status.toUpperCase()}
+                                                    </Badge>
+                                                </div>
+                                                {item.registration_status === 'approved' ? (
+                                                    <p className="mt-3 text-sm text-emerald-700">
+                                                        Approved: Anda bisa lanjut proses pembayaran. Invoice akan ditampilkan di fitur invoice B2C.
+                                                    </p>
+                                                ) : null}
+                                                {item.registration_status === 'pending' ? (
+                                                    <p className="mt-3 text-sm text-amber-700">Pending: pendaftaran sedang direview admin.</p>
+                                                ) : null}
+                                                {item.registration_status === 'rejected' ? (
+                                                    <p className="mt-3 text-sm text-red-700">
+                                                        Rejected{item.notes ? `: ${item.notes}` : '.'}
+                                                    </p>
+                                                ) : null}
+                                                <p className="mt-2 text-xs text-slate-500">
+                                                    Payment: {item.payment_status.replace('_', ' ')} · Visa: {item.visa_status.replace('_', ' ')} · Ticket:{' '}
+                                                    {item.ticket_status.replace('_', ' ')} · Hotel: {item.hotel_status.replace('_', ' ')}
                                                 </p>
                                             </div>
-                                            <Badge className={statusBadgeClass(item.registration_status)}>
-                                                {item.registration_status.toUpperCase()}
-                                            </Badge>
-                                        </div>
-                                        {item.registration_status === 'approved' ? (
-                                            <p className="mt-3 text-sm text-emerald-700">
-                                                Approved: Anda bisa lanjut proses pembayaran. Invoice akan ditampilkan di fitur invoice B2C.
-                                            </p>
-                                        ) : null}
-                                        {item.registration_status === 'pending' ? (
-                                            <p className="mt-3 text-sm text-amber-700">Pending: pendaftaran sedang direview admin.</p>
-                                        ) : null}
-                                        {item.registration_status === 'rejected' ? (
-                                            <p className="mt-3 text-sm text-red-700">
-                                                Rejected{item.notes ? `: ${item.notes}` : '.'}
-                                            </p>
-                                        ) : null}
-                                        <p className="mt-2 text-xs text-slate-500">
-                                            Payment: {item.payment_status.replace('_', ' ')} · Visa: {item.visa_status.replace('_', ' ')} · Ticket:{' '}
-                                            {item.ticket_status.replace('_', ' ')} · Hotel: {item.hotel_status.replace('_', ' ')}
-                                        </p>
+                                        ))}
                                     </div>
-                                ))
-                            )}
+                                )}
 
-                            <div className="pt-2">
-                                <Button type="button" variant="outline" asChild>
-                                    <Link href="/packages">Lihat paket lainnya</Link>
-                                </Button>
+                                <div className="mt-4">
+                                    <Button
+                                        type="button"
+                                        className="border border-[#ff5200]/40 bg-gradient-to-r from-[#ff5200] to-[#e64a00] text-white shadow-sm hover:from-[#ff6b35] hover:to-[#ff5200]"
+                                        asChild
+                                    >
+                                        <Link href="/packages" aria-label="B2C — buka katalog paket wisata">
+                                            B2C — Lihat &amp; pilih paket wisata
+                                        </Link>
+                                    </Button>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
