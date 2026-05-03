@@ -19,9 +19,14 @@ class InboundLeadNotifier
      */
     public static function adminRecipientEmails(): array
     {
-        $raw = config('app.admin_emails', []);
-        if (! is_array($raw)) {
-            return [];
+        $notify = config('app.admin_notify_emails', []);
+        $admins = config('app.admin_emails', []);
+        $raw = [];
+        if (is_array($notify)) {
+            $raw = array_merge($raw, $notify);
+        }
+        if (is_array($admins)) {
+            $raw = array_merge($raw, $admins);
         }
 
         $out = [];

@@ -138,4 +138,14 @@ return [
         explode(',', env('APP_ADMIN_EMAILS', 'test@example.com'))
     ))),
 
+    /*
+    | Comma-separated inbox(es) for contact form + B2B/B2C admin alerts only.
+    | Merged with admin_emails (deduped). Set this to ops Gmail if APP_ADMIN_EMAILS
+    | is only used for dashboard login addresses.
+    */
+    'admin_notify_emails' => array_values(array_filter(array_map(
+        static fn (string $email) => trim($email),
+        explode(',', (string) env('ADMIN_NOTIFY_EMAILS', ''))
+    ))),
+
 ];

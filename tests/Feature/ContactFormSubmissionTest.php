@@ -1,6 +1,7 @@
 <?php
 
 use App\Notifications\AdminContactMessageNotification;
+use App\Services\InboundLeadNotifier;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Notification;
 
@@ -23,4 +24,12 @@ it('accepts valid contact form and notifies admins', function () {
     Notification::assertSentOnDemand(AdminContactMessageNotification::class, function (AdminContactMessageNotification $n): bool {
         return str_contains($n->body, 'uji formulir kontak');
     });
+});
+
+it('dedupes merged admin_notify_emails and admin_emails', function () {
+    Config::set('app.admin_notify_emails', ['same@test.local']);
+    Config::set('app.admin_emails', ['same@test.local', 'other@test.local']);
+
+    expect(InboundLeadNotifier::adminRecipientEmails())->toHaveCount(2)
+        ->and(InboundLeadNotifier::adminRecipientEmails())->toContain('same@test.local', 'other@test.local');
 });

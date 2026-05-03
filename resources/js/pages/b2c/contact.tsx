@@ -3,6 +3,7 @@ import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
 import { useForm } from '@inertiajs/react';
 import { LoaderCircle, Mail, MapPin, MessageSquare, Phone, Send } from 'lucide-react';
+import { useEffect } from 'react';
 
 type ContactFlash = { type: string; message: string } | null;
 
@@ -14,9 +15,23 @@ export default function Contact({ flash }: { flash?: ContactFlash }) {
         message: '',
     });
 
+    useEffect(() => {
+        if (flash?.type === 'success' && flash.message) {
+            form.reset();
+            form.clearErrors();
+        }
+    }, [flash?.type, flash?.message]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        form.post(route('b2c.contact.submit'), { preserveScroll: true });
+        form.clearErrors();
+        form.post(route('b2c.contact.submit'), {
+            preserveScroll: false,
+            onSuccess: () => {
+                form.reset();
+                form.clearErrors();
+            },
+        });
     };
 
     const whatsappHref =
@@ -153,7 +168,9 @@ export default function Contact({ flash }: { flash?: ContactFlash }) {
                                             className={`mb-5 rounded-xl border px-4 py-3 text-sm font-medium ${
                                                 flash.type === 'success'
                                                     ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
-                                                    : 'border-slate-200 bg-slate-50 text-slate-800'
+                                                    : flash.type === 'error'
+                                                      ? 'border-red-200 bg-red-50 text-red-900'
+                                                      : 'border-slate-200 bg-slate-50 text-slate-800'
                                             }`}
                                             role="status"
                                         >

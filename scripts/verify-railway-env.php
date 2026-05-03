@@ -6,14 +6,13 @@
  * Safe: does not print secret values.
  */
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-$app = require_once __DIR__ . '/../bootstrap/app.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
 $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Config;
 use App\Support\R2Helper;
+use Illuminate\Support\Facades\DB;
 
 function mask(string $value, int $visible = 4): string
 {
@@ -21,13 +20,15 @@ function mask(string $value, int $visible = 4): string
     if ($len <= $visible * 2) {
         return str_repeat('*', $len);
     }
-    return substr($value, 0, $visible) . '***' . substr($value, -$visible);
+
+    return substr($value, 0, $visible).'***'.substr($value, -$visible);
 }
 
 function check(string $key, ?string $value, bool $required = true): array
 {
     $set = $value !== null && $value !== '';
     $display = $set ? mask($value) : '(empty)';
+
     return ['key' => $key, 'set' => $set, 'display' => $display, 'required' => $required];
 }
 
@@ -71,7 +72,7 @@ try {
     $dbOk = true;
     echo "   ✓ DB connection: OK\n";
 } catch (\Throwable $e) {
-    echo "   ✗ DB connection: FAILED - " . $e->getMessage() . "\n";
+    echo '   ✗ DB connection: FAILED - '.$e->getMessage()."\n";
 }
 echo "\n";
 
@@ -91,16 +92,16 @@ foreach ($r2Vars as $v) {
 }
 
 $r2Configured = R2Helper::isR2DiskConfigured();
-echo "   " . ($r2Configured ? "✓ R2 disk configured: YES (B2B + CMS images will use R2)" : "✗ R2 disk: NOT CONFIGURED (CMS image upload will FAIL with 500)") . "\n";
+echo '   '.($r2Configured ? '✓ R2 disk configured: YES (B2B + CMS images will use R2)' : '✗ R2 disk: NOT CONFIGURED (CMS image upload will FAIL with 500)')."\n";
 
 if ($r2Configured) {
     try {
         $disk = \Illuminate\Support\Facades\Storage::disk('r2');
         $agentFiles = $disk->allFiles('documents/agent-verifications');
-        echo "   ✓ R2 B2B documents (documents/agent-verifications) count: " . count($agentFiles) . "\n";
+        echo '   ✓ R2 B2B documents (documents/agent-verifications) count: '.count($agentFiles)."\n";
         // Test CMS upload path (images/)
-        $testPath = 'images/verify-' . uniqid() . '.txt';
-        $ok = $disk->put($testPath, 'R2 CMS upload test ' . date('c'));
+        $testPath = 'images/verify-'.uniqid().'.txt';
+        $ok = $disk->put($testPath, 'R2 CMS upload test '.date('c'));
         if ($ok) {
             $disk->delete($testPath);
             echo "   ✓ R2 CMS upload test (images/): OK\n";
@@ -108,7 +109,7 @@ if ($r2Configured) {
             echo "   ✗ R2 CMS upload test: put() returned false\n";
         }
     } catch (\Throwable $e) {
-        echo "   ✗ R2 error: " . $e->getMessage() . "\n";
+        echo '   ✗ R2 error: '.$e->getMessage()."\n";
     }
 }
 echo "\n";
@@ -117,32 +118,35 @@ echo "\n";
 echo "4. Admin\n";
 $adminEmails = env('APP_ADMIN_EMAILS');
 $adminSet = $adminEmails !== null && $adminEmails !== '';
-echo "   " . ($adminSet ? '✓ APP_ADMIN_EMAILS: SET' : '○ APP_ADMIN_EMAILS: (empty)') . "\n";
+echo '   '.($adminSet ? '✓ APP_ADMIN_EMAILS: SET' : '○ APP_ADMIN_EMAILS: (empty)')."\n";
+$notifyEmails = env('ADMIN_NOTIFY_EMAILS');
+$notifySet = $notifyEmails !== null && trim((string) $notifyEmails) !== '';
+echo '   '.($notifySet ? '✓ ADMIN_NOTIFY_EMAILS: SET (contact + registration alerts)' : '○ ADMIN_NOTIFY_EMAILS: (empty — alerts only use APP_ADMIN_EMAILS)')."\n";
 echo "\n";
 
 // 5. Summary & recommendations
 echo "=== Summary ===\n";
 $missingRequired = [];
-if (!env('APP_KEY')) {
+if (! env('APP_KEY')) {
     $missingRequired[] = 'APP_KEY';
 }
-if (!env('APP_URL')) {
+if (! env('APP_URL')) {
     $missingRequired[] = 'APP_URL';
 }
 
 if (count($missingRequired) > 0) {
-    echo "✗ Missing required: " . implode(', ', $missingRequired) . "\n";
+    echo '✗ Missing required: '.implode(', ', $missingRequired)."\n";
 } else {
     echo "✓ Required app variables present\n";
 }
 
-if (!$dbOk && env('DB_CONNECTION') === 'mysql') {
+if (! $dbOk && env('DB_CONNECTION') === 'mysql') {
     echo "✗ Database (MySQL) connection failed. Check DB_* variables and MySQL service.\n";
 } elseif ($dbOk) {
     echo "✓ Database connection OK\n";
 }
 
-if (!$r2Configured) {
+if (! $r2Configured) {
     echo "✗ R2 NOT configured. CMS image upload akan GAGAL (500). B2B docs pakai local storage.\n";
     echo "  Untuk memperbaiki: set R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_URL, R2_ENDPOINT di Railway variables.\n";
 } else {
