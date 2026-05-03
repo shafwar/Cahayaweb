@@ -59,6 +59,8 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
         ->name('admin.b2c-packages.registrations.reject');
     Route::delete('/admin/b2c-packages/registrations/{registration}', [B2cTravelPackageAdminController::class, 'destroyRegistration'])
         ->name('admin.b2c-packages.registrations.destroy');
+    Route::delete('/admin/b2c-packages/{b2cTravelPackage}/registrations/bulk', [B2cTravelPackageAdminController::class, 'destroyBulkRegistrations'])
+        ->name('admin.b2c-packages.registrations.destroy-bulk');
     Route::delete('/admin/b2c-packages/{b2cTravelPackage}/registrations', [B2cTravelPackageAdminController::class, 'destroyAllRegistrations'])
         ->name('admin.b2c-packages.registrations.destroy-all');
 

@@ -3,15 +3,11 @@ import AdminPortalShell from '@/components/admin/AdminPortalShell';
 import B2cAdminRegistrationBell from '@/components/admin/B2cAdminRegistrationBell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
     adminBackLink,
+    adminCheckboxLight,
     adminGhostBtn,
     adminGlassPanel,
     adminMuted,
@@ -22,8 +18,8 @@ import {
     adminSectionTitle,
 } from '@/lib/admin-portal-theme';
 import { cn } from '@/lib/utils';
-import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, CalendarClock, CheckCircle2, ClipboardList, ExternalLink, Info, MoreHorizontal, Trash2, Users, XCircle } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { ArrowLeft, CalendarClock, ClipboardList, ExternalLink, Trash2, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type Reg = {
@@ -76,7 +72,6 @@ function shortLabel(s: string): string {
     return s.replace(/_/g, ' ');
 }
 
-/** Compact operational chips: visa / ticket / hotel — full editing on participant detail page. */
 function OpsChips({ r }: { r: Reg }) {
     return (
         <div className="mt-1.5 flex flex-row flex-wrap gap-1">
@@ -102,6 +97,15 @@ function formatRegisteredAt(iso: string | null): string {
     }
 }
 
+function firstError(val: unknown): string | undefined {
+    if (typeof val === 'string') return val;
+    if (Array.isArray(val) && typeof val[0] === 'string') return val[0];
+    return undefined;
+}
+
+const bulkDeleteBtn =
+    'inline-flex items-center gap-2 rounded-xl border-2 border-rose-400 bg-white px-4 py-2 text-sm font-semibold text-rose-900 shadow-sm transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400 dark:bg-white dark:hover:bg-rose-50';
+
 export default function B2cPackageRegistrations({
     package: pkg,
     registrations,
@@ -111,7 +115,10 @@ export default function B2cPackageRegistrations({
     registrations: Reg[];
     flash?: { type: string; message: string } | null;
 }) {
+    const pageErrors = usePage().props.errors as Record<string, string | string[]> | undefined;
     const [toast, setToast] = useState<AdminToastPayload | null>(null);
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
 
     useEffect(() => {
         if (flash?.message) {
@@ -125,13 +132,20 @@ export default function B2cPackageRegistrations({
     const pendingCount = registrations.filter((r) => r.registration_status === 'pending').length;
     const approvedCount = registrations.filter((r) => r.registration_status === 'approved').length;
 
-    const confirmDeleteRegistration = (r: Reg) => {
-        const ok = window.confirm(
-            `Hapus registrasi B2C untuk "${r.full_name}" dari paket ini saja?\n\n` +
-                `Ini menghapus baris pendaftaran paket dan mengembalikan kuota pax. Akun pengguna (login) dan data pengajuan agen B2B tidak akan dihapus.`,
-        );
-        if (!ok) return;
-        router.delete(`/admin/b2c-packages/registrations/${r.id}`, { preserveScroll: true });
+    const rowIds = registrations.map((r) => r.id);
+    const allSelected = rowIds.length > 0 && rowIds.every((id) => selectedIds.includes(id));
+    const someSelected = rowIds.some((id) => selectedIds.includes(id));
+
+    const toggleSelectAll = () => {
+        if (allSelected) {
+            setSelectedIds((prev) => prev.filter((id) => !rowIds.includes(id)));
+        } else {
+            setSelectedIds((prev) => [...new Set([...prev, ...rowIds])]);
+        }
+    };
+
+    const toggleOne = (id: number) => {
+        setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
     };
 
     const confirmDeleteAllRegistrations = () => {
@@ -151,6 +165,18 @@ export default function B2cPackageRegistrations({
         router.delete(`/admin/b2c-packages/${pkg.slug}/registrations`, {
             preserveScroll: true,
             data: { confirm_package_code: code },
+        });
+    };
+
+    const confirmBulkDelete = () => {
+        if (selectedIds.length === 0) return;
+        router.delete(route('admin.b2c-packages.registrations.destroy-bulk', { b2cTravelPackage: pkg.slug }), {
+            data: { ids: selectedIds },
+            preserveScroll: true,
+            onSuccess: () => {
+                setSelectedIds([]);
+                setBulkDialogOpen(false);
+            },
         });
     };
 
@@ -200,7 +226,7 @@ export default function B2cPackageRegistrations({
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    className="inline-flex gap-2 rounded-xl border-2 border-rose-400 bg-white px-4 py-2 text-sm font-semibold text-rose-900 shadow-sm hover:bg-rose-50"
+                                    className="inline-flex gap-2 rounded-xl border-2 border-rose-400 bg-white px-4 py-2 text-sm font-semibold text-rose-900 shadow-sm hover:bg-rose-50 dark:bg-white dark:hover:bg-rose-50"
                                     onClick={confirmDeleteAllRegistrations}
                                 >
                                     <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
@@ -240,150 +266,159 @@ export default function B2cPackageRegistrations({
                                 <div>
                                     <h2 className={adminSectionTitle}>Daftar peserta</h2>
                                     <p className={adminSectionDesc}>
-                                        Gunakan <strong>View detail</strong> untuk mengubah payment, visa, tiket, hotel, dan catatan internal. Quick action di menu tetap bisa{' '}
-                                        <strong>Approve</strong> / <strong>Reject</strong>. Hapus baris hanya menghapus registrasi paket ini (pax dikembalikan); akun login dan B2B tidak dihapus.
+                                        Centang kotak di kiri untuk memilih satu atau lebih peserta, lalu gunakan <strong>Hapus yang dipilih</strong>. Untuk menyetujui / menolak
+                                        registrasi atau mengubah status pembayaran &amp; operasional, buka <strong>View detail</strong>. Menghapus baris hanya menghapus registrasi
+                                        paket ini (pax dikembalikan); akun login dan B2B tidak dihapus. Tombol <strong>Hapus semua registrasi</strong> di atas menghapus seluruh
+                                        daftar paket ini setelah konfirmasi kode paket.
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="-mx-1 overflow-x-auto rounded-xl border border-slate-200/90 bg-white shadow-inner shadow-slate-100">
-                                <table className="w-full min-w-[64rem] table-fixed border-collapse text-left text-sm">
-                                    <colgroup>
-                                        <col className="w-[12%]" />
-                                        <col className="w-[15%]" />
-                                        <col className="w-[8%]" />
-                                        <col className="w-[16%]" />
-                                        <col className="w-[4%]" />
-                                        <col className="w-[8%]" />
-                                        <col className="w-[14%]" />
-                                        <col className="w-[10%]" />
-                                        <col className="w-[7.5rem]" />
-                                        <col className="w-[4.5rem]" />
-                                    </colgroup>
-                                    <thead>
-                                        <tr className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-50/80 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
-                                            <th className="px-3 py-3.5 pr-2">Participant</th>
-                                            <th className="px-3 py-3.5">Contact</th>
-                                            <th className="px-3 py-3.5">Passport</th>
-                                            <th className="px-3 py-3.5">Address</th>
-                                            <th className="px-3 py-3.5 text-center">Pax</th>
-                                            <th className="px-3 py-3.5">Status</th>
-                                            <th className="px-3 py-3.5">Payment &amp; ops</th>
-                                            <th className="px-3 py-3.5">Registered</th>
-                                            <th className="px-2 py-3.5 text-center">Detail</th>
-                                            <th className="px-2 py-3.5 text-center">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100 bg-white">
-                                        {registrations.map((r) => (
-                                            <tr key={r.id} className="transition-colors hover:bg-orange-50/40">
-                                                <td className="px-3 py-3 align-top">
-                                                    <div className="break-words font-semibold leading-snug text-[#1e3a5f]">{r.full_name}</div>
-                                                    <div className="mt-0.5 text-xs capitalize text-slate-500">{r.gender}</div>
-                                                </td>
-                                                <td className="px-3 py-3 align-top text-xs leading-relaxed">
-                                                    <div className="break-all font-medium text-slate-800">{r.email}</div>
-                                                    <div className="mt-1 break-words text-slate-600">{r.phone}</div>
-                                                </td>
-                                                <td className="px-3 py-3 align-top font-mono text-xs text-slate-700">{r.passport_number}</td>
-                                                <td className="px-3 py-3 align-top">
-                                                    <span className="line-clamp-3 text-xs leading-relaxed text-slate-600" title={r.address}>
-                                                        {r.address}
-                                                    </span>
-                                                </td>
-                                                <td className="px-3 py-3 align-top text-center tabular-nums font-medium text-slate-800">{r.pax}</td>
-                                                <td className="px-3 py-3 align-top">
-                                                    <Badge className={cn('text-[10px] font-bold uppercase tracking-wide', registrationStatusBadge(r.registration_status))}>
-                                                        {r.registration_status}
-                                                    </Badge>
-                                                </td>
-                                                <td className="px-3 py-3 align-top">
-                                                    <Badge variant="outline" className={cn('border font-medium capitalize', paymentBadgeClass(r.payment_status))}>
-                                                        {r.payment_status.replace(/_/g, ' ')}
-                                                    </Badge>
-                                                    <OpsChips r={r} />
-                                                </td>
-                                                <td className="px-3 py-3 align-top text-xs tabular-nums text-slate-600">{formatRegisteredAt(r.created_at)}</td>
-                                                <td className="px-2 py-3 align-middle text-center">
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className={cn(adminOutlineButtonLight, 'h-8 gap-1 rounded-lg px-2.5 text-[11px]')}
-                                                        asChild
-                                                    >
-                                                        <Link href={`/admin/participants/${r.id}`}>
-                                                            View detail
-                                                            <ExternalLink className="h-3 w-3 opacity-70" aria-hidden />
-                                                        </Link>
-                                                    </Button>
-                                                </td>
-                                                <td className="px-2 py-3 align-middle text-center">
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button
-                                                                type="button"
-                                                                variant="outline"
-                                                                size="sm"
-                                                                className="h-9 w-9 shrink-0 border-2 border-orange-400 bg-orange-50/90 p-0 text-orange-800 shadow-sm ring-1 ring-orange-200/80 hover:bg-orange-100 hover:text-orange-950 focus-visible:ring-2 focus-visible:ring-orange-400"
-                                                                aria-label={`Actions for ${r.full_name}`}
-                                                            >
-                                                                <MoreHorizontal className="h-4 w-4 text-orange-700" aria-hidden />
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end" className="w-52">
-                                                            <DropdownMenuItem
-                                                                disabled={r.registration_status === 'approved'}
-                                                                className="gap-2"
-                                                                onClick={() =>
-                                                                    router.post(`/admin/b2c-packages/registrations/${r.id}/approve`, {}, { preserveScroll: true })
-                                                                }
-                                                            >
-                                                                <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-hidden />
-                                                                Approve
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem
-                                                                disabled={r.registration_status === 'rejected'}
-                                                                className="gap-2"
-                                                                onClick={() => {
-                                                                    const notes = window.prompt('Catatan admin (opsional):', r.notes ?? '');
-                                                                    if (notes === null) return;
-                                                                    router.post(
-                                                                        `/admin/b2c-packages/registrations/${r.id}/reject`,
-                                                                        { notes },
-                                                                        { preserveScroll: true },
-                                                                    );
-                                                                }}
-                                                            >
-                                                                <XCircle className="h-4 w-4 text-red-600" aria-hidden />
-                                                                Reject
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem asChild className="gap-2">
-                                                                <Link href={`/admin/participants/${r.id}`}>
-                                                                    <Info className="h-4 w-4 text-sky-600" aria-hidden />
-                                                                    View detail — edit statuses
-                                                                </Link>
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem
-                                                                className="gap-2 text-rose-700 focus:bg-rose-50 focus:text-rose-900"
-                                                                onClick={() => confirmDeleteRegistration(r)}
-                                                            >
-                                                                <Trash2 className="h-4 w-4" aria-hidden />
-                                                                Hapus baris
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </td>
+                            <div className="-mx-1 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-inner shadow-slate-100">
+                                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-gradient-to-r from-slate-50/80 to-orange-50/25 px-4 py-3 sm:px-4">
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-medium text-slate-800">
+                                            {selectedIds.length > 0 ? (
+                                                <>
+                                                    <span className="tabular-nums text-orange-700">{selectedIds.length}</span> dipilih — hapus dari paket ini saja
+                                                </>
+                                            ) : (
+                                                <span className={adminMuted}>Centang baris di kiri untuk menghapus beberapa peserta sekaligus.</span>
+                                            )}
+                                        </p>
+                                        {firstError(pageErrors?.ids) ? (
+                                            <p className="mt-1 text-sm text-red-600">{firstError(pageErrors?.ids)}</p>
+                                        ) : null}
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        disabled={selectedIds.length === 0}
+                                        className={cn(bulkDeleteBtn)}
+                                        onClick={() => setBulkDialogOpen(true)}
+                                    >
+                                        <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
+                                        Hapus yang dipilih
+                                    </Button>
+                                </div>
+
+                                <div className="overflow-x-auto">
+                                    <table className="w-full min-w-[60rem] table-fixed border-collapse text-left text-sm">
+                                        <colgroup>
+                                            <col className="w-11" />
+                                            <col className="w-[12%]" />
+                                            <col className="w-[15%]" />
+                                            <col className="w-[8%]" />
+                                            <col className="w-[16%]" />
+                                            <col className="w-[4%]" />
+                                            <col className="w-[8%]" />
+                                            <col className="w-[14%]" />
+                                            <col className="w-[10%]" />
+                                            <col className="w-[7.5rem]" />
+                                        </colgroup>
+                                        <thead>
+                                            <tr className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-50/80 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
+                                                <th className="px-2 py-3.5 text-center" scope="col">
+                                                    <Checkbox
+                                                        checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                                                        onCheckedChange={() => toggleSelectAll()}
+                                                        className={cn('mx-auto size-4', adminCheckboxLight)}
+                                                        aria-label="Pilih semua peserta di daftar"
+                                                    />
+                                                </th>
+                                                <th className="px-3 py-3.5 pr-2">Participant</th>
+                                                <th className="px-3 py-3.5">Contact</th>
+                                                <th className="px-3 py-3.5">Passport</th>
+                                                <th className="px-3 py-3.5">Address</th>
+                                                <th className="px-3 py-3.5 text-center">Pax</th>
+                                                <th className="px-3 py-3.5">Status</th>
+                                                <th className="px-3 py-3.5">Payment &amp; ops</th>
+                                                <th className="px-3 py-3.5">Registered</th>
+                                                <th className="px-2 py-3.5 text-center">Detail</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 bg-white">
+                                            {registrations.map((r) => (
+                                                <tr key={r.id} className="transition-colors hover:bg-orange-50/40">
+                                                    <td className="px-2 py-3 text-center align-middle">
+                                                        <Checkbox
+                                                            checked={selectedIds.includes(r.id)}
+                                                            onCheckedChange={() => toggleOne(r.id)}
+                                                            className={cn('mx-auto size-4', adminCheckboxLight)}
+                                                            aria-label={`Pilih ${r.full_name}`}
+                                                        />
+                                                    </td>
+                                                    <td className="px-3 py-3 align-top">
+                                                        <div className="break-words font-semibold leading-snug text-[#1e3a5f]">{r.full_name}</div>
+                                                        <div className="mt-0.5 text-xs capitalize text-slate-500">{r.gender}</div>
+                                                    </td>
+                                                    <td className="px-3 py-3 align-top text-xs leading-relaxed">
+                                                        <div className="break-all font-medium text-slate-800">{r.email}</div>
+                                                        <div className="mt-1 break-words text-slate-600">{r.phone}</div>
+                                                    </td>
+                                                    <td className="px-3 py-3 align-top font-mono text-xs text-slate-700">{r.passport_number}</td>
+                                                    <td className="px-3 py-3 align-top">
+                                                        <span className="line-clamp-3 text-xs leading-relaxed text-slate-600" title={r.address}>
+                                                            {r.address}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-3 py-3 align-top text-center tabular-nums font-medium text-slate-800">{r.pax}</td>
+                                                    <td className="px-3 py-3 align-top">
+                                                        <Badge className={cn('text-[10px] font-bold uppercase tracking-wide', registrationStatusBadge(r.registration_status))}>
+                                                            {r.registration_status}
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="px-3 py-3 align-top">
+                                                        <Badge variant="outline" className={cn('border font-medium capitalize', paymentBadgeClass(r.payment_status))}>
+                                                            {r.payment_status.replace(/_/g, ' ')}
+                                                        </Badge>
+                                                        <OpsChips r={r} />
+                                                    </td>
+                                                    <td className="px-3 py-3 align-top text-xs tabular-nums text-slate-600">{formatRegisteredAt(r.created_at)}</td>
+                                                    <td className="px-2 py-3 align-middle text-center">
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className={cn(adminOutlineButtonLight, 'h-8 gap-1 rounded-lg px-2.5 text-[11px]')}
+                                                            asChild
+                                                        >
+                                                            <Link href={`/admin/participants/${r.id}`}>
+                                                                View detail
+                                                                <ExternalLink className="h-3 w-3 opacity-70" aria-hidden />
+                                                            </Link>
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </>
                     )}
                 </div>
             </div>
+
+            <Dialog open={bulkDialogOpen} onOpenChange={setBulkDialogOpen}>
+                <DialogContent className="border-slate-200 bg-white dark:bg-white sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-slate-900">Hapus peserta yang dipilih?</DialogTitle>
+                        <DialogDescription className="text-slate-600">
+                            <span className="font-semibold tabular-nums text-slate-900">{selectedIds.length}</span> registrasi akan dihapus dari paket ini. Kuota pax akan
+                            dikembalikan. Akun pengguna tidak dihapus.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button type="button" variant="outline" className={cn(adminGhostBtn)} onClick={() => setBulkDialogOpen(false)}>
+                            Batal
+                        </Button>
+                        <Button type="button" variant="outline" className={cn(bulkDeleteBtn)} onClick={confirmBulkDelete}>
+                            Ya, hapus
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AdminPortalShell>
     );
 }

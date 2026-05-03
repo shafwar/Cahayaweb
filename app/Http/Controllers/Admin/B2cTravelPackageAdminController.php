@@ -444,6 +444,51 @@ class B2cTravelPackageAdminController extends Controller
     }
 
     /**
+     * Hapus beberapa baris registrasi B2C untuk paket ini (centang di tabel admin). Pax dikembalikan sekaligus.
+     */
+    public function destroyBulkRegistrations(Request $request, B2cTravelPackage $b2cTravelPackage): RedirectResponse
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1', 'max:200'],
+            'ids.*' => ['integer', 'distinct', 'exists:b2c_package_registrations,id'],
+        ]);
+
+        $ids = array_values(array_unique(array_map(intval(...), $validated['ids'])));
+
+        $deleted = DB::transaction(function () use ($b2cTravelPackage, $ids) {
+            $regs = B2cPackageRegistration::query()
+                ->where('b2c_travel_package_id', $b2cTravelPackage->id)
+                ->whereIn('id', $ids)
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            if ($regs->count() !== count($ids)) {
+                throw ValidationException::withMessages([
+                    'ids' => ['Pastikan semua baris yang dipilih masih ada dan untuk paket ini.'],
+                ]);
+            }
+
+            $totalPax = $regs->sum(fn (B2cPackageRegistration $r): int => (int) $r->pax);
+
+            B2cPackageRegistration::query()->whereIn('id', $ids)->delete();
+
+            /** @var B2cTravelPackage $pkg */
+            $pkg = B2cTravelPackage::query()->whereKey($b2cTravelPackage->id)->lockForUpdate()->firstOrFail();
+            $pkg->forceFill([
+                'pax_booked' => max(0, $pkg->pax_booked - $totalPax),
+            ])->save();
+
+            return $regs->count();
+        });
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => "{$deleted} registrasi dihapus dari paket ini. Akun pengguna tidak dihapus.",
+        ]);
+    }
+
+    /**
      * Hapus seluruh registrasi B2C untuk satu paket; kuota pax_booked direset ke 0.
      * Konfirmasi wajib dengan package_code yang tepat.
      */
