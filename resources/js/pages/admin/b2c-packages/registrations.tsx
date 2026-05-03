@@ -255,10 +255,10 @@ export default function B2cPackageRegistrations({ package: pkg, registrations }:
                                                                 type="button"
                                                                 variant="outline"
                                                                 size="sm"
-                                                                className="h-9 w-9 shrink-0 border-slate-300 p-0 text-slate-700 hover:bg-slate-50"
+                                                                className="h-9 w-9 shrink-0 border-2 border-orange-400 bg-orange-50/90 p-0 text-orange-800 shadow-sm ring-1 ring-orange-200/80 hover:bg-orange-100 hover:text-orange-950 focus-visible:ring-2 focus-visible:ring-orange-400"
                                                                 aria-label={`Actions for ${r.full_name}`}
                                                             >
-                                                                <MoreHorizontal className="h-4 w-4" aria-hidden />
+                                                                <MoreHorizontal className="h-4 w-4 text-orange-700" aria-hidden />
                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end" className="w-52">

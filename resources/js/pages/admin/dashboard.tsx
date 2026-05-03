@@ -32,10 +32,10 @@ export default function AdminDashboard() {
             glow: 'from-orange-50/80 via-transparent to-amber-50/40',
         },
         {
-            href: '/select-mode',
+            href: '/home',
             icon: Layout,
             title: 'Admin CMS',
-            description: 'Choose B2C or B2B portal to edit content, sections, and images for the public site.',
+            description: 'Open the public site in edit mode from the header to change sections, images, and content.',
             border: 'border-amber-200/90 hover:border-amber-300',
             iconBg: 'bg-amber-50 text-amber-700 ring-amber-100',
             glow: 'from-amber-50/80 via-transparent to-orange-50/30',

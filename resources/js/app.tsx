@@ -12,9 +12,7 @@ import { initializeTheme } from './hooks/use-appearance';
 const appName = import.meta.env.VITE_APP_NAME || 'Cahaya Anbiya';
 
 import B2CHomePage from './pages/b2c/home';
-import SelectModePage from './pages/landing/select-mode';
 const criticalPages: Record<string, React.ComponentType<PageProps>> = {
-    'landing/select-mode': SelectModePage,
     'b2c/home': B2CHomePage,
 };
 

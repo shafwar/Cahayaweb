@@ -248,7 +248,8 @@ const pages = [
 ];
 
 export default function SearchPage() {
-    const page = usePage<{ travelPackages?: SearchTravelPackageCard[] }>();
+    const page = usePage<{ travelPackages?: SearchTravelPackageCard[]; auth?: { user: { is_admin?: boolean } | null } }>();
+    const isAdmin = Boolean(page.props.auth?.user?.is_admin);
     const urlParams = new URLSearchParams(window.location.search);
     const initialQuery = urlParams.get('q') || '';
 
@@ -268,7 +269,11 @@ export default function SearchPage() {
                             : `/${rawImg}`;
                   const highlightsStr = Array.isArray(p.highlights) ? p.highlights.join(', ') : '';
                   const href =
-                      p.registration_open && p.slug ? `/packages/register/${p.slug}` : '/packages';
+                      p.slug && isAdmin
+                          ? `/admin/b2c-packages/${p.slug}/registrations`
+                          : p.registration_open && p.slug
+                            ? `/packages/register/${p.slug}`
+                            : '/packages';
                   return {
                       id: `db-${p.slug ?? p.id}`,
                       title: String(p.title ?? ''),
@@ -284,7 +289,7 @@ export default function SearchPage() {
               })
             : [];
         return [...staticSearchPackages, ...dbRows];
-    }, [page.props.travelPackages]);
+    }, [page.props.travelPackages, isAdmin]);
 
     useEffect(() => {
         if (searchQuery.trim()) {

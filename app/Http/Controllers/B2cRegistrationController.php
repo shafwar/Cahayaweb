@@ -20,8 +20,22 @@ class B2cRegistrationController extends Controller
 
     private const SESSION_PENDING_TTL_SECONDS = 2700;
 
+    private function redirectAdminToRegistrations(Request $request, B2cTravelPackage $b2cTravelPackage): ?RedirectResponse
+    {
+        $user = $request->user();
+        if ($user && $user->isAdmin()) {
+            return redirect()->route('admin.b2c-packages.registrations', $b2cTravelPackage);
+        }
+
+        return null;
+    }
+
     public function create(Request $request, B2cTravelPackage $b2cTravelPackage): Response|RedirectResponse
     {
+        if ($redirect = $this->redirectAdminToRegistrations($request, $b2cTravelPackage)) {
+            return $redirect;
+        }
+
         if (! $b2cTravelPackage->isOpenForRegistration()) {
             return redirect()
                 ->route('b2c.packages')
@@ -64,6 +78,10 @@ class B2cRegistrationController extends Controller
      */
     public function store(StoreB2cPackageRegistrationRequest $request, B2cTravelPackage $b2cTravelPackage): RedirectResponse
     {
+        if ($redirect = $this->redirectAdminToRegistrations($request, $b2cTravelPackage)) {
+            return $redirect;
+        }
+
         $validated = $request->validated();
 
         $request->session()->put(self::SESSION_PENDING_REGISTRATION, [
@@ -99,6 +117,10 @@ class B2cRegistrationController extends Controller
      */
     public function legacyAccountStep(Request $request, B2cTravelPackage $b2cTravelPackage): RedirectResponse
     {
+        if ($redirect = $this->redirectAdminToRegistrations($request, $b2cTravelPackage)) {
+            return $redirect;
+        }
+
         if (! $b2cTravelPackage->isOpenForRegistration()) {
             $request->session()->forget(self::SESSION_PENDING_REGISTRATION);
 
@@ -158,6 +180,10 @@ class B2cRegistrationController extends Controller
     {
         $user = $request->user();
         abort_unless($user, 403);
+
+        if ($redirect = $this->redirectAdminToRegistrations($request, $b2cTravelPackage)) {
+            return $redirect;
+        }
 
         if (! $b2cTravelPackage->isOpenForRegistration()) {
             $request->session()->forget(self::SESSION_PENDING_REGISTRATION);

@@ -38,7 +38,9 @@ export default function Packages() {
         sections?: Record<string, { content?: string; image?: string }>;
         travelPackages?: TravelPackageRow[] | null;
         flash?: { type: string; message: string } | null;
+        auth?: { user: { is_admin?: boolean } | null };
     }>();
+    const isAdmin = Boolean(props.auth?.user?.is_admin);
     const getContent = (key: string, fallback: string) => props.sections?.[key]?.content?.trim() || fallback;
     const getImageSrc = (sectionKey: string, fallbackPath: string) => getImageUrl(props.sections, sectionKey, fallbackPath);
     /** Package cards are managed in Admin → B2C packages; do not use CMS section keys for listing images. */
@@ -872,7 +874,14 @@ export default function Packages() {
                                         </span>
                                         <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
                                             {pkg.from_database && pkg.slug ? (
-                                                pkg.registration_open ? (
+                                                isAdmin ? (
+                                                    <Link
+                                                        href={`/admin/b2c-packages/${pkg.slug}/registrations`}
+                                                        className="rounded-xl border-2 border-orange-400 bg-orange-50 px-4 py-2 text-center text-xs font-bold text-orange-800 shadow-md transition-all hover:scale-[1.02] hover:bg-orange-100"
+                                                    >
+                                                        Kelola pendaftar
+                                                    </Link>
+                                                ) : pkg.registration_open ? (
                                                     <Link
                                                         href={`/packages/register/${pkg.slug}`}
                                                         className="rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2 text-center text-xs font-bold text-white shadow-lg transition-all hover:scale-105 hover:from-primary/90 hover:to-accent/90"
@@ -880,7 +889,7 @@ export default function Packages() {
                                                         Register Online
                                                     </Link>
                                                 ) : (
-                                                    <span className="rounded-xl border border-white/20 bg-black/30 px-4 py-2 text-center text-xs font-bold text-white/70">
+                                                    <span className="rounded-xl border-2 border-amber-300/80 bg-amber-50/95 px-4 py-2 text-center text-xs font-bold text-amber-900 shadow-sm">
                                                         Registration closed
                                                     </span>
                                                 )

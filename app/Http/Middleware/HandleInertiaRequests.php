@@ -92,8 +92,7 @@ class HandleInertiaRequests extends Middleware
             try {
                 $user = $request->user();
                 if ($user) {
-                    $isAdmin = ($user->role ?? null) === 'admin'
-                        || in_array($user->email, config('app.admin_emails', []), true);
+                    $isAdmin = $user->isAdmin();
                 }
             } catch (\Throwable $e) {
                 Log::warning('Error getting user', ['error' => $e->getMessage()]);
@@ -263,24 +262,11 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * Splash / mode-choice routes never read `sections` in the UI. Omitting them on the
-     * initial full-document GET avoids a large JSON blob + DB work before the first paint.
-     *
-     * Any Inertia XHR (prefetch of /home, partial reloads, client navigations) must still
-     * receive full sections so CMS tools and other pages behave normally.
+     * Legacy: root `/` and `/select-mode` used to render a splash Inertia page without sections.
+     * Both routes now redirect to B2C home, so we always ship sections on full-document GETs.
      */
     protected function shouldOmitSharedSectionsForFullDocument(Request $request): bool
     {
-        if (! $request->isMethod('GET')) {
-            return false;
-        }
-
-        if ($request->headers->has('X-Inertia')) {
-            return false;
-        }
-
-        $path = trim($request->path(), '/');
-
-        return $path === '' || $path === 'select-mode';
+        return false;
     }
 }

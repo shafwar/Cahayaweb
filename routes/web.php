@@ -77,7 +77,8 @@ Route::get('/sitemap.xml', [SeoController::class, 'sitemapXml']);
 
 Route::get('/', [B2cPageController::class, 'root'])->name('home');
 
-Route::get('/select-mode', [B2cPageController::class, 'selectMode'])->name('select-mode');
+/** Legacy bookmark / old links — redirect to public home */
+Route::redirect('/select-mode', '/home', 301)->name('select-mode');
 
 Route::get('/about', [B2cPageController::class, 'about'])->name('b2c.about');
 Route::get('/destinations', [B2cPageController::class, 'destinations'])->name('b2c.destinations');

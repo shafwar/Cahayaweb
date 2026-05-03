@@ -128,4 +128,17 @@ class User extends Authenticatable
             return false;
         }
     }
+
+    /**
+     * Admin for CMS / B2C admin tools: role === admin OR email in app.admin_emails.
+     * Kept in sync with {@see \App\Http\Middleware\IsAdmin}.
+     */
+    public function isAdmin(): bool
+    {
+        if ($this->getAttribute('role') === 'admin') {
+            return true;
+        }
+
+        return in_array($this->email, config('app.admin_emails', []), true);
+    }
 }

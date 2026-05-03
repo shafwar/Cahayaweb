@@ -14,14 +14,9 @@ use Inertia\Response;
  */
 class B2cPageController extends Controller
 {
-    public function root(): Response
+    public function root(): RedirectResponse
     {
-        return Inertia::render('landing/select-mode', ['autoRedirectToB2c' => true]);
-    }
-
-    public function selectMode(): Response
-    {
-        return Inertia::render('landing/select-mode', ['autoRedirectToB2c' => false]);
+        return redirect()->route('b2c.home');
     }
 
     public function home(): Response
