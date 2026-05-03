@@ -103,6 +103,31 @@ it('admin deletes all registrations for package when package code matches', func
         ->and(User::query()->whereIn('id', [$u1->id, $u2->id])->count())->toBe(2);
 });
 
+it('deleting a user cascades their b2c registrations and restores package pax_booked', function () {
+    $pkg1 = createAdminDeletePackage([
+        'pax_booked' => 2,
+        'slug' => 'usr-del-a-'.uniqid(),
+        'package_code' => 'USR-DEL-A-'.uniqid(),
+    ]);
+    $pkg2 = createAdminDeletePackage([
+        'pax_booked' => 3,
+        'slug' => 'usr-del-b-'.uniqid(),
+        'package_code' => 'USR-DEL-B-'.uniqid(),
+    ]);
+    $user = User::factory()->create();
+    makeRegistration($pkg1, $user, 2);
+    makeRegistration($pkg2, $user, 3);
+
+    $uid = $user->id;
+    $user->delete();
+
+    expect(B2cPackageRegistration::query()->where('user_id', $uid)->count())->toBe(0)
+        ->and(B2cPackageRegistration::query()->count())->toBe(0)
+        ->and(User::query()->whereKey($uid)->exists())->toBeFalse()
+        ->and($pkg1->fresh()->pax_booked)->toBe(0)
+        ->and($pkg2->fresh()->pax_booked)->toBe(0);
+});
+
 it('admin cannot bulk delete when package code mismatch', function () {
     $admin = adminUserForDelete();
     $pkg = createAdminDeletePackage([

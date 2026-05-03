@@ -4,9 +4,43 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class B2cPackageRegistration extends Model
 {
+    /**
+     * Before a user row is deleted, DB will CASCADE-delete linked registrations. That bypasses
+     * admin delete logic that decrements b2c_travel_packages.pax_booked — run this from User::deleting.
+     */
+    public static function releasePaxBookedSummariesForUserId(int $userId): void
+    {
+        if ($userId <= 0) {
+            return;
+        }
+
+        DB::transaction(function () use ($userId) {
+            $aggregates = static::query()
+                ->where('user_id', $userId)
+                ->selectRaw('b2c_travel_package_id, SUM(pax) as total_pax')
+                ->groupBy('b2c_travel_package_id')
+                ->get();
+
+            foreach ($aggregates as $row) {
+                $pkg = B2cTravelPackage::query()
+                    ->whereKey($row->b2c_travel_package_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($pkg !== null) {
+                    $delta = (int) $row->total_pax;
+                    $pkg->forceFill([
+                        'pax_booked' => max(0, $pkg->pax_booked - $delta),
+                    ])->save();
+                }
+            }
+        });
+    }
+
     protected $fillable = [
         'b2c_travel_package_id',
         'user_id',

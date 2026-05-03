@@ -32,6 +32,18 @@ type RegisterPageProps = {
     googleOAuthConfigured?: boolean;
 };
 
+/** Laravel `unique` / custom copy when email already exists (e.g. prior Google sign-up). */
+function isDuplicateRegistrationEmailError(message: string | undefined): boolean {
+    if (!message || typeof message !== 'string') return false;
+    const m = message.toLowerCase();
+    return (
+        m.includes('already registered') ||
+        m.includes('already been taken') ||
+        m.includes('has already been taken') ||
+        (m.includes('email') && m.includes('taken'))
+    );
+}
+
 export default function Register() {
     const { url, props } = usePage<RegisterPageProps>();
     const status = props.status;
@@ -176,6 +188,8 @@ export default function Register() {
     const loginParams =
         mode === 'b2b' ? { mode: 'b2b' as const, ...(redirect ? { redirect } : {}) } : mode === 'b2c' ? { mode: 'b2c' as const, ...(redirect ? { redirect } : {}) } : {};
 
+    const showEmailAlreadyUsedBanner = isDuplicateRegistrationEmailError(errors.email);
+
     return (
         <AuthLayout
             title={mode === 'b2c' ? 'Buat akun' : 'Create an account'}
@@ -186,6 +200,43 @@ export default function Register() {
             }
         >
             <Head title={mode === 'b2c' ? 'Buat akun' : 'Register'} />
+
+            {showEmailAlreadyUsedBanner ? (
+                <div
+                    role="alert"
+                    aria-live="polite"
+                    className="mb-5 rounded-xl border-2 border-red-300 bg-red-50 px-4 py-3 shadow-sm ring-1 ring-red-200/90"
+                >
+                    <p className="text-sm font-semibold text-red-950">
+                        {mode === 'b2c' ? 'Email sudah digunakan' : 'This email is already registered'}
+                    </p>
+                    <p className="mt-2 text-sm leading-relaxed text-red-950/90">
+                        {mode === 'b2c' ? (
+                            <>
+                                Akun dengan email ini sudah ada—misalnya jika Anda pernah masuk dengan <strong className="font-semibold">Google</strong>. Anda tidak bisa
+                                membuat akun baru dengan email yang sama lewat formulir ini. Gunakan tombol masuk/Google yang sama, atau daftar dengan email lain.
+                            </>
+                        ) : (
+                            <>
+                                An account with this email already exists—for example if you signed up with <strong className="font-semibold">Google</strong>. You cannot
+                                create a second account with the same email here. Please log in with Google or email, or use a different address.
+                            </>
+                        )}
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium">
+                        <TextLink
+                            href={route('login', Object.keys(loginParams).length ? loginParams : {})}
+                            className="text-[#b91c1c] underline decoration-red-300 underline-offset-2 hover:text-red-800"
+                        >
+                            {mode === 'b2c' ? 'Ke halaman masuk' : 'Go to log in'}
+                        </TextLink>
+                        <span className="hidden text-red-800/60 sm:inline" aria-hidden>
+                            ·
+                        </span>
+                        <span className="text-red-900/80">{mode === 'b2c' ? 'Atau ubah email di bawah dan coba lagi.' : 'Or change the email below and try again.'}</span>
+                    </div>
+                </div>
+            ) : null}
 
             {/* Display status messages */}
             {status && (
@@ -241,48 +292,9 @@ export default function Register() {
                             onChange={(e) => setData('email', e.target.value)}
                             disabled={showLoading}
                             placeholder="email@example.com"
-                            className={
-                                errors.email && errors.email.includes('already registered')
-                                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                                    : ''
-                            }
+                            className={showEmailAlreadyUsedBanner ? 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30' : ''}
                         />
                         <InputError message={errors.email} />
-                        {errors.email &&
-                            (errors.email.includes('already registered') ||
-                                errors.email.includes('already been taken') ||
-                                errors.email.includes('unique')) && (
-                                <div className="mt-2 rounded-lg border border-amber-300/80 bg-amber-50 p-4 shadow-sm">
-                                    <div className="flex items-start gap-3">
-                                        <div className="mt-0.5 flex-shrink-0">
-                                            <svg className="h-5 w-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-                                                <path
-                                                    fillRule="evenodd"
-                                                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                                    clipRule="evenodd"
-                                                />
-                                            </svg>
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className="mb-1 text-sm font-semibold text-amber-900">Email Already Registered</h4>
-                                            <p className="text-sm leading-relaxed text-amber-950/90">
-                                                The email address <strong className="font-semibold text-[#1e3a5f]">{data.email}</strong> is already
-                                                registered in our system.
-                                            </p>
-                                            <p className="mt-2 text-sm text-amber-950/90">
-                                                If this is your account, please{' '}
-                                                <TextLink
-                                                    href={route('login', Object.keys(loginParams).length ? loginParams : {})}
-                                                    className="font-semibold text-[#c2410c] underline decoration-orange-300 hover:text-[#ea580c]"
-                                                >
-                                                    log in here
-                                                </TextLink>{' '}
-                                                instead. If you forgot your password, you can reset it from the login page.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                     </div>
 
                     <div className="grid gap-2">

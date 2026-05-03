@@ -14,6 +14,17 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * Syncs B2C package pax_booked before CASCADE removes b2c_package_registrations rows.
+     * Uses Eloquent lifecycle: does not run for User::query()->…->delete() (use $user->delete() / destroy()).
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (self $user) {
+            B2cPackageRegistration::releasePaxBookedSummariesForUserId((int) $user->id);
+        });
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
