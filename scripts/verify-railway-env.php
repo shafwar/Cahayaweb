@@ -11,6 +11,7 @@ require __DIR__.'/../vendor/autoload.php';
 $app = require_once __DIR__.'/../bootstrap/app.php';
 $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
+use App\Services\InboundLeadNotifier;
 use App\Support\R2Helper;
 use Illuminate\Support\Facades\DB;
 
@@ -114,14 +115,31 @@ if ($r2Configured) {
 }
 echo "\n";
 
-// 4. Admin
-echo "4. Admin\n";
+// 4. Admin & mail alerts
+echo "4. Admin & mail (contact + B2B/B2C alerts)\n";
 $adminEmails = env('APP_ADMIN_EMAILS');
 $adminSet = $adminEmails !== null && $adminEmails !== '';
 echo '   '.($adminSet ? '✓ APP_ADMIN_EMAILS: SET' : '○ APP_ADMIN_EMAILS: (empty)')."\n";
 $notifyEmails = env('ADMIN_NOTIFY_EMAILS');
 $notifySet = $notifyEmails !== null && trim((string) $notifyEmails) !== '';
-echo '   '.($notifySet ? '✓ ADMIN_NOTIFY_EMAILS: SET (contact + registration alerts)' : '○ ADMIN_NOTIFY_EMAILS: (empty — alerts only use APP_ADMIN_EMAILS)')."\n";
+echo '   '.($notifySet ? '✓ ADMIN_NOTIFY_EMAILS: SET' : '○ ADMIN_NOTIFY_EMAILS: (empty)')."\n";
+$ops = env('MAIL_OPS_NOTIFY_EMAIL') ?: env('MAIL_ADMIN_NOTIFICATION_EMAIL');
+$opsSet = $ops !== null && trim((string) $ops) !== '';
+echo '   '.($opsSet ? '✓ MAIL_OPS_NOTIFY_EMAIL / MAIL_ADMIN_NOTIFICATION_EMAIL: SET' : '○ MAIL_OPS_NOTIFY_EMAIL: (empty)')."\n";
+
+$resolved = InboundLeadNotifier::adminRecipientEmails();
+echo '   '.(count($resolved) > 0 ? '✓ Resolved admin inboxes: '.count($resolved).' ('.implode(', ', $resolved).')' : '✗ Resolved admin inboxes: NONE — contact + alerts will not reach email')."\n";
+
+$mailer = (string) config('mail.default', 'log');
+echo '   MAIL_MAILER: '.$mailer."\n";
+$from = (string) config('mail.from.address', '');
+echo '   MAIL_FROM_ADDRESS: '.($from !== '' ? mask($from, 6) : '(empty)')."\n";
+$resendKey = config('services.resend.key');
+echo '   '.($mailer === 'resend' ? ($resendKey ? '✓ Resend API key: SET' : '✗ Resend API key: MISSING (set RESEND_KEY or RESEND_API_KEY)') : '○ Resend key: (not required unless MAIL_MAILER=resend)')."\n";
+
+foreach (InboundLeadNotifier::diagnosticIssues() as $issue) {
+    echo '   ⚠ '.$issue."\n";
+}
 echo "\n";
 
 // 5. Summary & recommendations

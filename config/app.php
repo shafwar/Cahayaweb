@@ -132,20 +132,28 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    // Admin allowlist for inline CMS editing (IsAdmin middleware fallback)
-    'admin_emails' => array_values(array_filter(array_map(
-        static fn (string $email) => trim($email),
-        explode(',', env('APP_ADMIN_EMAILS', 'test@example.com'))
-    ))),
+    // Admin allowlist for inline CMS editing (IsAdmin middleware fallback).
+    // If APP_ADMIN_EMAILS is absent from .env, default one local address; if present but empty, [].
+    'admin_emails' => \App\Support\AdminNotifyEmailList::parse(
+        env('APP_ADMIN_EMAILS') === null ? 'test@example.com' : (string) env('APP_ADMIN_EMAILS')
+    ),
 
     /*
     | Comma-separated inbox(es) for contact form + B2B/B2C admin alerts only.
-    | Merged with admin_emails (deduped). Set this to ops Gmail if APP_ADMIN_EMAILS
-    | is only used for dashboard login addresses.
+    | Merged with admin_emails + mail_ops_notify_email (deduped).
+    | Production: set ADMIN_NOTIFY_EMAILS and/or MAIL_OPS_NOTIFY_EMAIL to your ops Gmail.
     */
-    'admin_notify_emails' => array_values(array_filter(array_map(
-        static fn (string $email) => trim($email),
-        explode(',', (string) env('ADMIN_NOTIFY_EMAILS', ''))
-    ))),
+    'admin_notify_emails' => \App\Support\AdminNotifyEmailList::parse((string) env('ADMIN_NOTIFY_EMAILS', '')),
+
+    /*
+    | Single inbox for the same alerts as ADMIN_NOTIFY_EMAILS (easier Railway setup).
+    | Also reads MAIL_ADMIN_NOTIFICATION_EMAIL if MAIL_OPS_NOTIFY_EMAIL is empty.
+    */
+    'mail_ops_notify_email' => trim((string) (env('MAIL_OPS_NOTIFY_EMAIL') ?: env('MAIL_ADMIN_NOTIFICATION_EMAIL', ''))),
+
+    /*
+    | When true, contact + admin alerts are allowed even if MAIL_MAILER=log (local only).
+    */
+    'allow_log_mailer_for_admin_alerts' => (bool) env('ALLOW_LOG_MAILER_FOR_ADMIN_ALERTS', false),
 
 ];

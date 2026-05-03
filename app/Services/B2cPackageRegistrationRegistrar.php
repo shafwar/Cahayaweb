@@ -7,6 +7,7 @@ use App\Models\B2cTravelPackage;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -92,7 +93,13 @@ class B2cPackageRegistrationRegistrar
 
         $registrationModel = B2cPackageRegistration::query()->with('package')->find($registrationId);
         if ($registrationModel instanceof B2cPackageRegistration) {
-            InboundLeadNotifier::notifyAdminsB2cRegistration($registrationModel);
+            $alert = InboundLeadNotifier::notifyAdminsB2cRegistration($registrationModel);
+            if ($alert['sent'] === 0) {
+                Log::warning('B2C package registration saved but admin inbox alert was not delivered.', [
+                    'registration_id' => $registrationModel->id,
+                    'errors' => $alert['errors'],
+                ]);
+            }
         }
 
         if ($welcomeUserId !== null) {
@@ -175,7 +182,13 @@ class B2cPackageRegistrationRegistrar
             return $record;
         });
 
-        InboundLeadNotifier::notifyAdminsB2cRegistration($record->fresh(['package']));
+        $alert = InboundLeadNotifier::notifyAdminsB2cRegistration($record->fresh(['package']));
+        if ($alert['sent'] === 0) {
+            Log::warning('B2C package registration (authenticated) saved but admin inbox alert was not delivered.', [
+                'registration_id' => $record->id,
+                'errors' => $alert['errors'],
+            ]);
+        }
 
         return $record;
     }

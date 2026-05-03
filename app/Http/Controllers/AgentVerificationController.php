@@ -1425,6 +1425,12 @@ class AgentVerificationController extends Controller
 
     private function notifyAdminsNewB2bSubmission(AgentVerification $verification, User $user, bool $isResubmission): void
     {
-        InboundLeadNotifier::notifyAdminsB2bApplication($verification->fresh(), $user, $isResubmission);
+        $alert = InboundLeadNotifier::notifyAdminsB2bApplication($verification->fresh(), $user, $isResubmission);
+        if ($alert['sent'] === 0) {
+            Log::warning('B2B agent application saved but admin inbox alert was not delivered.', [
+                'verification_id' => $verification->id,
+                'errors' => $alert['errors'],
+            ]);
+        }
     }
 }

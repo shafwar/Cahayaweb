@@ -10,6 +10,7 @@ uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 it('accepts valid contact form and notifies admins', function () {
     Notification::fake();
 
+    Config::set('app.mail_ops_notify_email', '');
     Config::set('app.admin_emails', ['ops-contact-test-'.uniqid().'@test.local']);
 
     $this->from(route('b2c.contact'))
@@ -29,7 +30,16 @@ it('accepts valid contact form and notifies admins', function () {
 it('dedupes merged admin_notify_emails and admin_emails', function () {
     Config::set('app.admin_notify_emails', ['same@test.local']);
     Config::set('app.admin_emails', ['same@test.local', 'other@test.local']);
+    Config::set('app.mail_ops_notify_email', '');
 
     expect(InboundLeadNotifier::adminRecipientEmails())->toHaveCount(2)
         ->and(InboundLeadNotifier::adminRecipientEmails())->toContain('same@test.local', 'other@test.local');
+});
+
+it('merges mail_ops_notify_email when lists are empty', function () {
+    Config::set('app.admin_notify_emails', []);
+    Config::set('app.admin_emails', []);
+    Config::set('app.mail_ops_notify_email', 'ops-inbox-'.uniqid().'@test.local');
+
+    expect(InboundLeadNotifier::adminRecipientEmails())->toHaveCount(1);
 });

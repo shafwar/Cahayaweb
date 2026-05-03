@@ -77,19 +77,27 @@ class B2cPageController extends Controller
             'message.required' => 'Pesan wajib diisi.',
         ]);
 
-        if (InboundLeadNotifier::adminRecipientEmails() === []) {
+        $mailBlock = InboundLeadNotifier::contactFormMailConfigError();
+        if ($mailBlock !== null) {
             return redirect()->route('b2c.contact')->withInput()->with('contact_flash', [
                 'type' => 'error',
-                'message' => 'Pesan belum dapat dikirim ke tim email: pengaturan ADMIN_NOTIFY_EMAILS / APP_ADMIN_EMAILS di server masih kosong. Silakan hubungi kami via WhatsApp atau coba lagi setelah administrator mengatur inbox.',
+                'message' => $mailBlock,
             ]);
         }
 
-        InboundLeadNotifier::notifyAdminsContact(
+        $sent = InboundLeadNotifier::notifyAdminsContact(
             $validated['name'],
             $validated['email'],
             $validated['phone'],
             $validated['message'],
         );
+
+        if ($sent['sent'] === 0) {
+            return redirect()->route('b2c.contact')->withInput()->with('contact_flash', [
+                'type' => 'error',
+                'message' => 'Pesan tidak sampai ke inbox tim (semua percobaan pengiriman gagal). Periksa RESEND_KEY / SMTP, MAIL_FROM_ADDRESS (domain harus terverifikasi di Resend), dan log server. Anda juga dapat menghubungi kami via WhatsApp.',
+            ]);
+        }
 
         return redirect()->route('b2c.contact')->with('contact_flash', [
             'type' => 'success',
