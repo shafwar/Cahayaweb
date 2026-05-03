@@ -1,7 +1,7 @@
 <?php
 
-it('redirects the site root to the public home', function () {
+it('returns a successful response', function () {
     $response = $this->get('/');
 
-    $response->assertRedirect(route('b2c.home', absolute: false));
+    $response->assertStatus(200);
 });

@@ -35,7 +35,7 @@ export default function AdminDashboard() {
             href: '/home',
             icon: Layout,
             title: 'Admin CMS',
-            description: 'Open the public site in edit mode from the header to change sections, images, and content.',
+            description: 'Open the public site and use Edit mode in the header to change sections, images, and content.',
             border: 'border-amber-200/90 hover:border-amber-300',
             iconBg: 'bg-amber-50 text-amber-700 ring-amber-100',
             glow: 'from-amber-50/80 via-transparent to-orange-50/30',

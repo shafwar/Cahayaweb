@@ -262,11 +262,23 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * Legacy: root `/` and `/select-mode` used to render a splash Inertia page without sections.
-     * Both routes now redirect to B2C home, so we always ship sections on full-document GETs.
+     * Root splash (`/`) never reads `sections`. Omitting them on the initial full-document GET
+     * avoids a large JSON blob + DB work before first paint. `/select-mode` is an HTTP redirect.
+     *
+     * Inertia XHR (prefetch of /home, partial reloads, navigations) still receives full sections.
      */
     protected function shouldOmitSharedSectionsForFullDocument(Request $request): bool
     {
-        return false;
+        if (! $request->isMethod('GET')) {
+            return false;
+        }
+
+        if ($request->headers->has('X-Inertia')) {
+            return false;
+        }
+
+        $path = trim($request->path(), '/');
+
+        return $path === '';
     }
 }

@@ -14,9 +14,10 @@ use Inertia\Response;
  */
 class B2cPageController extends Controller
 {
-    public function root(): RedirectResponse
+    /** Splash then client redirect to B2C home; no standalone “choose mode” page. */
+    public function root(): Response
     {
-        return redirect()->route('b2c.home');
+        return Inertia::render('landing/select-mode', ['autoRedirectToB2c' => true]);
     }
 
     public function home(): Response
