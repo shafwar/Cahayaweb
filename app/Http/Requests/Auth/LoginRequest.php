@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -44,8 +45,13 @@ class LoginRequest extends FormRequest
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            $emailLower = strtolower(trim((string) $this->input('email')));
+            $exists = $emailLower !== '' && User::query()->whereRaw('LOWER(email) = ?', [$emailLower])->exists();
+
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'email' => $exists
+                    ? 'Password tidak sesuai. Periksa pengetikan Anda atau gunakan tautan “Forgot password”.'
+                    : 'Email ini belum terdaftar. Gunakan tombol Sign up di bawah, atau daftar melalui halaman paket wisata / formulir agen (B2B) terlebih dahulu.',
             ]);
         }
 

@@ -118,6 +118,18 @@ class GoogleAuthController extends Controller
 
         $created = false;
         if ($user === null) {
+            $mayProvisionAccount = ($entry === 'register')
+                || $request->session()->has('b2b_registration_data');
+
+            if (! $mayProvisionAccount && $entry === 'login') {
+                return redirect()->route('login', array_filter([
+                    'mode' => $intent['mode'] ?? null,
+                    'redirect' => $intent['redirect'] ?? null,
+                ]))->withErrors([
+                    'email' => 'Akun Google ini belum terhubung ke Cahaya Anbiya. Silakan daftar dulu (tombol Sign up di halaman login, atau daftar paket / pengajuan agen), baru masuk dengan Google atau email yang sama.',
+                ]);
+            }
+
             $user = User::create([
                 'name' => $name,
                 'email' => $email,
@@ -182,7 +194,7 @@ class GoogleAuthController extends Controller
             'mode' => $intent['mode'] ?? null,
             'redirect' => $intent['redirect'] ?? null,
         ]))->withErrors([
-            'email' => 'Google sign-in failed or was cancelled. Please try again or use email and password.',
+            'email' => 'Masuk dengan Google gagal atau dibatalkan. Coba lagi atau gunakan email dan kata sandi.',
         ]);
     }
 

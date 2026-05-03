@@ -50,6 +50,8 @@ interface User {
     name: string;
     email: string;
     is_admin?: boolean;
+    /** Approved B2B agent — others should start from /b2b/register */
+    has_b2b_access?: boolean;
 }
 
 interface EditContext {
@@ -457,14 +459,15 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
 
     const page = usePage();
     interface PageProps {
-        auth?: {
-            user?: {
-                id: number;
-                name: string;
-                email: string;
-                is_admin?: boolean;
+            auth?: {
+                user?: {
+                    id: number;
+                    name: string;
+                    email: string;
+                    is_admin?: boolean;
+                    has_b2b_access?: boolean;
+                };
             };
-        };
     }
     const user = (page.props as PageProps)?.auth?.user;
 
@@ -526,9 +529,13 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ variant = 'b2c', className 
 
     const handleModeSwitch = () => {
         if (variant === 'b2c') {
-            router.visit(route('b2b.index'));
+            if (isAdmin || user?.has_b2b_access) {
+                router.visit(route('b2b.index'));
+            } else {
+                router.visit(route('b2b.register'));
+            }
         } else {
-            router.visit(route('b2c.home'));
+            router.visit(route('b2c.packages'));
         }
     };
 

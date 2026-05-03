@@ -2,13 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
+/**
+ * Legacy /dashboard URL: no standalone user dashboard — send visitors somewhere useful.
+ */
 class DashboardController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(Request $request): RedirectResponse
     {
-        return Inertia::render('dashboard');
+        $user = $request->user();
+        if ($user !== null && $user->isAdmin()) {
+            return redirect()->intended(route('admin.dashboard', absolute: false));
+        }
+
+        return redirect()->intended(route('home', absolute: false));
     }
 }

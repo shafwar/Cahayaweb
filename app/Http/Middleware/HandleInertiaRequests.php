@@ -202,6 +202,7 @@ class HandleInertiaRequests extends Middleware
                         'name' => $user->name ?? null,
                         'email' => $user->email ?? null,
                         'is_admin' => $isAdmin,
+                        'has_b2b_access' => ! $isAdmin && method_exists($user, 'hasB2BAccess') ? $user->hasB2BAccess() : false,
                     ] : null,
                 ],
                 'ziggy' => $ziggyData,

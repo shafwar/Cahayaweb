@@ -369,6 +369,27 @@ export default function Login({ status, canResetPassword, mode, redirect, error,
                                     </svg>
                                     <div className="flex-1">
                                         <p className="text-sm font-medium text-red-800">{errors.email}</p>
+                                        {(errors.email.includes('belum terdaftar') || errors.email.includes('belum terhubung')) && (
+                                            <p className="mt-2 text-xs leading-relaxed text-red-700">
+                                                Belum punya akun? Gunakan{' '}
+                                                <TextLink
+                                                    href={
+                                                        mode === 'admin'
+                                                            ? route('register')
+                                                            : route('register', { mode: mode === 'b2b' ? 'b2b' : 'b2c' })
+                                                    }
+                                                    tabIndex={6}
+                                                >
+                                                    Sign up
+                                                </TextLink>{' '}
+                                                atau mulai dari halaman paket / formulir agen.
+                                            </p>
+                                        )}
+                                        {errors.email.includes('Password tidak sesuai') && (
+                                            <p className="mt-2 text-xs text-red-700">
+                                                Email sudah terdaftar. Anda bisa menggunakan “Forgot password” jika lupa kata sandi.
+                                            </p>
+                                        )}
                                         {errors.email.includes('Admin accounts cannot login') && (
                                             <p className="mt-1 text-xs text-red-700">
                                                 Please use the admin login page directly at{' '}
