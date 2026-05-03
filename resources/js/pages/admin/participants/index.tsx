@@ -4,7 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { adminMuted, adminPageTitle } from '@/lib/admin-portal-theme';
+import {
+    adminGhostBtn,
+    adminInput,
+    adminMuted,
+    adminOutlineButtonLight,
+    adminPageTitle,
+    adminPrimaryBtn,
+    adminSelectTriggerLight,
+} from '@/lib/admin-portal-theme';
 import { cn } from '@/lib/utils';
 import { Head, Link, router } from '@inertiajs/react';
 import { ExternalLink } from 'lucide-react';
@@ -110,14 +118,19 @@ export default function ParticipantIndex({
                 Satu daftar untuk semua pendaftaran B2C. Klik <strong>View detail</strong> untuk mengelola siklus penuh: registrasi, pembayaran, visa, tiket, hotel, dan catatan internal — konsisten dengan halaman registrasi per paket.
             </p>
 
-            <form onSubmit={applyFilters} className="mt-6 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-5">
+            <form
+                onSubmit={applyFilters}
+                className="mt-6 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm ring-1 ring-slate-100 dark:bg-white md:grid-cols-5"
+            >
                 <div className="space-y-2">
                     <Label>Package</Label>
                     <Select
                         value={local.package_id ?? 'all'}
                         onValueChange={(v) => setLocal((s) => ({ ...s, package_id: v === 'all' ? null : v }))}
                     >
-                        <SelectTrigger><SelectValue placeholder="All packages" /></SelectTrigger>
+                        <SelectTrigger className={cn(adminSelectTriggerLight)}>
+                            <SelectValue placeholder="All packages" />
+                        </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All packages</SelectItem>
                             {packages.map((p) => (
@@ -135,7 +148,9 @@ export default function ParticipantIndex({
                         value={local.registration_status ?? 'all'}
                         onValueChange={(v) => setLocal((s) => ({ ...s, registration_status: v === 'all' ? null : v }))}
                     >
-                        <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
+                        <SelectTrigger className={cn(adminSelectTriggerLight)}>
+                            <SelectValue placeholder="All" />
+                        </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All</SelectItem>
                             <SelectItem value="pending">Pending</SelectItem>
@@ -151,7 +166,9 @@ export default function ParticipantIndex({
                         value={local.payment_status ?? 'all'}
                         onValueChange={(v) => setLocal((s) => ({ ...s, payment_status: v === 'all' ? null : v }))}
                     >
-                        <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
+                        <SelectTrigger className={cn(adminSelectTriggerLight)}>
+                            <SelectValue placeholder="All" />
+                        </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All</SelectItem>
                             <SelectItem value="unpaid">Unpaid</SelectItem>
@@ -164,17 +181,21 @@ export default function ParticipantIndex({
                 <div className="space-y-2 md:col-span-2">
                     <Label>Search name/email</Label>
                     <Input
+                        className={cn(adminInput)}
                         value={local.search}
                         onChange={(e) => setLocal((s) => ({ ...s, search: e.target.value }))}
                         placeholder="John / john@email.com"
                     />
                 </div>
 
-                <div className="md:col-span-5 flex gap-2">
-                    <Button type="submit">Apply filters</Button>
+                <div className="flex gap-2 md:col-span-5">
+                    <Button type="submit" className={cn(adminPrimaryBtn)}>
+                        Apply filters
+                    </Button>
                     <Button
                         type="button"
                         variant="outline"
+                        className={cn(adminGhostBtn)}
                         onClick={() => {
                             setLocal({ package_id: null, registration_status: null, payment_status: null, search: '' });
                             router.get('/admin/participants');
@@ -185,7 +206,7 @@ export default function ParticipantIndex({
                 </div>
             </form>
 
-            <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-100 dark:bg-white">
                 <table className="w-full min-w-[72rem] text-left text-sm">
                     <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                         <tr>
@@ -225,7 +246,7 @@ export default function ParticipantIndex({
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        className="gap-1 rounded-lg border-slate-200 font-semibold text-[#1e3a5f] hover:border-orange-300 hover:bg-orange-50"
+                                        className={cn(adminOutlineButtonLight, 'h-8 gap-1 rounded-lg px-3 text-[11px]')}
                                         asChild
                                     >
                                         <Link href={`/admin/participants/${p.id}`}>

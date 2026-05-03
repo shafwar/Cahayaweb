@@ -10,7 +10,17 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { adminBackLink, adminGhostBtn, adminGlassPanel, adminMuted, adminPageTitle, adminSectionDesc, adminSectionHeader, adminSectionTitle } from '@/lib/admin-portal-theme';
+import {
+    adminBackLink,
+    adminGhostBtn,
+    adminGlassPanel,
+    adminMuted,
+    adminOutlineButtonLight,
+    adminPageTitle,
+    adminSectionDesc,
+    adminSectionHeader,
+    adminSectionTitle,
+} from '@/lib/admin-portal-theme';
 import { cn } from '@/lib/utils';
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, CalendarClock, CheckCircle2, ClipboardList, ExternalLink, Info, MoreHorizontal, Trash2, Users, XCircle } from 'lucide-react';
@@ -69,10 +79,16 @@ function shortLabel(s: string): string {
 /** Compact operational chips: visa / ticket / hotel — full editing on participant detail page. */
 function OpsChips({ r }: { r: Reg }) {
     return (
-        <div className="mt-2 flex flex-wrap gap-1">
-            <span className="rounded-md border border-violet-200/90 bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-900">Visa {shortLabel(r.visa_status)}</span>
-            <span className="rounded-md border border-indigo-200/90 bg-indigo-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-indigo-900">Tix {shortLabel(r.ticket_status)}</span>
-            <span className="rounded-md border border-amber-200/90 bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-900">Hotel {shortLabel(r.hotel_status)}</span>
+        <div className="mt-1.5 flex flex-row flex-wrap gap-1">
+            <span className="rounded-md border border-violet-200/90 bg-violet-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-violet-900">
+                Visa {shortLabel(r.visa_status)}
+            </span>
+            <span className="rounded-md border border-indigo-200/90 bg-indigo-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-indigo-900">
+                Tix {shortLabel(r.ticket_status)}
+            </span>
+            <span className="rounded-md border border-amber-200/90 bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-900">
+                Hotel {shortLabel(r.hotel_status)}
+            </span>
         </div>
     );
 }
@@ -293,7 +309,7 @@ export default function B2cPackageRegistrations({
                                                         type="button"
                                                         variant="outline"
                                                         size="sm"
-                                                        className="h-8 gap-1 rounded-lg border-slate-200 px-2.5 text-[11px] font-semibold text-[#1e3a5f] shadow-sm hover:border-orange-300 hover:bg-orange-50"
+                                                        className={cn(adminOutlineButtonLight, 'h-8 gap-1 rounded-lg px-2.5 text-[11px]')}
                                                         asChild
                                                     >
                                                         <Link href={`/admin/participants/${r.id}`}>

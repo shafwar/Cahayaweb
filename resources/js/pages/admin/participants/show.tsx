@@ -8,7 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
     adminBackLink,
+    adminCardLight,
     adminFieldLabel,
+    adminGhostBtn,
     adminGlassPanel,
     adminMuted,
     adminPageTitle,
@@ -16,6 +18,7 @@ import {
     adminSectionDesc,
     adminSectionHeader,
     adminSectionTitle,
+    adminSelectTriggerLight,
     adminTextarea,
 } from '@/lib/admin-portal-theme';
 import { cn } from '@/lib/utils';
@@ -179,15 +182,15 @@ export default function ParticipantShow({
                 </div>
 
                 <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-2">
-                    <Card className="border-slate-200/90 shadow-sm">
-                        <CardHeader className="border-b border-slate-100 pb-4">
+                    <Card className={cn(adminCardLight, 'gap-0 py-0 shadow-md')}>
+                        <CardHeader className="border-b border-slate-100 pb-4 pt-6">
                             <CardTitle className="flex items-center gap-2 text-lg font-semibold text-[#1e3a5f]">
                                 <UserCircle className="h-5 w-5 text-orange-500" aria-hidden />
                                 Participant (read-only)
                             </CardTitle>
                             <p className={adminSectionDesc}>Data from the package registration form.</p>
                         </CardHeader>
-                        <CardContent className="pt-2">
+                        <CardContent className="pb-6 pt-2">
                             <dl>
                                 <DefItem label="Full name" value={participant.full_name} />
                                 <DefItem label="Email" value={participant.email} />
@@ -202,15 +205,15 @@ export default function ParticipantShow({
                         </CardContent>
                     </Card>
 
-                    <Card className="border-slate-200/90 shadow-sm">
-                        <CardHeader className="border-b border-slate-100 pb-4">
+                    <Card className={cn(adminCardLight, 'gap-0 py-0 shadow-md')}>
+                        <CardHeader className="border-b border-slate-100 pb-4 pt-6">
                             <CardTitle className="flex items-center gap-2 text-lg font-semibold text-[#1e3a5f]">
                                 <ClipboardList className="h-5 w-5 text-orange-500" aria-hidden />
                                 Package & account
                             </CardTitle>
                             <p className={adminSectionDesc}>Linked catalog package and login account (if any).</p>
                         </CardHeader>
-                        <CardContent className="pt-2">
+                        <CardContent className="pb-6 pt-2">
                             <dl>
                                 <DefItem label="Package" value={participant.package.name} />
                                 <DefItem label="Package code" value={participant.package.package_code ?? ''} mono />
@@ -254,7 +257,7 @@ export default function ParticipantShow({
                                 <div className="space-y-2">
                                     <Label className={adminFieldLabel}>Registration status</Label>
                                     <Select value={data.registration_status} onValueChange={(v) => setData('registration_status', v as Participant['registration_status'])}>
-                                        <SelectTrigger className="rounded-xl border-slate-200">
+                                        <SelectTrigger className={cn(adminSelectTriggerLight)}>
                                             <SelectValue placeholder="Choose status" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -286,7 +289,7 @@ export default function ParticipantShow({
                                     <div className="mt-4 space-y-2">
                                         <Label className={adminFieldLabel}>Payment status</Label>
                                         <Select value={data.payment_status} onValueChange={(v) => setData('payment_status', v as Participant['payment_status'])}>
-                                            <SelectTrigger className="rounded-xl border-slate-200 bg-white">
+                                            <SelectTrigger className={cn(adminSelectTriggerLight)}>
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -308,7 +311,7 @@ export default function ParticipantShow({
                                             Visa status
                                         </Label>
                                         <Select value={data.visa_status} onValueChange={(v) => setData('visa_status', v as Participant['visa_status'])}>
-                                            <SelectTrigger className="rounded-xl border-slate-200">
+                                            <SelectTrigger className={cn(adminSelectTriggerLight)}>
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -325,7 +328,7 @@ export default function ParticipantShow({
                                             Ticket status
                                         </Label>
                                         <Select value={data.ticket_status} onValueChange={(v) => setData('ticket_status', v as Participant['ticket_status'])}>
-                                            <SelectTrigger className="rounded-xl border-slate-200">
+                                            <SelectTrigger className={cn(adminSelectTriggerLight)}>
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -341,7 +344,7 @@ export default function ParticipantShow({
                                             Hotel status
                                         </Label>
                                         <Select value={data.hotel_status} onValueChange={(v) => setData('hotel_status', v as Participant['hotel_status'])}>
-                                            <SelectTrigger className="rounded-xl border-slate-200">
+                                            <SelectTrigger className={cn(adminSelectTriggerLight)}>
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -373,7 +376,7 @@ export default function ParticipantShow({
                                 {processing ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Save className="h-4 w-4" aria-hidden />}
                                 Save changes
                             </button>
-                            <Button type="button" variant="outline" className="rounded-xl border-slate-200" asChild>
+                            <Button type="button" variant="outline" className={cn(adminGhostBtn, 'rounded-xl')} asChild>
                                 <Link href={package_registrations_url ?? '/admin/b2c-packages'}>Cancel</Link>
                             </Button>
                         </div>

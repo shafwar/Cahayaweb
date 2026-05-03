@@ -12,13 +12,25 @@ export const adminAmbient =
 
 export const adminContent = 'relative z-10';
 
-/** Kartu / section utama */
+/** Kartu / section utama — `dark:` memaksa tetap terang bila situs pakai theme gelap global */
 export const adminGlassPanel =
-    'rounded-2xl border border-slate-200/90 bg-white shadow-sm shadow-slate-200/40 ring-1 ring-slate-100/80';
+    'rounded-2xl border border-slate-200/90 bg-white shadow-sm shadow-slate-200/40 ring-1 ring-slate-100/80 dark:border-slate-200/90 dark:bg-white dark:shadow-slate-200/40 dark:ring-slate-100';
 
 /** Header strip di dalam kartu section */
 export const adminSectionHeader =
-    'border-b border-slate-100 bg-gradient-to-r from-white via-[#fffdfb] to-orange-50/40 px-5 py-4 sm:px-6';
+    'border-b border-slate-100 bg-gradient-to-r from-white via-[#fffdfb] to-orange-50/40 px-5 py-4 sm:px-6 dark:from-white dark:via-[#fffdfb] dark:to-orange-50/40';
+
+/** Kartu informasi (shadcn Card pakai bg-card — dipaksa putih di mode gelap situs) */
+export const adminCardLight =
+    'rounded-xl border border-slate-200 bg-white text-slate-900 shadow-md shadow-slate-100/80 dark:bg-white dark:text-slate-900';
+
+/** Tombol sekunder / outline admin — tidak menggunakan primary navy gelap */
+export const adminOutlineButtonLight =
+    'border border-slate-200 bg-white font-semibold text-slate-800 shadow-sm transition-colors hover:border-orange-400 hover:bg-orange-50 hover:text-orange-950 dark:border-slate-200 dark:bg-white dark:text-slate-800 dark:hover:bg-orange-50';
+
+/** SelectTrigger shadcn default transparent — dipaksa putih agar kontras */
+export const adminSelectTriggerLight =
+    '!border-slate-200 !bg-white text-slate-900 shadow-sm hover:bg-slate-50 dark:!bg-white dark:text-slate-900 rounded-xl';
 
 export const adminMuted = 'text-slate-500';
 
@@ -49,10 +61,10 @@ export const adminPrimaryBtn =
     'rounded-xl bg-gradient-to-r from-[#ff5200] to-[#e64a00] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-orange-200/60 transition hover:from-[#ff6b35] hover:to-[#ff5200] disabled:opacity-60';
 
 export const adminGhostBtn =
-    'rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50';
+    'rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-200 dark:bg-white dark:text-slate-700 dark:hover:bg-slate-50';
 
 export const adminBackLink =
-    'inline-flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-orange-200 hover:text-[#1e3a5f]';
+    'inline-flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-orange-200 hover:text-[#1e3a5f] dark:border-slate-200 dark:bg-white dark:text-slate-600 dark:hover:bg-orange-50/60';
 
 /** Footer aksi create/edit */
 export const adminStickyBar =
