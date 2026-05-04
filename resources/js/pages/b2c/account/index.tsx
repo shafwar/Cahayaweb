@@ -68,16 +68,11 @@ function b2bStatusPillClass(status: string): string {
     return 'bg-slate-100 text-slate-700 ring-slate-200/60';
 }
 
-function registrationSoftBg(status: RegistrationItem['registration_status']): string {
-    if (status === 'approved') return 'from-emerald-50/50';
-    if (status === 'rejected') return 'from-red-50/40';
-    return 'from-amber-50/45';
-}
-
-function registrationAccentBar(status: RegistrationItem['registration_status']): string {
-    if (status === 'approved') return 'bg-emerald-500';
-    if (status === 'rejected') return 'bg-red-500';
-    return 'bg-amber-400';
+/** Left accent — same box language as B2B “Langkah berikutnya” (slate panel + slim accent) */
+function registrationCardBorder(status: RegistrationItem['registration_status']): string {
+    if (status === 'approved') return 'border-l-[3px] border-l-emerald-500';
+    if (status === 'rejected') return 'border-l-[3px] border-l-red-500';
+    return 'border-l-[3px] border-l-amber-400';
 }
 
 function labelPayment(s: RegistrationItem['payment_status']): string {
@@ -110,21 +105,33 @@ function labelHotel(s: RegistrationItem['hotel_status']): string {
 const cardFooterShell =
     'mt-auto -mx-6 border-t border-slate-200/80 bg-slate-50/95 px-6 py-6 sm:-mx-8 sm:px-8 rounded-b-[calc(1rem-1px)]';
 
-const footerEyebrowClass = 'mb-4 text-sm font-semibold tracking-wide text-slate-700';
+const footerEyebrowClass = 'mb-4 border-b border-slate-200/70 pb-3 text-sm font-semibold tracking-wide text-slate-700';
 
-const actionButtonRow = 'flex flex-col gap-3 sm:flex-row sm:items-stretch';
+/** Equal-width actions: full width each row on mobile; strict 50/50 on sm+ */
+const pathActionGrid = 'grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3';
 
-const primaryPathButtonClass =
-    'h-12 min-h-[48px] flex-1 rounded-lg border border-[#1e3a5f]/25 bg-[#1e3a5f] text-sm font-semibold text-white shadow-sm transition hover:bg-[#274a7a]';
+const pathActionBtnBase =
+    'inline-flex h-12 w-full min-w-0 items-center justify-center gap-2 px-3 text-center text-sm font-semibold leading-snug shadow-sm transition-[background,box-shadow,color]';
 
-const secondaryPathButtonClass =
-    'h-12 min-h-[48px] flex-1 rounded-lg border border-slate-300 bg-white text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50 dark:bg-white dark:text-slate-900';
+const primaryPathButtonClass = cn(
+    pathActionBtnBase,
+    'rounded-lg border border-[#1e3a5f]/25 bg-[#1e3a5f] text-white hover:bg-[#274a7a]',
+);
 
-const ctaOrangeClass =
-    'h-12 min-h-[48px] w-full rounded-lg border border-[#ff5200]/35 bg-gradient-to-r from-[#ff5200] to-[#e64a00] text-sm font-semibold text-white shadow-md shadow-orange-500/15 transition hover:from-[#ff6b35] hover:to-[#ff5200] sm:flex-1';
+const secondaryPathButtonClass = cn(
+    pathActionBtnBase,
+    'rounded-lg border border-slate-300 bg-white text-slate-900 hover:bg-slate-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100',
+);
 
-const ghostPathButtonClass =
-    'h-12 min-h-[48px] flex-1 rounded-lg border border-slate-300/90 bg-white/90 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-white dark:bg-white/95 dark:text-slate-900';
+const ctaOrangeClass = cn(
+    pathActionBtnBase,
+    'rounded-lg border border-[#ea580c]/40 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white shadow-md shadow-orange-900/10 hover:from-[#f97316] hover:to-[#ea580c]',
+);
+
+const ghostPathButtonClass = cn(
+    pathActionBtnBase,
+    'rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 dark:bg-white dark:text-slate-900',
+);
 
 export default function B2cAccount({ registrations, b2bPortal }: { registrations: RegistrationItem[]; b2bPortal: B2bPortalSummary }) {
     const { props } = usePage<{ auth?: { user: User | null } }>();
@@ -230,14 +237,14 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
 
                             <div className={cardFooterShell}>
                                 <p className={footerEyebrowClass}>Aksi untuk jalur agen</p>
-                                <div className={actionButtonRow}>
-                                    <Button type="button" variant="outline" className={cn(secondaryPathButtonClass, 'inline-flex items-center justify-center')} asChild>
-                                        <Link href="/b2b/register" className="text-slate-900 no-underline hover:text-slate-950" aria-label="Buka formulir pengajuan agen B2B">
+                                <div className={pathActionGrid}>
+                                    <Button type="button" variant="outline" className={secondaryPathButtonClass} asChild>
+                                        <Link href="/b2b/register" className="w-full text-slate-900 no-underline hover:text-slate-950" aria-label="Buka formulir pengajuan agen B2B">
                                             Form pengajuan agen
                                         </Link>
                                     </Button>
-                                    <Button type="button" className={cn(primaryPathButtonClass, 'inline-flex items-center justify-center')} asChild>
-                                        <Link href="/login?mode=b2b&redirect=/b2b" className="text-white no-underline hover:text-white" aria-label="Masuk ke portal agen B2B">
+                                    <Button type="button" className={primaryPathButtonClass} asChild>
+                                        <Link href="/login?mode=b2b&redirect=/b2b" className="w-full text-white no-underline hover:text-white" aria-label="Masuk ke portal agen B2B">
                                             Masuk portal agen
                                         </Link>
                                     </Button>
@@ -278,74 +285,68 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                                 <li
                                                     key={item.id}
                                                     className={cn(
-                                                        'relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br to-white p-4 shadow-sm sm:p-5',
-                                                        registrationSoftBg(item.registration_status),
+                                                        'rounded-xl border border-slate-200/70 bg-slate-50/50 p-4 shadow-sm sm:p-5',
+                                                        registrationCardBorder(item.registration_status),
                                                     )}
                                                 >
-                                                    <div
-                                                        className={cn('absolute left-3 top-5 bottom-5 w-1 rounded-full sm:left-4', registrationAccentBar(item.registration_status))}
-                                                        aria-hidden
-                                                    />
-                                                    <div className="relative pl-5 sm:pl-6">
-                                                        <div className="flex flex-wrap items-start justify-between gap-3">
-                                                            <div className="min-w-0">
-                                                                <p className="text-base font-semibold text-[#1e3a5f]">{item.package.name}</p>
-                                                                <p className="mt-1.5 text-sm text-slate-600">
-                                                                    {item.full_name} · {item.pax} pax · {item.package.price_display}
-                                                                </p>
-                                                            </div>
-                                                            <Badge className={cn('shrink-0 text-xs font-semibold', statusBadgeClass(item.registration_status))}>
-                                                                {registrationStatusLabel(item.registration_status)}
-                                                            </Badge>
+                                                    <div className="flex flex-wrap items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <p className="text-base font-semibold text-[#1e3a5f]">{item.package.name}</p>
+                                                            <p className="mt-1.5 text-sm text-slate-600">
+                                                                {item.full_name} · {item.pax} pax · {item.package.price_display}
+                                                            </p>
                                                         </div>
-                                                        {item.registration_status === 'approved' ? (
-                                                            <p className="mt-3 text-sm leading-relaxed text-emerald-800">
-                                                                Pendaftaran disetujui — lanjut ke pembayaran. Invoice tersedia di fitur invoice B2C.
-                                                            </p>
-                                                        ) : null}
-                                                        {item.registration_status === 'pending' ? (
-                                                            <p className="mt-3 text-sm leading-relaxed text-amber-900">
-                                                                Sedang ditinjau tim kami. Anda akan dihubungi jika diperlukan informasi tambahan.
-                                                            </p>
-                                                        ) : null}
-                                                        {item.registration_status === 'rejected' ? (
-                                                            <p className="mt-3 text-sm leading-relaxed text-red-800">
-                                                                Pengajuan ditolak{item.notes ? `: ${item.notes}` : '.'}
-                                                            </p>
-                                                        ) : null}
-                                                        <Separator className="my-4 bg-slate-200/70" />
-                                                        <p className="text-xs font-bold uppercase tracking-[0.08em] text-slate-500">Ringkasan progres</p>
-                                                        <dl className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
-                                                            <div className="flex gap-2.5 rounded-xl border border-slate-200/60 bg-white/90 px-3 py-2.5 shadow-sm">
-                                                                <CreditCard className="mt-0.5 size-4 shrink-0 text-slate-400" aria-hidden />
-                                                                <div className="min-w-0">
-                                                                    <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Pembayaran</dt>
-                                                                    <dd className="mt-1 text-sm font-bold text-slate-900">{labelPayment(item.payment_status)}</dd>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex gap-2.5 rounded-xl border border-slate-200/60 bg-white/90 px-3 py-2.5 shadow-sm">
-                                                                <Stamp className="mt-0.5 size-4 shrink-0 text-slate-400" aria-hidden />
-                                                                <div className="min-w-0">
-                                                                    <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Visa</dt>
-                                                                    <dd className="mt-1 text-sm font-bold text-slate-900">{labelVisa(item.visa_status)}</dd>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex gap-2.5 rounded-xl border border-slate-200/60 bg-white/90 px-3 py-2.5 shadow-sm">
-                                                                <Ticket className="mt-0.5 size-4 shrink-0 text-slate-400" aria-hidden />
-                                                                <div className="min-w-0">
-                                                                    <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Tiket</dt>
-                                                                    <dd className="mt-1 text-sm font-bold text-slate-900">{labelTicket(item.ticket_status)}</dd>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex gap-2.5 rounded-xl border border-slate-200/60 bg-white/90 px-3 py-2.5 shadow-sm">
-                                                                <Building2 className="mt-0.5 size-4 shrink-0 text-slate-400" aria-hidden />
-                                                                <div className="min-w-0">
-                                                                    <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Hotel</dt>
-                                                                    <dd className="mt-1 text-sm font-bold text-slate-900">{labelHotel(item.hotel_status)}</dd>
-                                                                </div>
-                                                            </div>
-                                                        </dl>
+                                                        <Badge className={cn('shrink-0 text-xs font-semibold', statusBadgeClass(item.registration_status))}>
+                                                            {registrationStatusLabel(item.registration_status)}
+                                                        </Badge>
                                                     </div>
+                                                    {item.registration_status === 'approved' ? (
+                                                        <p className="mt-3 text-sm leading-relaxed text-emerald-800">
+                                                            Pendaftaran disetujui — lanjut ke pembayaran. Invoice tersedia di fitur invoice B2C.
+                                                        </p>
+                                                    ) : null}
+                                                    {item.registration_status === 'pending' ? (
+                                                        <p className="mt-3 text-sm leading-relaxed text-amber-900">
+                                                            Sedang ditinjau tim kami. Anda akan dihubungi jika diperlukan informasi tambahan.
+                                                        </p>
+                                                    ) : null}
+                                                    {item.registration_status === 'rejected' ? (
+                                                        <p className="mt-3 text-sm leading-relaxed text-red-800">
+                                                            Pengajuan ditolak{item.notes ? `: ${item.notes}` : '.'}
+                                                        </p>
+                                                    ) : null}
+                                                    <Separator className="my-4 bg-slate-200/70" />
+                                                    <p className="text-xs font-bold uppercase tracking-[0.08em] text-slate-500">Ringkasan progres</p>
+                                                    <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                                        <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
+                                                            <CreditCard className="size-4 shrink-0 text-slate-400 sm:mt-0.5" aria-hidden />
+                                                            <div className="min-w-0">
+                                                                <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Pembayaran</dt>
+                                                                <dd className="mt-1 text-sm font-bold text-slate-900">{labelPayment(item.payment_status)}</dd>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
+                                                            <Stamp className="size-4 shrink-0 text-slate-400 sm:mt-0.5" aria-hidden />
+                                                            <div className="min-w-0">
+                                                                <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Visa</dt>
+                                                                <dd className="mt-1 text-sm font-bold text-slate-900">{labelVisa(item.visa_status)}</dd>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
+                                                            <Ticket className="size-4 shrink-0 text-slate-400 sm:mt-0.5" aria-hidden />
+                                                            <div className="min-w-0">
+                                                                <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Tiket</dt>
+                                                                <dd className="mt-1 text-sm font-bold text-slate-900">{labelTicket(item.ticket_status)}</dd>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
+                                                            <Building2 className="size-4 shrink-0 text-slate-400 sm:mt-0.5" aria-hidden />
+                                                            <div className="min-w-0">
+                                                                <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Hotel</dt>
+                                                                <dd className="mt-1 text-sm font-bold text-slate-900">{labelHotel(item.hotel_status)}</dd>
+                                                            </div>
+                                                        </div>
+                                                    </dl>
                                                 </li>
                                             ))}
                                         </ul>
@@ -355,14 +356,14 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
 
                             <div className={cn(cardFooterShell, 'border-teal-100/80 bg-teal-50/50')}>
                                 <p className={footerEyebrowClass}>Aksi untuk jalur wisatawan</p>
-                                <div className={cn(actionButtonRow, 'flex-col-reverse sm:flex-row')}>
-                                    <Button type="button" variant="outline" className={cn(ghostPathButtonClass, 'inline-flex items-center justify-center')} asChild>
-                                        <Link href="/contact" className="text-slate-800 no-underline hover:text-slate-900" aria-label="Hubungi tim Cahaya Anbiya">
+                                <div className={pathActionGrid}>
+                                    <Button type="button" variant="outline" className={cn(ghostPathButtonClass, 'order-2 sm:order-none')} asChild>
+                                        <Link href="/contact" className="w-full text-slate-800 no-underline hover:text-slate-900" aria-label="Hubungi tim Cahaya Anbiya">
                                             Hubungi tim kami
                                         </Link>
                                     </Button>
-                                    <Button type="button" className={cn(ctaOrangeClass, 'inline-flex items-center justify-center')} asChild>
-                                        <Link href="/packages" className="text-white no-underline hover:text-white" aria-label="Buka katalog paket wisata B2C">
+                                    <Button type="button" className={cn(ctaOrangeClass, 'order-1 sm:order-none')} asChild>
+                                        <Link href="/packages" className="w-full text-white no-underline hover:text-white" aria-label="Buka katalog paket wisata B2C">
                                             Lihat & pilih paket wisata
                                         </Link>
                                     </Button>
