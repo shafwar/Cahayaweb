@@ -68,11 +68,16 @@ function b2bStatusPillClass(status: string): string {
     return 'bg-slate-100 text-slate-700 ring-slate-200/60';
 }
 
-/** Left accent — same box language as B2B “Langkah berikutnya” (slate panel + slim accent) */
-function registrationCardBorder(status: RegistrationItem['registration_status']): string {
-    if (status === 'approved') return 'border-l-[3px] border-l-emerald-500';
-    if (status === 'rejected') return 'border-l-[3px] border-l-red-500';
-    return 'border-l-[3px] border-l-amber-400';
+function registrationSoftBg(status: RegistrationItem['registration_status']): string {
+    if (status === 'approved') return 'from-emerald-50/50';
+    if (status === 'rejected') return 'from-red-50/40';
+    return 'from-amber-50/45';
+}
+
+function registrationAccentBar(status: RegistrationItem['registration_status']): string {
+    if (status === 'approved') return 'bg-emerald-500';
+    if (status === 'rejected') return 'bg-red-500';
+    return 'bg-amber-400';
 }
 
 function labelPayment(s: RegistrationItem['payment_status']): string {
@@ -101,37 +106,35 @@ function labelHotel(s: RegistrationItem['hotel_status']): string {
     return s;
 }
 
-/** Footer strip: same vertical rhythm on both path cards */
+/** Isi kartu: padding horizontal seragam dengan footer */
+const cardBodyClass = 'flex min-h-0 flex-1 flex-col px-6 pb-6 pt-6 sm:px-8 sm:pb-8 sm:pt-8';
+
+/** Footer: lebar penuh, tombol sejajar & proporsional */
 const cardFooterShell =
-    'mt-auto -mx-6 border-t border-slate-200/80 bg-slate-50/95 px-6 py-6 sm:-mx-8 sm:px-8 rounded-b-[calc(1rem-1px)]';
+    'mt-auto -mx-0 border-t border-slate-200/80 bg-slate-50/95 px-6 py-7 sm:px-8 sm:py-8 rounded-b-2xl';
 
-const footerEyebrowClass = 'mb-4 border-b border-slate-200/70 pb-3 text-sm font-semibold tracking-wide text-slate-700';
+const actionRowClass = 'grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3';
 
-/** Equal-width actions: full width each row on mobile; strict 50/50 on sm+ */
-const pathActionGrid = 'grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3';
+/** Tombol sekunder — satu gaya untuk semua kartu */
+const btnOutline =
+    'inline-flex h-12 min-h-[48px] w-full min-w-0 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-50';
 
-const pathActionBtnBase =
-    'inline-flex h-12 w-full min-w-0 items-center justify-center gap-2 px-3 text-center text-sm font-semibold leading-snug shadow-sm transition-[background,box-shadow,color]';
+/** Tombol primer B2B — navy, bayangan sama tipisnya dengan B2C */
+const btnPrimaryNavy =
+    'inline-flex h-12 min-h-[48px] w-full min-w-0 items-center justify-center rounded-xl border border-[#1e3a5f]/30 bg-[#1e3a5f] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#274a7a]';
 
-const primaryPathButtonClass = cn(
-    pathActionBtnBase,
-    'rounded-lg border border-[#1e3a5f]/25 bg-[#1e3a5f] text-white hover:bg-[#274a7a]',
-);
+/** Tombol primer B2C — oranye lebih tenang, proporsi sama dengan navy */
+const btnPrimaryBrand =
+    'inline-flex h-12 min-h-[48px] w-full min-w-0 items-center justify-center rounded-xl border border-orange-700/25 bg-gradient-to-b from-[#ff7328] to-[#ea580c] px-4 text-sm font-semibold text-white shadow-sm transition hover:from-[#ff8c42] hover:to-[#f97316]';
 
-const secondaryPathButtonClass = cn(
-    pathActionBtnBase,
-    'rounded-lg border border-slate-300 bg-white text-slate-900 hover:bg-slate-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100',
-);
-
-const ctaOrangeClass = cn(
-    pathActionBtnBase,
-    'rounded-lg border border-[#ea580c]/40 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white shadow-md shadow-orange-900/10 hover:from-[#f97316] hover:to-[#ea580c]',
-);
-
-const ghostPathButtonClass = cn(
-    pathActionBtnBase,
-    'rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 dark:bg-white dark:text-slate-900',
-);
+function PathFooterIntro({ title, hint }: { title: string; hint: string }) {
+    return (
+        <div className="mb-5 max-w-xl">
+            <p className="text-base font-bold leading-snug text-slate-900">{title}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{hint}</p>
+        </div>
+    );
+}
 
 export default function B2cAccount({ registrations, b2bPortal }: { registrations: RegistrationItem[]; b2bPortal: B2bPortalSummary }) {
     const { props } = usePage<{ auth?: { user: User | null } }>();
@@ -154,8 +157,8 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                 <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#1e3a5f] sm:text-4xl">Akun Anda</h1>
                                 <p className="mt-3 text-base leading-relaxed text-slate-600">
                                     Satu login untuk <span className="font-semibold text-slate-800">wisatawan (B2C)</span> dan{' '}
-                                    <span className="font-semibold text-slate-800">agen (B2B)</span>. Gunakan dua kartu di bawah untuk status dan
-                                    aksi cepat per jalur.
+                                    <span className="font-semibold text-slate-800">agen (B2B)</span>. Kartu kiri untuk pengajuan & portal agen; kartu
+                                    kanan untuk pendaftaran paket dan ringkasan progres per pesanan.
                                 </p>
                             </div>
                             {user ? (
@@ -171,16 +174,15 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                     </header>
 
                     <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch lg:gap-8">
-                        {/* B2B — equal height column */}
                         <article
                             className={cn(
-                                'flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 border-l-4 bg-white shadow-[0_20px_50px_-24px_rgba(15,23,42,0.22)] ring-1 ring-slate-100/90',
+                                'flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 border-l-4 bg-white shadow-[0_20px_50px_-24px_rgba(15,23,42,0.2)] ring-1 ring-slate-100/90',
                                 b2bAccentClass(b2bPortal.status),
                             )}
                         >
-                            <div className="flex min-h-0 flex-1 flex-col p-6 sm:p-8">
+                            <div className={cardBodyClass}>
                                 <div className="flex gap-4">
-                                    <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#1e3a5f] text-white shadow-md shadow-[#1e3a5f]/20">
+                                    <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#1e3a5f] text-white shadow-sm">
                                         <Briefcase className="size-6" strokeWidth={1.75} aria-hidden />
                                     </div>
                                     <div className="min-w-0 flex-1">
@@ -212,23 +214,27 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                     </p>
                                 ) : null}
 
+                                <p className="mt-4 text-xs leading-relaxed text-slate-500">
+                                    Setelah disetujui, gunakan email akun ini untuk masuk ke portal B2B (dokumen & komunikasi dengan tim internal).
+                                </p>
+
                                 <Separator className="my-6 bg-slate-200/80" />
 
-                                <div className="rounded-xl border border-slate-200/70 bg-slate-50/50 p-4 sm:p-5">
+                                <div className="rounded-xl border border-slate-200/80 bg-white p-5 sm:p-6">
                                     <p className="text-sm font-bold text-slate-800">Langkah berikutnya</p>
-                                    <ul className="mt-3 space-y-3 text-sm leading-relaxed text-slate-600">
-                                        <li className="flex gap-2.5">
+                                    <ul className="mt-4 space-y-3.5 text-sm leading-relaxed text-slate-600">
+                                        <li className="flex gap-3">
                                             <ChevronRight className="mt-0.5 size-4 shrink-0 text-[#1e3a5f]" aria-hidden />
                                             <span>
-                                                <span className="font-semibold text-slate-800">Pengajuan baru</span> — isi formulir agen bila belum
-                                                pernah mengajukan.
+                                                <span className="font-semibold text-slate-800">Pengajuan baru</span> — lengkapi data perusahaan & unggah
+                                                dokumen pada formulir resmi.
                                             </span>
                                         </li>
-                                        <li className="flex gap-2.5">
+                                        <li className="flex gap-3">
                                             <ChevronRight className="mt-0.5 size-4 shrink-0 text-[#1e3a5f]" aria-hidden />
                                             <span>
-                                                <span className="font-semibold text-slate-800">Sudah disetujui</span> — masuk portal B2B dengan akun
-                                                yang sama.
+                                                <span className="font-semibold text-slate-800">Sudah disetujui</span> — pilih &quot;Masuk portal agen&quot;
+                                                dan login dengan akun yang sama.
                                             </span>
                                         </li>
                                     </ul>
@@ -236,15 +242,18 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                             </div>
 
                             <div className={cardFooterShell}>
-                                <p className={footerEyebrowClass}>Aksi untuk jalur agen</p>
-                                <div className={pathActionGrid}>
-                                    <Button type="button" variant="outline" className={secondaryPathButtonClass} asChild>
-                                        <Link href="/b2b/register" className="w-full text-slate-900 no-underline hover:text-slate-950" aria-label="Buka formulir pengajuan agen B2B">
+                                <PathFooterIntro
+                                    title="Aksi untuk jalur agen"
+                                    hint="Dua tombol di bawah memiliki lebar sama di layar lebar — kiri untuk pengajuan pertama, kanan untuk login portal."
+                                />
+                                <div className={actionRowClass}>
+                                    <Button type="button" variant="outline" className={btnOutline} asChild>
+                                        <Link href="/b2b/register" className="no-underline" aria-label="Buka formulir pengajuan agen B2B">
                                             Form pengajuan agen
                                         </Link>
                                     </Button>
-                                    <Button type="button" className={primaryPathButtonClass} asChild>
-                                        <Link href="/login?mode=b2b&redirect=/b2b" className="w-full text-white no-underline hover:text-white" aria-label="Masuk ke portal agen B2B">
+                                    <Button type="button" className={btnPrimaryNavy} asChild>
+                                        <Link href="/login?mode=b2b&redirect=/b2b" className="text-white no-underline hover:text-white" aria-label="Masuk ke portal agen B2B">
                                             Masuk portal agen
                                         </Link>
                                     </Button>
@@ -252,18 +261,17 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                             </div>
                         </article>
 
-                        {/* B2C — same column stretch + mirrored footer pattern */}
-                        <article className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 border-l-4 border-l-teal-500 bg-gradient-to-br from-teal-50/45 via-white to-white shadow-[0_20px_50px_-24px_rgba(15,23,42,0.22)] ring-1 ring-teal-100/70">
-                            <div className="flex min-h-0 flex-1 flex-col p-6 sm:p-8">
+                        <article className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 border-l-4 border-l-teal-500 bg-gradient-to-br from-teal-50/40 via-white to-white shadow-[0_20px_50px_-24px_rgba(15,23,42,0.2)] ring-1 ring-teal-100/70">
+                            <div className={cardBodyClass}>
                                 <div className="flex gap-4">
-                                    <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-teal-600 text-white shadow-md shadow-teal-800/20">
+                                    <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-teal-600 text-white shadow-sm">
                                         <Plane className="size-6" strokeWidth={1.75} aria-hidden />
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-teal-900/70 sm:text-xs">Jalur wisatawan</p>
                                         <h2 className="mt-1.5 text-xl font-bold leading-snug text-[#1e3a5f] sm:text-[1.35rem]">B2C — Paket wisata</h2>
                                         <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                            Daftar dan pantau pendaftaran paket umroh atau wisata dari katalog.
+                                            Satu baris di bawah menampilkan ringkasan administrasi per pendaftaran (pembayaran hingga hotel).
                                         </p>
                                     </div>
                                 </div>
@@ -276,7 +284,7 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                             </div>
                                             <p className="mt-4 text-base font-semibold text-slate-800">Belum ada pendaftaran paket</p>
                                             <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-600">
-                                                Jelajahi katalog, pilih paket, lalu kirim formulir — riwayat pendaftaran akan tampil di sini.
+                                                Pilih paket di katalog, isi data peserta, lalu kirim — riwayat dan status review akan muncul di kartu ini.
                                             </p>
                                         </div>
                                     ) : (
@@ -285,68 +293,74 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                                 <li
                                                     key={item.id}
                                                     className={cn(
-                                                        'rounded-xl border border-slate-200/70 bg-slate-50/50 p-4 shadow-sm sm:p-5',
-                                                        registrationCardBorder(item.registration_status),
+                                                        'relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br to-white p-5 shadow-sm sm:p-6',
+                                                        registrationSoftBg(item.registration_status),
                                                     )}
                                                 >
-                                                    <div className="flex flex-wrap items-start justify-between gap-3">
-                                                        <div className="min-w-0">
-                                                            <p className="text-base font-semibold text-[#1e3a5f]">{item.package.name}</p>
-                                                            <p className="mt-1.5 text-sm text-slate-600">
-                                                                {item.full_name} · {item.pax} pax · {item.package.price_display}
+                                                    <div
+                                                        className={cn('absolute left-4 top-6 bottom-6 w-1 rounded-full sm:left-5', registrationAccentBar(item.registration_status))}
+                                                        aria-hidden
+                                                    />
+                                                    <div className="relative pl-6 sm:pl-7">
+                                                        <div className="flex flex-wrap items-start justify-between gap-3">
+                                                            <div className="min-w-0">
+                                                                <p className="text-base font-semibold text-[#1e3a5f]">{item.package.name}</p>
+                                                                <p className="mt-2 text-sm text-slate-600">
+                                                                    {item.full_name} · {item.pax} pax · {item.package.price_display}
+                                                                </p>
+                                                            </div>
+                                                            <Badge className={cn('shrink-0 text-xs font-semibold', statusBadgeClass(item.registration_status))}>
+                                                                {registrationStatusLabel(item.registration_status)}
+                                                            </Badge>
+                                                        </div>
+                                                        {item.registration_status === 'approved' ? (
+                                                            <p className="mt-3 text-sm leading-relaxed text-emerald-800">
+                                                                Pendaftaran disetujui — lanjut ke pembayaran. Invoice tersedia di fitur invoice B2C.
                                                             </p>
-                                                        </div>
-                                                        <Badge className={cn('shrink-0 text-xs font-semibold', statusBadgeClass(item.registration_status))}>
-                                                            {registrationStatusLabel(item.registration_status)}
-                                                        </Badge>
+                                                        ) : null}
+                                                        {item.registration_status === 'pending' ? (
+                                                            <p className="mt-3 text-sm leading-relaxed text-amber-900">
+                                                                Sedang ditinjau tim kami. Anda akan dihubungi jika diperlukan informasi tambahan.
+                                                            </p>
+                                                        ) : null}
+                                                        {item.registration_status === 'rejected' ? (
+                                                            <p className="mt-3 text-sm leading-relaxed text-red-800">
+                                                                Pengajuan ditolak{item.notes ? `: ${item.notes}` : '.'}
+                                                            </p>
+                                                        ) : null}
+                                                        <Separator className="my-5 bg-slate-200/70" />
+                                                        <p className="text-xs font-bold uppercase tracking-[0.1em] text-slate-600">Ringkasan progres</p>
+                                                        <dl className="mt-4 grid grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-4">
+                                                            <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
+                                                                <CreditCard className="mt-0.5 size-[18px] shrink-0 text-slate-400 sm:mt-0" aria-hidden />
+                                                                <div className="min-w-0">
+                                                                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Pembayaran</dt>
+                                                                    <dd className="mt-1 text-base font-bold leading-snug text-slate-900">{labelPayment(item.payment_status)}</dd>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
+                                                                <Stamp className="mt-0.5 size-[18px] shrink-0 text-slate-400 sm:mt-0" aria-hidden />
+                                                                <div className="min-w-0">
+                                                                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Visa</dt>
+                                                                    <dd className="mt-1 text-base font-bold leading-snug text-slate-900">{labelVisa(item.visa_status)}</dd>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
+                                                                <Ticket className="mt-0.5 size-[18px] shrink-0 text-slate-400 sm:mt-0" aria-hidden />
+                                                                <div className="min-w-0">
+                                                                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tiket</dt>
+                                                                    <dd className="mt-1 text-base font-bold leading-snug text-slate-900">{labelTicket(item.ticket_status)}</dd>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
+                                                                <Building2 className="mt-0.5 size-[18px] shrink-0 text-slate-400 sm:mt-0" aria-hidden />
+                                                                <div className="min-w-0">
+                                                                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Hotel</dt>
+                                                                    <dd className="mt-1 text-base font-bold leading-snug text-slate-900">{labelHotel(item.hotel_status)}</dd>
+                                                                </div>
+                                                            </div>
+                                                        </dl>
                                                     </div>
-                                                    {item.registration_status === 'approved' ? (
-                                                        <p className="mt-3 text-sm leading-relaxed text-emerald-800">
-                                                            Pendaftaran disetujui — lanjut ke pembayaran. Invoice tersedia di fitur invoice B2C.
-                                                        </p>
-                                                    ) : null}
-                                                    {item.registration_status === 'pending' ? (
-                                                        <p className="mt-3 text-sm leading-relaxed text-amber-900">
-                                                            Sedang ditinjau tim kami. Anda akan dihubungi jika diperlukan informasi tambahan.
-                                                        </p>
-                                                    ) : null}
-                                                    {item.registration_status === 'rejected' ? (
-                                                        <p className="mt-3 text-sm leading-relaxed text-red-800">
-                                                            Pengajuan ditolak{item.notes ? `: ${item.notes}` : '.'}
-                                                        </p>
-                                                    ) : null}
-                                                    <Separator className="my-4 bg-slate-200/70" />
-                                                    <p className="text-xs font-bold uppercase tracking-[0.08em] text-slate-500">Ringkasan progres</p>
-                                                    <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                                                        <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
-                                                            <CreditCard className="size-4 shrink-0 text-slate-400 sm:mt-0.5" aria-hidden />
-                                                            <div className="min-w-0">
-                                                                <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Pembayaran</dt>
-                                                                <dd className="mt-1 text-sm font-bold text-slate-900">{labelPayment(item.payment_status)}</dd>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
-                                                            <Stamp className="size-4 shrink-0 text-slate-400 sm:mt-0.5" aria-hidden />
-                                                            <div className="min-w-0">
-                                                                <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Visa</dt>
-                                                                <dd className="mt-1 text-sm font-bold text-slate-900">{labelVisa(item.visa_status)}</dd>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
-                                                            <Ticket className="size-4 shrink-0 text-slate-400 sm:mt-0.5" aria-hidden />
-                                                            <div className="min-w-0">
-                                                                <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Tiket</dt>
-                                                                <dd className="mt-1 text-sm font-bold text-slate-900">{labelTicket(item.ticket_status)}</dd>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
-                                                            <Building2 className="size-4 shrink-0 text-slate-400 sm:mt-0.5" aria-hidden />
-                                                            <div className="min-w-0">
-                                                                <dt className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Hotel</dt>
-                                                                <dd className="mt-1 text-sm font-bold text-slate-900">{labelHotel(item.hotel_status)}</dd>
-                                                            </div>
-                                                        </div>
-                                                    </dl>
                                                 </li>
                                             ))}
                                         </ul>
@@ -354,16 +368,19 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                 </div>
                             </div>
 
-                            <div className={cn(cardFooterShell, 'border-teal-100/80 bg-teal-50/50')}>
-                                <p className={footerEyebrowClass}>Aksi untuk jalur wisatawan</p>
-                                <div className={pathActionGrid}>
-                                    <Button type="button" variant="outline" className={cn(ghostPathButtonClass, 'order-2 sm:order-none')} asChild>
-                                        <Link href="/contact" className="w-full text-slate-800 no-underline hover:text-slate-900" aria-label="Hubungi tim Cahaya Anbiya">
+                            <div className={cn(cardFooterShell, 'border-teal-100/80 bg-teal-50/45')}>
+                                <PathFooterIntro
+                                    title="Aksi untuk jalur wisatawan"
+                                    hint="Tombol oranye membuka katalog paket; tombol outline untuk menghubungi tim jika ada pertanyaan sebelum mendaftar."
+                                />
+                                <div className={cn(actionRowClass, 'sm:[&>*:first-child]:order-2 sm:[&>*:last-child]:order-1')}>
+                                    <Button type="button" variant="outline" className={btnOutline} asChild>
+                                        <Link href="/contact" className="no-underline" aria-label="Hubungi tim Cahaya Anbiya">
                                             Hubungi tim kami
                                         </Link>
                                     </Button>
-                                    <Button type="button" className={cn(ctaOrangeClass, 'order-1 sm:order-none')} asChild>
-                                        <Link href="/packages" className="w-full text-white no-underline hover:text-white" aria-label="Buka katalog paket wisata B2C">
+                                    <Button type="button" className={btnPrimaryBrand} asChild>
+                                        <Link href="/packages" className="text-white no-underline hover:text-white" aria-label="Buka katalog paket wisata B2C">
                                             Lihat & pilih paket wisata
                                         </Link>
                                     </Button>
