@@ -293,7 +293,7 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                                 <li
                                                     key={item.id}
                                                     className={cn(
-                                                        'relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br to-white p-5 shadow-sm sm:p-6',
+                                                        'relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br to-white p-4 shadow-sm sm:p-5',
                                                         registrationSoftBg(item.registration_status),
                                                     )}
                                                 >
@@ -302,14 +302,14 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                                         aria-hidden
                                                     />
                                                     <div className="relative pl-6 sm:pl-7">
-                                                        <div className="flex flex-wrap items-start justify-between gap-3">
+                                                        <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
                                                             <div className="min-w-0">
                                                                 <p className="text-base font-semibold text-[#1e3a5f]">{item.package.name}</p>
                                                                 <p className="mt-2 text-sm text-slate-600">
                                                                     {item.full_name} · {item.pax} pax · {item.package.price_display}
                                                                 </p>
                                                             </div>
-                                                            <Badge className={cn('shrink-0 text-xs font-semibold', statusBadgeClass(item.registration_status))}>
+                                                            <Badge className={cn('shrink-0 self-start text-xs font-semibold', statusBadgeClass(item.registration_status))}>
                                                                 {registrationStatusLabel(item.registration_status)}
                                                             </Badge>
                                                         </div>
@@ -328,35 +328,35 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                                                 Pengajuan ditolak{item.notes ? `: ${item.notes}` : '.'}
                                                             </p>
                                                         ) : null}
-                                                        <Separator className="my-5 bg-slate-200/70" />
+                                                        <Separator className="my-4 bg-slate-200/70" />
                                                         <p className="text-xs font-bold uppercase tracking-[0.1em] text-slate-600">Ringkasan progres</p>
-                                                        <dl className="mt-4 grid grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-4">
-                                                            <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
-                                                                <CreditCard className="mt-0.5 size-[18px] shrink-0 text-slate-400 sm:mt-0" aria-hidden />
+                                                        <dl className="mt-3 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+                                                            <div className="rounded-xl border border-slate-200/70 bg-white px-3 py-3 shadow-sm">
+                                                                <CreditCard className="size-[16px] text-slate-400" aria-hidden />
                                                                 <div className="min-w-0">
-                                                                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Pembayaran</dt>
-                                                                    <dd className="mt-1 text-base font-bold leading-snug text-slate-900">{labelPayment(item.payment_status)}</dd>
+                                                                    <dt className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Pembayaran</dt>
+                                                                    <dd className="mt-1 text-lg font-bold leading-tight text-slate-900">{labelPayment(item.payment_status)}</dd>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
-                                                                <Stamp className="mt-0.5 size-[18px] shrink-0 text-slate-400 sm:mt-0" aria-hidden />
+                                                            <div className="rounded-xl border border-slate-200/70 bg-white px-3 py-3 shadow-sm">
+                                                                <Stamp className="size-[16px] text-slate-400" aria-hidden />
                                                                 <div className="min-w-0">
-                                                                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Visa</dt>
-                                                                    <dd className="mt-1 text-base font-bold leading-snug text-slate-900">{labelVisa(item.visa_status)}</dd>
+                                                                    <dt className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Visa</dt>
+                                                                    <dd className="mt-1 text-lg font-bold leading-tight text-slate-900">{labelVisa(item.visa_status)}</dd>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
-                                                                <Ticket className="mt-0.5 size-[18px] shrink-0 text-slate-400 sm:mt-0" aria-hidden />
+                                                            <div className="rounded-xl border border-slate-200/70 bg-white px-3 py-3 shadow-sm">
+                                                                <Ticket className="size-[16px] text-slate-400" aria-hidden />
                                                                 <div className="min-w-0">
-                                                                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tiket</dt>
-                                                                    <dd className="mt-1 text-base font-bold leading-snug text-slate-900">{labelTicket(item.ticket_status)}</dd>
+                                                                    <dt className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Tiket</dt>
+                                                                    <dd className="mt-1 text-lg font-bold leading-tight text-slate-900">{labelTicket(item.ticket_status)}</dd>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex gap-3 rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 shadow-sm sm:flex-col sm:px-4 sm:py-3.5">
-                                                                <Building2 className="mt-0.5 size-[18px] shrink-0 text-slate-400 sm:mt-0" aria-hidden />
+                                                            <div className="rounded-xl border border-slate-200/70 bg-white px-3 py-3 shadow-sm">
+                                                                <Building2 className="size-[16px] text-slate-400" aria-hidden />
                                                                 <div className="min-w-0">
-                                                                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Hotel</dt>
-                                                                    <dd className="mt-1 text-base font-bold leading-snug text-slate-900">{labelHotel(item.hotel_status)}</dd>
+                                                                    <dt className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Hotel</dt>
+                                                                    <dd className="mt-1 text-lg font-bold leading-tight text-slate-900">{labelHotel(item.hotel_status)}</dd>
                                                                 </div>
                                                             </div>
                                                         </dl>
