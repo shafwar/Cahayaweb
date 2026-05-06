@@ -1432,5 +1432,17 @@ class AgentVerificationController extends Controller
                 'errors' => $alert['errors'],
             ]);
         }
+
+        $applicantAlert = InboundLeadNotifier::notifyUserB2bApplicationSubmitted(
+            $user,
+            (string) $verification->company_name,
+            $isResubmission
+        );
+        if ($applicantAlert['sent'] === 0) {
+            Log::warning('B2B agent application saved but applicant confirmation email was not delivered.', [
+                'verification_id' => $verification->id,
+                'errors' => $applicantAlert['errors'],
+            ]);
+        }
     }
 }

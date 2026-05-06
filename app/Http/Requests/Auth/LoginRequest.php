@@ -51,7 +51,7 @@ class LoginRequest extends FormRequest
             throw ValidationException::withMessages([
                 'email' => $exists
                     ? 'Password tidak sesuai. Periksa pengetikan Anda atau gunakan tautan “Forgot password”.'
-                    : 'Email ini belum terdaftar. Gunakan tombol Sign up di bawah, atau daftar melalui halaman paket wisata / formulir agen (B2B) terlebih dahulu.',
+                    : 'Akun belum terdaftar. Anda akan diarahkan ke halaman registrasi — atau gunakan tautan Sign up di bawah.',
             ]);
         }
 

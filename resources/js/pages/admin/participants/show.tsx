@@ -22,7 +22,7 @@ import {
     adminTextarea,
 } from '@/lib/admin-portal-theme';
 import { cn } from '@/lib/utils';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, Building2, ClipboardList, CreditCard, ExternalLink, FileText, Globe, Loader2, Plane, Save, UserCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -39,6 +39,10 @@ type Participant = {
     pax: number;
     registration_status: 'pending' | 'approved' | 'rejected';
     payment_status: 'unpaid' | 'waiting_confirmation' | 'paid';
+    payment_proof: string | null;
+    payment_proof_url: string | null;
+    payment_note: string | null;
+    payment_uploaded_at: string | null;
     visa_status: 'not_processed' | 'in_progress' | 'completed';
     ticket_status: 'not_booked' | 'booked';
     hotel_status: 'not_assigned' | 'assigned';
@@ -177,6 +181,29 @@ export default function ParticipantShow({
                                 </Badge>
                             </div>
                             <p className={`mt-2 text-xs ${adminMuted}`}>Badges reflect the form below until you save — then they match the database.</p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                <Button
+                                    type="button"
+                                    className={cn(adminPrimaryBtn, 'px-4 py-2 text-xs')}
+                                    disabled={participant.payment_proof == null || data.payment_status === 'paid'}
+                                    onClick={() =>
+                                        router.post(`/admin/participants/${participant.id}/payment/mark-paid`, {}, { preserveScroll: true })
+                                    }
+                                >
+                                    Mark as Paid
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className={cn(adminGhostBtn, 'px-4 py-2 text-xs')}
+                                    disabled={data.payment_status !== 'waiting_confirmation'}
+                                    onClick={() =>
+                                        router.post(`/admin/participants/${participant.id}/payment/reject`, {}, { preserveScroll: true })
+                                    }
+                                >
+                                    Reject Payment
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -225,7 +252,41 @@ export default function ParticipantShow({
                                 <DefItem label="Registration date" value={formatTs(participant.created_at)} />
                                 <DefItem label="Last updated" value={formatTs(participant.updated_at)} />
                                 <DefItem label="Registration reviewed at" value={formatTs(participant.reviewed_at)} />
+                                <DefItem label="Payment uploaded at" value={formatTs(participant.payment_uploaded_at)} />
+                                <DefItem label="Payment proof path" value={participant.payment_proof ?? ''} mono />
                             </dl>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <div className="px-5 sm:px-6">
+                    <Card className={cn(adminCardLight, 'gap-0 py-0 shadow-md')}>
+                        <CardHeader className="border-b border-slate-100 pb-4 pt-6">
+                            <CardTitle className="flex items-center gap-2 text-lg font-semibold text-[#1e3a5f]">
+                                <CreditCard className="h-5 w-5 text-orange-500" aria-hidden />
+                                Payment proof
+                            </CardTitle>
+                            <p className={adminSectionDesc}>Bukti transfer yang diunggah user untuk verifikasi admin.</p>
+                        </CardHeader>
+                        <CardContent className="space-y-4 pb-6 pt-5">
+                            {participant.payment_proof_url ? (
+                                <a href={participant.payment_proof_url} target="_blank" rel="noreferrer" className="block">
+                                    <img
+                                        src={participant.payment_proof_url}
+                                        alt="Payment proof"
+                                        className="max-h-80 w-full rounded-xl border border-slate-200 object-contain"
+                                    />
+                                </a>
+                            ) : (
+                                <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">
+                                    Belum ada bukti pembayaran diunggah.
+                                </div>
+                            )}
+                            <div className="rounded-xl border border-slate-200 bg-white p-4">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Catatan user saat upload</p>
+                                <p className="mt-2 text-sm text-slate-800">{participant.payment_note || '—'}</p>
+                            </div>
+                            <p className={`text-xs ${adminMuted}`}>Uploaded at: {formatTs(participant.payment_uploaded_at)}</p>
                         </CardContent>
                     </Card>
                 </div>

@@ -28,6 +28,8 @@ type RegisterForm = {
 
 type RegisterPageProps = {
     status?: string;
+    error?: string;
+    auth_flash?: { message?: string } | null;
     b2cPackagePrefill?: { full_name: string; email: string } | null;
     googleOAuthConfigured?: boolean;
 };
@@ -47,6 +49,8 @@ function isDuplicateRegistrationEmailError(message: string | undefined): boolean
 export default function Register() {
     const { url, props } = usePage<RegisterPageProps>();
     const status = props.status;
+    const pageError = props.error;
+    const authFlash = props.auth_flash;
     const b2cPackagePrefill = props.b2cPackagePrefill ?? null;
     const googleOAuthConfigured = props.googleOAuthConfigured ?? false;
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,6 +88,12 @@ export default function Register() {
             email: b2cPackagePrefill.email || prev.email,
         }));
     }, [b2cPackagePrefill]);
+
+    useEffect(() => {
+        const msg = authFlash?.message;
+        if (!msg) return;
+        window.alert(msg);
+    }, [authFlash?.message]);
 
     const mode = new URLSearchParams(url.split('?')[1] || '').get('mode');
     const redirect = new URLSearchParams(url.split('?')[1] || '').get('redirect');
@@ -195,11 +205,19 @@ export default function Register() {
             title={mode === 'b2c' ? 'Buat akun' : 'Create an account'}
             description={
                 mode === 'b2c'
-                    ? 'Gunakan detail berikut untuk akun Anda (satu akun untuk B2C dan B2B). Email harus sama dengan formulir paket.'
+                    ? b2cPackagePrefill
+                        ? 'Gunakan detail berikut untuk akun Anda (satu akun untuk B2C dan B2B). Email harus sama dengan formulir paket.'
+                        : 'Buat satu akun untuk mengajukan paket wisata dan memantau status perjalanan Anda.'
                     : 'Enter your details below to create your account'
             }
         >
             <Head title={mode === 'b2c' ? 'Buat akun' : 'Register'} />
+
+            {pageError ? (
+                <div className="mb-4 rounded-lg border border-red-200 bg-red-50/90 p-3">
+                    <p className="text-sm text-red-800">{pageError}</p>
+                </div>
+            ) : null}
 
             {showEmailAlreadyUsedBanner ? (
                 <div

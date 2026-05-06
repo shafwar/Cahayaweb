@@ -55,6 +55,9 @@ class B2cPackageRegistration extends Model
         'pax',
         'registration_status',
         'payment_status',
+        'payment_proof',
+        'payment_note',
+        'payment_uploaded_at',
         'visa_status',
         'ticket_status',
         'hotel_status',
@@ -71,6 +74,7 @@ class B2cPackageRegistration extends Model
             'terms_accepted_at' => 'datetime',
             'pax' => 'integer',
             'reviewed_at' => 'datetime',
+            'payment_uploaded_at' => 'datetime',
         ];
     }
 

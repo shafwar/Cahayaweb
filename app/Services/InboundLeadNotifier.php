@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Notifications\AdminContactMessageNotification;
 use App\Notifications\AdminNewB2bAgentApplicationNotification;
 use App\Notifications\AdminNewB2cRegistrationNotification;
+use App\Notifications\B2bApplicationSubmittedNotification;
+use App\Notifications\B2cRegistrationReceivedNotification;
 use App\Notifications\WelcomeNewAccountNotification;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
@@ -214,5 +216,102 @@ class InboundLeadNotifier
                 'message' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Participant confirmation after B2C package registration is saved (same moment as admin alert).
+     *
+     * @return array{sent: int, errors: list<string>}
+     */
+    public static function notifyUserB2cRegistrationReceived(B2cPackageRegistration $registration): array
+    {
+        $registration->loadMissing('package');
+        $email = trim((string) $registration->email);
+        if ($email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            Log::warning('InboundLeadNotifier: B2C user confirmation skipped (invalid email).', [
+                'registration_id' => $registration->id,
+            ]);
+
+            return ['sent' => 0, 'errors' => ['invalid_email']];
+        }
+
+        $reg = $registration;
+
+        return self::notifyUserEmailWithRetries(
+            static function () use ($reg, $email): void {
+                NotificationFacade::route('mail', $email)->notify(new B2cRegistrationReceivedNotification($reg));
+            },
+            'b2c_user_registration_received',
+            ['registration_id' => $registration->id, 'to' => $email]
+        );
+    }
+
+    /**
+     * Applicant confirmation after B2B application is saved (alongside admin alert).
+     *
+     * @return array{sent: int, errors: list<string>}
+     */
+    public static function notifyUserB2bApplicationSubmitted(User $user, string $companyName, bool $isResubmission): array
+    {
+        $email = trim((string) $user->email);
+        if ($email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            Log::warning('InboundLeadNotifier: B2B user confirmation skipped (invalid email).', [
+                'user_id' => $user->id,
+            ]);
+
+            return ['sent' => 0, 'errors' => ['invalid_email']];
+        }
+
+        $name = (string) ($user->name ?: $email);
+        $company = trim($companyName) !== '' ? trim($companyName) : 'perusahaan Anda';
+
+        return self::notifyUserEmailWithRetries(
+            static function () use ($user, $name, $company, $isResubmission): void {
+                $user->notify(new B2bApplicationSubmittedNotification($name, $company, $isResubmission));
+            },
+            'b2b_user_application_submitted',
+            ['user_id' => $user->id, 'to' => $email]
+        );
+    }
+
+    /**
+     * @param  callable():void  $send
+     * @param  array<string, mixed>  $logContext
+     * @return array{sent: int, errors: list<string>}
+     */
+    private static function notifyUserEmailWithRetries(callable $send, string $context, array $logContext): array
+    {
+        if (app()->environment('production') && ! self::outboundMailSendsToNetwork()) {
+            Log::critical('InboundLeadNotifier: user email skipped — production mailer is log/array.', array_merge(['context' => $context], $logContext));
+
+            return ['sent' => 0, 'errors' => ['mailer_does_not_send']];
+        }
+
+        $last = '';
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            try {
+                $send();
+                Log::info('InboundLeadNotifier: user email sent.', array_merge(['context' => $context, 'attempt' => $attempt + 1], $logContext));
+
+                return ['sent' => 1, 'errors' => []];
+            } catch (\Throwable $e) {
+                $last = $e->getMessage();
+                Log::warning('InboundLeadNotifier: user email attempt failed.', array_merge([
+                    'context' => $context,
+                    'attempt' => $attempt + 1,
+                    'message' => $last,
+                ], $logContext));
+                if ($attempt < 2) {
+                    usleep(150000 * ($attempt + 1));
+                }
+            }
+        }
+
+        Log::critical('InboundLeadNotifier: user email failed after retries.', array_merge([
+            'context' => $context,
+            'message' => $last,
+        ], $logContext));
+
+        return ['sent' => 0, 'errors' => [$last !== '' ? $last : 'send_failed']];
     }
 }

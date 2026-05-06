@@ -140,6 +140,7 @@ class AuthenticatedSessionController extends Controller
                 'mode' => $request->query('mode'),
                 'redirect' => $request->query('redirect'),
                 'error' => $request->session()->get('error'),
+                'auth_flash' => $request->session()->pull('auth_flash'),
                 'googleOAuthConfigured' => filled(config('services.google.client_id')) && filled(config('services.google.client_secret')),
             ]);
 
@@ -186,6 +187,7 @@ class AuthenticatedSessionController extends Controller
                     'mode' => $request->query('mode'),
                     'redirect' => $request->query('redirect'),
                     'error' => 'An error occurred. Please try again.',
+                    'auth_flash' => null,
                     'googleOAuthConfigured' => filled(config('services.google.client_id')) && filled(config('services.google.client_secret')),
                 ]);
             } catch (\Throwable $fallbackError) {

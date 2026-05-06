@@ -79,12 +79,18 @@ class GoogleAuthController extends Controller
         $mode = $intent['mode'] ?? null;
         $entry = $intent['entry'] ?? 'login';
 
-        if ($mode === 'b2c' && $entry === 'register') {
+        $redirectForIntent = $intent['redirect'] ?? null;
+        $b2cFinalizeOAuth = $mode === 'b2c'
+            && $entry === 'register'
+            && is_string($redirectForIntent)
+            && self::pathIsB2cFinalizeRedirect($redirectForIntent);
+
+        if ($b2cFinalizeOAuth) {
             $pending = $request->session()->get(B2cRegistrationController::SESSION_PENDING_REGISTRATION);
             if (! is_array($pending) || ! isset($pending['participant']['email'])) {
                 return redirect()->route('register', array_filter([
                     'mode' => 'b2c',
-                    'redirect' => $intent['redirect'] ?? null,
+                    'redirect' => $redirectForIntent,
                 ]))->withErrors([
                     'email' => 'Your package registration session expired or was not found. Please submit the package form again.',
                 ]);
@@ -92,7 +98,7 @@ class GoogleAuthController extends Controller
             if (strtolower($email) !== strtolower((string) $pending['participant']['email'])) {
                 return redirect()->route('register', array_filter([
                     'mode' => 'b2c',
-                    'redirect' => $intent['redirect'] ?? null,
+                    'redirect' => $redirectForIntent,
                 ]))->withErrors([
                     'email' => 'Your Google account email must match the one you used on the package registration form.',
                 ]);
@@ -122,11 +128,11 @@ class GoogleAuthController extends Controller
                 || $request->session()->has('b2b_registration_data');
 
             if (! $mayProvisionAccount && $entry === 'login') {
-                return redirect()->route('login', array_filter([
+                return redirect()->route('register', array_filter([
                     'mode' => $intent['mode'] ?? null,
                     'redirect' => $intent['redirect'] ?? null,
-                ]))->withErrors([
-                    'email' => 'Akun Google ini belum terhubung ke Cahaya Anbiya. Silakan daftar dulu (tombol Sign up di halaman login, atau daftar paket / pengajuan agen), baru masuk dengan Google atau email yang sama.',
+                ]))->with('auth_flash', [
+                    'message' => 'Akun belum terdaftar. Silakan buat akun terlebih dahulu, lalu masuk dengan Google atau email yang sama.',
                 ]);
             }
 
@@ -173,7 +179,7 @@ class GoogleAuthController extends Controller
         }
 
         $redirectPath = $intent['redirect'] ?? null;
-        if (($intent['mode'] ?? '') === 'b2c' && $entry === 'register' && is_string($redirectPath)) {
+        if (($intent['mode'] ?? '') === 'b2c' && $entry === 'register' && is_string($redirectPath) && $redirectPath !== '') {
             $pathOnly = self::redirectPathWithoutQuery($redirectPath);
             if ($pathOnly !== null && preg_match('#^/packages/register/[^/]+/finalize$#', $pathOnly)) {
                 return redirect()->to($this->normalizeContinueUrlForRequest($request, $redirectPath));
@@ -296,5 +302,12 @@ class GoogleAuthController extends Controller
         }
 
         return null;
+    }
+
+    private static function pathIsB2cFinalizeRedirect(string $redirect): bool
+    {
+        $path = self::redirectPathWithoutQuery($redirect);
+
+        return $path !== null && preg_match('#^/packages/register/[^/]+/finalize$#', $path) === 1;
     }
 }

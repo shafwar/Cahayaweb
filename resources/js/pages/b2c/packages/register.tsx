@@ -167,8 +167,8 @@ export default function PackageRegister({
                                         <div className="flex-1">
                                             <CardTitle className="text-xl font-bold text-[#1e3a5f] sm:text-2xl">Data peserta</CardTitle>
                                             <CardDescription className="mt-0.5 text-sm text-[#475569] sm:text-base">
-                                                Lengkapi data berikut dengan benar. Setelah Anda mengirim, Anda akan diarahkan ke halaman masuk untuk login atau
-                                                membuat akun, lalu menyelesaikan pengajuan paket.
+                                                Lengkapi data berikut dengan benar. Setelah Anda mengirim, Anda akan diarahkan ke halaman daftar akun (atau masuk
+                                                jika sudah punya akun), lalu menyelesaikan pengajuan paket.
                                             </CardDescription>
                                         </div>
                                     </div>
@@ -374,7 +374,7 @@ export default function PackageRegister({
                                             disabled={processing}
                                             className="h-12 min-w-[12rem] rounded-xl bg-gradient-to-r from-[#ff7a33] via-[#ff5200] to-[#ea580c] px-8 text-sm font-bold text-white shadow-lg hover:brightness-[1.03]"
                                         >
-                                            {processing ? 'Memproses…' : 'Lanjutkan ke akun'}
+                                            {processing ? 'Memproses…' : 'Submit'}
                                         </Button>
                                         <Button type="button" variant="outline" className={secondaryBtnClass} asChild>
                                             <Link href="/packages">Batal & kembali ke paket</Link>

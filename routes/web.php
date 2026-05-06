@@ -10,6 +10,7 @@ use App\Http\Controllers\B2cPageController;
 use App\Http\Controllers\B2cPublicPackageController;
 use App\Http\Controllers\B2cRegistrationApiController;
 use App\Http\Controllers\B2cRegistrationController;
+use App\Http\Controllers\B2cRegistrationPaymentController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\SystemDiagnosticsController;
 use Illuminate\Support\Facades\Route;
@@ -68,6 +69,8 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     Route::get('/admin/participants', [ParticipantManagementController::class, 'index'])->name('admin.participants.index');
     Route::get('/admin/participants/{participant}', [ParticipantManagementController::class, 'show'])->name('admin.participants.show');
     Route::put('/admin/participants/{participant}', [ParticipantManagementController::class, 'update'])->name('admin.participants.update');
+    Route::post('/admin/participants/{participant}/payment/mark-paid', [ParticipantManagementController::class, 'markPaymentPaid'])->name('admin.participants.payment.mark-paid');
+    Route::post('/admin/participants/{participant}/payment/reject', [ParticipantManagementController::class, 'rejectPayment'])->name('admin.participants.payment.reject');
 });
 
 Route::get('/debug', [SystemDiagnosticsController::class, 'debug']);
@@ -116,6 +119,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/packages/register/{b2cTravelPackage}/finalize', [B2cRegistrationController::class, 'finalize'])->name('b2c.packages.register.finalize');
     Route::get('/b2c/registration-submitted/{registration}', [B2cRegistrationController::class, 'submissionComplete'])->name('b2c.packages.submitted');
     Route::get('/b2c/account', [B2cRegistrationController::class, 'account'])->name('b2c.account');
+    Route::post('/b2c/registrations/{registration}/payment-proof', [B2cRegistrationPaymentController::class, 'upload'])->name('b2c.registrations.payment-proof.upload');
 });
 
 Route::middleware('verify.b2b')->group(function () {

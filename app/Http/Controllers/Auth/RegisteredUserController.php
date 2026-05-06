@@ -56,6 +56,9 @@ class RegisteredUserController extends Controller
         return Inertia::render('auth/register', [
             'b2cPackagePrefill' => $b2cPackagePrefill,
             'googleOAuthConfigured' => filled(config('services.google.client_id')) && filled(config('services.google.client_secret')),
+            'status' => $request->session()->get('status'),
+            'error' => $request->session()->get('error'),
+            'auth_flash' => $request->session()->pull('auth_flash'),
         ]);
     }
 
@@ -81,8 +84,10 @@ class RegisteredUserController extends Controller
 
         try {
             $mode = $request->input('mode') ?: $request->query('mode');
+            $redirect = $request->input('redirect') ?: $request->query('redirect');
+            $b2cFinalizeFlow = $mode === 'b2c' && is_string($redirect) && self::pathIsB2cFinalizeRedirect($redirect);
             $b2cPending = null;
-            if ($mode === 'b2c') {
+            if ($b2cFinalizeFlow) {
                 $b2cPending = $request->session()->get(B2cRegistrationController::SESSION_PENDING_REGISTRATION);
                 if (! is_array($b2cPending) || ! isset($b2cPending['participant']['email'])) {
                     return back()->withErrors([
@@ -104,7 +109,7 @@ class RegisteredUserController extends Controller
                 'password.confirmed' => 'Password confirmation does not match.',
             ]);
 
-            if ($mode === 'b2c' && is_array($b2cPending)) {
+            if ($b2cFinalizeFlow && is_array($b2cPending)) {
                 if (strtolower($validated['email']) !== strtolower((string) $b2cPending['participant']['email'])) {
                     throw ValidationException::withMessages([
                         'email' => 'Your email must match the one you used on the package registration form.',

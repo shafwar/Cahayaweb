@@ -10,6 +10,7 @@ use App\Services\B2cPackageRegistrationRegistrar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -95,8 +96,8 @@ class B2cRegistrationController extends Controller
         $user = $request->user();
         if ($user !== null) {
             if (strtolower((string) $user->email) !== strtolower((string) $validated['email'])) {
-                return redirect()->route('login', ['mode' => 'b2c', 'redirect' => $finalizePath])
-                    ->with('error', 'Anda sedang masuk dengan email lain. Keluar atau masuk dengan email yang sama seperti di formulir paket ('.$validated['email'].').');
+                return redirect()->route('register', ['mode' => 'b2c', 'redirect' => $finalizePath])
+                    ->with('error', 'Anda sedang masuk dengan email lain. Keluar atau daftar / masuk dengan email yang sama seperti di formulir paket ('.$validated['email'].').');
             }
 
             return redirect()->to($finalizePath)
@@ -106,10 +107,10 @@ class B2cRegistrationController extends Controller
                 ]);
         }
 
-        return redirect()->route('login', [
+        return redirect()->route('register', [
             'mode' => 'b2c',
             'redirect' => $finalizePath,
-        ])->with('status', 'Masuk atau daftar untuk menyelesaikan pengajuan paket Anda.');
+        ])->with('status', 'Buat akun atau masuk untuk menyelesaikan pengajuan paket Anda.');
     }
 
     /**
@@ -163,17 +164,17 @@ class B2cRegistrationController extends Controller
         $user = $request->user();
         if ($user !== null) {
             if (strtolower((string) $user->email) !== strtolower((string) $participant['email'])) {
-                return redirect()->route('login', ['mode' => 'b2c', 'redirect' => $finalizePath])
-                    ->with('error', 'Anda sedang masuk dengan email lain. Masuk dengan '.$participant['email'].' untuk melanjutkan.');
+                return redirect()->route('register', ['mode' => 'b2c', 'redirect' => $finalizePath])
+                    ->with('error', 'Anda sedang masuk dengan email lain. Daftar atau masuk dengan '.$participant['email'].' untuk melanjutkan.');
             }
 
             return redirect()->to($finalizePath);
         }
 
-        return redirect()->route('login', [
+        return redirect()->route('register', [
             'mode' => 'b2c',
             'redirect' => $finalizePath,
-        ])->with('status', 'Masuk atau daftar untuk menyelesaikan pengajuan paket Anda.');
+        ])->with('status', 'Buat akun atau masuk untuk menyelesaikan pengajuan paket Anda.');
     }
 
     public function finalize(Request $request, B2cTravelPackage $b2cTravelPackage, B2cPackageRegistrationRegistrar $registrar): RedirectResponse
@@ -232,12 +233,12 @@ class B2cRegistrationController extends Controller
                 Auth::logout();
                 $request->session()->regenerateToken();
 
-                return redirect()->route('login', [
+                return redirect()->route('register', [
                     'mode' => 'b2c',
                     'redirect' => route('b2c.packages.register.finalize', ['b2cTravelPackage' => $b2cTravelPackage->slug], false),
                 ])
                     ->withErrors($errs)
-                    ->with('error', 'Email akun tidak cocok dengan formulir paket. Silakan masuk dengan akun yang benar.');
+                    ->with('error', 'Email akun tidak cocok dengan formulir paket. Silakan daftar atau masuk dengan akun yang sesuai email di formulir.');
             }
 
             $request->session()->forget(self::SESSION_PENDING_REGISTRATION);
@@ -299,6 +300,10 @@ class B2cRegistrationController extends Controller
                     'id' => $r->id,
                     'registration_status' => $r->registration_status,
                     'payment_status' => $r->payment_status,
+                    'payment_proof' => $r->payment_proof,
+                    'payment_proof_url' => $r->payment_proof ? Storage::url($r->payment_proof) : null,
+                    'payment_note' => $r->payment_note,
+                    'payment_uploaded_at' => $r->payment_uploaded_at?->toIso8601String(),
                     'visa_status' => $r->visa_status,
                     'ticket_status' => $r->ticket_status,
                     'hotel_status' => $r->hotel_status,

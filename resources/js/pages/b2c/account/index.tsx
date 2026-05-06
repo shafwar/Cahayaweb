@@ -5,8 +5,9 @@ import SeoHead from '@/components/SeoHead';
 import PublicLayout from '@/layouts/public-layout';
 import { cn } from '@/lib/utils';
 import type { User } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Briefcase, Building2, ChevronRight, CreditCard, Package, Plane, Sparkles, Stamp, Ticket } from 'lucide-react';
+import { useState } from 'react';
 
 type B2bPortalSummary = {
     has_application: boolean;
@@ -23,6 +24,10 @@ type RegistrationItem = {
     ticket_status: 'not_booked' | 'booked';
     hotel_status: 'not_assigned' | 'assigned';
     notes?: string | null;
+    payment_proof?: string | null;
+    payment_proof_url?: string | null;
+    payment_note?: string | null;
+    payment_uploaded_at?: string | null;
     reviewed_at?: string | null;
     created_at?: string | null;
     pax: number;
@@ -139,6 +144,26 @@ function PathFooterIntro({ title, hint }: { title: string; hint: string }) {
 export default function B2cAccount({ registrations, b2bPortal }: { registrations: RegistrationItem[]; b2bPortal: B2bPortalSummary }) {
     const { props } = usePage<{ auth?: { user: User | null } }>();
     const user = props.auth?.user ?? null;
+    const [uploadForId, setUploadForId] = useState<number | null>(null);
+
+    const paymentUploadForm = useForm<{
+        payment_proof: File | null;
+        payment_note: string;
+    }>({
+        payment_proof: null,
+        payment_note: '',
+    });
+
+    const submitPaymentProof = (registrationId: number) => {
+        paymentUploadForm.post(route('b2c.registrations.payment-proof.upload', { registration: registrationId }), {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                paymentUploadForm.reset();
+                setUploadForId(null);
+            },
+        });
+    };
 
     return (
         <PublicLayout>
@@ -308,6 +333,9 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                                                 <p className="mt-2 text-sm text-slate-600">
                                                                     {item.full_name} · {item.pax} pax · {item.package.price_display}
                                                                 </p>
+                                                                <p className="mt-1 text-xs text-slate-500">
+                                                                    Booking: {registrationStatusLabel(item.registration_status)} · Payment: {labelPayment(item.payment_status)}
+                                                                </p>
                                                             </div>
                                                             <Badge className={cn('shrink-0 self-start text-xs font-semibold', statusBadgeClass(item.registration_status))}>
                                                                 {registrationStatusLabel(item.registration_status)}
@@ -328,6 +356,100 @@ export default function B2cAccount({ registrations, b2bPortal }: { registrations
                                                                 Pengajuan ditolak{item.notes ? `: ${item.notes}` : '.'}
                                                             </p>
                                                         ) : null}
+
+                                                        {item.payment_status === 'waiting_confirmation' ? (
+                                                            <div className="mt-3 rounded-lg border border-sky-200 bg-sky-50 p-3 text-xs text-sky-900">
+                                                                Bukti pembayaran sudah diunggah pada akun ini dan sedang menunggu verifikasi admin.
+                                                            </div>
+                                                        ) : null}
+
+                                                        {item.payment_status === 'paid' ? (
+                                                            <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
+                                                                Pembayaran telah diverifikasi admin.
+                                                            </div>
+                                                        ) : null}
+
+                                                        {item.payment_status === 'unpaid' && item.registration_status === 'approved' ? (
+                                                            <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 sm:p-4">
+                                                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                                                    <p className="text-sm font-semibold text-slate-800">My Registration / My Booking</p>
+                                                                    <Button
+                                                                        type="button"
+                                                                        variant="outline"
+                                                                        className="h-9 border-orange-300 text-xs font-semibold text-orange-700 hover:bg-orange-50"
+                                                                        onClick={() => {
+                                                                            setUploadForId((prev) => (prev === item.id ? null : item.id));
+                                                                            paymentUploadForm.clearErrors();
+                                                                        }}
+                                                                    >
+                                                                        Upload Payment Proof
+                                                                    </Button>
+                                                                </div>
+
+                                                                {uploadForId === item.id ? (
+                                                                    <form
+                                                                        className="mt-3 space-y-3"
+                                                                        onSubmit={(e) => {
+                                                                            e.preventDefault();
+                                                                            submitPaymentProof(item.id);
+                                                                        }}
+                                                                    >
+                                                                        <div>
+                                                                            <label className="mb-1 block text-xs font-medium text-slate-700">Bukti pembayaran (JPG/PNG)</label>
+                                                                            <input
+                                                                                type="file"
+                                                                                accept="image/jpeg,image/png"
+                                                                                onChange={(e) =>
+                                                                                    paymentUploadForm.setData('payment_proof', e.currentTarget.files?.[0] ?? null)
+                                                                                }
+                                                                                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-700"
+                                                                            />
+                                                                            {paymentUploadForm.errors.payment_proof ? (
+                                                                                <p className="mt-1 text-xs text-red-600">{paymentUploadForm.errors.payment_proof}</p>
+                                                                            ) : null}
+                                                                        </div>
+                                                                        <div>
+                                                                            <label className="mb-1 block text-xs font-medium text-slate-700">Catatan (opsional)</label>
+                                                                            <textarea
+                                                                                rows={3}
+                                                                                value={paymentUploadForm.data.payment_note}
+                                                                                onChange={(e) => paymentUploadForm.setData('payment_note', e.target.value)}
+                                                                                placeholder="Contoh: transfer via BCA, nama pengirim ..."
+                                                                                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-700"
+                                                                            />
+                                                                            {paymentUploadForm.errors.payment_note ? (
+                                                                                <p className="mt-1 text-xs text-red-600">{paymentUploadForm.errors.payment_note}</p>
+                                                                            ) : null}
+                                                                        </div>
+                                                                        <div className="flex flex-wrap gap-2">
+                                                                            <Button
+                                                                                type="submit"
+                                                                                className="h-9 bg-[#1e3a5f] px-4 text-xs font-semibold text-white hover:bg-[#274a7a]"
+                                                                                disabled={paymentUploadForm.processing}
+                                                                            >
+                                                                                {paymentUploadForm.processing ? 'Uploading...' : 'Kirim bukti pembayaran'}
+                                                                            </Button>
+                                                                            <Button
+                                                                                type="button"
+                                                                                variant="outline"
+                                                                                className="h-9 px-4 text-xs"
+                                                                                onClick={() => setUploadForId(null)}
+                                                                                disabled={paymentUploadForm.processing}
+                                                                            >
+                                                                                Batal
+                                                                            </Button>
+                                                                        </div>
+                                                                    </form>
+                                                                ) : null}
+                                                            </div>
+                                                        ) : null}
+
+                                                        {item.payment_status === 'unpaid' && item.registration_status !== 'approved' ? (
+                                                            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                                                                Upload bukti pembayaran akan tersedia setelah status pendaftaran Anda disetujui admin.
+                                                            </div>
+                                                        ) : null}
+
                                                         <Separator className="my-4 bg-slate-200/70" />
                                                         <p className="text-xs font-bold uppercase tracking-[0.1em] text-slate-600">Ringkasan progres</p>
                                                         <dl className="mt-3 grid grid-cols-2 gap-2.5 lg:grid-cols-4">

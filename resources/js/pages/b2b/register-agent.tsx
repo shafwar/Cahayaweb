@@ -1313,7 +1313,7 @@ export default function RegisterAgent({ isGuest, rejectedVerification }: Props) 
                                                 Uploading &amp; processing…
                                             </span>
                                         ) : (
-                                            'Submit Application'
+                                            'Submit'
                                         )}
                                     </Button>
                                     {isSubmitting && (

@@ -100,6 +100,13 @@ class B2cPackageRegistrationRegistrar
                     'errors' => $alert['errors'],
                 ]);
             }
+            $userMail = InboundLeadNotifier::notifyUserB2cRegistrationReceived($registrationModel);
+            if ($userMail['sent'] === 0) {
+                Log::warning('B2C package registration saved but participant confirmation email was not delivered.', [
+                    'registration_id' => $registrationModel->id,
+                    'errors' => $userMail['errors'],
+                ]);
+            }
         }
 
         if ($welcomeUserId !== null) {
@@ -182,12 +189,22 @@ class B2cPackageRegistrationRegistrar
             return $record;
         });
 
-        $alert = InboundLeadNotifier::notifyAdminsB2cRegistration($record->fresh(['package']));
+        $fresh = $record->fresh(['package']);
+        $alert = InboundLeadNotifier::notifyAdminsB2cRegistration($fresh);
         if ($alert['sent'] === 0) {
             Log::warning('B2C package registration (authenticated) saved but admin inbox alert was not delivered.', [
                 'registration_id' => $record->id,
                 'errors' => $alert['errors'],
             ]);
+        }
+        if ($fresh instanceof B2cPackageRegistration) {
+            $userMail = InboundLeadNotifier::notifyUserB2cRegistrationReceived($fresh);
+            if ($userMail['sent'] === 0) {
+                Log::warning('B2C package registration (authenticated) saved but participant confirmation email was not delivered.', [
+                    'registration_id' => $record->id,
+                    'errors' => $userMail['errors'],
+                ]);
+            }
         }
 
         return $record;

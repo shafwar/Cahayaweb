@@ -9,6 +9,7 @@ use App\Services\RegistrationReviewNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -155,6 +156,10 @@ class ParticipantManagementController extends Controller
                 'pax' => $participant->pax,
                 'registration_status' => $participant->registration_status,
                 'payment_status' => $participant->payment_status,
+                'payment_proof' => $participant->payment_proof,
+                'payment_proof_url' => $participant->payment_proof ? Storage::url($participant->payment_proof) : null,
+                'payment_note' => $participant->payment_note,
+                'payment_uploaded_at' => $participant->payment_uploaded_at?->toIso8601String(),
                 'visa_status' => $participant->visa_status,
                 'ticket_status' => $participant->ticket_status,
                 'hotel_status' => $participant->hotel_status,
@@ -222,6 +227,55 @@ class ParticipantManagementController extends Controller
         return back()->with('flash', [
             'type' => 'success',
             'message' => 'Data peserta berhasil diperbarui.',
+        ]);
+    }
+
+    public function markPaymentPaid(B2cPackageRegistration $participant): RedirectResponse
+    {
+        if (! in_array($participant->payment_status, ['waiting_confirmation', 'unpaid'], true)) {
+            return back()->with('flash', [
+                'type' => 'error',
+                'message' => 'Status pembayaran ini tidak dapat ditandai paid.',
+            ]);
+        }
+
+        if ($participant->payment_proof === null || $participant->payment_proof === '') {
+            return back()->with('flash', [
+                'type' => 'error',
+                'message' => 'Belum ada bukti pembayaran yang diunggah pengguna.',
+            ]);
+        }
+
+        $participant->forceFill([
+            'payment_status' => 'paid',
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ])->save();
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => 'Pembayaran ditandai paid.',
+        ]);
+    }
+
+    public function rejectPayment(B2cPackageRegistration $participant): RedirectResponse
+    {
+        if ($participant->payment_status !== 'waiting_confirmation') {
+            return back()->with('flash', [
+                'type' => 'error',
+                'message' => 'Hanya pembayaran yang menunggu konfirmasi yang bisa direject.',
+            ]);
+        }
+
+        $participant->forceFill([
+            'payment_status' => 'unpaid',
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ])->save();
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => 'Pembayaran direject dan dikembalikan ke unpaid.',
         ]);
     }
 }

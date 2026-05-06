@@ -1,6 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { Eye, EyeOff, LoaderCircle } from 'lucide-react';
-import { FormEventHandler, useEffect, useState } from 'react';
+import { FormEventHandler, useEffect, useRef, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -27,14 +27,16 @@ interface LoginProps {
     mode?: 'b2b' | 'b2c' | 'admin';
     redirect?: string;
     error?: string;
+    auth_flash?: { message?: string } | null;
     googleOAuthConfigured?: boolean;
 }
 
-export default function Login({ status, canResetPassword, mode, redirect, error, googleOAuthConfigured }: LoginProps) {
+export default function Login({ status, canResetPassword, mode, redirect, error, auth_flash, googleOAuthConfigured }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false);
     const [csrfTokenRefreshed, setCsrfTokenRefreshed] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false); // Local loading state for better control
     const [hasPreviousError, setHasPreviousError] = useState(false); // Track if there was a previous error
+    const unregisteredRedirectDone = useRef(false);
     const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
         email: '',
         password: '',
@@ -122,6 +124,26 @@ export default function Login({ status, canResetPassword, mode, redirect, error,
             }
         }
     }, []); // Run once on mount
+
+    useEffect(() => {
+        const msg = auth_flash?.message;
+        if (!msg) return;
+        window.alert(msg);
+    }, [auth_flash?.message]);
+
+    useEffect(() => {
+        if (mode === 'admin') return;
+        const msg = errors.email;
+        if (!msg || unregisteredRedirectDone.current) return;
+        if (!msg.includes('Akun belum terdaftar')) return;
+        unregisteredRedirectDone.current = true;
+        window.alert('Akun belum terdaftar');
+        const q = new URLSearchParams();
+        if (mode) q.set('mode', mode);
+        if (redirect) q.set('redirect', redirect);
+        const qs = q.toString();
+        router.visit(qs ? `/register?${qs}` : '/register');
+    }, [errors.email, mode, redirect]);
 
     // Track when errors occur
     useEffect(() => {
